@@ -1,5 +1,5 @@
 ### Codepen Example
-Checkout our live [codepen](http://codepen.io/MarkitOnDemand/pen/mVarxm) documentation.
+Check out our live [codepen](http://codepen.io/MarkitOnDemand/pen/mVarxm) documentation.
 
 ##### Table Of Contents
 
