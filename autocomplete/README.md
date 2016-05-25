@@ -1,5 +1,5 @@
 ### Code Example
-Checkout our live [codepen](http://codepen.io/MarkitOnDemand/pen/eZmbpj) documentation.
+Check out our live [codepen](http://codepen.io/MarkitOnDemand/pen/eZmbpj) documentation.
 
 ### Table of Contents
 1. **Features**
