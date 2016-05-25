@@ -1,5 +1,5 @@
 ### Codepen Example
-Checkout our live [codepen](http://codepen.io/MarkitOnDemand/pen/YwRRwg) documentation.
+Check out our live [codepen](http://codepen.io/MarkitOnDemand/pen/YwRRwg) documentation.
 
 ##### Table of Contents
 1. **Features**
