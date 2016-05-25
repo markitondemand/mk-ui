@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Title of the document</title>
+		<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+		<link type="text/css" rel="stylesheet" href="mk-autocomplete.css" />
+		<link type="text/css" rel="stylesheet" href="mk-dynocheckbox.css" />
+	</head>
+	<body>
+		<div class="container">
+			<form>
+				<div class="row">
+					<div class="col-sm-4">
+						<fieldset class="mk-autocomplete">
+							<input type="text" 
+									name="test"
+									placeholder="Enter a symbol" 
+									data-selections="2" />
+						</fieldset>
+					</div>
+				</div>
+			</form>
+		</div>
+		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="../base/mk-component.js"></script>
+		<script src="mk-autocomplete.js"></script>
+		<script>
+
+			$(function() {
+
+				$('.mk-autocomplete').mkautocomplete({
+					data: [
+						{
+							"name": "Google",
+							"value": "GOOG"
+						},
+						{
+							"name": "Microsoft Corp.",
+							"value": "MSFT"
+						},
+						{
+							"name": "Agent No. 5",
+							"value": "AA"
+						},
+						{
+							"name": "Zumiez Skate Shop",
+							"value": "ZUMZ"
+						},
+						{
+							"name": "Labyrinth Designs",
+							"value": "LAB"
+						},
+						{
+							"name": "Secret Society of Madness",
+							"value": "ILUM"
+						}
+					]
+				});
+			});
+
+			$('.mk-autocomplete').on('change.mk-autocomplete', function(e, selections) {
+				console.info('change');
+			});
+
+			$('.mk-autocomplete').on('submit.mk-autocomplete', function(e, selections) {
+				console.info('submit');
+			});
+
+			$('.mk-autocomplete').on('capacity.mk-autocomplete', function(e, selections) {
+				console.info('capacity');
+			});
+
+
+		</script>
+	</body>
+</html>

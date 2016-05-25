@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Title of the document</title>
+		<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+		<link type="text/css" rel="stylesheet" href="mk-loader.css" />
+	</head>
+	<body>
+		<div class="container">
+  			<div class="panel">
+   				<div class="panel-heading">
+      				<h2 class="panel-title">Title</h2>
+    			</div>
+    			<div class="panel-body">
+				      <p>Accusamus kale chips yuccie, portland cronut bitters voluptate 90's tempor selvage street art chia occupy mollit. Laboris four dollar toast banjo, polaroid humblebrag shabby chic helvetica 8-bit truffaut chicharrones freegan try-hard asymmetrical odio kickstarter. Waistcoat readymade next level ennui yuccie consectetur. You probably haven't heard of them nihil ullamco, nulla gentrify brunch microdosing leggings pickled knausgaard. Et lo-fi minim freegan fashion axe master cleanse. Ethical quinoa bushwick asymmetrical tempor. Selfies polaroid wayfarers do consectetur, hoodie occupy forage ullamco tattooed health goth selvage keffiyeh.</p>
+				      <p>Affogato hella cray et meggings, chambray kale chips hammock kombucha sustainable cronut commodo salvia franzen craft beer. Est velit vinyl intelligentsia. Meggings kickstarter meditation, freegan laborum microdosing affogato chartreuse plaid et fap gochujang hashtag. Kale chips chartreuse occaecat street art heirloom biodiesel, anim direct trade blue bottle typewriter gochujang cronut pinterest eiusmod venmo. Pabst tilde dreamcatcher fixie DIY, sint chartreuse biodiesel shoreditch YOLO. Locavore small batch 90's pariatur voluptate ea. Consequat bitters thundercats, pinterest gastropub YOLO crucifix cray heirloom austin biodiesel next level man bun.</p>
+    			</div>
+			    <div class="panel-footer">
+			      <button id="bacon" class="btn btn-primary">Load Bacon Text</button>
+			      <button id="hipster" class="btn btn-primary">Load Hipster Text</button>
+			    </div>
+  			</div>
+		</div>
+		<script src="../jquery.js"></script>
+		<script src="../base/mk-component.js"></script>
+		<script src="mk-loader.js"></script>
+		<script>
+
+			function replaceHipster() {
+				$('.panel-body').html(
+					'<p>' + 'Bacon ipsum dolor amet swine ham hock turkey shank short loin alcatra pork loin meatloaf short ribs shoulder rump flank picanha. Hamburger short loin meatloaf tenderloin cupim jowl. Jowl boudin sausage short loin kielbasa.V enison hamburger filet mignon andouille porchetta chicken short ribs pork loin swine.' + '</p>' +
+					'<p>' + 'Andouille strip steak shankle doner. Drumstick venison chuck beef kevin leberkas. Prosciutto frankfurter brisket sausage ball tip, jowl ham short loin andouille shoulder salami tongue bacon pastrami meatloaf. Tenderloin spare ribs jowl, short ribs tongue sirloin ribeye meatball pork loin turkey cupim t-bone pastrami. Turducken beef ribs cupim ground round pork belly brisket filet mignon biltong leberkas swine pig. Pig doner tenderloin spare ribs turkey corned beef sausage brisket pastrami short loin.' + '</p>'
+				);
+			}
+
+			function replaceBacon() {
+				$('.panel-body').html(
+					'<p>' + 'Accusamus kale chips yuccie, portland cronut bitters voluptate 90\'s tempor selvage street art chia occupy mollit. Laboris four <a href="http://www.google.com">dollar</a> toast banjo, polaroid humblebrag shabby chic helvetica 8-bit truffaut chicharrones freegan try-hard asymmetrical odio kickstarter. Waistcoat readymade next level ennui yuccie consectetur. You probably haven\'t heard of them nihil ullamco, nulla gentrify brunch microdosing leggings pickled knausgaard. Et lo-fi minim freegan fashion axe master cleanse. Ethical quinoa bushwick asymmetrical tempor. Selfies polaroid wayfarers do consectetur, hoodie occupy forage ullamco tattooed health goth selvage keffiyeh.' + '</p>' + 
+					'<p>' + 'Affogato hella cray et meggings, chambray kale chips hammock kombucha sustainable cronut commodo salvia franzen craft beer. Est velit vinyl intelligentsia. Meggings kickstarter meditation, freegan laborum microdosing affogato chartreuse plaid et fap gochujang hashtag. Kale chips chartreuse occaecat street art heirloom biodiesel, anim direct trade blue bottle typewriter gochujang cronut pinterest eiusmod venmo. Pabst tilde dreamcatcher fixie DIY, sint chartreuse biodiesel shoreditch YOLO. Locavore small batch 90\'s pariatur voluptate ea. Consequat bitters thundercats, pinterest gastropub YOLO crucifix cray heirloom austin biodiesel next level man bun.' + '</p>'
+				);
+			}
+
+			$(function() {
+
+				var $panel = $('.panel-body'),
+					 timer = null;
+
+				function loadContent(cb) {
+				
+					if (timer) {
+						clearTimeout(timer);
+						timer = null;
+					}
+
+					$panel.mkloader(true);
+
+					setTimeout(function() { 
+						cb(); 
+						$panel.mkloader(false, true) 
+					}, 5000);
+				}
+
+				$('#hipster').on('click', function() {
+					loadContent(replaceBacon);
+				});
+
+				$('#bacon').on('click', function() {
+					loadContent(replaceHipster);
+				});
+			});
+
+		</script>
+	</body>
+</html>

@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Title of the document</title>
+		<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+		<link type="text/css" rel="stylesheet" href="mk-datepicker.css" />
+	</head>
+	<body>
+		<div class="container">
+			<form>
+				<div class="row">
+					<div class="col-sm-4">
+						<fieldset class="mk-datepicker-container">
+     						<label for="start-date">Date Picker</label>
+      						<input type="text" 
+      								readonly 
+      								id="start-date" 
+      								name="start-date" 
+      								placeholder="Choose Date" 
+      								class="mk-datepicker-trigger"
+      								data-max="05/31/2016"
+      								data-min="04/10/2016" 
+      								data-popup="false" 
+      								data-format="mm/dd/yyyy" />
+    					</fieldset>
+					</div>
+					<div class="col-sm-4">
+						<fieldset class="mk-datepicker-container">
+     						<label for="start-date">Date Picker</label>
+      						<input type="text" 
+      								id="end-date" 
+      								name="start-date" 
+      								placeholder="Choose Date" 
+      								class="mk-datepicker-trigger"
+      								data-min="#start-date" 
+      								data-format="dddd mmmm dd, yyyy" />
+    					</fieldset>
+					</div>
+				</div>
+			</form>
+		</div>
+		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="../base/mk-component.js"></script>
+		<script src="mk-datepicker-1.0.js"></script>
+		<script type="text/javascript">
+
+			$(function(){
+				$('.mk-datepicker-trigger').mkdatepicker();
+			});
+		</script>
+	</body>
+</html>

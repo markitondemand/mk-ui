@@ -1,0 +1,114 @@
+
+.mk-autocomplete {
+	border: 1px solid #666;
+	padding: 10px;
+	position: relative;
+}
+
+.mk-autocomplete.focused {
+	border-color: #0097cf;
+}
+
+.mk-autocomplete.capacity {
+	border-color: red;
+}
+
+.mk-autocomplete.capacity:after {
+	content: '!';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: red;
+    border-radius: 80%;
+    color: #ffffff;
+    text-align: center;
+    right: -25px;
+    top: 50%;
+    margin-top: -10px;
+}
+
+.mk-autocomplete.loading:after {
+	content: 'loading...';
+	position: absolute;
+	top: 100%;
+	margin-top: 10px;
+	font-size: 11px;
+	right: 0;
+	color: green;
+}
+
+.mk-autocomplete > input {
+	border-width: 0;
+	width: 100%;
+}
+
+.mk-autocomplete > input:focus {
+	outline: none;
+}
+
+.mk-autocomplete-list-container {
+	background: #ffffff;
+	border: 1px solid #ccc;
+	border-width: 0 1px 1px 1px;
+	list-style: none;
+	margin: 1px 0 0 0;
+	padding: 0;
+	position: absolute;
+	top: 100%;
+	left: -1px;
+	right: -1px;
+	z-index: 1;
+}
+
+.mk-autocomplete-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.mk-autocomplete-list-container.aria-hidden {
+	display: none;
+}
+
+.mk-autocomplete-item {
+	color: #ff6c70;
+	cursor: pointer;
+	font-weight: bold;
+	padding: 5px 10px;
+}
+
+.mk-autocomplete-item.active,
+.mk-autocomplete-item:hover {
+	background: #ffc6c8;
+	color: #fff;
+}
+
+.mk-autocomplete-highlight {
+	font-weight: bold;
+	color: #666;
+}
+
+.mk-autocomplete-label {
+	display: inline-block;
+	margin-right: 10px;
+}
+
+.mk-autocomplete-label [data-action="remove"] {
+	background: #ffc6c8;
+	border-radius: 80%;
+	cursor: pointer;
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	margin-right: 5px;
+	padding: 10px;
+	position: relative;
+}
+
+.mk-autocomplete-label [data-action="remove"]:after {
+	content: '\2716';
+	color: #666;
+	position: absolute;
+	top: 0;
+    left: 4px;
+}

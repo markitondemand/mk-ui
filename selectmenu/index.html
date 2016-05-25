@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Title of the document</title>
+		<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+		<link type="text/css" rel="stylesheet" href="mk-selectmenu.css" />
+		<style>
+			.mk-selectmenu,
+			.mk-selectmenu-trigger {
+				display: block;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Select Box Test</h1>
+		<div class="container">
+			<form>
+				<div class="row">
+					<div class="col-sm-4">
+						<div class="mk-selectmenu-container">
+							<select class="mk-selectmenu" data-label="test" multiple data-reset>
+								<option class="icon" value="0">Option 1</option>
+								<option value="1" selected>Option 2</option>
+								<option value="2">Option 3</option>
+								<option data-alt-text="This is a test" value="3">Option 4</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+		<script src="../jquery.js"></script>
+		<script src="../base/mk-component.js"></script>
+		<script src="mk-selectmenu-1.0.js"></script>
+		<script>
+
+			$(function() {
+				$('.mk-selectmenu').mkselectmenu();
+			});
+
+		</script>
+	</body>
+</html>

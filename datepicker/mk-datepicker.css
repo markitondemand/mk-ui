@@ -1,0 +1,185 @@
+.mk-datepicker-container {
+  position: relative;
+}
+
+.mk-datepicker-trigger {
+  border: 1px solid #cdd0cc;
+  display: block;
+  text-align: center;
+  width: 100%;
+}
+
+.mk-datepicker-trigger.inline {
+  border-bottom-width: 0;
+}
+
+.mk-datepicker-trigger[readonly] {
+  background: transparent;
+  border-width: 0;
+  font-weight: bold;
+}
+
+.mk-datepicker-trigger.inline[readonly] {
+  background: #ffffff;
+  border-width: 1px 1px 0 1px;
+}
+
+/* cannot combine these due to vendox prefix issues */
+
+.mk-datepicker-trigger[readonly]::-webkit-input-placeholder {
+   color: #ff6c70;
+}
+.mk-datepicker-trigger[readonly]:-moz-placeholder {
+   color: #ff6c70;  
+}
+.mk-datepicker-trigger[readonly]::-moz-placeholder { 
+   color: #ff6c70;  
+}
+.mk-datepicker-trigger[readonly]:-ms-input-placeholder {  
+   color: #ff6c70;  
+}
+
+.mk-datepicker {
+  background-color: #f0f0f0;
+  border: 1px solid #cdd0cc;
+  left: 0;
+  padding: 10px;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  z-index: 3;
+}
+
+.mk-datepicker.inline {
+  background: #fff;
+  position: relative;
+  border-width: 0 1px 1px 1px;
+}
+
+.mk-datepicker.aria-hidden {
+  display: none;
+}
+
+.mk-datepicker-controls {
+  padding-bottom: 10px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+}
+
+.mk-datepicker-label {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.mk-datepicker-calendar {
+  width: 100%;
+  font-size: 12px;
+  margin-top: 30px;
+  text-align: center;
+}
+
+.mk-datepicker-header {
+  border-bottom: 1px solid #cdd0cc;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.mk-datepicker-header abbr {
+  border-bottom: none;
+}
+
+.mk-datepicker-header,
+.mk-datepicker-cell {
+  padding: 5px;
+}
+
+.mk-datepicker-cell {
+  border: 1px solid #ffffff;
+  color: #82898d;
+  cursor: pointer;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.mk-datepicker-cell.previous,
+.mk-datepicker-cell.next {
+  background: #f7f7f7;
+  color: #ffc6c8;
+}
+
+.mk-datepicker-cell.aria-disabled {
+  color: #ccc;
+  cursor: default;
+}
+
+.mk-datepicker-calendar [data-day="saturday"],
+.mk-datepicker-calendar [data-day="sunday"] {
+  background-color: #ddd;
+}
+
+.mk-datepicker-calendar .today {
+  background-color: #ffc6c8;
+  color: #ffffff;
+}
+
+.mk-datepicker-cell.aria-selected {
+  background-color: #ff6c70;
+  color: #ffffff;
+}
+
+.mk-datepicker-prev-y,
+.mk-datepicker-prev-m,
+.mk-datepicker-next-y,
+.mk-datepicker-next-m {
+  border: 0;
+  background: transparent;
+  color: #236192;
+  cursor: pointer;
+  font-weight: bold;
+  position: absolute;
+  top: 0;
+}
+
+.mk-datepicker-prev-y.aria-disabled,
+.mk-datepicker-prev-m.aria-disabled,
+.mk-datepicker-next-y.aria-disabled,
+.mk-datepicker-next-m.aria-disabled {
+  color: #cccccc;
+}
+
+.mk-datepicker-prev-y:before,
+.mk-datepicker-prev-m:before,
+.mk-datepicker-next-y:before,
+.mk-datepicker-next-m:before {
+  content: ">";
+}
+
+.mk-datepicker-prev-y {
+  left: 0;
+  transform: rotate(180deg);
+}
+
+.mk-datepicker-prev-y:before {
+  content: ">>";
+}
+
+.mk-datepicker-prev-m {
+  left: 30px;
+  transform: rotate(180deg);
+}
+
+.mk-datepicker-next-y {
+  right: 0;
+}
+
+.mk-datepicker-next-y:before {
+  content: ">>";
+}
+
+.mk-datepicker-next-m {
+  right: 35px;
+}
