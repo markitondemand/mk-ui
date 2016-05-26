@@ -10,8 +10,10 @@ Check out our live [codepen](http://codepen.io/MarkitOnDemand/pen/YwRRwg) docume
   - Classname Transfering
   - Additional Labeling
   - Reset
+  - Smart Width
   - Disabling
 3. **JavaScript**
+  - Options
   - Public API
   - Event Hooks
 
@@ -104,7 +106,21 @@ With complex muliselect instances it can be easy for users to select a bunch of 
 
 ```html
 <div class="mk-selectmenu-container">
-  <select class="mk-selectmenu my-custom-class" data-reset="true" label="My Options" multiple>
+  <select class="mk-selectmenu my-custom-class" data-reset label="My Options" multiple>
+    <option value="0">Option 001</option>
+    <option value="1" selected>Option 002</option>
+    <option value="2">Option 003</option>
+    <option value="3">Option 004</option>
+  </select>
+ </div>
+```
+
+##### Smart Width
+The smart width option allows you to sync the trigger and menu widths so the expand/collapse renders flush instead of having seperate widths that may line up in an ugly way. Simply add the data-smartwidth attribute to consume functionality.
+
+```html
+<div class="mk-selectmenu-container">
+  <select class="mk-selectmenu my-custom-class" data-smartwidth label="My Options" multiple>
     <option value="0">Option 001</option>
     <option value="1" selected>Option 002</option>
     <option value="2">Option 003</option>
@@ -141,6 +157,31 @@ Mk Components are *not* self initializing so as the end developer, you are respo
          select = new $.Mk.Selectmenu($select);
   });
 ```
+
+##### Options
+We can set all the same options as we did with html attributes in JavaScript land as well. In face, we can include more - like overriding templates. Here are all the possible options you can pass to the selectmenu.
+
+```javascript
+  {
+    multiple: true/false,
+    reset: true/false,
+    smartwidth: true/false
+    template_trigger: [array html],
+    template_group: [array html],
+    template_option: [array html],
+    template_reset: [array html],
+    template_alt: [array html],
+    template_menu: [array html],
+    template_live: [array html],
+    template_wrapper: [array html],
+    template_no_selected: [string text format],
+    template_single_selected: [string text format],
+    temlate_multiple_selected: [string text format],
+    temlate_live_seperator: [string text format],
+    template_reset_label: [string text format],
+  }
+```
+
 ##### Public API
 Now lets check out the public properties and methods available to you as the end developer. First off, you can retrieve any instance of the selectmenu via jQuery.data.
 
