@@ -9,22 +9,45 @@
 	</head>
 	<body>
 		<div class="container">
-			<form>
-				<div class="row">
-					<div class="col-sm-4">
-						<fieldset class="mk-autocomplete">
-							<input type="text" 
-									name="test"
-									placeholder="Enter a symbol" 
-									data-selections="2" />
-						</fieldset>
-					</div>
-				</div>
-			</form>
+		  <div>
+		    <h2>Mk Autocomplete Examples</h4>
+		    <p>Checkout some simple setups and general funcioality. Be sure to turn on the console and watch the events fire!
+		    </p>
+		    <p>
+		    For documentation check out our 
+		      <a href="http://codepen.io/MarkitOnDemand/post/mk-autocomplete" target="_blank">MkAutocomplete Documentation</a>.
+		    </p>
+		  </div>
+		  <div class="row">
+		    <div class="col-sm-6">
+		      <h4>Single selection autocomplete.</h4>
+		      <p>Add a single symbol. Continuing to search results in the single selection being replaced by the new selection. We've removed the tags for this one as well.</p>
+		      <form>
+		        <fieldset class="mk-autocomplete no-tags">
+		          <input type="text" 
+		                 name="autocomplete" 
+		                 placeholder="Enter a symbol"
+		                 data-selections="1" />
+		        </fieldset>
+		      </form>
+		    </div>
+		    <div class="col-sm-6">
+		      <h4>Multi selection autocomplete.</h4>
+		      <p>Add up to 4 selections. Comma seperate entry to automatically add it to the selection list. Backspace to remove old entries.</p>
+		      <form>
+		        <fieldset class="mk-autocomplete">
+		          <input type="text" 
+		                 name="autocomplete" 
+		                 placeholder="Enter a symbol"
+		                 data-selections="4" />
+		        </fieldset>
+		      </form>
+		    </div>
+		  </div>
 		</div>
-		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 		<script src="../base/mk-component.js"></script>
-		<script src="mk-autocomplete.js"></script>
+		<script src="mk-autocomplete-1.0.0.js"></script>
 		<script>
 
 			$(function() {
