@@ -4,6 +4,7 @@
 	<head>
 		<title>Title of the document</title>
 		<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="../lib/jasmine-2.3.0/jasmine.css">
 		<link type="text/css" rel="stylesheet" href="mk-loader.css" />
 	</head>
 	<body>
@@ -22,9 +23,14 @@
 			    </div>
   			</div>
 		</div>
-		<script src="../jquery.js"></script>
+		<script src="../lib/jquery-2.2.4/jquery.js"></script>
+		<script src="../lib/jasmine-2.3.0/jasmine.js"></script>
+		<script src="../lib/jasmine-2.3.0/jasmine-html.js"></script>
+		<script src="../lib/jasmine-2.3.0/boot.js"></script>
 		<script src="../base/mk-component.js"></script>
-		<script src="mk-loader.js"></script>
+		<script src="mk-loader-1.0.0.js"></script>
+		<script src="spec/mk-loader.spec.js"></script>
+
 		<script>
 
 			function replaceHipster() {
@@ -36,7 +42,7 @@
 
 			function replaceBacon() {
 				$('.panel-body').html(
-					'<p>' + 'Accusamus kale chips yuccie, portland cronut bitters voluptate 90\'s tempor selvage street art chia occupy mollit. Laboris four <a href="http://www.google.com">dollar</a> toast banjo, polaroid humblebrag shabby chic helvetica 8-bit truffaut chicharrones freegan try-hard asymmetrical odio kickstarter. Waistcoat readymade next level ennui yuccie consectetur. You probably haven\'t heard of them nihil ullamco, nulla gentrify brunch microdosing leggings pickled knausgaard. Et lo-fi minim freegan fashion axe master cleanse. Ethical quinoa bushwick asymmetrical tempor. Selfies polaroid wayfarers do consectetur, hoodie occupy forage ullamco tattooed health goth selvage keffiyeh.' + '</p>' + 
+					'<p>' + 'Accusamus kale chips yuccie, portland cronut bitters voluptate 90\'s tempor selvage street art chia occupy mollit. Laboris four <a href="http://www.google.com">dollar</a> toast banjo, polaroid humblebrag shabby chic helvetica 8-bit truffaut chicharrones freegan try-hard asymmetrical odio kickstarter. Waistcoat readymade next level ennui yuccie consectetur. You probably haven\'t heard of them nihil ullamco, nulla gentrify brunch microdosing leggings pickled knausgaard. Et lo-fi minim freegan fashion axe master cleanse. Ethical quinoa bushwick asymmetrical tempor. Selfies polaroid wayfarers do consectetur, hoodie occupy forage ullamco tattooed health goth selvage keffiyeh.' + '</p>' +
 					'<p>' + 'Affogato hella cray et meggings, chambray kale chips hammock kombucha sustainable cronut commodo salvia franzen craft beer. Est velit vinyl intelligentsia. Meggings kickstarter meditation, freegan laborum microdosing affogato chartreuse plaid et fap gochujang hashtag. Kale chips chartreuse occaecat street art heirloom biodiesel, anim direct trade blue bottle typewriter gochujang cronut pinterest eiusmod venmo. Pabst tilde dreamcatcher fixie DIY, sint chartreuse biodiesel shoreditch YOLO. Locavore small batch 90\'s pariatur voluptate ea. Consequat bitters thundercats, pinterest gastropub YOLO crucifix cray heirloom austin biodiesel next level man bun.' + '</p>'
 				);
 			}
@@ -47,7 +53,7 @@
 					 timer = null;
 
 				function loadContent(cb) {
-				
+
 					if (timer) {
 						clearTimeout(timer);
 						timer = null;
@@ -55,9 +61,9 @@
 
 					$panel.mkloader(true);
 
-					setTimeout(function() { 
-						cb(); 
-						$panel.mkloader(false, true) 
+					setTimeout(function() {
+						cb();
+						$panel.mkloader(false, true)
 					}, 5000);
 				}
 
