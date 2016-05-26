@@ -148,13 +148,13 @@ Mk Components are *not* self initializing so as the end developer, you are respo
   //jQuery hook
   $(function() {
     var $select = $(my-element-selector);
-        $select.mkselectmenu();
+        $select.mkselectmenu([optional options]);
   });
   
   //Via the Mk namespace
   $(function() {
     var $select = $(my-element-selector),
-         select = new $.Mk.Selectmenu($select);
+         select = new $.Mk.Selectmenu($select [, optional options]);
   });
 ```
 
