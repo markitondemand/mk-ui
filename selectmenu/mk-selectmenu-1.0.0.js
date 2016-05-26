@@ -10,6 +10,9 @@
 		// do we have the ability to reset 
 		// the standalone menu?
 		resetable: false,
+		//bool for syncing flush width between
+		//trugger and menu
+		smartwidth: false,
 		// container property
 		$container: null,
 		// native select property
@@ -81,17 +84,40 @@
 
 		// Init
 		// constructor method
-		_init: function($select) {
+		_init: function($select, options) {
 
 			this.$select = $($select);
 			this.$container = this.$select.parent();
 
 			this.multiple = this.$select.attr('multiple') !== undefined;
 			this.resetable = this.$select.data('reset') !== undefined;
+			this.smartwidth = this.$select.data('smartwidth') !== undefined;
 
 			this._define();
+			this._setOptions(options);
 			this._build();
 			this._bind();
+		},
+
+		_setOptions: function(options) {
+
+			options = options || {};
+
+			if (options.multiple === true) {
+				this.multiple = true;
+			}
+
+			if (options.reset === true) {
+				this.resetable = true;
+			}
+
+			if (options.smartwidth) {
+				this.smartwidth = true;
+			}
+
+			for (var t in this._templates) {
+				 this._template[t] = options['template_' + t] || this._templates[t];
+			}
 		},
 
 		// Build
@@ -127,6 +153,30 @@
 				this.$wrapper.append(this.$reset);
 
 				this._updateReset();
+			}
+			this._width();
+		},
+
+		_width: function() {
+
+			if (!this.smartwidth) {
+				 return;
+			}
+
+			this.$wrapper.addClass('measure').removeClass('aria-hidden');
+
+			var tw = this.$trigger.outerWidth(),
+				mw = this.$menu.outerWidth();
+
+			this.$wrapper.addClass('aria-hidden').removeClass('measure');
+
+			if (tw > mw) {
+				//width() does weird calcumation stuff
+				this.$menu.css('width', tw);
+			} 
+			else if (mw > tw) {
+				//width() does weird calculation stuff
+				this.$trigger.css('width', mw);
 			}
 		},
 
@@ -403,7 +453,7 @@
 
 			if (!this.resetable) return;
 
-			var $li = this.$menu.find(this._class('option', true)),
+			var $li = this.$menu.find(this._class('option', true)).not(this._class('group', true)),
 				$s  = $li.filter('.aria-selected'),
 				txt = this._format('reset_label', {
 					count: $s.length,
@@ -542,11 +592,11 @@
 				if ($o.hasClass('aria-disabled')) return;
 
 				if (($o.hasClass('aria-selected') && this.multiple) || !$o.hasClass('aria-selected')) {
-					$o.trigger(this._ns('click'));
+					 $o.trigger(this._ns('click'));
 				}
 
 				//no toggle
-				if (this.$menu.hasClass('aria-visible') && !this.multiple) {
+				if (this.$menu.hasClass('aria-visible') && !$o.hasClass(this._class('group')) && !this.multiple) {
 					$o.removeClass('activated');
 					this.hide();
 				}
@@ -622,11 +672,12 @@
 				return;
 			}
 			//Selecting an entire group of options
-			if ($el.hasClass(this._class('group', true))) {
+			if ($el.hasClass(this._class('group'))) {
 
-				if (this.multiple) {
-					this._group($el);
+				if (!this.multiple) {
+					return;
 				}
+				this._group($el);
 				values = this.$select.val();
 			}
 			//multi select behavior
@@ -692,6 +743,7 @@
 
 			this.update();
 			this._updateLabel();
+			this._updateReset();
 			this._blurreset();
 			this.$select.trigger(this._ns('change'));
 		},
@@ -770,6 +822,10 @@
 			this.$wrapper.addClass('aria-hidden');
 			this.aria(this.$trigger).collapsed();
 			this.aria(this.$menu).hidden();
+
+			if (!this.multiple) {
+				 this._updateLabel();
+			}
 		},
 
 		//Repaint the mkSelectmenu UI.
@@ -792,6 +848,7 @@
 			this._updateLabel();
 			this._updateReset();
 			this._activate();
+			this._width();
 		},
 
 		//Make changes to the native select: disable, enable, select new elements,
@@ -828,10 +885,10 @@
 		}
 	});
 
-	$.fn.mkselectmenu = function () {
+	$.fn.mkselectmenu = function (options) {
 		return this.each(function () {
 			var $el = $(this);
-			$el.data('mk-selectmenu') || $el.data('mk-selectmenu', new $.Mk.Selectmenu($el));
+			$el.data('mk-selectmenu') || $el.data('mk-selectmenu', new $.Mk.Selectmenu($el, options));
 		});
 	};
 
