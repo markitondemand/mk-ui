@@ -2,36 +2,56 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Title of the document</title>
-		<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+		<title>Mk-Ui Tooltip</title>
+		<link type="text/css" rel="stylesheet" href="../lib/bootstrap-3.3.6/bootstrap.css" />
+		<link href="http://fonts.googleapis.com/css?family=Roboto+Slab:400,700" rel="stylesheet" type="text/css" />
+		<link type="text/css" rel="stylesheet" href="../theme/mk-ui.css" />
 		<link type="text/css" rel="stylesheet" href="mk-tooltip.css" />
 	</head>
-	<body id="testing">		
+	<body>
+		<nav class="navbar navbar-default navbar-theme">
+			<div class="navbar-header">
+				<div href="#" class="navbar-brand clearfix">
+					<img class="navbar-logo" src="../theme/logo.png" alt="Mk-Ui">
+					<span class="navbar-details">
+						<span>Components / <span class="sg-pagename">Tooltip</span></span>
+						<span class="navbar-quote">A Flexible User Interface Suite Built on Accessibility.</span>
+					</span>
+				</div>
+			</div>
+			<ul class="nav navbar-top">
+				<li class="active">
+					<a href="http://codepen.io/MarkitOnDemand/post/mk-tooltip">Documentation</a>
+				</li>
+				<li>
+					<a href="https://github.com/markitondemand/mk-ui">Github</a>
+				</li>
+				<li>
+					<a href="https://github.com/markitondemand">Markit Digital</a>
+				</li>
+			</ul>
+		</nav>
 		<div class="container">
-		  <h2>Tooltip 101</h2>
-		  <p>Check out our documentation 
-		    <a href="http://codepen.io/MarkitOnDemand/post/mk-tooltip" target="_blank">here</a> or check us out on <a href="https://github.com/markitondemand/mk-ui/" target="_blank">Github</a>.
-		  </p>
-		  <div class="row">
-		    <div class="col-sm-4">
-		      <h4>Via Attribute</h4>
-		      <p>Here's an example of a tooltip which is created from an attribute on the trigger element. The 
+		  <ol class="list-theme row">
+		    <li class="col-sm-4">
+		      <h4 class="h-theme">Via Attribute</h4>
+		      <p class="font-theme">Here's an example of a tooltip which is created from an attribute on the trigger element. The 
 		        <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger" data-title="Tooltips based off attributes? That was easy.">tooltip</a> 
 		        pulls the contents of the attribute, creates a node, and associates the elements together with Aria.
 		      </p>
-		    </div>
-		    <div class="col-sm-4">
-		      <h4>Via Sibling Node</h4>
-		      <p>Here's an example of a tooltip which is created from a sibling element of the trigger. The 
+		    </li>
+		    <li class="col-sm-4">
+		      <h4 class="h-theme">Via Sibling Node</h4>
+		      <p class="font-theme">Here's an example of a tooltip which is created from a sibling element of the trigger. The 
 		        <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger">tooltip</a> 
 		        pulls the node out of the dom tree hierarchy, injects it into a hidden container, and associates the elements together with Aria in preperation for triggering.
 		        <span class="mk-tooltip">Hi. I've been supplied in the html as a sibling element of the tooltip trigger element. MkTooltip is smart enought to find me and associate us together via Aria.
 		        </span>
 		      </p>
-		    </div>
-		    <div class="col-sm-4">
-		      <h4>Via Child Node</h4>
-		      <p>Here's an example of a tooltip which is created from a child node  of the trigger. The 
+		    </li>
+		    <li class="col-sm-4">
+		      <h4 class="h-theme">Via Child Node</h4>
+		      <p class="font-theme">Here's an example of a tooltip which is created from a child node  of the trigger. The 
 		        <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger">
 		          tooltip
 		          <span class="mk-tooltip">Hi. I've been supplied in the html as a child node of the tooltip trigger element. MkTooltip is smart enought to find me and associate us together via Aria.
@@ -39,50 +59,47 @@
 		        </a> 
 		        pulls the node out of the dom tree hierarchy, injects it into a hidden container, and associates the elements together with Aria in preperation for triggering.
 		      </p>
-		    </div>
-		  </div>
-		  <h2>Advanced Tooltips</h2>
-		  <div class="row">
-		    <div class="col-sm-4">
-		      <h4>Reverse Logic</h4>
-		      <p>By default, <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger">tooltips</a> try to position themselves top-center. If they is not enough real estate on top, they move below. If there is not enough real estate positioned center, they try moving left, then finally right. We can actually reverse all this logic by supplying an attribute of data-display="reverse".
+		    </li>
+		    <li class="col-sm-4">
+		      <h4 class="h-theme">Reverse Logic</h4>
+		      <p class="font-theme">By default, <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger">tooltips</a> try to position themselves top-center. If they is not enough real estate on top, they move below. If there is not enough real estate positioned center, they try moving left, then finally right. We can actually reverse all this logic by supplying an attribute of data-display="reverse".
 		        <span class="mk-tooltip" data-display="reverse">Here we have a tooltip with the positioning logic reversed.</span>
 		      </p>
-		    </div>
-		    <div class="col-sm-4">
-		      <h4>Right to Left</h4>
-		      <p>By default, <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger">tooltips</a> try to position themselves on the Y axis. This can easily be changed to positioning tooltips on the X axis, or right-to-left by supplying the attribute data-display="rtl".
+		    </li>
+		    <li class="col-sm-4">
+		      <h4 class="h-theme">Right to Left</h4>
+		      <p class="font-theme">By default, <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger">tooltips</a> try to position themselves on the Y axis. This can easily be changed to positioning tooltips on the X axis, or right-to-left by supplying the attribute data-display="rtl".
 		        <span class="mk-tooltip" data-display="rtl">Here we have a tooltip with the positioning logic changed to right-to-left. If the left side has no room for the tooltip, it changes position over to the right hand side.</span>
 		      </p>
-		    </div>
-		    <div class="col-sm-4">
-		      <h4>Click/Enter</h4>
-		      <p>We can also opt out of triggering <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger" data-toggle="click">tooltips</a> on mouseover/mouseout and trigger them on click/enter by supplying the attribute data-toggle="click". Yep it's that easy.
+		    </li>
+		    <li class="col-sm-4">
+		      <h4 class="h-theme">Click/Enter</h4>
+		      <p class="font-theme">We can also opt out of triggering <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger" data-toggle="click">tooltips</a> on mouseover/mouseout and trigger them on click/enter by supplying the attribute data-toggle="click". Yep it's that easy.
 		        <span class="mk-tooltip">Here we have a tooltip with the positioning logic changed to right-to-left. If the left side has no room for the tooltip, it changes position over to the right hand side.</span>
 		      </p>
-		    </div>
-		  </div>
-		  <h2>Super Advanced Tooltips</h2>
-		  <div>
-		    <p>Since we have the ability to supply tooltips completely seperate nodes, we can literally add anything into a tooltip. This makes them extremely useful for putting enhanced behavior in. We take this into account and allow full keyboard access into tooltips which have elements with the ability to focus and manipulate as a user. Check it.</p>
-		    <a href="javascript: void(0);" role="button" data-toggle="click" class="mk-tooltip-trigger">Change Settings</a>
-		    <div class="mk-tooltip">
-		      <form class="form">
-		        <fieldset>
-		          <label for="name">User Name</label>
-		          <input class="form-control" type="text" name="name" id="name" value="" placeholder="Username" />
-		        </fieldset>
-		        <fieldset>
-		          <label for="password">Password</label>
-		          <input class="form-control" type="password" name="password" id="password" value="" placeholder="Password" />
-		        </fieldset>
-		        <button class="btn btn-primary">Submit</button>
-		      </form>
-		    </div>
-		  </div>
+		    </li>
+		    <li class="col-sm-12">
+		    	<h2 class="h-theme">Super Advanced Tooltips</h2>
+			    <p class="font-theme">Since we have the ability to supply tooltips completely seperate nodes, we can literally add anything into a tooltip. This makes them extremely useful for putting enhanced behavior in. We take this into account and allow full keyboard access into tooltips which have elements with the ability to focus and manipulate as a user. Check it.</p>
+			    <a href="javascript: void(0);" role="button" data-toggle="click" class="mk-tooltip-trigger">Change Settings</a>
+			    <div class="mk-tooltip">
+			      <form class="form">
+			        <fieldset>
+			          <label for="name">User Name</label>
+			          <input class="form-control" type="text" name="name" id="name" value="" placeholder="Username" />
+			        </fieldset>
+			        <fieldset>
+			          <label for="password">Password</label>
+			          <input class="form-control" type="password" name="password" id="password" value="" placeholder="Password" />
+			        </fieldset>
+			        <button class="btn btn-primary">Submit</button>
+			      </form>
+			    </div>
+		  	</li>
+		  </ol>
 		</div>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-		<script src="../base/mk-component.js"></script>
+		<script src="../lib/jquery-2.2.4/jquery.js"></script>
+		<script src="../component/mk-component.js"></script>
 		<script src="mk-tooltip-1.0.0.js"></script>
 
 		<script>

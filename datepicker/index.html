@@ -2,58 +2,77 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Title of the document</title>
-		<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+		<title>Mk-Ui Datepicker</title>
+		<link type="text/css" rel="stylesheet" href="../lib/bootstrap-3.3.6/bootstrap.css" />
+		<link href="http://fonts.googleapis.com/css?family=Roboto+Slab:400,700" rel="stylesheet" type="text/css" />
+		<link type="text/css" rel="stylesheet" href="../theme/mk-ui.css" />
 		<link type="text/css" rel="stylesheet" href="mk-datepicker.css" />
 	</head>
 	<body>
+		<nav class="navbar navbar-default navbar-theme">
+			<div class="navbar-header">
+				<div href="#" class="navbar-brand clearfix">
+					<img class="navbar-logo" src="../theme/logo.png" alt="Mk-Ui">
+					<span class="navbar-details">
+						<span>Components / <span class="sg-pagename">Datepicker</span></span>
+						<span class="navbar-quote">A Flexible User Interface Suite Built on Accessibility.</span>
+					</span>
+				</div>
+			</div>
+			<ul class="nav navbar-top">
+				<li class="active">
+					<a href="http://codepen.io/MarkitOnDemand/post/mk-datepicker">Documentation</a>
+				</li>
+				<li>
+					<a href="https://github.com/markitondemand/mk-ui">Github</a>
+				</li>
+				<li>
+					<a href="https://github.com/markitondemand">Markit Digital</a>
+				</li>
+			</ul>
+		</nav>
 		<div class="container">
-		  <div>
-		    <h2>Mk Datepicker</h2>
-		    <p>View our documentation 
-		      <a href="http://codepen.io/MarkitOnDemand/post/mk-datepicker">here</a> or check us out on <a href="https://github.com/markitondemand/mk-ui/" target="_blank">Github</a>.
-		    </p>
-		  </div>
 		  <form>
-		    <div class="row">
-		      <div class="col-sm-6">
-		        <h2 class="h4">Datepicker as Inline</h2>
-		        <p>Here's an example of a datepicker with it's popup option set to false and min/max values set as date strings instead of linking elements.</p>
-		        <fieldset class="mk-datepicker-container">
-		          <label for="inline" class="sr-only">Start Date</label>
-		          <input type="text" id="inline" name="inline" placeholder="Select Date" class="mk-datepicker-trigger" data-popup="false" data-min="01/01/1990" data-max="12/31/2016" />
-		        </fieldset>
-		      </div>
-		      <div class="col-sm-6">
-		        <h2 class="h4">No User Entry</h2>
-		        <p>Setting readonly on your target element will disable users from entering anything they want. You can also style things specific to this setting.</p>
-		        <fieldset class="mk-datepicker-container">
-		          <label for="readonly" class="sr-only">Start Date</label>
-		          <input readonly type="text" id="readonly" name="readonly" placeholder="Select Date" class="mk-datepicker-trigger" data-popup="false" data-format="dddd mmmm dd, yyyy" />
-		        </fieldset>
-		      </div>
-		    </div>
-		    <hr />
-		    <h2 class="h4">Datepicker as Popups</h2>
-		    <p>This first example are a set of datepickers in 'standard mode,' which basically means they have a popup or 'dropdown' calendar. Also notice how the data-min and data-max attributes are css selectors. Supplying selectors instead of dates link these two elements together for dynamic min and max dates.</p>
-		    <div class="row">
-		      <div class="col-sm-6">
-		        <fieldset class="mk-datepicker-container">
-		          <label for="start-date">Start Date</label>
-		          <input type="text" id="start-date" name="start-date" placeholder="Select Date" class="mk-datepicker-trigger" data-max="#end-date" />
-		        </fieldset>
-		      </div>
-		      <div class="col-sm-6">
-		        <fieldset class="mk-datepicker-container">
-		          <label for="end-date">End Date</label>
-		          <input type="text" id="end-date" name="end-date" placeholder="Select Date" class="mk-datepicker-trigger" data-min="#start-date" />
-		        </fieldset>
-		      </div>
-		    </div>
+		    <ol class="list-theme row">
+		    	<li class="col-sm-12">
+			      	<h2 class="h-theme">Datepicker as Popups</h2>
+			    	<p class="font-theme">This first example are a set of datepickers in 'standard mode,' which basically means they have a popup or 'dropdown' calendar. Also notice how the data-min and data-max attributes are css selectors. Supplying selectors instead of dates link these two elements together for dynamic min and max dates.</p>
+			    	<div class="row">
+			      		<div class="col-sm-6">
+					        <fieldset class="mk-datepicker-container">
+					          <label for="start-date">Start Date</label>
+					          <input type="text" id="start-date" name="start-date" placeholder="Select Date" class="mk-datepicker-trigger" data-max="#end-date" />
+					        </fieldset>
+			      		</div>
+			      		<div class="col-sm-6">
+					        <fieldset class="mk-datepicker-container">
+					          <label for="end-date">End Date</label>
+					          <input type="text" id="end-date" name="end-date" placeholder="Select Date" class="mk-datepicker-trigger" data-min="#start-date" />
+					        </fieldset>
+			      		</div>
+			    	</div>
+			    </li>
+				<li class="col-sm-6">
+					<h2 class="h-theme">Datepicker as Inline</h2>
+					<p class="font-theme">Here's an example of a datepicker with it's popup option set to false and min/max values set as date strings instead of linking elements.</p>
+					<fieldset class="mk-datepicker-container">
+					  <label for="inline" class="sr-only">Start Date</label>
+					  <input type="text" id="inline" name="inline" placeholder="Select Date" class="mk-datepicker-trigger" data-popup="false" data-min="01/01/1990" data-max="12/31/2016" />
+					</fieldset>
+				</li>
+				<li class="col-sm-6">
+					<h2 class="h-theme">No User Entry</h2>
+					<p class="font-theme">Setting readonly on your target element will disable users from entering anything they want. You can also style things specific to this setting.</p>
+					<fieldset class="mk-datepicker-container">
+					  <label for="readonly" class="sr-only">Start Date</label>
+					  <input readonly type="text" id="readonly" name="readonly" placeholder="Select Date" class="mk-datepicker-trigger" data-popup="false" data-format="dddd mmmm dd, yyyy" />
+					</fieldset>
+				</li>
+		    </ol>
 		  </form>
 		</div>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-		<script src="../base/mk-component.js"></script>
+		<script src="../lib/jquery-2.2.4/jquery.js"></script>
+		<script src="../component/mk-component.js"></script>
 		<script src="mk-datepicker-1.0.0.js"></script>
 		<script type="text/javascript">
 

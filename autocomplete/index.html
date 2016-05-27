@@ -2,26 +2,40 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Title of the document</title>
-		<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+		<title>Mk-Ui Autocomplete</title>
+		<link type="text/css" rel="stylesheet" href="../lib/bootstrap-3.3.6/bootstrap.css" />
+		<link href="http://fonts.googleapis.com/css?family=Roboto+Slab:400,700" rel="stylesheet" type="text/css" />
+		<link type="text/css" rel="stylesheet" href="../theme/mk-ui.css" />
 		<link type="text/css" rel="stylesheet" href="mk-autocomplete.css" />
-		<link type="text/css" rel="stylesheet" href="mk-dynocheckbox.css" />
 	</head>
 	<body>
+		<nav class="navbar navbar-default navbar-theme">
+			<div class="navbar-header">
+				<div href="#" class="navbar-brand clearfix">
+					<img class="navbar-logo" src="../theme/logo.png" alt="Mk-Ui">
+					<span class="navbar-details">
+						<span>Components / <span class="sg-pagename">Autocomplete</span></span>
+						<span class="navbar-quote">A Flexible User Interface Suite Built on Accessibility.</span>
+					</span>
+				</div>
+			</div>
+			<ul class="nav navbar-top">
+				<li class="active">
+					<a href="http://codepen.io/MarkitOnDemand/post/mk-autocomplete">Documentation</a>
+				</li>
+				<li>
+					<a href="https://github.com/markitondemand/mk-ui">Github</a>
+				</li>
+				<li>
+					<a href="https://github.com/markitondemand">Markit Digital</a>
+				</li>
+			</ul>
+		</nav>
 		<div class="container">
-		  <div>
-		    <h2>Mk Autocomplete Examples</h4>
-		    <p>Checkout some simple setups and general funcioality. Be sure to turn on the console and watch the events fire!
-		    </p>
-		    <p>
-		    For documentation check out our 
-		      <a href="http://codepen.io/MarkitOnDemand/post/mk-autocomplete" target="_blank">MkAutocomplete Documentation</a>.
-		    </p>
-		  </div>
-		  <div class="row">
-		    <div class="col-sm-6">
-		      <h4>Single selection autocomplete.</h4>
-		      <p>Add a single symbol. Continuing to search results in the single selection being replaced by the new selection. We've removed the tags for this one as well.</p>
+		  <ol class="list-theme">
+		    <li>
+		      <h2 class="h-theme">Single selection autocomplete.</h2>
+		      <p class="font-theme">Add a single symbol. Continuing to search results in the single selection being replaced by the new selection. We've removed the tags for this one as well.</p>
 		      <form>
 		        <fieldset class="mk-autocomplete no-tags">
 		          <input type="text" 
@@ -30,10 +44,10 @@
 		                 data-selections="1" />
 		        </fieldset>
 		      </form>
-		    </div>
-		    <div class="col-sm-6">
-		      <h4>Multi selection autocomplete.</h4>
-		      <p>Add up to 4 selections. Comma seperate entry to automatically add it to the selection list. Backspace to remove old entries.</p>
+		    </li>
+		    <li>
+		      <h2 class="h-theme">Multi selection autocomplete.</h2>
+		      <p class="font-theme">Add up to 4 selections. Comma seperate entry to automatically add it to the selection list. Backspace to remove old entries.</p>
 		      <form>
 		        <fieldset class="mk-autocomplete">
 		          <input type="text" 
@@ -42,11 +56,11 @@
 		                 data-selections="4" />
 		        </fieldset>
 		      </form>
-		    </div>
-		  </div>
+		    </li>
+		  </ol>
 		</div>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-		<script src="../base/mk-component.js"></script>
+		<script src="../lib/jquery-2.2.4/jquery.js"></script>
+		<script src="../component/mk-component.js"></script>
 		<script src="mk-autocomplete-1.0.0.js"></script>
 		<script>
 

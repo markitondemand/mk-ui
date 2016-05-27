@@ -1,0 +1,117 @@
+
+body {
+	background: #f7f7f7;
+}
+
+body a {
+	color: #42bee2;
+}
+
+body a:hover,
+body a:active,
+body a:focus {
+	color: #0e4860;
+	text-decoration: none;
+}
+
+.navbar-theme {
+	background: #ffffff;
+    border-bottom: 1px solid #f95a5a;
+    border-radius: 0;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+    color: #333333;
+    font-family: 'Roboto Slab';
+    font-weight: 700;
+    padding: 0 15px;
+    top: 0;
+    width: 100%;
+    z-index: 2;
+    min-height: 78px;
+}
+
+.navbar-theme .navbar-brand .navbar-logo {
+	float: left;
+    display: block;
+    margin-right: 20px;
+}
+
+.navbar-theme .navbar-brand .navbar-details {
+	float: left;
+    display: block;
+    margin-top: 5px;
+}
+
+.navbar-theme .navbar-brand .navbar-quote {
+	display: block;
+    font-size: 11px;
+}
+
+.navbar-theme .navbar-brand .sg-pagename {
+	color: #42bee2;
+}
+
+.navbar-theme .navbar-top {
+	position: absolute;
+    right: 30px;
+    top: 0;
+}
+
+.navbar-theme .navbar-top > li {
+	display: inline-block;
+}
+
+.navbar-theme .navbar-top > li > a {
+	color: #42bee2;
+	display: inline-block;
+    padding: 0 10px;
+    font-size: 11px;
+}
+
+.navbar-theme .navbar-top > li > a:hover,
+.navbar-theme .navbar-top > li > a:active,
+.navbar-theme .navbar-top > li > a:focus {
+	background: #ffffff;
+	color: #0e4860;
+}
+
+.list-theme {
+	margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.list-theme > li {
+	background: #ffffff;
+    counter-increment: step-counter;
+    border: 1px solid #cccccc;
+    margin: 30px 0;
+    position: relative;
+    padding: 20px;
+}
+
+.list-theme > li:before {
+	background-color: #ffffff;
+    border: 1px solid #f95a5a;
+	border-radius: 80%;
+	color: #f95a5a;
+	content: counter(step-counter);
+	font-family: 'Roboto Slab';
+	font-size: 26px;
+	font-weight: bold;
+    margin-right: 5px;
+    padding: 2px 14px;
+    position: absolute;
+    left: -20px;
+    top: -20px;
+}
+
+.h-theme {
+	margin: 0 0 10px;
+	font-family: 'Roboto Slab';
+	color: #666666;
+	font-size: 18px;
+}
+
+.font-theme {
+	font-family: 'Roboto Slab';
+}
