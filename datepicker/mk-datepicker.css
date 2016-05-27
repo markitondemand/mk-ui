@@ -54,6 +54,7 @@
   background: #fff;
   position: relative;
   border-width: 0 1px 1px 1px;
+  z-index: 0;
 }
 
 .mk-datepicker.aria-hidden {
@@ -155,21 +156,25 @@
 .mk-datepicker-prev-m:before,
 .mk-datepicker-next-y:before,
 .mk-datepicker-next-m:before {
-  content: ">";
+  content: "\203A";
+  font-size: 25px;
+  line-height: 23px;
 }
 
 .mk-datepicker-prev-y {
   left: 0;
-  transform: rotate(180deg);
 }
 
 .mk-datepicker-prev-y:before {
-  content: ">>";
+  content: "\2039\2039";
 }
 
 .mk-datepicker-prev-m {
   left: 30px;
-  transform: rotate(180deg);
+}
+
+.mk-datepicker-prev-m:before {
+  content: "\2039";
 }
 
 .mk-datepicker-next-y {
@@ -177,7 +182,7 @@
 }
 
 .mk-datepicker-next-y:before {
-  content: ">>";
+  content: "\203A\203A";
 }
 
 .mk-datepicker-next-m {
