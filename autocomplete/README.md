@@ -62,7 +62,7 @@ Below is an example of supplying the autocomplete with a remote URL to hit for d
 The other alternative is to supply the autocomplete data directly through javascript. This is useful for when we have a set array of data that doesn't change - like a list of states, countries, cars, etc. *By default, MkAutocomplete expects back an array of objects with the keys "name" and "value." See the Overriding Templates section for details on changing this.*
 
 ```javascript
-  $("#search").autocomplete({
+  $("#search").mkautocomplete({
     data: [{
       "name": "Ford Motors",
       "value": 1
