@@ -258,6 +258,6 @@ Capacity fires when a user attempts to enter more values that we are limiting. F
 ````javascript
   $(my-selector).on('capacity.mk-autocomplete', function(e, selections) {
     //array of name/value pair objects
-    console.info(selections);
+    console.log(selections);
   });
 ```
