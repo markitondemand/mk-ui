@@ -64,7 +64,7 @@
 .mk-datepicker-controls {
   padding-bottom: 10px;
   position: absolute;
-  top: 10px;
+  top: 15px;
   left: 10px;
   right: 10px;
 }
@@ -79,7 +79,6 @@
 .mk-datepicker-calendar {
   width: 100%;
   font-size: 12px;
-  margin-top: 30px;
   text-align: center;
 }
 

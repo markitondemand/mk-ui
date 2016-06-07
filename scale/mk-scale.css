@@ -1,0 +1,77 @@
+
+ul.mk-scale,
+ol.mk-scale {
+	list-style: none;
+}
+
+.mk-scale.horizontal:after {
+	content: "";
+	clear: both;
+	display: table;
+}
+
+.mk-scale-item {
+	position: relative;
+}
+
+.mk-scale.horizontal .mk-scale-item {
+	float: left;
+}
+
+.mk-scale.horizontal.reverse .mk-scale-item {
+	float: right;
+}
+
+.mk-scale-item input {
+	position: absolute;
+	opacity: 0;
+	left: -999999px;
+}
+
+.mk-scale-item input:focus + .mk-scale-label {
+	outline: -webkit-focus-ring-color auto 5px; 
+	box-shadow: inset 0px 0 0 rgba(0,0,0,0.075), 0px 0px 8px rgba(102,175,233,0.6);
+	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6); 
+}
+
+.mk-scale-label {
+	padding-left: 35px;
+}
+
+.mk-scale-label:before {
+	background: #ffffff;
+	border: 1px solid #ff6c70;
+	border-radius: 80%;
+	content: "";
+	display: block;
+	height: 22px;
+	position: absolute;
+	top: 0;   
+	left: 0;
+	width: 22px;
+}
+
+.mk-scale.horizontal .mk-scale-label:before {
+	left: 50%;
+	margin-left: -11px;
+	top: 0;
+}
+
+.mk-scale-item input:checked + .mk-scale-label:after {
+	background: #ff6c70;
+	border-radius: 80%;
+	content: "";
+	display: block;
+	height: 16px;
+	margin-left: 3px;
+	position: absolute;
+	top: 3px;
+	left: 0;
+	width: 16px;
+}
+
+.mk-scale.horizontal .mk-scale-item input:checked + .mk-scale-label:after {
+	left: 50%;
+	margin-left: -8px;
+	top: 3px;
+}

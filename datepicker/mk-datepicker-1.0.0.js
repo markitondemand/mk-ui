@@ -49,7 +49,7 @@
 
 				calendar_body: ['<tbody />'],
 
-				label: ['<div>{{text}}</div>'],
+				label: ['<caption>{{text}}</caption>'],
 
 				weekday: [
 					'<th class="{{class}}">',
@@ -77,10 +77,11 @@
 			};
 		},
 
-		_dateToString: function(date) {
+		dateToString: function(date, format) {
 
-			var me = this,
-				format = this.options.format;
+			var me = this;
+
+			format = format || this.options.format;
 
 			return format.replace(this._datesplitter, function(s, f, i) {
 
@@ -107,7 +108,7 @@
 			});
 		},
 
-		_stringToDate: function(str) {
+		stringToDate: function(str) {
 
 			var me = this,
 				format = this.options.format.split(this._strsplitter),
@@ -182,7 +183,7 @@
 			o.initial = o.initial || $t.data('initial') || $t.val() || null;
 			o.initial = o.initial instanceof Date 
 				&& o.initial || o.initial 
-				&& this._stringToDate(o.initial) || new Date();
+				&& this.stringToDate(o.initial) || new Date();
 
 			o.max = o.max || $t.data('max') || null;
 			o.min = o.min || $t.data('min') || null;
@@ -197,7 +198,7 @@
 			} 
 			//string date, else Date object or unlimited
 			if (typeof o.max == 'string') {
-				o.max = this._stringToDate(o.max);
+				o.max = this.stringToDate(o.max);
 			}
 			
 			//jquery link
@@ -207,7 +208,7 @@
 			}
 			//string date, else Date object or unlimited
 			if (typeof o.min == 'string') {
-				o.min = this._stringToDate(o.min);
+				o.min = this.stringToDate(o.min);
 			}
 			
 			if (o.min && o.initial < o.min) {
@@ -227,6 +228,8 @@
 		_init: function($target, options) {
 
 			this.$target = $($target);
+			this.$target.attr('autocomplete', 'off');
+			
 			this.selected = null;
 
 			this._buildOptions(options);
@@ -266,7 +269,6 @@
 			$c.append(
 				this._buildControl(this._class('prev-y')),
 				this._buildControl(this._class('prev-m')),
-				this._buildDisplay(),
 				this._buildControl(this._class('next-m')),
 				this._buildControl(this._class('next-y')));
 
@@ -296,13 +298,14 @@
 
 			var $c = this._template('calendar'),
 				$head = this._template('calendar_head', {headers: this._buildCalendarHeaders()}),
-				$body = this._buildCalendarBody($c, this.day, this.month, this.year);
+				$body = this._buildCalendarBody($c, this.day, this.month, this.year),
+				$display = this._buildDisplay();
 
 			$head.addClass(this._class('calendar-header'));
 			$body.addClass(this._class('calendar-body'));
-			$c.addClass(this._class('calendar'));
 
-			$c.append($head, $body);
+			$c.addClass(this._class('calendar'));
+			$c.append($display, $head, $body);
 
 			this._checkRange();
 
@@ -362,7 +365,7 @@
 
 			for (; weekday < startday; weekday++) {
 				now.setDate(pastdays);
-				$day = this._buildCalendarDay(pastdays, weekday, false, true, false, (min && now < min) || (max && now > max));
+				$day = this._buildCalendarDay(now, pastdays, weekday, false, true, false, (min && now < min) || (max && now > max));
 				$row.append($day);
 				pastdays++;
 			}
@@ -383,7 +386,7 @@
 				now.setDate(date);
 
 				$day = this._buildCalendarDay(
-					date, weekday, this._isToday(date, month, year), false, false, (min && now < min) || (max && now > max));
+					now, date, weekday, this._isToday(date, month, year), false, false, (min && now < min) || (max && now > max));
 
 				$row.append($day);
 
@@ -415,7 +418,7 @@
 
 			for(var i = 1; weekday <= 6; weekday++) {
 				now.setDate(i);
-				$day = this._buildCalendarDay(i, weekday, false, false, true, (min && now < min) || (max && now > max));
+				$day = this._buildCalendarDay(now, i, weekday, false, false, true, (min && now < min) || (max && now > max));
 				$row.append($day);
 				i += 1;
 			}
@@ -451,7 +454,7 @@
 			return $row;
 		},
 
-		_buildCalendarDay: function(date, day, isToday, previousMonth, nextMonth, disabled) {
+		_buildCalendarDay: function(jsdate, date, day, isToday, previousMonth, nextMonth, disabled) {
 
 			var $day = this._template('day', {'day': date});
 
@@ -470,6 +473,8 @@
 			if (disabled) {
 				this.aria($day).disabled();
 			}
+
+			this.aria($day).label(this.dateToString(jsdate, 'dddd mmmm dd, yyyy'));
 
 			$day.attr({
 				'id': this._uid(),
@@ -827,7 +832,7 @@
 			if (e.ctrlKey) return true;
 
 			var d = this.date,
-				date = this._dateToString(d);
+				date = this.dateToString(d);
 
 			this.selected = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
@@ -870,7 +875,7 @@
 
 			this.selected = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-			this.$target.val(this._dateToString(this.date));
+			this.$target.val(this.dateToString(this.date));
 			this.$target.trigger(this._ns('change'), [this.date]);
 
 			this._focusFromCalendar = true;
@@ -1126,7 +1131,7 @@
 				$body.addClass(this._class('calendar-body'));
 
 			this._checkRange();
-			this.$controls.find(this._class('label', true)).text(this._label());
+			this.$calendar.find(this._class('label', true)).text(this._label());
 		},
 
 		show: function() {

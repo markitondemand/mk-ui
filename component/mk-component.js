@@ -121,6 +121,10 @@
 			return this.link('labelledby', node);
 		},
 
+		label: function(value) {
+			return this._attr('label', value);
+		},
+
 		activedescendant: function(node) {
 			return this.link('activedescendant', node);
 		},
