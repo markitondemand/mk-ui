@@ -40,6 +40,9 @@
 		        <fieldset class="mk-autocomplete no-tags">
 		          <input type="text" 
 		                 name="autocomplete" 
+		                 data-remote="http://dev.markitondemand.com/Api/v2/Lookup/jsonp" 
+		                 data-type="jsonp"  
+		                 data-key="input" 
 		                 placeholder="Enter a symbol"
 		                 data-selections="1" />
 		        </fieldset>
@@ -52,6 +55,10 @@
 		        <fieldset class="mk-autocomplete">
 		          <input type="text" 
 		                 name="autocomplete" 
+		                 data-remote="http://dev.markitondemand.com/Api/v2/Lookup" 
+		                 data-remote="http://dev.markitondemand.com/Api/v2/Lookup/jsonp" 
+		                 data-type="jsonp" 
+		                 data-key="input" 
 		                 placeholder="Enter a symbol"
 		                 data-selections="4" />
 		        </fieldset>
@@ -66,34 +73,7 @@
 
 			$(function() {
 
-				$('.mk-autocomplete').mkautocomplete({
-					data: [
-						{
-							"name": "Google",
-							"value": "GOOG"
-						},
-						{
-							"name": "Microsoft Corp.",
-							"value": "MSFT"
-						},
-						{
-							"name": "Agent No. 5",
-							"value": "AA"
-						},
-						{
-							"name": "Zumiez Skate Shop",
-							"value": "ZUMZ"
-						},
-						{
-							"name": "Labyrinth Designs",
-							"value": "LAB"
-						},
-						{
-							"name": "Secret Society of Madness",
-							"value": "ILUM"
-						}
-					]
-				});
+				$('.mk-autocomplete').mkautocomplete();
 			});
 
 			$('.mk-autocomplete').on('change.mk-autocomplete', function(e, selections) {
