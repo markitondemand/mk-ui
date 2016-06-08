@@ -394,6 +394,11 @@
 
 		keyup: function (e) {
 
+			if (this.timer) {
+				clearTimeout(this.timer);
+				this.timer = null;
+			}
+
 			if (e.which == 8 && !this.$input.val()) {
 
 				this.hide();
@@ -411,12 +416,6 @@
 				return this.hide();
 			}
 
-			if (e.which == 40 
-				&& this.$input.val() 
-				&& (this.cache[this.$input.val()] || this.options.data)) {
-				return this.show();
-			}
-
 			if (e.which == 13) {
 				return this.keyenter();
 			}
@@ -429,12 +428,21 @@
 				return;
 			}
 
-			if (this.timer) {
-				clearTimeout(this.timer);
-				this.timer = null;
+			if (e.which == 40 
+				&& this.$listContainer.hasClass('aria-hidden') 
+				&& (this.cache[this.$input.val().toUpperCase()] || this.options.data)) {
+				return this.show();
 			}
 
-			if (this.$input.val()) {
+			var same = this.$input.val() && this.$input.val() === this.query;
+
+			if (same) {
+				this.show();
+			} 
+			else if (this.cache[this.$input.val().toUpperCase()]) {
+				this.query = this.$input.val();
+				this.render(this.cache[this.$input.val().toUpperCase()]);
+			} else {
 				this.prefetch();
 			}
 		},
