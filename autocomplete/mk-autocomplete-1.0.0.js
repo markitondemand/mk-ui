@@ -436,7 +436,7 @@
 
 			var same = this.$input.val() && this.$input.val() === this.query;
 
-			if (same) {
+			if (same && this.cache[this.$input.val().toUpperCase()]) {
 				this.show();
 			} 
 			else if (this.cache[this.$input.val().toUpperCase()]) {
