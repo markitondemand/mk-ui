@@ -4,6 +4,7 @@
 	$.Mk.create('Autocomplete', {
 
 		_doubledelete: false,
+		_key: 'query',
 
 		$input: null,
 		$container: null,
@@ -25,7 +26,7 @@
 			this._templates = {
 
 				item: [
-					'<li data-value="{{value}}">{{!name}}</li>',
+					'<li data-value="{{Symbol}}">{{!Name}}</li>',
 				],
 
 				error: [
@@ -207,7 +208,8 @@
 				time: parseInt(this.$input.data('time') || 0, 10) || 500,
 				selections: parseInt(this.$input.data('selections') || 0, 10) || -1,
 				error: this.error,
-				complete: null
+				complete: null,
+				key: this.$input.data('key') || this._key
 			};
 
 			for(var i in options) {
@@ -392,6 +394,11 @@
 
 		keyup: function (e) {
 
+			if (this.timer) {
+				clearTimeout(this.timer);
+				this.timer = null;
+			}
+
 			if (e.which == 8 && !this.$input.val()) {
 
 				this.hide();
@@ -409,12 +416,6 @@
 				return this.hide();
 			}
 
-			if (e.which == 40 
-				&& this.$input.val() 
-				&& (this.cache[this.$input.val()] || this.options.data)) {
-				return this.show();
-			}
-
 			if (e.which == 13) {
 				return this.keyenter();
 			}
@@ -427,15 +428,22 @@
 				return;
 			}
 
-			if (this.timer) {
-				clearTimeout(this.timer);
-				this.timer = null;
+			if (e.which == 40 
+				&& this.$listContainer.hasClass('aria-hidden') 
+				&& (this.cache[this.$input.val().toUpperCase()] || this.options.data)) {
+				return this.show();
 			}
 
-			if (this.$input.val() && this.$input.val() != this.query) {
-				this.timer = setTimeout($.proxy(function() {
-					this.fetch();
-				}, this), this.options.time);
+			var same = this.$input.val() && this.$input.val() === this.query;
+
+			if (same && this.cache[this.$input.val().toUpperCase()]) {
+				this.show();
+			} 
+			else if (this.cache[this.$input.val().toUpperCase()]) {
+				this.query = this.$input.val();
+				this.render(this.cache[this.$input.val().toUpperCase()]);
+			} else {
+				this.prefetch();
 			}
 		},
 
@@ -616,9 +624,11 @@
 			this.selections.push(data);
 		},
 
-		fetch: function () {
+		prefetch: function() {
 
 			this.query = this.$input.val();
+
+			this._loading(true);
 
 			if (this.cache[this.query.toUpperCase()]) {
 				this.render(this.cache[this.query.toUpperCase()]);
@@ -629,23 +639,31 @@
 				this.empty();
 			}
 
+			if (this.options.data) {
+				this.render(this.options.data);
+			}
+
+			var me = this;
+
+			this.timer = setTimeout(function() { me.fetch(); }, this.options.time);
+		},
+
+		fetch: function () {
+
 			if (this.options.remote) {
 
-				this._loading(true);
+				var params = {};
+					params[this.options.key] = this.query;
 
 				$.ajax({
 					url: this.options.remote,
-					data: {query: this.$input.val()},
+					data: params,
 					type: 'get',
-					dataType: 'json',
+					dataType: this.options.type,
 					complete: $.proxy(this.options.complete || $.noop, this),
 					error: $.proxy(this.options.error, this),
 					success: $.proxy(this.render, this),
 				});
-			}
-			//dump a hard set of data into the autocomplete...
-			else if (this.options.data) {
-				this.render(this.options.data);
 			}
 		},
 

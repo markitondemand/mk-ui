@@ -10,6 +10,8 @@
   display: inline-block;
   padding: 5px 80px 5px 10px;
   position: relative;
+  transition: border-color 0.2s;
+  -webkit-transition: border-color 0.2s;
 }
 
 .mk-selectmenu-trigger:hover,
@@ -44,7 +46,7 @@
 }
 
 .mk-selectmenu-wrapper.measure {
-  left: -10000px;
+  left: -99999px;
   visibility: hidden;
 }
 
@@ -94,6 +96,8 @@
 .mk-selectmenu-group {
   cursor: pointer;
   position: relative;
+  transition: background 0.2s;
+  -webkit-transition: background 0.2s;
 }
 
 .mk-selectmenu-option {

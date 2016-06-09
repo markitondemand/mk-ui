@@ -102,7 +102,9 @@
   color: #82898d;
   cursor: pointer;
   text-align: center;
+  transition: all 0.3s;
   vertical-align: middle;
+  -webkit-transition: all 0.3s;
 }
 
 .mk-datepicker-cell.previous,

@@ -1,40 +1,62 @@
 
+@keyframes mk-autocomplete-statechange {
+	from { width: 0; }
+	to { width: 100%; }
+}
+
 .mk-autocomplete {
-	border: 1px solid #666;
+	border: 1px solid #ccc;
 	padding: 10px;
 	position: relative;
+	transition: all 0.3s;
+	-webkit-transition: all 0.3s;
 }
 
 .mk-autocomplete.focused {
-	border-color: #0097cf;
+	border-color: cadetblue;
 }
 
 .mk-autocomplete.capacity {
-	border-color: red;
+	border-color: crimson;
+}
+
+.mk-autocomplete:before,
+.mk-autocomplete:after {
+	content: "";
+    position: absolute;
+    width: calc(100% + 2px);
+    height: 4px;
+    background: transparent;
+    color: #ffffff;
+    text-align: center;
+    left: -1px;
+    top: 100%;
+    transition: all 0.3s;
+	-webkit-transition: all 0.3s;
+}
+
+.mk-autocomplete.capacity:before {
+	background: crimson;
 }
 
 .mk-autocomplete.capacity:after {
-	content: '!';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background: red;
-    border-radius: 80%;
-    color: #ffffff;
-    text-align: center;
-    right: -25px;
-    top: 50%;
-    margin-top: -10px;
+	background: brown;
+	width: 0;
+	animation-name: mk-autocomplete-statechange;
+	animation-duration: 3s;
+	animation-iteration-count: 1;
+}
+
+.mk-autocomplete.loading:before {
+	background: cadetblue;
 }
 
 .mk-autocomplete.loading:after {
-	content: 'loading...';
-	position: absolute;
-	top: 100%;
-	margin-top: 10px;
-	font-size: 11px;
-	right: 0;
-	color: green;
+	background: cornflowerblue;
+	width: 0;
+	animation-name: mk-autocomplete-statechange;
+	animation-duration: 3s;
+	animation-iteration-count: infinite;
 }
 
 .mk-autocomplete > input {
@@ -75,6 +97,8 @@
 	cursor: pointer;
 	font-weight: bold;
 	padding: 5px 10px;
+	transition: all 0.3s;
+	-webkit-transition: all 0.3s;
 }
 
 .mk-autocomplete-item.active,
