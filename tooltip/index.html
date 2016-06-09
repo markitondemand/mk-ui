@@ -7,6 +7,7 @@
 		<link href="http://fonts.googleapis.com/css?family=Roboto+Slab:400,700" rel="stylesheet" type="text/css" />
 		<link type="text/css" rel="stylesheet" href="../theme/mk-ui.css" />
 		<link type="text/css" rel="stylesheet" href="mk-tooltip.css" />
+		<link type="text/css" rel="stylesheet" href="../lib/jasmine-2.3.0/jasmine.css" />
 	</head>
 	<body>
 		<nav class="navbar navbar-default navbar-theme">
@@ -35,15 +36,15 @@
 		  <ol class="list-theme row">
 		    <li class="col-sm-4">
 		      <h4 class="h-theme">Via Attribute</h4>
-		      <p class="font-theme">Here's an example of a tooltip which is created from an attribute on the trigger element. The 
-		        <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger" data-title="Tooltips based off attributes? That was easy.">tooltip</a> 
+		      <p class="font-theme">Here's an example of a tooltip which is created from an attribute on the trigger element. The
+		        <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger" data-title="Tooltips based off attributes? That was easy.">tooltip</a>
 		        pulls the contents of the attribute, creates a node, and associates the elements together with Aria.
 		      </p>
 		    </li>
 		    <li class="col-sm-4">
 		      <h4 class="h-theme">Via Sibling Node</h4>
-		      <p class="font-theme">Here's an example of a tooltip which is created from a sibling element of the trigger. The 
-		        <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger">tooltip</a> 
+		      <p class="font-theme">Here's an example of a tooltip which is created from a sibling element of the trigger. The
+		        <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger">tooltip</a>
 		        pulls the node out of the dom tree hierarchy, injects it into a hidden container, and associates the elements together with Aria in preperation for triggering.
 		        <span class="mk-tooltip">Hi. I've been supplied in the html as a sibling element of the tooltip trigger element. MkTooltip is smart enought to find me and associate us together via Aria.
 		        </span>
@@ -51,12 +52,12 @@
 		    </li>
 		    <li class="col-sm-4">
 		      <h4 class="h-theme">Via Child Node</h4>
-		      <p class="font-theme">Here's an example of a tooltip which is created from a child node  of the trigger. The 
+		      <p class="font-theme">Here's an example of a tooltip which is created from a child node  of the trigger. The
 		        <a href="javascript: void(0);" role="button" class="mk-tooltip-trigger">
 		          tooltip
 		          <span class="mk-tooltip">Hi. I've been supplied in the html as a child node of the tooltip trigger element. MkTooltip is smart enought to find me and associate us together via Aria.
 		          </span>
-		        </a> 
+		        </a>
 		        pulls the node out of the dom tree hierarchy, injects it into a hidden container, and associates the elements together with Aria in preperation for triggering.
 		      </p>
 		    </li>
@@ -100,8 +101,11 @@
 		</div>
 		<script src="../lib/jquery-2.2.4/jquery.js"></script>
 		<script src="../component/mk-component.js"></script>
+		<script src="../lib/jasmine-2.3.0/jasmine.js"></script>
+		<script src="../lib/jasmine-2.3.0/jasmine-html.js"></script>
+		<script src="../lib/jasmine-2.3.0/boot.js"></script>
 		<script src="mk-tooltip-1.0.0.js"></script>
-
+		<script src="spec/mk-tooltip.spec.js"></script>
 		<script>
 			$(function(){
 				$('body').mktooltip();
