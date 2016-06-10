@@ -1,0 +1,2 @@
+describe('mk-tooltip', function () {
+});

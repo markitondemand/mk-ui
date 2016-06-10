@@ -1,5 +1,5 @@
 /// mk-datepicker ///
-/// v1.0.1       ///
+/// v1.0.3       ///
 
 !function($) {
 
@@ -55,7 +55,7 @@
 
 				weekday: [
 					'<th class="{{class}}">',
-						'<abbr title="{{title}}">{{day}}</abbr>',
+						'<abbr aria-label={{ariaLabel}} title="{{title}}">{{day}}</abbr>',
 					'</th>'
 				],
 
@@ -179,7 +179,7 @@
 			o.format = o.format || $t.data('format') || this._defaultFormat;
 
 			//weekday format
-			o.headerformat = o.headerformat || $t.data('header-format') || this._defaultHeaderFormat;
+			o.headerFormat = o.headerFormat || $t.data('header-format') || this._defaultHeaderFormat;
 
 			//initial date
 			o.initial = o.initial || $t.data('initial') || $t.val() || null;
@@ -225,6 +225,15 @@
 			for(var t in this._templates) {
 				this._templates[t] = options['template_' + t] || this._templates[t];
 			}
+
+			var i = o.initial,
+				d = this.date = new Date(i.getFullYear(), i.getMonth(), i.getDate());
+
+			this.year = d.getFullYear();
+			this.month = d.getMonth();
+			this.day = d.getDate();
+
+			this.options = o;
 		},
 
 		_init: function($target, options) {
@@ -236,12 +245,6 @@
 
 			this._buildOptions(options);
 
-			var i = this.options.initial,
-				d = this.date = new Date(i.getFullYear(), i.getMonth(), i.getDate());
-
-			this.year = d.getFullYear();
-			this.month = d.getMonth();
-			this.day = d.getDate();
 
 			this._define();
 			this._build();
@@ -319,7 +322,7 @@
 
 		_getHeaderLabel: function(day) {
 
-			var format = this.options.headerformat;
+			var format = this.options.headerFormat;
 
 			switch(format) {
 				case 'd': return day.substring(0, 1);
@@ -334,7 +337,8 @@
 				h.push(this._format('weekday', {
 					'title': this._days[i],
 					'day':  this._getHeaderLabel(this._days[i]),
-					'class': this._class('header')
+					'class': this._class('header'),
+					'ariaLabel': this._days[i]
 				}));
 			}
 			return h.join('');

@@ -1,4 +1,6 @@
-
+// mk-component
+// base class-y for mk-library classes
+//  v1.0.0
 !function( $ ) {
 
 	//
@@ -22,8 +24,8 @@
 	function copy(o) {
 
 		if (o instanceof Array) {
-			for(var i = 0, l = o.length, a = []; 
-					i < l && a.push(copy(o[i])); 
+			for(var i = 0, l = o.length, a = [];
+					i < l && a.push(copy(o[i]));
 					i++) { /* fast as hell */ }
 
 			return a;
@@ -141,13 +143,13 @@
 
 		hidden: function(bool) {
 
-			var r = 'hidden', 
-				a = 'visible', 
+			var r = 'hidden',
+				a = 'visible',
 				b = 'false';
 
 			if (bool === true || bool === undefined) {
-				r = 'visible', 
-				a = 'hidden', 
+				r = 'visible',
+				a = 'hidden',
 				b = 'true';
 			}
 			return this._class(r, true)._class(a)._attr('hidden', b);
@@ -159,13 +161,13 @@
 
 		expanded: function (bool) {
 
-			var r = 'collapsed', 
-				a = 'expanded', 
+			var r = 'collapsed',
+				a = 'expanded',
 				b = 'true';
 
 			if (bool === false) {
-				r = 'expanded', 
-				a = 'collapsed', 
+				r = 'expanded',
+				a = 'collapsed',
 				b = 'false';
 			}
 			return this._class(r, true)._class(a)._attr('expanded', b);
@@ -177,13 +179,13 @@
 
 		disabled: function(bool) {
 
-			var r = 'disabled', 
-				a = 'enabled', 
+			var r = 'disabled',
+				a = 'enabled',
 				b = 'false';
 
 			if (bool === true || bool === undefined) {
-				r = 'enabled', 
-				a = 'disabled', 
+				r = 'enabled',
+				a = 'disabled',
 				b = 'true';
 			}
 			return this._class(r, true)._class(a)._attr('disabled', b);
@@ -195,13 +197,13 @@
 
 		selected: function(bool) {
 
-			var r = 'deselected', 
-				a = 'selected', 
+			var r = 'deselected',
+				a = 'selected',
 				b = 'true';
 
 			if (bool === false) {
-				r = 'selected', 
-				a = 'deselected', 
+				r = 'selected',
+				a = 'deselected',
 				b = 'false';
 			}
 			return this._class(r, true)._class(a)._attr('selected', b);
@@ -224,7 +226,7 @@
 			if (/additions|removals|text|all/i.test(value)) {
 				this.atomic();
 			}
-			else { 
+			else {
 				value = '';
 				this.deatomize();
 			}
@@ -385,7 +387,7 @@
 
 			data = data || {};
 
-			var t = this._templates.hasOwnProperty(name) 
+			var t = this._templates.hasOwnProperty(name)
 					&& this._templates[name] || null;
 
 			if (!t) {
@@ -428,7 +430,7 @@
 		}
 	};
 
-	//Expose. 
+	//Expose.
 	//All extending components will become static members of MkComponent.
 
 	//for instance:
