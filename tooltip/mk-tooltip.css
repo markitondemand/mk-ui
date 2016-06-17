@@ -11,6 +11,7 @@
 	box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.3);
 	color: #ffffff;
 	display: none;
+	opacity: 0;
 	font-size: 80%;
 	margin: 10px; /* IMPORTANT VALUE: measurement for the :after selector */
 	max-width: 300px;
@@ -19,6 +20,13 @@
 	z-index: 1;
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.3);
 	-moz-box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.3);
+}
+
+.mk-tooltip-transitions {
+	transition: all .2s;
+	-moz-transition: all .2s;
+	-webkit-transition: all .2s;
+	-o-transition: all .2s;
 }
 
 .mk-tooltip:after {
@@ -56,6 +64,12 @@
 
 .mk-tooltip.aria-visible {
 	display: block;
+	visibility: hidden;
+}
+
+.mk-tooltip.show {
+	opacity: 1;
+	visibility: visible;
 }
 
 .mk-tooltip.rtl.left:after {

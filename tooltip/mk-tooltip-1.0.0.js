@@ -1,7 +1,7 @@
 
 !function ($) {
 
-	'use strict';
+	//'use strict';
 
 	$.Mk.create('Tooltip', {
 
@@ -18,7 +18,7 @@
 			this.bind();
 		},
 
-		_define: function() {
+		_define: function () {
 
 			this._name = 'mk-tooltip';
 
@@ -27,7 +27,7 @@
 				container: [
 					'<div />'
 				],
-				
+
 				tooltip: [
 					'<div>{{text}}</div>'
 				],
@@ -38,48 +38,43 @@
 			};
 		},
 
-		_click: function(e) {
+		_click: function (e) {
+
 			if ($(e.target).data('toggle') == 'click') {
+
 				e.preventDefault();
+				this.show(e.currentTarget);
 			}
 		},
 
 		_down: function (e) {
-
+	
 			var $t = $(e.target),
 				ns = '.' + this._name;
 
-			if ($t.is(ns) 
+			if ($t.is(ns)
 				|| $t.closest(ns).length) {
 				return;
 			}
 
-			this.hide();
-
 			if (!$t.is(this._class('trigger', true))) {
-				 $t = $t.closest(this._class('trigger', true));
+				$t = $t.closest(this._class('trigger', true));
 			}
 
 			if ($t.length && $t.data('toggle') == 'click') {
 				this.show($t);
 				this._trackDialogFocus($t, this._findTooltip($t));
+				return;
 			}
+
+			this.hide();
 		},
 
 		_over: function (e) {
 
-			var $t = $(e.target);
+			var $t = $(e.currentTarget);
 
 			if ($t.data('toggle') == 'click') {
-
-				this._findTooltip($t);
-
-				if (e.type == 'focusin') {
-					var me = this;
-					$t.on(this._ns('keydown'), function(e) {
-						me._keypress(e, $t);
-					});
-				}
 				return;
 			}
 			this.hide();
@@ -88,18 +83,20 @@
 
 		_out: function (e) {
 
-			var $t = $(e.target);
+			var $t = $(e.currentTarget),
+				$o = $(e.toElement);
+
+			if ($o.length && $o.closest(this._class('trigger', true)).length) {
+				return;
+			}
 
 			if ($t.data('toggle') == 'click') {
-				if (e.type == 'focusout') {
-					$t.off(this._ns('keydown'));
-				}
 				return;
 			}
 			this.hide($t);
 		},
 
-		_keypress: function(e, $t) {
+		_keypress: function (e, $t) {
 
 			if (e.which == 13 || e.which == 32) {
 
@@ -113,7 +110,7 @@
 			}
 		},
 
-		_trackDialogFocus: function($t, $tip) {
+		_trackDialogFocus: function ($t, $tip) {
 
 			var $killer = $tip.find(this._class('killswitch', true));
 
@@ -126,8 +123,8 @@
 
 				var me = this;
 
-				$killer.on(this._ns('focus'), function() {
-					 me.hide();
+				$killer.on(this._ns('focus'), function () {
+					me.hide($t);
 					$t.focus();
 				});
 				$tip.append($killer);
@@ -137,17 +134,28 @@
 		_getContainer: function () {
 
 			if (!this.$tipsContainer) {
-				
+
 				var $c = this.$container.find(this._class('container', true));
 
 				if (!$c.length) {
-					 $c = this._template('container');
-					 $c.addClass(this._class('container'));
-					 $c.appendTo(this.$container);
+					$c = this._template('container');
+					$c.addClass(this._class('container'));
+					$c.appendTo(this.$container);
 				}
 				this.$tipsContainer = $c;
 			}
 			return this.$tipsContainer;
+		},
+
+		_getParent: function ($t) {
+
+			var  parent = $t.data('parent'),
+				$parent = this._getContainer();
+
+			if (parent) {
+				$parent = $(parent);
+			}
+			return $parent;
 		},
 
 		_findTrigger: function (el) {
@@ -158,28 +166,44 @@
 			return $(el);
 		},
 
-		_findTooltip: function($t) {
+		_findTooltip: function ($t) {
 
 			var $tip = this.aria($t).describedby();
 
 			if (!$tip.length) {
 
-				 if ($t.data('title')) {
-				 	 $tip = this._template('tooltip', {text: $t.data('title')});
-				 	 $tip.addClass(this._name);
-				 }
-				 else {
+				if ($t.data('title')) {
+					$tip = this._template('tooltip', { text: $t.data('title') });
+					$tip.addClass(this._name);
+				}
+				else {
 
 					$tip = $t.find('.' + this._name);
 
 					if (!$tip.length) {
-						 $tip = $t.parent().find('.' + this._name);
+						$tip = $t.parent().find('.' + this._name);
 					}
 				}
+
+				if ($.Mk.transitions()) {
+					$tip.addClass(this._class('transitions'));
+				}
+
 				this._applyAria($tip, $t);
-				this._getContainer().append($tip);
+				this._bindTooltipEvents($tip, $t);
+				this._getParent($t).append($tip);
 			}
 			return $tip;
+		},
+
+		_bindTooltipEvents: function ($tip, $t) {
+
+			var me = this;
+			$tip.on(this._ns('click'), '[data-action=close]', function (e) {
+				e.preventDefault();
+				me.hide($t);
+				$t.focus();
+			});
 		},
 
 		_applyAria: function ($tip, $trigger) {
@@ -194,7 +218,7 @@
 			}
 		},
 
-		_applyAriaDialog: function($tip, $trigger) {
+		_applyAriaDialog: function ($tip, $trigger) {
 
 			this.aria($tip).labelledby($trigger).role('dialog').noindex();
 			this.aria($trigger).haspopup(true);
@@ -208,21 +232,21 @@
 				win = $(window),
 
 				tg = {
-				width:  $trigger.width(),
-				height: $trigger.height(),
-				offset: $trigger.offset()
-			},
+					width: $trigger.width(),
+					height: $trigger.height(),
+					offset: $trigger.offset()
+				},
 				tp = {
-				width:   $tip.outerWidth(),
-				widthM:  $tip.outerWidth(true),
-				height:  $tip.outerHeight(),
-				heightM: $tip.outerHeight(true)
-			};
+					width: $tip.outerWidth(),
+					widthM: $tip.outerWidth(true),
+					height: $tip.outerHeight(),
+					heightM: $tip.outerHeight(true)
+				};
 
 			xy = xy || {};
 
 			//set x if x is not being passed in directly
-			if (!xy.x && xy.x !== 0) {	
+			if (!xy.x && xy.x !== 0) {
 				this._positionX(rtl, tg, tp, xy, win, $tip);
 			}
 			//set Y if y is not being passed in directly
@@ -230,10 +254,10 @@
 				this._positionY(rtl, rev, tg, tp, xy, win, $tip);
 			}
 			//apply
-			$tip.css({left: xy.x, top: xy.y});
+			$tip.css({ left: xy.x, top: xy.y });
 		},
 
-		_positionX: function(rtl, tg, tp, xy, win, $tip) {
+		_positionX: function (rtl, tg, tp, xy, win, $tip) {
 
 			if (rtl) {
 				//left/right vs. top bottom...
@@ -243,7 +267,7 @@
 			this._xStandard(tg, tp, xy, win, $tip);
 		},
 
-		_xRtl: function(tg, tp, xy, $tip) {
+		_xRtl: function (tg, tp, xy, $tip) {
 
 			//position to the left of the trigger...
 			xy.x = tg.offset.left - tp.widthM - ((tp.widthM - tp.width) / 2);
@@ -256,7 +280,7 @@
 			}
 		},
 
-		_xStandard: function(tg, tp, xy, win, $tip) {
+		_xStandard: function (tg, tp, xy, win, $tip) {
 
 			//try centering...
 			xy.x = tg.offset.left + (tg.width / 2);
@@ -275,7 +299,7 @@
 			}
 		},
 
-		_positionY: function(rtl, rev, tg, tp, xy, win, $tip) {
+		_positionY: function (rtl, rev, tg, tp, xy, win, $tip) {
 
 			if (rtl) {
 				//position completely different for right-to-left
@@ -300,17 +324,17 @@
 			}
 		},
 
-		_yTop: function(tg, tp, xy, $tip) {
+		_yTop: function (tg, tp, xy, $tip) {
 			xy.y = tg.offset.top - tp.heightM;
 			$tip.removeClass('reverse');
 		},
 
-		_yBottom: function(tg, tp, xy, $tip) {
+		_yBottom: function (tg, tp, xy, $tip) {
 			xy.y = tg.offset.top + tg.height;
 			$tip.addClass('reverse');
 		},
 
-		_yRtl: function(tg, tp, xy, win, $tip) {
+		_yRtl: function (tg, tp, xy, win, $tip) {
 
 			//try center first...
 			xy.y = tg.offset.top + (tg.height / 2) - (tp.heightM / 2);
@@ -344,7 +368,8 @@
 					self._out(e);
 				})
 			.on(
-				this._ns('click'), this._class('trigger', true), function(e) {
+				this._ns('click'), this._class('trigger', true), function (e) {
+
 					self._click(e);
 				})
 			.on(
@@ -353,40 +378,80 @@
 				});
 		},
 
+		_fluid: function ($tip, $t, reset) {
+
+			if ($tip.hasClass(this._class('fluid'))) {
+
+				var $p = this._getParent($t);
+
+				if (reset === true) {
+					$p.removeAttr('style');
+					$tip.removeAttr('style');
+					return;
+				}
+
+				var tiph = $tip.outerHeight(),
+					ph = $p.outerHeight();
+
+				if (tiph > ph) {
+					$p.height(tiph);
+				}
+				else {
+					$tip.height(ph);
+				}
+			}
+		},
+
 		show: function (el, xy) {
 
-			var $t = this._findTrigger(el),
+			var me = this,
+				$t = this._findTrigger(el),
 				$tip = this._findTooltip($t);
-				
+
 			this.aria($tip).visible();
 			this._position($tip, $t, xy);
+
+			$tip.removeClass('transition');
 
 			if ($t.data('toggle') == 'click') {
 				$tip.focus();
 			}
 
-			var me = this;
-			$(window).one(this._ns('resize'), function() {
+			$(window).one(this._ns('resize'), function () {
 				me.hide();
 			});
-			
+
+			this._fluid($tip, $t);
 			this.$container.trigger(this._ns('show'), [$t, $tip]);
+
+			this.clearTransitions($tip);
+
+			$tip.addClass('show');
 		},
 
-		hide: function(el) {
+		hide: function (el) {
 
 			$(window).off(this._ns('resize'));
 
-			if (el == undefined) return this.hideAll();
+			if (!el) return this.hideAll();
 
-			var $trigger = this._findTrigger(el), 
-				$tip = this.aria($trigger).describedby();
+			var $trigger = this._findTrigger(el),
+				$tip = this.aria($trigger).describedby(),
+				me = this;
 
-			$tip.removeClass('reverse left right rtl top bottom');
-			$tip.css({left: 'auto', top: 'auto'});
+			this.clearTransitions($tip);
+			this.transition($tip, function () {
+				
+				$tip.removeClass('reverse left right rtl top bottom');
+				$tip.removeAttr('style');
 
-			this.aria($tip).hidden();
-			this.$container.trigger(this._ns('hide'), [$trigger, $tip]);
+				me._fluid($tip, $trigger, true);
+				me.aria($tip).hidden();
+				me.$container.trigger(me._ns('hide'), [$trigger, $tip]);
+			});
+
+			//kicks off transition event
+			$tip.removeClass('show');
 
 			return this;
 		},
@@ -394,14 +459,9 @@
 		hideAll: function () {
 
 			var me = this;
-			this._getContainer().find('.' + this._name).each(function() {
-
-				$(this).removeClass('reverse left right rtl top bottom')
-					.css({left: 'auto', top: 'auto'});
-
-				me.aria(this).hidden();
+			this.$container.find(this._class('trigger', true)).each(function() {
+				me.hide(this);
 			});
-			//TODO: add container trigger
 			return this;
 		}
 	});
