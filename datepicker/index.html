@@ -7,6 +7,7 @@
 		<link href="http://fonts.googleapis.com/css?family=Roboto+Slab:400,700" rel="stylesheet" type="text/css" />
 		<link type="text/css" rel="stylesheet" href="../theme/mk-ui.css" />
 		<link type="text/css" rel="stylesheet" href="mk-datepicker.css" />
+		<link type="text/css" rel="stylesheet" href="../lib/jasmine-2.3.0/jasmine.css" />
 	</head>
 	<body>
 		<nav class="navbar navbar-default navbar-theme">
@@ -73,11 +74,16 @@
 		</div>
 		<script src="../lib/jquery-2.2.4/jquery.js"></script>
 		<script src="../component/mk-component.js"></script>
-		<script src="mk-datepicker-1.0.0.js"></script>
+		<script src="mk-datepicker.js"></script>
+		<script src="../lib/jasmine-2.3.0/jasmine.js"></script>
+		<script src="../lib/jasmine-2.3.0/jasmine-html.js"></script>
+		<script src="../lib/jasmine-2.3.0/boot.js"></script>
+		<script src="spec/mk-datepicker.spec.js"></script>
 		<script type="text/javascript">
 
 			$(function(){
-				$('.mk-datepicker-trigger').mkdatepicker();
+				$('.mk-datepicker-trigger').mkdatepicker(
+				);
 			});
 		</script>
 	</body>

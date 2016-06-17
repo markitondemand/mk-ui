@@ -1,3 +1,5 @@
+/// mk-datepicker ///
+/// v1.0.3       ///
 
 !function($) {
 
@@ -53,7 +55,7 @@
 
 				weekday: [
 					'<th class="{{class}}">',
-						'<abbr title="{{title}}">{{day}}</abbr>',
+						'<abbr aria-label={{ariaLabel}} title="{{title}}">{{day}}</abbr>',
 					'</th>'
 				],
 
@@ -73,7 +75,7 @@
 				next_button_label: 'Go to next month',
 				prev_button_year_label: 'Go to previous year',
 				next_button_year_label: 'Go to next year',
-				table_label: '{{month}} {{year}}'				
+				table_label: '{{month}} {{year}}'
 			};
 		},
 
@@ -177,12 +179,12 @@
 			o.format = o.format || $t.data('format') || this._defaultFormat;
 
 			//weekday format
-			o.headerformat = o.headerformat || $t.data('header-format') || this._defaultHeaderFormat;
+			o.headerFormat = o.headerFormat || $t.data('header-format') || this._defaultHeaderFormat;
 
 			//initial date
 			o.initial = o.initial || $t.data('initial') || $t.val() || null;
-			o.initial = o.initial instanceof Date 
-				&& o.initial || o.initial 
+			o.initial = o.initial instanceof Date
+				&& o.initial || o.initial
 				&& this.stringToDate(o.initial) || new Date();
 
 			o.max = o.max || $t.data('max') || null;
@@ -195,12 +197,12 @@
 			if ($max && $max.length) {
 				o.$max = $max;
 				o.max  = null;
-			} 
+			}
 			//string date, else Date object or unlimited
 			if (typeof o.max == 'string') {
 				o.max = this.stringToDate(o.max);
 			}
-			
+
 			//jquery link
 			if ($min && $min.length) {
 				o.$min = $min;
@@ -210,7 +212,7 @@
 			if (typeof o.min == 'string') {
 				o.min = this.stringToDate(o.min);
 			}
-			
+
 			if (o.min && o.initial < o.min) {
 				o.initial = new Date(o.min.getFullYear(), o.min.getMonth(), o.min.getDate());
 			}
@@ -223,23 +225,26 @@
 			for(var t in this._templates) {
 				this._templates[t] = options['template_' + t] || this._templates[t];
 			}
+
+			var i = o.initial,
+				d = this.date = new Date(i.getFullYear(), i.getMonth(), i.getDate());
+
+			this.year = d.getFullYear();
+			this.month = d.getMonth();
+			this.day = d.getDate();
+
+			this.options = o;
 		},
 
 		_init: function($target, options) {
 
 			this.$target = $($target);
 			this.$target.attr('autocomplete', 'off');
-			
+
 			this.selected = null;
 
 			this._buildOptions(options);
 
-			var i = this.options.initial,
-				d = this.date = new Date(i.getFullYear(), i.getMonth(), i.getDate());
-
-			this.year = d.getFullYear();
-			this.month = d.getMonth();
-			this.day = d.getDate();
 
 			this._define();
 			this._build();
@@ -317,7 +322,7 @@
 
 		_getHeaderLabel: function(day) {
 
-			var format = this.options.headerformat;
+			var format = this.options.headerFormat;
 
 			switch(format) {
 				case 'd': return day.substring(0, 1);
@@ -332,7 +337,8 @@
 				h.push(this._format('weekday', {
 					'title': this._days[i],
 					'day':  this._getHeaderLabel(this._days[i]),
-					'class': this._class('header')
+					'class': this._class('header'),
+					'ariaLabel': this._days[i]
 				}));
 			}
 			return h.join('');
@@ -352,7 +358,7 @@
 				date    = 1,
 				count   = 1,
 
-			$c = this._template('calendar_body'), 
+			$c = this._template('calendar_body'),
 			$row = this._buildCalendarRow(),
 			$day;
 
@@ -380,7 +386,7 @@
 			if (max && now > max) {
 				activeDay = max.getDate();
 			}
-			
+
 			for (date = 1; date <= days; date++) {
 
 				now.setDate(date);
@@ -430,8 +436,8 @@
 
 			var d = new Date();
 
-			return d.getFullYear() === year 
-				&& d.getMonth() === month 
+			return d.getFullYear() === year
+				&& d.getMonth() === month
 				&& d.getDate() === date;
 		},
 
@@ -469,7 +475,7 @@
 			if (nextMonth) {
 				$day.addClass('next');
 			}
-		
+
 			if (disabled) {
 				this.aria($day).disabled();
 			}
@@ -582,8 +588,8 @@
 
 			var $t = $(e.target);
 
-			if ($t.is(this.$target) 
-				|| $t.is(this.$container) 
+			if ($t.is(this.$target)
+				|| $t.is(this.$container)
 				|| $t.closest('.' + this._name).is(this.$container)) {
 				return;
 			}
@@ -593,7 +599,7 @@
 		_focusReadonly: function(e) {
 
 			if (this.$target.prop('readonly')) {
-		
+
 				if (this._focusFromCalendar) {
 					this._focusFromCalendar = false;
 					return;
@@ -628,8 +634,8 @@
 
 		_keydownTarget: function(e) {
 
-			if (e.which === this._keys.space 
-				|| e.which === this._keys.down 
+			if (e.which === this._keys.space
+				|| e.which === this._keys.down
 				|| (e.which === this._keys.enter && ! e.target.value)) {
 
 				e.preventDefault();
@@ -997,7 +1003,7 @@
 
 				var picker = $link.data(this._name) || { date: new Date(), selected: null };
 
-				if (!picker.selected || (picker.date.getDate() === this.date.getDate() 
+				if (!picker.selected || (picker.date.getDate() === this.date.getDate()
 					&& picker.date.getMonth() === this.date.getMonth()
 					&& picker.date.getFullYear() === this.date.getFullYear())) {
 					return null;
@@ -1014,10 +1020,10 @@
 				max = this._getLimit(this.options.max, this.options.$max);
 
 			if (min) {
-				
+
 				var minyear = min.getFullYear(),
 					minmonth = min.getMonth();
-	
+
 				if (minyear >= this.year) {
 
 					this.date.setFullYear(minyear);
@@ -1025,7 +1031,7 @@
 
 					this._prevYearDisabled = true;
 					this.aria($c.find(this._class('prev-y', true))).disabled();
-				} 
+				}
 				else {
 					this._prevYearDisabled = false;
 					this.aria($c.find(this._class('prev-y', true))).enabled();
@@ -1038,7 +1044,7 @@
 
 					this._prevMonthDisabled = true;
 					this.aria($c.find(this._class('prev-m', true))).disabled();
-				} 
+				}
 				else {
 					this._prevMonthDisabled = false;
 					this.aria($c.find(this._class('prev-m', true))).enabled();
@@ -1046,12 +1052,12 @@
 			}
 
 			if (max) {
-				
+
 				var maxyear = max.getFullYear(),
 					maxmonth = max.getMonth();
 
 				if (maxyear <= this.year) {
-					
+
 					this.date.setFullYear(maxyear);
 					this.year = maxyear;
 
@@ -1070,7 +1076,7 @@
 
 					this._nextMonthDisabled = true;
 					this.aria($c.find(this._class('next-m', true))).disabled();
-				} 
+				}
 				else {
 					this._nextMonthDisabled = false;
 					this.aria($c.find(this._class('next-m', true))).enabled();
@@ -1083,7 +1089,7 @@
 			if (month < 0) {
 				month = 11;
 				year--;
-			} 
+			}
 			else if (month > 11) {
 				month = 0;
 				year++;
@@ -1127,6 +1133,9 @@
 
 			this.$calendar.find(this._class('calendar-body', true)).remove();
 
+			this.day = day || this.day;
+			this.month = month || this.month;
+			this.year = year || this.year;
 			var $body = this._buildCalendarBody(this.$calendar, day || this.day, month || this.month, year || this.year);
 				$body.addClass(this._class('calendar-body'));
 
