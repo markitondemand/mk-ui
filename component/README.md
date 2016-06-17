@@ -1,4 +1,4 @@
-### Table Of Contents
+##### Table Of Contents
 
 1. What is MkComponent?
 2. Features
@@ -6,6 +6,7 @@
   - Utils
   - Template System
   - Format System
+  - Transition Support
   - Aria
   - Extending Existing Components
 3. The Aria API
@@ -240,6 +241,107 @@ Just like the Templating System we can use the MkComponent Formatting System. Th
 }( window.jQuery );
 ```
 
+##### Transition Support
+MkComponent comes with transition event detectors, an opt-in ability to globally set transition classes, and a useful transition/clearTransition method for easily adding callbacks which work as immediate executing functions when transitions are off, making use of handling functionlity for you.
+
+Let's take a look at wrapping some functionality up in a transition callback.
+
+```javascript
+!function( $ ) {
+
+  'use strict';
+  
+  $.Mk.create('Dropdown', {
+  
+    _define: function() {
+    
+      this._name = 'my-dropdown';
+      
+      this._templates = {
+        list: ['<ul />'],
+        item: [
+          '<li>',
+            '<a href="javascript: void(0);">{{label}}</a>',
+          '</li>'
+        ]
+      };
+    },
+    
+    _init: function($target, options) {
+      
+      this.$target = $($target);
+      this.options = this._copy(options);
+      this._define();
+      
+      this.$list = this._build();
+      this.$list.insertAfter(this.$target);
+      
+      this._bind();
+    },
+    
+    _build: function() {
+      
+      var $list = this._template('list');
+          $list.addClass(this._class('menu'));
+          
+      for(var i = 1, $item; i <= 5; i++) {
+          $item = this._template('item', {label: this._label(i)});
+          $item.addClass(this._class('item'));
+          $list.append($item);
+      }
+      return $list;
+    },
+    
+    _label: function(i) {
+    
+      var data = {number: i};
+    
+      if (i < 10) {
+        return this._format('Item Number 0{{number}}', data);
+      }
+      return this._format('Item Number {{number}}', data)
+    },
+    
+    _bind: function() {
+      
+      var me = this;
+      
+      this.$target.on(this._ns('click'), function() {
+        me._click(e);
+      });
+    },
+    
+    _click: function(e) {
+      
+      e.preventDefault();
+      
+      var me = this;
+      
+      this.transition(this.$target, function() {
+        alert('we just did a css transition, now let's do something else!');
+      });
+      this.$target.addClass('transitioning-open');
+    }
+  });
+
+}( window.jQuery );
+```
+
+With the above code, when transitions are enabled, the class will be added and animations will do their thing. When complete, the callback will fire off. When transitions are turned off, the callback will just fire off so there is no bulking up your code with if/else statements or any of that nonsense.
+
+To turn transitions on/off you can either simply include the mk-transition.js file OR somewhere in your code provide the following:
+
+```javascript
+//turn them on
+$.Mk.transitions(true);
+
+//turn them off
+$.Mk.transitions(false);
+
+//get the value
+var transitionsEnabled = $.Mk.transitions();
+```
+
 ##### Aria
 
 Lets talk about Aria. Aria is the key ingredient when making rich web components play nicely with keyboard and screen reader accessible users. Aria, and Roles, are basically responsible for interpreters to unerstand what your components are and what they are doing while interacting. Aria and Roles are absolutely essencial when it comes to making WCAG 2.0 compliant user interfaces.
@@ -275,6 +377,8 @@ That said, this example is very, very basic and thus adding in a bunch of aria i
       
       this.$list = this._build();
       this.$list.insertAfter(this.$target);
+      
+      this._bind();
     },
     
     _build: function() {
@@ -303,13 +407,36 @@ That said, this example is very, very basic and thus adding in a bunch of aria i
         return this._format('Item Number 0{{number}}', data);
       }
       return this._format('Item Number {{number}}', data)
+    },
+    
+    _bind: function() {
+      
+      var me = this;
+      
+      this.$target.on(this._ns('click'), function() {
+        me._click(e);
+      });
+    },
+    
+    _click: function(e) {
+      
+      e.preventDefault();
+      
+      var me = this;
+      
+      this.transition(this.$target, function() {
+        //notify aria api our element is now active
+        me.aria(me.$target).visible();
+        //do other stuff...
+      });
+      this.$target.addClass('transitioning-open');
     }
   });
 
 }( window.jQuery );
 ```
 
-Let's break down the above example. First we are calling out that the $list is owned by the $target element. Secondly, we are assigning a role of 'menu' to the list and letting Aria know you can describe the list by it's owner element, the $target. We are also calling hidde() on the list to apply aria and classname attributes which signify to screen readers the menu is not open for reading at this time. Next up, for each item we are adding a role of 'menuitem' in association with its parent 'menu.' Finally, if we are on the first item in the list we want to set the selected state to true.
+Let's break down the above example. First we are calling out that the $list is owned by the $target element. Secondly, we are assigning a role of 'menu' to the list and letting Aria know you can describe the list by it's owner element, the $target. We are also calling hidde() on the list to apply aria and classname attributes which signify to screen readers the menu is not open for reading at this time. Next up, for each item we are adding a role of 'menuitem' in association with its parent 'menu.' Then, if we are on the first item in the list, we want to set the selected state to true. Finally, we are telling aria that our element is visible after a click even is fired (in the transition callback).
 
 As you can see, it's quite complex to set up aria and this is just a basic setup! Imaging having to track hovers, keyboard toggling, expanding/collapsing, etc. etc. It can get crazy. The Aria API helps ease some of that madness by handling a lot of the tracking for you, generating IDs when it can, and applying the correct attributes and classname for easy handling and CSS styling.
 
