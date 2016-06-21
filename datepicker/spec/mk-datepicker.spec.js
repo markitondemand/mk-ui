@@ -291,6 +291,7 @@ describe('mk-datepicker', function () {
 		  expect(allLabelled).toBe(true);
 	  });
 
+
 	  it('labels table headers with arial-label', function () {
 		  var allLabelled = true;
 		  wrapper.find('thead th > *').each(function (i, e) {
@@ -302,6 +303,13 @@ describe('mk-datepicker', function () {
 	  it('has a caption', function () {
 		  var hasCaption = wrapper.find('caption').length;
 		  expect(hasCaption).toBeTruthy();
+	  });
+
+	  it('applies an aria-labelledby to the table and points to caption', function () {
+		  var captionLabelId = wrapper.find('table').attr('aria-labelledby');
+		  console.log(captionLabelId);
+		  var ariaTarget = $("#" + captionLabelId);
+		  expect(ariaTarget.length).toEqual(1);
 	  });
 
 	  it('applies aria-selected to the active date', function () {

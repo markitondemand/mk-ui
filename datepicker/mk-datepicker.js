@@ -1,5 +1,5 @@
 /// mk-datepicker ///
-/// v1.0.3       ///
+/// v1.0.4       ///
 
 !function($) {
 
@@ -315,7 +315,7 @@
 			this._checkRange();
 
 			this.aria($c).index(0).role('grid').labelledby(
-				this.$controls.find(this._class('label', true)));
+				$c.find(this._class('label', true)));
 
 			return $c;
 		},
