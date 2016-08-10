@@ -1,6 +1,6 @@
 // mk-component
 // base class-y for mk-library classes
-//  v1.0.0
+//  v1.0.1
 !function( $ ) {
 
 	//
@@ -65,7 +65,7 @@
 
 		if (transitionsEnabled) {
 
-			var el = document.createElement('xtransitionx'), t;
+			var el = document.createElement('xanimate'), t;
 
 			for (t in transitions) {
 				if (el.style[t] !== undefined) {
@@ -332,12 +332,27 @@
 		]
 	};
 
+	MkComponent.define = function _assign(n, o) {
+
+		var a = MkComponent,
+		p = n.split('.');
+
+		for (var i = 0, l = p.length - 1; i < l; i++) {
+
+			if (!a.hasOwnProperty(p[i])) {
+				a[ p[ i ] ] = {};
+			}
+			a = a[ p[ i ] ];
+		}
+		return a[ p[ p.length - 1 ] ] = o;
+	};
+
 	MkComponent.create = function create(name, base, proto) {
 
 		proto = proto || base || {};
 		base  = base instanceof Function && new base(_bypass) instanceof MkComponent && base || MkComponent;
 
-		var Component = function MkComponent() {
+		var i, Component = function MkComponent() {
 			if (arguments[0] !== _bypass) {
 				this._init.apply(this, arguments);
 			}
@@ -346,17 +361,35 @@
 
 		Component.prototype = new base(_bypass);
 
-		for(var i in proto) {
+		for(i in proto) {
 			Component.prototype[i] = copy(proto[i]);
 		}
-		return MkComponent[name] = Component;
+		return MkComponent.define(name, Component);
+	};
+
+	MkComponent.get = function (name) {
+
+		var o = null, mk = MkComponent,
+		p = name.split('.');
+
+		for (var i = 0, l = p.length; i < l; i++) {
+
+			if (mk.hasOwnProperty(p[i])) {
+				o = mk[ p[i] ];
+				mk = o;
+			}
+			else {
+				o = null;
+			}
+		}
+		return o;
 	};
 
 	MkComponent.transitions = function transitions(b) {
-		
+
 		if (b === true) {
 			transitionsEnabled = true;
-		} else if (b === false){
+		} else if (b === false) {
 			transitionsEnabled = false;
 		}
 		return transitionsEnabled;
@@ -366,7 +399,7 @@
 
 		// templates property.
 		// see _templates();
-		_templates: null,
+		_templates: {},
 
 		// used to prefix our component uids
 		// so we have some visual context
@@ -393,7 +426,7 @@
 		// generates specific name based off the component name
 		// this is helpful for seperating components that extend each other.
 		_class: function _class(name, asSelector) {
-			return (asSelector && '.' || '') + this._name + '-' + name;
+			return (asSelector && '.' || '') + this._name + (name && '-' + name || '');
 		},
 
 		// helper method if you hever want to copy something..
@@ -450,7 +483,7 @@
 			}
 
 			return str.replace(/{{(!?\w+)}}/g, function(s, c) {
-				return data[c] || '';
+				return data[c] === undefined ? '' : data[c];
 			});
 		},
 
