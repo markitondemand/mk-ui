@@ -320,6 +320,7 @@
 	var _bypass = '-mk-bypass-' + uid();
 
 	function MkComponent() {
+
 		if (arguments[0] !== _bypass) {
 			this._init.apply(this, arguments);
 		}
@@ -353,6 +354,7 @@
 		base  = base instanceof Function && new base(_bypass) instanceof MkComponent && base || MkComponent;
 
 		var i, Component = function MkComponent() {
+
 			if (arguments[0] !== _bypass) {
 				this._init.apply(this, arguments);
 			}
@@ -364,6 +366,9 @@
 		for(i in proto) {
 			Component.prototype[i] = copy(proto[i]);
 		}
+
+		Component.prototype.__super__ = base;
+
 		return MkComponent.define(name, Component);
 	};
 
@@ -487,10 +492,39 @@
 			});
 		},
 
+		_arguments:	function _arguments(args) {
+		    for(var i = 0, a = [], l = args.length;
+					i < l && a.push(args[i]);
+					i++) { }
+		    return a;
+		},
+
 		// init our component.
 		// Every component should have an init method
 		_init: function _init() {
 			this._define();
+		},
+
+		super: function (methodname) {
+
+			if (this.__super__) {
+
+				var args = this._arguments(arguments);
+				args.shift();
+
+				var method = this.__super__.prototype[methodname];
+				var pointer = this.__super__;
+				var result;
+
+				if (typeof method == 'function') {
+
+					this.__super__ = this.__super__.prototype.__super__;
+					result = method.apply(this, args);
+					this.__super__ = pointer;
+					return result;
+				}
+			}
+			throw new Error('MkComponent: no super class or method name, ' + methodname);
 		},
 
 		// aria
@@ -524,7 +558,22 @@
 			var t = transition();
 
 			if (t) $($el).off(t);
-		}
+		},
+
+		each: function (a, fn) {
+
+	      if (a && a.length) {
+	        for(var i = 0, l = a.length;
+	          i < l && fn.call(this, a[i], i) !== false;
+	          i++) {}
+	      }
+	      else {
+	        for (var i in a) {
+	          if (fn.call(this, i, a[i]) === false) break;
+	        }
+	      }
+	      return this;
+    }
 	};
 
 	//Expose.
