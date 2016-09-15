@@ -701,7 +701,7 @@
 			this.aria(this.$list).activedescendant(null);
 
 			if (this.options.render) {
-				this.options.render.apply(this, data);
+				this.options.render.call(this, data);
 			}
 			else {
 				for (var i = 0, l = data.length, $li; i < l; i++) {
