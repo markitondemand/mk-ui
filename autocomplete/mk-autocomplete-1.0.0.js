@@ -212,13 +212,14 @@
 				key: this.$input.data('key') || this._key
 			};
 
-			for(var i in options) {
-				this.options[i] = options[i];
+			options.templates = options.templates || {};
+
+			for (var t in options.templates) {
+				 this._templates[t] = options.templates[t];
 			}
 
-			for (var p in this._templates) {
-				 this._templates[p] = 
-				 	this.options['template_' + p] || this._templates[p];
+			for(var i in options) {
+				this.options[i] = options[i];
 			}
 		},
 
@@ -287,6 +288,13 @@
 				e.preventDefault();
 				me.removeSelected($(this).attr('data-value'));
 			});
+		},
+
+		index: function ($el, $list) {
+			for (var i = 0, l = $list.length; i < l; i++) {
+				if ($el[0] === $list[i]) return i;
+			}
+			return 0;
 		},
 
 		show: function () {
@@ -370,7 +378,7 @@
 				  firstTime = true;
 			}
 
-			var index = $item.index(),
+			var index = this.index($item, $items),
 				next  = index,
 				step  = e.which == 38 ? -1 : 1;
 
@@ -686,21 +694,34 @@
 			data = data || [];
 
 			this.cache[this.query.toUpperCase()] = data;
+
 			this.$list.empty();
+
 			this.aria(this.$list).activedescendant(null);
 			this.aria(this.$list).activedescendant(null);
 
-			for (var i = 0, l = data.length, $li; i < l; i++) {
-
-				$li = this._template('item', data[i], this.query);
-				$li.addClass(this._class('item'));
-				$li.attr('id', this._uid());
-
-				this.aria($li).role('option');
-				this.$list.append($li);
+			if (this.options.render) {
+				this.options.render.apply(this, data);
+			}
+			else {
+				for (var i = 0, l = data.length, $li; i < l; i++) {
+					this.$list.append(
+						this.renderItem(data[i]));
+				}
 			}
 			this._loading(false);
 			this.show();
+		},
+
+		renderItem: function (data) {
+
+			var $item = this._template('item', data, this.query);
+				$item.addClass(this._class('item'));
+				$item.attr('id', this._uid());
+
+			this.aria($item).role('option');
+
+			return $item;
 		}
 	});
 
