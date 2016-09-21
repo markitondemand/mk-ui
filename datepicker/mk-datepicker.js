@@ -8,7 +8,7 @@
 	$.Mk.create('Datepicker', {
 
 		_strsplitter: /[\,\s|\/|\s|\.|\-]/,
-		_datesplitter: /(\w+)(\,\s|\/|\s|\.|$)/g,
+		_datesplitter: /(\w+)(\,\s|\/|\s|\-|\.|$)/g,
 		_nojq: /\//,
 
 		_defaultFormat: 'mm/dd/yyyy',
