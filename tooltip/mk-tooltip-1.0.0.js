@@ -341,13 +341,13 @@
 			$tip.addClass('rtl');
 
 			//try bottom...
-			if (xy.y <= this._spacer) {
+			if (xy.y - window.scrollY <= this._spacer) {
 				xy.y = tg.offset.top - (tp.heightM - tp.height);
 				$tip.addClass('top');
 			}
 
 			//fallback to top...
-			if ((xy.y + tp.heightM) >= (win.height() - this._spacer)) {
+			if ((xy.y - window.scrollY + tp.heightM) >= (win.height() - this._spacer)) {
 				xy.y = tg.offset.top - tp.height + (tp.heightM - tp.height);
 				$tip.removeClass('top').addClass('bottom');
 			}
