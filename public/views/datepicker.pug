@@ -1,0 +1,23 @@
+doctype html
+html
+
+	head
+		include ./shared/head
+		link(rel="stylesheet", type="text/css", href="/src/css/mk-datepicker.css")
+
+	body
+
+		include ./shared/header
+
+		main.container
+			form
+				fieldset
+					input(type="date", class="mk-datepicker")
+
+		include ./shared/scripts
+		script(type="text/javascript", src="/src/js/standard/mk-datepicker.js")
+		script.
+			
+			mkNasty.transitions(true);
+
+			//ar select = new mkNasty.Selectmenu('.mk-selectmenu');

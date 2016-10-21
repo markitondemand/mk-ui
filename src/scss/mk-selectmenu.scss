@@ -29,6 +29,11 @@
 	border-color: $mk-secondary;
 }
 
+.mk-selectmenu-trigger.disabled {
+	color: $mk-selectmenu-trigger-disabled-color;
+	border-color: $mk-selectmenu-trigger-disabled-color;
+}
+
 .mk-selectmenu-shadow.transitions .mk-selectmenu-trigger {
 	 transition: all $mk-selectmenu-transition-speed;
 	-webkit-transition: all $mk-selectmenu-transition-speed;

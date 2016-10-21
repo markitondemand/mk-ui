@@ -59,53 +59,57 @@
 	// Copy primitive types removing pointers
 	// ---------------------------------------
 
-	function copy( o ) {
+	function copy(o) {
 
-		if ( o instanceof Array ) {
+		if (o instanceof Array) {
 			for( var i = 0, l = o.length, r = [];
-					i < l && r.push( copy( o[i] ) );
+					i < l && r.push(copy( o[i] ));
 					i++ ) { /* fast as hell */ }
 
 			return r;
 		}
 
-		if ( o !== null 
+		if (o !== null 
 			&& typeof o === 'object' 
-			&& !o.hasOwnProperty( 'constructor' ) 
-			&& !o.constructor.hasOwnProperty( 'isPrototypeOf' ) ) {
+			&& !o.hasOwnProperty('constructor') 
+			&& !o.constructor.hasOwnProperty('isPrototypeOf')) {
 
 			var 
 			r = {}, 
 			i;
 
-			for( i in o ) {
-				r[ i ] = copy( o[i] );
+			for(i in o) {
+				r[i] = copy(o[i]);
 			}
 			return r;
 		}
-		
 		return o;
 	}
 
-	function each( context, who, fn ) {
+	function each(context, who, fn) {
 
 		who = who || null;
 
-		if (who && ( who instanceof Array || who instanceof NodeList || who.length )) {
-			for ( var i = 0, l = who.length; 
-				i < l && fn.call( context, i, who[i] ) !== false; 
-				i++ ) { }
+		if (who && (who instanceof Array || who instanceof NodeList || who.length)) {
+			for (var i = 0, l = who.length, r; 
+				i < l && (r = fn.call(context, i, who[i])) !== false; 
+				i++) { 
+					if (r === -1) {
+						who.splice(i, 1);
+						i--; l--;
+					}
+				}
 		}
 		else if (who && typeof who === 'object' 
-			&& !who.hasOwnProperty( 'constructor' ) 
-			&& !who.constructor.hasOwnProperty( 'isPrototypeOf' ) ) {
+			&& !who.hasOwnProperty( 'constructor') 
+			&& !who.constructor.hasOwnProperty('isPrototypeOf')) {
 
-			for ( var i in who ) {
-		      if ( fn.call( context, i, who[ i ] ) === false ) { break; }
+			for (var i in who) {
+		      if (fn.call( context, i, who[ i ] ) === false) { break; }
 		    }
 		}
 		else {
-			fn.call( context, 0, who );
+			fn.call(context, 0, who);
 		}
 		return context;
 	}
@@ -119,14 +123,14 @@
 
 	function transition() {
 
-		if ( transition.enabled ) {
+		if (transition.enabled) {
 
 			var el = 
 			document.createElement('xanimate'), 
 			t;
 
-			for ( t in transition.keys ) {
-				if ( typeof el.style[t] !== 'undefined' ) {
+			for (t in transition.keys) {
+				if (typeof el.style[t] !== 'undefined') {
 					return transition.keys[t];
 				}
 			}
@@ -151,11 +155,20 @@
 	// samely named super class method in context [is recursive].
 	// -------------------------------------------------------------
 
-	function property( o, m, v ) {
+	function property(o, p, m) {
 
-		var _v = copy( v );
+		var d = Object.getOwnPropertyDescriptor(p, m);
 
-		Object.defineProperty( o, m, {
+		if (typeof d.get !== 'undefined') {
+
+			Object.defineProperty(o, m, d);
+			return;
+		}
+
+		var  v = p[m],
+			_v = copy(v);
+
+		Object.defineProperty(o, m, {
 
 			get: function () {
 
@@ -166,13 +179,13 @@
 				return _v;
 			},
 
-			set: function ( value ) {
+			set: function (value) {
 				_v = value;
 			}
 		});
 	}
 
-	function superfunction( m ) {
+	function superfunction(m) {
 
 		return function () {
 
@@ -438,7 +451,7 @@
 			});
 		},
 
-		e: function ( e ) {
+		e: function (e) {
 
 			return {
 				name: this.xname.exec( e )[ 1 ] || '',
@@ -446,7 +459,7 @@
 			};
 		},
 
-		args: function ( args ) {
+		args: function (args) {
 
 		    for( var i = 0, a = [], l = args.length;
 					i < l && a.push( args[ i ] );
@@ -455,29 +468,29 @@
 		    return a;
 		},
 
-		on: function on( bucket, event, handler, context ) {
-			return this._add( bucket, event, handler, context, false );
+		on: function on(bucket, event, handler, context) {
+			return this._add(bucket, event, handler, context, false);
 		},
 
-		one: function( bucket, event, handler, context ) {
-			return this._add( bucket, event, handler, context, true );
+		one: function(bucket, event, handler, context) {
+			return this._add(bucket, event, handler, context, true);
 		},
 
-		off: function off ( bucket, event, handler ) {
+		off: function off (bucket, event, handler) {
 
-			var e = this.e( event ), stack, item, ns;
+			var e = this.e(event), stack, item, ns;
 
-			if ( bucket.hasOwnProperty( e.name ) ) {
+			if (bucket.hasOwnProperty(e.name)) {
 
 				stack = bucket[ e.name ];
 				ns = e.ns || undefined;
 
-				for ( var i = 0, l = stack.length; i < l; i++ ) {
+				for (var i = 0, l = stack.length; i < l; i++) {
 
 					item = stack[ i ];
 
-					if ( item.ns === ns && (typeof handler === 'undefined' || handler === item.handler) ) {
-						stack.splice( i, 1 );
+					if (item.ns === ns && (typeof handler === 'undefined' || handler === item.handler)) {
+						stack.splice(i, 1);
 						l = stack.length;
 						i--;
 					}
@@ -485,28 +498,28 @@
 			}
 		},
 
-		emit: function emit ( bucket, argz /*, arguments */ ) {
+		emit: function emit (bucket, argz /*, arguments */) {
 
-			var args = this.args( argz ),
+			var args = this.args(argz),
 				event = args.shift(),
 				e = this.e( event ), 
 				stack, item;
 
-			if ( bucket.hasOwnProperty( e.name ) ) {
+			if (bucket.hasOwnProperty(e.name)) {
 
-				stack = bucket[ e.name ];
+				stack = bucket[e.name];
 
-				for ( var i = 0, l = stack.length; i < l; i++ ) {
+				for (var i = 0, l = stack.length; i < l; i++) {
 
 					item = stack[ i ];
 
-					if ( !e.ns || item.ns === e.ns ) {
+					if (!e.ns || item.ns === e.ns) {
 
-						item.handler.apply( item.context || root, args );
+						item.handler.apply(item.context || root, args);
 
-						if ( item.single ) {
+						if (item.single) {
 							
-							stack.splice( i, 1 );
+							stack.splice(i, 1);
 							l = stack.length;
 							i--;
 						}
@@ -546,14 +559,14 @@
 		left: 37, up: 38, right: 39, down: 40
 	};
 
-	mkNasty.define = function ( n, o ) {
+	mkNasty.define = function (n, o) {
 
 		var a = mkNasty, 
 			p = n.split( '.' );
 
-		for ( var i = 0, l = p.length - 1; i < l; i++ ) {
+		for (var i = 0, l = p.length - 1; i < l; i++) {
 
-			if ( !a.hasOwnProperty( p[ i ] ) ) {
+			if (!a.hasOwnProperty(p[ i ])) {
 				a[ p[ i ] ] = {};
 			}
 			a = a[ p[ i ] ];
@@ -561,15 +574,15 @@
 		return a[ p[ p.length - 1 ] ] = o;
 	};
 
-	mkNasty.get = function ( n ) {
+	mkNasty.get = function (n) {
 
 		var o = null, 
 			m = mkNasty,
 			p = n.split('.');
 
-		for ( var i = 0, l = p.length; i < l; i++ ) {
+		for (var i = 0, l = p.length; i < l; i++) {
 
-			if ( m.hasOwnProperty( p [ i ] ) ) {
+			if (m.hasOwnProperty( p [ i ] )) {
 				o = m[ p[ i ] ];
 				m = o;
 			}
@@ -580,17 +593,17 @@
 		return o;
 	};
 
-	mkNasty.transitions = function ( b ) {
+	mkNasty.transitions = function (b) {
 
-		if ( b === true ) {
+		if (b === true) {
 			mkNasty._transition.enabled = true;
-		} else if ( b === false ) {
+		} else if (b === false) {
 			mkNasty._transition.enabled = false;
 		}
 		return mkNasty._transition.enabled;
 	};
 
-	mkNasty.create = function ( name, base, proto ) {
+	mkNasty.create = function (name, base, proto) {
 
 		name = name || '';
 
@@ -605,18 +618,10 @@
 			return this;
 		};
 
-		obj.prototype = Object.create( base.prototype );
+		obj.prototype = Object.create(base.prototype);
 
-		for ( var member in proto ) {
-
-			var descriptor = Object.getOwnPropertyDescriptor(proto, member);
-
-			if (typeof descriptor.get !== 'undefined') {
-				Object.defineProperty(obj.prototype, member, descriptor);
-			}
-			else {
-				mkNasty._property( obj.prototype, member, proto[ member ] );
-			}
+		for (var member in proto) {
+			mkNasty._property( obj.prototype, proto, member );
 		}
 
 		obj.prototype.constructor = obj;
@@ -655,7 +660,7 @@
 			return 'v1.0.0';
 		},
 
-		$: function ( s, c ) {
+		$: function (s, c) {
 			return mkNasty._$( s, c );
 		},
 
@@ -663,33 +668,33 @@
 			return mkNasty._uid();
 		},
 
-		copy: function ( o ) {
+		copy: function (o) {
 			return mkNasty._copy( o );
 		},
 
-		template: function ( n, d ) {
+		template: function (n, d) {
 			return mkNasty._template( 
 				n, this.name, this.config.templates, d) ;
 		},
 
-		format: function ( n, d ) {
+		format: function (n, d) {
 			return mkNasty._template( 
-				n, this.name, this.config.formats, d );
+				n, this.name, this.config.formats, d);
 		},
 
-		html: function ( t, d ) {
-			return this.$( this.template( t, d ) );
+		html: function (t, d) {
+			return this.$(this.template(t, d));
 		},
 
-		each: function ( who, fn ) {
-			return mkNasty._each( this, who, fn );
+		each: function (who, fn) {
+			return mkNasty._each(this, who, fn);
 		},
 
-		node: function ( n, c ) {
-			return this.$( this.selector( n ), c || this.root || null );
+		node: function (n, c) {
+			return this.$(this.selector(n), c || this.root || null);
 		},
 
-		selector: function ( n ) {
+		selector: function (n) {
 			return '.' + (this.name && this.name + '-') + n;
 		},
 

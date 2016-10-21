@@ -22,4 +22,10 @@ module.exports = function ( express, app ) {
     });
   });
 
+  app.get('/datepicker', function (req, res) {
+    res.render('datepicker', {
+      title: 'Datepicker'
+    });
+  });
+
 };

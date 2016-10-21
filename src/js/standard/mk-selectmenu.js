@@ -1,6 +1,31 @@
 
+(function ( root, factory ) {
+	//
+	// AMD support
+	// ---------------------------------------------------
+	if ( typeof define === 'function' && define.amd ) {
 
-	mkNasty.create( 'Selectmenu', {
+		define( [ 'mknasty' ], function ( mk ) {
+			return factory( root, mk );
+		});
+	}
+	//
+	// CommonJS module support
+	// -----------------------------------------------------
+	else if ( typeof module === 'object' && module.exports ) {
+
+		module.exports = factory( root, require( 'mknasty' ));
+	}
+	//
+	// Everybody else
+	// -----------------------------------------------------
+	else {
+		return factory( root, root.mkNasty );
+	}
+
+})( typeof window !== "undefined" ? window : this, function ( root, mk ) { 
+
+	mk.create( 'Selectmenu', {
 
 		name: 'mk-selectmenu',
 
@@ -16,12 +41,13 @@
 			],
 
 			trigger: [
-				'<div class="{{$key}}-trigger" role="combobox" aria-haspopup="listbox">',
+				'<div class="{{$key}}-trigger {{if:disabled}} disabled{{/if:disabled}}" role="combobox" aria-haspopup="listbox">',
 					'<input type="text" ',
 						'class="{{$key}}-input" ',
 						'readonly ',
 						'aria-autocomplete="list" ',
 						'aria-readonly="true" ',
+						'aria-disabled="{{disabled}}" ',
 						'{{if:multiple}}aria-multiselectable="true" {{/if:multiple}}',
 						'value="{{label}}" />',
 				'</div>'
@@ -63,12 +89,16 @@
 			return 'v1.0.0';
 		},
 
-		get multiple () {
-			return this.root[0].multiple;
-		},
-
 		get selectmenu () {
 			return this.root[0];
+		},
+
+		get multiple () {
+			return this.selectmenu.multiple;
+		},
+
+		get disabled () {
+			return this.selectmenu.disabled;
 		},
 
 		get options () {
@@ -163,6 +193,10 @@
 			this.input
 			.on('focus.mk', function (e) {
 				
+				if (thiss.disabled) {
+					return;
+				}
+
 				if (focusedByMouse) {
 					focusedByMouse = false;
 					thiss.toggle();
@@ -172,6 +206,10 @@
 				inFocus = true;
 			})
 			.on('blur.mk', function (e) {
+
+				if (this.disabled) {
+					return;
+				}
 
 				inFocus = false;
 				thiss.blur();
@@ -186,7 +224,6 @@
 				}
 			})
 			.on('keydown.mk', function (e) {
-				// cannot preventDefault here :(
 				thiss._keydown(e);
 			})
 			.on('keypress.mk', function (e) {
@@ -210,6 +247,10 @@
 		},
 
 		_keydown: function (e) {
+
+			if (this.disabled) {
+				return;
+			}
 
 			var w = e.which,
 				k = this.keycode;
@@ -241,6 +282,10 @@
 
 		blur: function () {
 
+			if (this.disabled) {
+				return this.hide(0);
+			}
+
 			var t = this.trigger;
 				t.removeClass('focus');
 
@@ -254,7 +299,7 @@
 			}
 
 			this.updateLabel();
-			this.hide();
+			return this.hide();
 		},
 
 		move: function (up) {
@@ -362,7 +407,7 @@
 
 		search: function (key) {
 
-			if (key) {
+			if (this.disabled !== true && key) {
 
 				if (this._timer) {
 					clearTimeout(this._timer);
@@ -521,7 +566,7 @@
 				label: this.label(),
 				classname: cls.replace(reg, ''),
 				multiple: this.multiple,
-				disabled: this.selectmenu.disabled,
+				disabled: this.disabled,
 				list: {
 					id: this.uid(), 
 					items: this.getOptionData()
@@ -582,7 +627,7 @@
 			var t = this.trigger,
 				l = this.list;
 
-			if (this.isHidden) {
+			if (this.disabled !== true && this.isHidden) {
 
 				this.transition(l, function () {
 					l.addClass('in');
@@ -769,9 +814,9 @@
 
 			this.selectmenu.disabled = true;
 			this.input.attr('aria-disabled', 'true');
-			this.hide();
-
+			this.trigger.addClass('disabled');
 			this.emit('disabled');
+			this.hide();
 
 			return this;
 		},
@@ -780,7 +825,7 @@
 
 			this.selectmenu.disabled = false;
 			this.input.attr('aria-disabled', 'false');
-
+			this.trigger.removeClass('disabled');
 			this.emit('enabled');
 
 			return this;
@@ -808,3 +853,6 @@
 			return this;
 		},
 	});
+
+	return mk.get('Selectmenu');
+});

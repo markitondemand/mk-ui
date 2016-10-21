@@ -75,6 +75,7 @@
 				this.delay(function () {
 					o.addClass('in');
 					r.attr('aria-busy', 'true');
+					this.emit('show');
 				});
 			}
 			return this;
@@ -93,10 +94,11 @@
 
 				this.transition(o, function () {
 
+					r.attr('aria-busy', 'false');
+
 					this.shadow.remove();
 					this.shadow = null;
-
-					r.attr('aria-busy', 'false');
+					this.emit('hide');
 				});
 			}
 			
@@ -121,6 +123,8 @@
 				.appendTo(this.root)
 				.focus()
 				.remove();
+
+			this.emit('focus');
 
 			return this;
 		}
