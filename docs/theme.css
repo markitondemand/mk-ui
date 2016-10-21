@@ -1,0 +1,136 @@
+
+@import 'https://fonts.googleapis.com/css?family=Roboto+Slab:400,700';
+
+body {
+	background: #333;
+	color: #fff;
+    font-family: 'Roboto Slab';
+    margin-bottom: 100px;
+}
+
+body a {
+	color: crimson;
+}
+
+body a:hover,
+body a:active,
+body a:focus {
+	color: cadetblue;
+	text-decoration: none;
+}
+
+.documentation h1, 
+.documentation h2, 
+.documentation h3, 
+.documentation h4, 
+.documentation h5, 
+.documentation h6 {
+    color: crimson;
+}
+
+.navbar-theme {
+	background: #000;
+    border-bottom: 1px solid crimson;
+    border-radius: 0;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+    color: #999;
+    font-family: 'Roboto Slab';
+    font-weight: 700;
+    padding: 0 15px;
+    top: 0;
+    width: 100%;
+    z-index: 2;
+    min-height: 78px;
+}
+
+.navbar-theme .navbar-brand {
+	color: #999;
+}
+
+.navbar-theme .navbar-brand:hover {
+	color: #999;
+}
+
+.navbar-theme .navbar-brand .navbar-logo {
+	float: left;
+    display: block;
+ 	margin-top: 4px;
+    margin-right: 20px;
+}
+
+.navbar-theme .navbar-brand .navbar-details {
+	float: left;
+    display: block;
+    margin-top: 5px;
+}
+
+.navbar-theme .navbar-brand .navbar-quote {
+	display: block;
+    font-size: 11px;
+}
+
+.navbar-theme .navbar-top {
+	position: absolute;
+    right: 30px;
+    top: 0;
+}
+
+.navbar-theme .navbar-top > li {
+	display: inline-block;
+}
+
+.navbar-theme .navbar-top > li > a {
+	color: crimson;
+	display: inline-block;
+    padding: 0 10px;
+    font-size: 11px;
+}
+
+.navbar-theme .navbar-top > li > a:hover,
+.navbar-theme .navbar-top > li > a:active,
+.navbar-theme .navbar-top > li > a:focus {
+	background: #000;
+	color: cadetblue;
+}
+
+.list-theme {
+	margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.list-theme > li {
+	background: #ffffff;
+    counter-increment: step-counter;
+    border: 1px solid #cccccc;
+    margin: 30px 0;
+    position: relative;
+    padding: 20px;
+}
+
+.list-theme > li:before {
+	background-color: #ffffff;
+    border: 1px solid #f95a5a;
+	border-radius: 80%;
+	color: #f95a5a;
+	content: counter(step-counter);
+	font-family: 'Roboto Slab';
+	font-size: 26px;
+	font-weight: bold;
+    margin-right: 5px;
+    padding: 2px 14px;
+    position: absolute;
+    left: -20px;
+    top: -20px;
+}
+
+.h-theme {
+	margin: 0 0 10px;
+	font-family: 'Roboto Slab';
+	color: #666666;
+	font-size: 18px;
+}
+
+.font-theme {
+	font-family: 'Roboto Slab';
+}

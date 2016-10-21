@@ -1,0 +1,141 @@
+
+@import "_variables";
+
+/*
+//
+// mk-selectmenu
+// --------------------
+*/
+
+.mk-selectmenu {
+	display: none;
+}
+
+.mk-selectmenu-shadow {
+	display: inline-block;
+	position: relative;
+}
+
+.mk-selectmenu-trigger {
+	background: $mk-selectmenu-trigger-bg;
+	border-bottom: 1px solid $mk-primary;
+	position: relative;
+}
+
+.mk-selectmenu-trigger[aria-expanded="true"],
+.mk-selectmenu-trigger.focus {
+	color: $mk-secondary;
+	border-color: $mk-secondary;
+}
+
+.mk-selectmenu-shadow.transitions .mk-selectmenu-trigger {
+	 transition: all $mk-selectmenu-transition-speed;
+	-webkit-transition: all $mk-selectmenu-transition-speed;
+}
+
+.mk-selectmenu-trigger:before {
+	content: $mk-selectmenu-trigger-char;
+	font-size: 2em;
+	height: 3em;
+    line-height: 3em;
+    position: absolute;
+    right: 0.2em;
+    top: calc(50% - 1.5em);
+    transform: $mk-selectmenu-trigger-char-transform;
+}
+
+.mk-selectmenu-input {
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+	padding: 0.625rem;
+	position: relative;
+	z-index: 1;
+}
+
+.mk-selectmenu-list {
+	background: $mk-selectmenu-list-bg;
+	border-top: 1px solid $mk-secondary;
+	box-shadow: 0 0 24px black;
+	display: none;
+	opacity: 0;
+	margin: 0;
+	padding: 0;
+	min-width: 100%;
+	position: absolute;
+	top: 100%;
+}
+
+.mk-selectmenu-list.transition {
+	 display: block;
+	 transition: all $mk-selectmenu-transition-speed;
+	-webkit-transition: all $mk-selectmenu-transition-speed;
+}
+
+.mk-selectmenu-list[aria-hidden="false"] {
+	display: block;
+	opacity: 1;
+}
+
+.mk-selectmenu-item {
+	list-style: none;
+}
+
+.mk-selectmenu-option,
+.mk-selectmenu-optgroup {
+	background: $mk-selectmenu-option-bg;
+	color: $mk-selectmenu-option-color;
+	display: block;
+	font-size: 1.5rem;
+	padding: 0.625rem;
+}
+
+.mk-selectmenu-option:hover,
+.mk-selectmenu-optgroup:hover,
+.mk-selectmenu-option:active,
+.mk-selectmenu-optgroup:active,
+.mk-selectmenu-option:focus,
+.mk-selectmenu-optgroup:focus {
+	background: $mk-selectmenu-option-bg-hover;
+	color: $mk-selectmenu-option-color-hover;
+}
+
+.mk-selectmenu-shadow.transitions .mk-selectmenu-option,
+.mk-selectmenu-shadow.transitions .mk-selectmenu-optgroup {
+	 transition: background $mk-selectmenu-transition-speed;
+	-webkit-transition: background $mk-selectmenu-transition-speed;
+}
+
+.mk-selectmenu-option.active,
+.mk-selectmenu-optgroup.active {
+	color: $mk-selectmenu-option-color-active;
+	background: $mk-selectmenu-option-bg-active;
+}
+
+.mk-selectmenu-optgroup {
+	font-weight: bold;
+}
+
+.mk-selectmenu-optgroup[role="presentation"] {
+	cursor: default;
+}
+
+.mk-selectmenu-optgroup[role="presentation"]:hover {
+	cursor: default;
+	background: inherit;
+}
+
+.mk-selectmenu-option[aria-selected="true"]:after {
+	color: $mk-primary;
+	content: $mk-selectmenu-option-selected-char;
+	font-size: 2rem;
+	line-height: 2rem;
+	position: absolute;
+	right: 1rem;
+}
+
+.mk-selectmenu-option[aria-disabled="true"] {
+	background: $mk-selectmenu-option-bg-disabled;
+	color: $mk-selectmenu-option-color-disabled;
+	cursor: default;
+}

@@ -1,0 +1,37 @@
+
+$mk-primary: crimson;
+$mk-secondary: cadetblue;
+
+//
+// loader
+// -------------------------------------------
+
+$mk-loader-transition-speed: 0.5s;
+$mk-loader-overlay-bg: rgba(0, 0, 0, 0.4);
+$mk-loader-boxshadow-color: rgba(255, 255, 255, 0.15);
+
+//
+// selectmenu
+// -------------------------------------------
+
+$mk-selectmenu-transition-speed: 0.5s;
+
+$mk-selectmenu-trigger-bg: transparent;
+$mk-selectmenu-trigger-char: '\203A';
+$mk-selectmenu-trigger-char-transform: rotate(90deg);
+
+$mk-selectmenu-list-bg: whitesmoke;
+
+$mk-selectmenu-option-color: dimgray;
+$mk-selectmenu-option-bg: tranparent;
+
+$mk-selectmenu-option-color-hover: dimgray;
+$mk-selectmenu-option-bg-hover: transparent;
+
+$mk-selectmenu-option-color-disabled: #ccc;
+$mk-selectmenu-option-bg-disabled: transparent;
+
+$mk-selectmenu-option-color-active: dimgray;
+$mk-selectmenu-option-bg-active: #d7d7d7;
+
+$mk-selectmenu-option-selected-char: '\2714';

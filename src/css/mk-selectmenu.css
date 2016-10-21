@@ -1,0 +1,118 @@
+@charset "UTF-8";
+/*
+//
+// mk-selectmenu
+// --------------------
+*/
+.mk-selectmenu {
+  display: none; }
+
+.mk-selectmenu-shadow {
+  display: inline-block;
+  position: relative; }
+
+.mk-selectmenu-trigger {
+  background: transparent;
+  border-bottom: 1px solid crimson;
+  position: relative; }
+
+.mk-selectmenu-trigger[aria-expanded="true"],
+.mk-selectmenu-trigger.focus {
+  color: cadetblue;
+  border-color: cadetblue; }
+
+.mk-selectmenu-shadow.transitions .mk-selectmenu-trigger {
+  transition: all 0.5s;
+  -webkit-transition: all 0.5s; }
+
+.mk-selectmenu-trigger:before {
+  content: "›";
+  font-size: 2em;
+  height: 3em;
+  line-height: 3em;
+  position: absolute;
+  right: 0.2em;
+  top: calc(50% - 1.5em);
+  transform: rotate(90deg); }
+
+.mk-selectmenu-input {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0.625rem;
+  position: relative;
+  z-index: 1; }
+
+.mk-selectmenu-list {
+  background: whitesmoke;
+  border-top: 1px solid cadetblue;
+  box-shadow: 0 0 24px black;
+  display: none;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 100%;
+  position: absolute;
+  top: 100%; }
+
+.mk-selectmenu-list.transition {
+  display: block;
+  transition: all 0.5s;
+  -webkit-transition: all 0.5s; }
+
+.mk-selectmenu-list[aria-hidden="false"] {
+  display: block;
+  opacity: 1; }
+
+.mk-selectmenu-item {
+  list-style: none; }
+
+.mk-selectmenu-option,
+.mk-selectmenu-optgroup {
+  background: tranparent;
+  color: dimgray;
+  display: block;
+  font-size: 1.5rem;
+  padding: 0.625rem; }
+
+.mk-selectmenu-option:hover,
+.mk-selectmenu-optgroup:hover,
+.mk-selectmenu-option:active,
+.mk-selectmenu-optgroup:active,
+.mk-selectmenu-option:focus,
+.mk-selectmenu-optgroup:focus {
+  background: transparent;
+  color: dimgray; }
+
+.mk-selectmenu-shadow.transitions .mk-selectmenu-option,
+.mk-selectmenu-shadow.transitions .mk-selectmenu-optgroup {
+  transition: background 0.5s;
+  -webkit-transition: background 0.5s; }
+
+.mk-selectmenu-option.active,
+.mk-selectmenu-optgroup.active {
+  color: dimgray;
+  background: #d7d7d7; }
+
+.mk-selectmenu-optgroup {
+  font-weight: bold; }
+
+.mk-selectmenu-optgroup[role="presentation"] {
+  cursor: default; }
+
+.mk-selectmenu-optgroup[role="presentation"]:hover {
+  cursor: default;
+  background: inherit; }
+
+.mk-selectmenu-option[aria-selected="true"]:after {
+  color: crimson;
+  content: "✔";
+  font-size: 2rem;
+  line-height: 2rem;
+  position: absolute;
+  right: 1rem; }
+
+.mk-selectmenu-option[aria-disabled="true"] {
+  background: transparent;
+  color: #ccc;
+  cursor: default; }
