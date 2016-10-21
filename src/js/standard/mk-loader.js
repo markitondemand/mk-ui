@@ -63,7 +63,7 @@
 			if (b !== 'true') {
 
 				this.shadow = this.html('shadow', {
-					message: this.options.formats.message
+					message: this.config.formats.message
 				}).appendTo(r);
 
 				o = this.node('overlay', this.shadow);
@@ -100,7 +100,7 @@
 				});
 			}
 			
-			if (this.options.focus === true) {
+			if (this.config.focus === true) {
 				return this.focus();
 			}
 			return this;

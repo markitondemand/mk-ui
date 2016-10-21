@@ -13,6 +13,7 @@
 
 .mk-selectmenu-trigger {
   background: transparent;
+  color: white;
   border-bottom: 1px solid crimson;
   position: relative; }
 

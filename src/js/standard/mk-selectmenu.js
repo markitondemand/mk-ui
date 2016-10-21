@@ -502,8 +502,14 @@
 				return this.config.label || 'NEED LABEL';
 			}
 
-			return this.getElementsByValue(
-				this.value).option.text;
+			var l = '';
+			this.each(this.options, function (i, o) {
+				if (o.selected) {
+					l = o.text; return false;
+				}
+			});
+
+			return l;
 		},
 
 		data: function () {

@@ -5,7 +5,9 @@
   "dependencies": {},
   "devDependencies": {
     "gulp": "^3.9.1",
-    "gulp-sass": "^2.3.2"
+    "gulp-sass": "^2.3.2",
+    "express": "^4.14.0",
+    "pug": "^2.0.0-beta3"
   },
   "main": "src/js/standard/mk",
   "scripts": {

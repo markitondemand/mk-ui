@@ -1,0 +1,42 @@
+doctype html
+html
+
+	head
+		include ./shared/head
+		link(rel="stylesheet", type="text/css", href="/src/css/mk-loader.css")
+
+	body
+
+		include ./shared/header
+
+		main.container
+			div.row
+				div.col-xs-12 
+					form
+						button.btn-primary.load
+							| Load
+						button.btn-secondary.unload
+							| Unload
+			div.row
+				div.col-xs-12
+					div.mk-loader(style="height: 300px")
+						| Stuff...
+
+		include ./shared/scripts
+		script(type="text/javascript", src="/src/js/standard/mk-loader.js")
+		script.
+			
+			mkNasty.transitions(true);
+
+			var loader = new mkNasty.Loader('.mk-loader');
+
+			$('button').on('click', function (e) {
+
+				e.preventDefault();
+
+				if ($(this).hasClass('load')) {
+					loader.show();
+					return;
+				}
+				loader.hide();
+			})

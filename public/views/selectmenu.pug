@@ -1,0 +1,27 @@
+doctype html
+html
+
+	head
+		include ./shared/head
+		link(rel="stylesheet", type="text/css", href="/src/css/mk-selectmenu.css")
+
+	body
+
+		include ./shared/header
+
+		main.container
+			form
+				fieldset
+					select.mk-selectmenu
+						option(value="1") Lions
+						option(value="2") Tigers
+						option(value="3") Bears
+						option(value="4") Wolves
+
+		include ./shared/scripts
+		script(type="text/javascript", src="/src/js/standard/mk-selectmenu.js")
+		script.
+			
+			mkNasty.transitions(true);
+
+			var select = new mkNasty.Selectmenu('.mk-selectmenu');
