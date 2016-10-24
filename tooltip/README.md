@@ -143,14 +143,20 @@ Now lets check out the public properties and methods available to you as the end
 ```javascript
   var instance = $(my-selector).data('mk-tooltip');
 ```
-###### **show( el, xy )**
+###### **show( trigger, xy )**
 Show a tooltip by passing in the trigger element. You can optionally pass in an object with x and y integers if you would like to manually position the tooltip yourself.
 
-###### **hide( el )**
+###### **hide( trigger )**
 Hide a tooltip by passing in the trigger element. If nothing is passed in, hideAll() is triggered.
 
 ###### **hideAll()**
 Hide all tooltips in a given delegate region.
+
+###### **lock( trigger )**
+Prevents a tooltip from hiding when mouseout or click until it is unlocked.
+
+###### **unlock( trigger )**
+Removes a tooltip's hiding lock.
 
 ##### Event Hooks
 All tooltip events are namespaced with *.mk-tooltip.* Currently, there are two possible event hooks you can use: **show** and **hide**. Let's take a look.

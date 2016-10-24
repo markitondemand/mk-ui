@@ -19,7 +19,6 @@
 		},
 
 		_define: function () {
-
 			this._name = 'mk-tooltip';
 
 			this._templates = {
@@ -401,6 +400,24 @@
 				}
 			}
 		},
+		
+		lock: function (el, xy) {
+			var me = this,
+				$t = this._findTrigger(el),
+				$tip = this._findTooltip($t);
+			$tip.addClass('lock');
+			return this;
+
+		},
+		
+		unlock: function (el, xy) {
+			var me = this,
+				$t = this._findTrigger(el),
+				$tip = this._findTooltip($t);
+			$tip.removeClass('lock');
+			return this;
+	
+		},
 
 		show: function (el, xy) {
 
@@ -437,8 +454,10 @@
 
 			var $trigger = this._findTrigger(el),
 				$tip = this.aria($trigger).describedby(),
-				me = this;
-
+				me = this;				
+				
+			if ($tip.hasClass('lock')) { return; }
+			
 			this.clearTransitions($tip);
 			this.transition($tip, function () {
 				
@@ -460,6 +479,7 @@
 
 			var me = this;
 			this.$container.find(this._class('trigger', true)).each(function() {
+				if ( $(this).hasClass('lock') ) { return; }
 				me.hide(this);
 			});
 			return this;
@@ -477,3 +497,4 @@
 	};
 
 }(window.jQuery);
+
