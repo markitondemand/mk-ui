@@ -107,6 +107,11 @@
   -webkit-transition: all 0.3s;
 }
 
+.mk-datepicker-cell.active {
+	background: #ffc6c8;
+	color: #ffffff;
+}
+
 .mk-datepicker-cell.previous,
 .mk-datepicker-cell.next {
   background: #f7f7f7;
