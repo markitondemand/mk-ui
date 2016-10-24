@@ -444,6 +444,8 @@
 			this.clearTransitions($tip);
 
 			$tip.addClass('show');
+
+			return this;
 		},
 
 		hide: function (el) {
