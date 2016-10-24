@@ -123,7 +123,6 @@
 
 		get listOptions () {
 			return this.list.find('[role="option"]');
-			//return this.list.find(this.selector('option'));
 		},
 
 		get isHidden () {
@@ -180,7 +179,6 @@
 			});
 
 			this.root.attr('aria-hidden', 'true');
-			this.emit('build');
 		},
 
 		_bind: function () {
@@ -228,7 +226,7 @@
 			})
 			.on('keypress.mk', function (e) {
 				e.preventDefault();
-				thiss.search(e.key);
+				thiss.search(String.fromCharCode(e.which));
 			});
 
 			this.list
@@ -242,8 +240,6 @@
 			.on('mouseover.mk', '[role="option"]', function (e) {
 				thiss.activate(this);
 			});
-
-			this.emit('bind');
 		},
 
 		_keydown: function (e) {
