@@ -90,7 +90,7 @@
 
 		who = who || null;
 
-		if (who && (who instanceof Array || who instanceof NodeList || who.length)) {
+		if (who && (who instanceof Array || who instanceof NodeList || (who.length !== undefined))) {
 			for (var i = 0, l = who.length, r; 
 				i < l && (r = fn.call(context, i, who[i])) !== false; 
 				i++) { 
@@ -108,7 +108,7 @@
 		      if (fn.call( context, i, who[ i ] ) === false) { break; }
 		    }
 		}
-		else {
+		else if (who) {
 			fn.call(context, 0, who);
 		}
 		return context;
@@ -147,11 +147,11 @@
 		'WebkitTransition': 'webkitTransitionEnd'
 	};
 
-	// property and superfunc
+	// property
 	//
 	// create copies of properties when possible while 
 	// creating unique getter/setters for each member. Also, 
-	// functions get a special _super() capability which calls the 
+	// functions get a special super() capability which calls the 
 	// samely named super class method in context [is recursive].
 	// -------------------------------------------------------------
 
@@ -160,7 +160,6 @@
 		var d = Object.getOwnPropertyDescriptor(p, m);
 
 		if (typeof d.get !== 'undefined') {
-
 			Object.defineProperty(o, m, d);
 			return;
 		}
@@ -168,69 +167,81 @@
 		var  v = p[m],
 			_v = copy(v);
 
+		if (typeof _v === 'function') {
+			_v = wrapFunction(_v, m);
+		}
+
 		Object.defineProperty(o, m, {
 
 			get: function () {
-
-				if ( typeof v === 'function' ) {
-					this.super = superfunction( m );
-				}
-
 				return _v;
 			},
 
 			set: function (value) {
+
+				if (typeof value === 'function' 
+					&& value.hasOwnProperty('constructor') === false
+					&& value.__id__ === undefined) {
+					value = wrapFunction(value, m);
+				}
 				_v = value;
 			}
 		});
 	}
 
-	function superfunction(m) {
+	function wrapFunction (fn, m) {
 
-		return function () {
+		if (fn.__id__) return fn;
 
-			var s = this.__stack__ = this.__stack__ || [];
-			var c = this.__chain__ = this.__chain__ || [];
+		var func = function () {
 
-			//if c.length === 0 -> super = base;
-			if (c.length < 1) {
-				this.__super__ = this.__base__;
-			}
-			//else if c.length position != m -> 
-			else if (c[c.length - 1] !== m) {
-				//do we have an indexof m ? 
-				var index = c.indexOf(m);
-					//if so super = index
-				if (index !== -1) {
-					this.__super__ = this.__stack__[index].super;
-				} else {
-					//if not, super = base
-					this.__super__ = this.__base__;
-				}
-			}
+			var result;
 
-			var prev = this.__super__,
-				method = prev.prototype[ m ],
-				next = prev.prototype.__super__, 
-				r, i, o;
+			pushStack(this, m);
+			result = fn.apply(this, arguments);
+			popStack(this, m);
+			return result;
+		};
 
-			o = {method: m, super: prev};
-			c.push(m);
-			s.push(o);
-			i = c.length - 1;
+		func.toString = function () {
+			return fn.toString();
+		};
 
-			this.__super__ = next || null;
+		func.__id__ = uid();
 
-			r = method.apply( this, arguments );
+		return func;
+	}
 
+	function pushStack (o, m) {
+
+		var c = o.__chain__ = o.__chain__ || [],
+			s = o.__stack__ = o.__stack__ || [],
+			e = {method: m, super: o.__base__},
+			i = c.lastIndexOf(m);
+
+		if (i > -1) {
+			e.super = e.super.prototype.__base__ || null;
+		} 
+
+		while (e.super !== null 
+			&& (e.super.prototype[m] || '').__id__ === o[m].__id__) {
+			e.super = e.super.prototype.__base__ || null;
+		}
+
+		s.push(e)
+		c.push(m);
+	}
+
+	function popStack (o, m) {
+
+		var c = o.__chain__ = o.__chain__ || [],
+			s = o.__stack__ = o.__stack__ || [],
+			i = c.lastIndexOf(m);
+
+		if (i > -1) {
 			c.splice(i, 1);
 			s.splice(i, 1);
-
-			this.__super__ = o.super;
-			this.super = undefined;
-
-			return r;
-		};
+		}
 	}
 
 	//
@@ -396,7 +407,8 @@
 
 				var dp = d[a];
 
-				if (dp !== undefined && dp !== null && dp !== '' && dp !== false) {
+				if ((dp !== undefined && dp !== null && dp !== '' && dp !== false) 
+					|| (dp instanceof Array && dp.length > 0)) {
 					return template(h, k, t, d);
 				}
 			}
@@ -547,8 +559,6 @@
 
 	mkNasty._transition = transition;
 
-	mkNasty._superfunction = superfunction;
-
 	mkNasty._template = template;
 
 	mkNasty._eventEmitter = eventEmitter;
@@ -658,6 +668,17 @@
 
 		get version () {
 			return 'v1.0.0';
+		},
+
+		super: function () {
+
+			var s = this.__stack__[this.__stack__.length - 1],
+				m = s.super && s.super.prototype[s.method] || null;
+
+			if (m) {
+				return m.apply(this, arguments);
+			}
+			return undefined;
 		},
 
 		$: function (s, c) {

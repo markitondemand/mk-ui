@@ -22,6 +22,12 @@ module.exports = function ( express, app ) {
     });
   });
 
+  app.get('/autocomplete', function (req, res) {
+    res.render('autocomplete', {
+      title: 'Autocomplete'
+    });
+  });
+
   app.get('/datepicker', function (req, res) {
     res.render('datepicker', {
       title: 'Datepicker'

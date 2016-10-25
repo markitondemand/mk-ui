@@ -89,20 +89,20 @@
 			return 'v1.0.0';
 		},
 
-		get selectmenu () {
+		get element () {
 			return this.root[0];
 		},
 
 		get multiple () {
-			return this.selectmenu.multiple;
+			return this.element.multiple;
 		},
 
 		get disabled () {
-			return this.selectmenu.disabled;
+			return this.element.disabled;
 		},
 
 		get options () {
-			return this.selectmenu.options || [];
+			return this.element.options || [];
 		},
 
 		get trigger () {
@@ -149,14 +149,19 @@
 			return this.root[0].value;
 		},
 
-		_define: function (r, o) {
+		_verifyTag: function (n) {
 
-			var root = this.$(r);
+			var node = this.$(n);
 
-			if (root.length < 1 || 
-				root[0].tagName.toLowerCase() !== 'select') {
+			if (node.length < 1 || 
+				node[0].tagName.toLowerCase() !== 'select') {
 				throw new Error(':: mkNasty.Selectmenu - root must be a <select> node ::');
 			}
+		},
+
+		_define: function (r, o) {
+
+			this._verifyTag(r);
 			this.super(r, o);
 		},
 
@@ -164,7 +169,7 @@
 
 			this.shadow = 
 				this.html('shadow', this.data())
-					.insertAfter( this.selectmenu );
+					.insertAfter( this.element );
 
 			if (this.transitions) {
 				this.shadow.addClass('transitions');
@@ -174,14 +179,20 @@
 				o = l.find('[aria-selected="true"]');
 
 			this.trigger.attr({
-				'aria-controls': l.attr('id'),
-				'aria-activedescendant': o.attr('id')
+				'aria-controls': l.attr('id') || '',
+				'aria-activedescendant': o.attr('id') || ''
 			});
 
 			this.root.attr('aria-hidden', 'true');
 		},
 
 		_bind: function () {
+
+			this._bindInputEvents();
+			this._bindListEvents();
+		},
+
+		_bindInputEvents: function () {
 
 			var thiss = this,
 				trigger = this.trigger, 
@@ -226,8 +237,13 @@
 			})
 			.on('keypress.mk', function (e) {
 				e.preventDefault();
-				thiss.search(String.fromCharCode(e.which));
-			});
+				thiss.search(String.fromCharCode(e.which), true);
+			});	
+		},
+
+		_bindListEvents: function () {
+
+			var thiss = this;
 
 			this.list
 			.on('mousedown.mk', function (e) {
@@ -279,7 +295,7 @@
 		blur: function () {
 
 			if (this.disabled) {
-				return this.hide(0);
+				return this.hide();
 			}
 
 			var t = this.trigger;
@@ -289,7 +305,7 @@
 
 				var o = this.items.find('.active');
 
-				if (o.attr('aria-selected') !== 'true') {
+				if (o.length && o.attr('aria-selected') !== 'true') {
 					this.select(o.attr('data-value'));
 				}
 			}
@@ -401,7 +417,7 @@
 			}
 		},
 
-		search: function (key) {
+		search: function (key, add) {
 
 			if (this.disabled !== true && key) {
 
@@ -410,8 +426,14 @@
 					this._timer = null;
 				}
 
-				this.query  = this.query || '';
-				this.query += key;
+				this.query = this.query || '';
+
+				if (add) {
+					this.query += key;
+				} 
+				else {
+					this.query = key;
+				}
 
 				var option = this.getElementByLabel(this.query),
 					thiss  = this;
@@ -556,7 +578,7 @@
 		data: function () {
 
 			var reg = new RegExp(' ' + this.name + ' ', 'i'),
-				cls = ' ' + this.selectmenu.className + ' ';
+				cls = ' ' + this.element.className + ' ';
 
 			return { 
 				label: this.label(),
@@ -572,7 +594,7 @@
 
 		getOptionData: function (nodes, items, level) {
 
-			nodes = nodes || this.selectmenu.children || [];
+			nodes = nodes || this.element.children || [];
 			items = items || [];
 			level = level || 0;
 
@@ -704,7 +726,7 @@
 					this.updateLabel(n);
 				}
 
-				this.emit('activate', node);
+				this.emit('activate', node, updateLabel);
 			}
 
 			return this;
@@ -808,7 +830,7 @@
 
 		disable: function () {
 
-			this.selectmenu.disabled = true;
+			this.element.disabled = true;
 			this.input.attr('aria-disabled', 'true');
 			this.trigger.addClass('disabled');
 			this.emit('disabled');
@@ -819,7 +841,7 @@
 
 		enable: function () {
 
-			this.selectmenu.disabled = false;
+			this.element.disabled = false;
 			this.input.attr('aria-disabled', 'false');
 			this.trigger.removeClass('disabled');
 			this.emit('enabled');

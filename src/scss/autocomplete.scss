@@ -1,0 +1,128 @@
+
+@import "_variables";
+
+/*
+//
+// mk-autocomplete
+// --------------------
+*/
+
+.mk-autocomplete {
+	display: none;
+}
+
+.mk-autocomplete-shadow {
+	display: inline-block;
+	position: relative;
+}
+
+.mk-autocomplete-trigger {
+	background: $mk-selectmenu-trigger-bg;
+	color: $mk-selectmenu-trigger-color;
+	border: 1px solid $mk-primary;
+	position: relative;
+}
+
+.mk-autocomplete-trigger[aria-expanded="true"],
+.mk-autocomplete-trigger.focus {
+	color: $mk-secondary;
+	border-color: $mk-secondary;
+}
+
+.mk-autocomplete-trigger.disabled {
+	color: $mk-selectmenu-trigger-disabled-color;
+	border-color: $mk-selectmenu-trigger-disabled-color;
+}
+
+.mk-autocomplete-shadow.transitions .mk-autocomplete-trigger {
+	 transition: all $mk-selectmenu-transition-speed;
+	-webkit-transition: all $mk-selectmenu-transition-speed;
+}
+
+.mk-autocomplete-trigger:before {
+	content: $mk-selectmenu-trigger-char;
+	font-size: 2em;
+	height: 3em;
+    line-height: 3em;
+    position: absolute;
+    right: 0.2em;
+    top: calc(50% - 1.5em);
+    transform: $mk-selectmenu-trigger-char-transform;
+}
+
+.mk-autocomplete-input {
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+	padding: 0.625rem;
+	position: relative;
+	z-index: 1;
+}
+
+.mk-autocomplete-list {
+	background: $mk-selectmenu-list-bg;
+	border-top: 1px solid $mk-secondary;
+	box-shadow: 0 0 24px black;
+	display: none;
+	opacity: 0;
+	margin: 0;
+	padding: 0;
+	min-width: 100%;
+	position: absolute;
+	top: 100%;
+}
+
+.mk-autocomplete-list.transition {
+	 display: block;
+	 transition: all $mk-selectmenu-transition-speed;
+	-webkit-transition: all $mk-selectmenu-transition-speed;
+}
+
+.mk-autocomplete-list[aria-hidden="false"] {
+	display: block;
+	opacity: 1;
+}
+
+.mk-autocomplete-item {
+	list-style: none;
+}
+
+.mk-autocomplete-option {
+	background: $mk-selectmenu-option-bg;
+	color: $mk-selectmenu-option-color;
+	display: block;
+	font-size: 1.5rem;
+	padding: 0.625rem;
+}
+
+.mk-autocomplete-option:hover,
+.mk-autocomplete-option:active,
+.mk-autocomplete-option:focus {
+	background: $mk-selectmenu-option-bg-hover;
+	color: $mk-selectmenu-option-color-hover;
+}
+
+.mk-autocomplete-shadow.transitions .mk-autocomplete-option {
+	 transition: background $mk-selectmenu-transition-speed;
+	-webkit-transition: background $mk-selectmenu-transition-speed;
+}
+
+.mk-autocomplete-option.active {
+	color: $mk-selectmenu-option-color-active;
+	background: $mk-selectmenu-option-bg-active;
+}
+
+.mk-autocomplete-option[aria-selected="true"]:after {
+	color: $mk-primary;
+	content: $mk-selectmenu-option-selected-char;
+	font-size: 2rem;
+	line-height: 2rem;
+	position: absolute;
+	right: 1rem;
+}
+
+.mk-autocomplete-option[aria-disabled="true"] {
+	background: $mk-selectmenu-option-bg-disabled;
+	color: $mk-selectmenu-option-color-disabled;
+	cursor: default;
+}

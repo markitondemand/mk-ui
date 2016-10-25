@@ -1,0 +1,51 @@
+doctype html
+html
+
+	head
+		include ./shared/head
+		link(rel="stylesheet", type="text/css", href="/src/css/autocomplete.css")
+
+	body
+
+		include ./shared/header
+
+		main.container
+			form
+				fieldset
+					input(
+						type="text", 
+						class="mk-autocomplete", 
+						name="symbol", 
+						remote="url")
+
+		include ./shared/scripts
+		script(type="text/javascript", src="/src/js/standard/selectmenu.js")
+		script(type="text/javascript", src="/src/js/standard/autocomplete.js")
+		script.
+			
+			mkNasty.transitions(true);
+
+			var Autocomplete = mkNasty.get('Autocomplete');
+			var autocomplete = new Autocomplete('.mk-autocomplete', {
+				remote: 'http://dev.markitondemand.com/Api/v2/Lookup/jsonp?input={{%query}}',
+				type: 'jsonp'
+			});
+
+			autocomplete.on('fetch.success', function (q, d) {
+				this.each(d, function (i, o) {
+					o.label = o.Name,
+					o.value = o.Symbol
+				});
+			});
+
+			autocomplete.on('activate', function (node, updateLabel) {
+			
+				if (updateLabel) {
+					var data = this.decodeValue(node.attr('data-value'));
+					this.input.val(data.Symbol);
+				}
+			});
+
+			autocomplete.on('change', function () {
+				console.info(this.selections);
+			})
