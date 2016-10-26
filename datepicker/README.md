@@ -160,7 +160,8 @@ Below is the list of options available to provide via options object. Again, you
     headerFormat: string (weekday headers formatting),
     initial: string (as format) or Date,
     min: string (as format), Date, or selector,
-    max: string (as format), Date, or selector
+    max: string (as format), Date, or selector,
+	activeDates: Array<Date Objects> (applies active class to given dates) 
   }
 ```
 ##### Public API

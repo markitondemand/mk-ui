@@ -700,7 +700,7 @@
 
 			for (var i = 0, c = values.length; i < c; i++) {
 				 this.aria(
-				 	$options.filter('[data-value=' + values[i].value + ']')).selected();
+				 	$options.filter('[data-value="' + values[i].value + '"]')).selected();
 			}
 
 			this.aria(this.$trigger).activedescendant($el);
@@ -876,7 +876,7 @@
 			for (var i = 0, c = $options.length, $o, $i; i < c; i++) {
 
 				 var $o = $($options[i]),
-				 	 $i = $items.filter('[data-value=' + $o.val() + ']')
+				 	 $i = $items.filter('[data-value="' + $o.val() + '"]')
 
 				 this.aria($i)
 				 	.disabled($o.is(':disabled'))

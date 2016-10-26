@@ -1,5 +1,5 @@
 /// mk-datepicker ///
-/// v1.0.4       ///
+/// v1.1.0       ///
 
 !function($) {
 
@@ -8,7 +8,7 @@
 	$.Mk.create('Datepicker', {
 
 		_strsplitter: /[\,\s|\/|\s|\.|\-]/,
-		_datesplitter: /(\w+)(\,\s|\/|\s|\.|$)/g,
+		_datesplitter: /(\w+)(\,\s|\/|\s|\-|\.|$)/g,
 		_nojq: /\//,
 
 		_defaultFormat: 'mm/dd/yyyy',
@@ -192,6 +192,9 @@
 
 			var $max = this._nojq.test(o.max) ? null : $(o.max),
 				$min = this._nojq.test(o.min) ? null : $(o.min);
+
+			// active dates
+			o.activeDates = o.activeDates || [];
 
 			//jquery link
 			if ($max && $max.length) {
@@ -463,6 +466,7 @@
 		_buildCalendarDay: function(jsdate, date, day, isToday, previousMonth, nextMonth, disabled) {
 
 			var $day = this._template('day', {'day': date});
+			var active = this.options.activeDates.filter(function (date) { return +date == +jsdate; }).length; 
 
 			$day.addClass(this._class('cell'));
 
@@ -475,7 +479,9 @@
 			if (nextMonth) {
 				$day.addClass('next');
 			}
-
+			if (active) {
+				$day.addClass('active');	
+			}
 			if (disabled) {
 				this.aria($day).disabled();
 			}
