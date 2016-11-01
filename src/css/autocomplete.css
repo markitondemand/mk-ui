@@ -1,4 +1,10 @@
 @charset "UTF-8";
+@keyframes mk-autocomplete-loading {
+  from {
+    width: 0; }
+  to {
+    width: 100%; } }
+
 /*
 //
 // mk-autocomplete
@@ -30,28 +36,41 @@
   transition: all 0.5s;
   -webkit-transition: all 0.5s; }
 
-.mk-autocomplete-trigger:before {
-  content: "›";
-  font-size: 2em;
-  height: 3em;
-  line-height: 3em;
-  position: absolute;
-  right: 0.2em;
-  top: calc(50% - 1.5em);
-  transform: rotate(90deg); }
-
 .mk-autocomplete-input {
   background: transparent;
   border: 0;
-  cursor: pointer;
+  outline: none;
   padding: 0.625rem;
   position: relative;
   z-index: 1; }
 
+.mk-autocomplete-trigger:before,
+.mk-autocomplete-trigger:after {
+  content: "";
+  position: absolute;
+  width: calc(100% + 2px);
+  height: 4px;
+  background: transparent;
+  color: #ffffff;
+  text-align: center;
+  left: -1px;
+  top: 100%;
+  transition: all 0.3s;
+  -webkit-transition: all 0.3s; }
+
+.mk-autocomplete-shadow.loading .mk-autocomplete-trigger:before {
+  background: crimson; }
+
+.mk-autocomplete-shadow.loading .mk-autocomplete-trigger:after {
+  background: cadetblue;
+  animation-name: mk-autocomplete-loading;
+  animation-duration: 3s;
+  animation-iteration-count: infinite; }
+
 .mk-autocomplete-list {
   background: whitesmoke;
   border-top: 1px solid cadetblue;
-  box-shadow: 0 0 24px black;
+  box-shadow: 0 0 1.5rem black;
   display: none;
   opacity: 0;
   margin: 0;

@@ -20,67 +20,69 @@
 	// Everybody else
 	// -----------------------------------------------------
 	else {
-		return factory( root, root.mkNasty, root.mkNasty.Selectmenu );
+		return factory( root, root.mkNasty );
 	}
 
-})( typeof window !== "undefined" ? window : this, function ( root, mk ) { 
+})( typeof window !== "undefined" ? window : this, function ( root, mk ) {
+
+	var NO_VALUE = mk._uid();
 
 	mk.create('Autocomplete', mk.Selectmenu, {
 
 		name: 'mk-autocomplete',
 
 		templates: {
-			shadow: [
-				'<div class="{{$key}}-shadow">',
-					'{{template:trigger}}',
-					'{{scope:list}}',
-						'{{template:list}}',
-					'{{/scope:list}}',
-				'</div>'
-			],
+			shadow: 
+				`<div class="{{$key}}-shadow">
+					{{template:trigger}}
+					{{scope:list}}{{template:list}}{{/scope:list}}
+				</div>`,
 
-			trigger: [
-				'<div class="{{$key}}-trigger {{if:disabled}} disabled{{/if:disabled}}" role="combobox" aria-haspopup="listbox">',
-					'<input type="text" ',
-						'class="{{$key}}-input" ',
-						'autocomplete="off" ',
-						'aria-autocomplete="list" ',
-						'aria-disabled="{{disabled}}" ',
-						'{{if:multiple}}aria-multiselectable="true" {{/if:multiple}}',
-						'value="{{label}}" />',
-				'</div>'
-			],
+			trigger: 
+				`<div class="{{$key}}-trigger {{if:disabled}} disabled{{/if:disabled}}" 
+					role="combobox" 
+					aria-haspopup="listbox">
+					{{template:input}}
+				</div>`,
 
-			list: [
-				'<ul id="{{id}}" class="{{$key}}-list" role="listbox">',
-					'{{loop:items}}',
-						'{{template:item}}',
-					'{{/loop:items}}',
-				'</ul>'
-			],
+			input: 
+				`<input type="text" 
+					class="{{$key}}-input" 
+					autocomplete="off" 
+					aria-autocomplete="list" 
+					{{if:disabled}}aria-disabled="true" disabled {{/if:disabled}}
+					{{if:multiple}}aria-multiselectable="true" {{/if:multiple}}
+					value="{{label}}" />`,
 
-			item: [
-				'<li class="{{$key}}-item" role="presentation">',
-					'<a id="{{id}}" ',
-						'class="{{$key}}-option" ',
-						'role="option" ',
-						'href="javascript: void(0);" ',
-						'aria-selected="{{selected}}" ',
-						'data-value="{{$value}}">',
-						'<span class="{{$key}}-label">',
-							'{{highlight:label}}',
-						'</span>',
-						'{{if:alt}}',
-							'<span class="{{$key}}-alt">{{alt}}</span>',
-						'{{/if:alt}}',
-					'</a>',
-				'</li>'
-			]
+			list: 
+				`<ul id="{{id}}" class="{{$key}}-list" role="listbox">
+					{{loop:items}}{{template:item}}{{/loop:items}}
+				</ul>`,
+
+			item: 
+				`<li class="{{$key}}-item" role="presentation">
+					<a id="{{id}}" 
+						class="{{$key}}-option" 
+						role="option" 
+						href="javascript: void(0);" 
+						aria-selected="{{selected}}" 
+						aria-disabled="{{disabled}}" 
+						data-value="{{$value}}">
+						<span class="{{$key}}-label">
+							{{highlight:label}}
+						</span>
+						{{if:alt}}
+							<span class="{{$key}}-alt">{{alt}}</span>
+						{{/if:alt}}
+					</a>
+				</li>`
 		},
 
 		formats: {
 			loading: 'Searching for {{query}}. One moment, please.',
-			loaded: '{{count}} results loaded for {{query}}. Use arrows to navigate results.'
+			loaded: '{{count}} results loaded for {{query}}. Use arrows to navigate results.',
+			error: 'We\'re sorry, an error occured while searching for {{query}}.',
+			empty: 'No results found for {{query}}.'
 		},
 
 		get version () {
@@ -108,30 +110,41 @@
 		},
 
 		get value () {
-			
+
 			if (this.multiple) {
 				return this.rootInput.value.split('|||');
 			}
 			return this.rootInput.value;
 		},
 
-		_define: function (r, o) {
+		selections: null,
 
-			this.query = '';
-			this.selections = [];
-			this.cache = {};
+		requests: 0,
 
-			this.super(r, o);
-		},
+		cache: null,
+
+		query: '',
 
 		_verifyTag: function (n) {
 
 			var node = this.$(n);
 
-			if (node.length < 1 || 
+			if (node.length < 1 ||
 				node[0].tagName.toLowerCase() !== 'input') {
 				throw new Error(':: mkNasty.Autocomplete - root must be a <input> node ::');
 			}
+
+			return true;
+		},
+
+		_define: function (r, o) {
+
+			this.query = '';
+			this.selections = [];
+			this.requests = 0;
+			this.cache = {};
+
+			this.super(r, o);
 		},
 
 		_config: function (o) {
@@ -147,31 +160,10 @@
 			o.limit = parseFloat(o.limit, 10);
 			o.time = parseFloat(o.time, 10);
 
-			if (o.remote) {
-				o.formats = o.formats || {};
-				o.formats.__remote__ = o.remote;
-			}
-
-			var useJSON = o.useJSON;
-
-			if (typeof useJSON !== 'boolean') {
-
-				var jsonAttr = this.root.data('json');
-
-				if (jsonAttr) {
-					useJSON = jsonAttr === 'true';
-				}
-				else {
-					useJSON = true;
-				}
-			}
-
-			o.useJSON = useJSON;
-
-
 			var anything = o.anything;
 
 			if (typeof anything !== 'boolean') {
+
 				var anyAttr = this.root.data('anything');
 
 				if (anyAttr) {
@@ -190,65 +182,81 @@
 		_bindInputEvents: function () {
 
 			var thiss = this,
-				trigger = this.trigger, 
-				inFocus = false,
-				focusedByMouse = false;
+				trigger = this.trigger;
 
 			this.input
 			.on('focus.mk', function (e) {
-				
-				if (thiss.disabled) {
-					return;
-				}
-
-				if (focusedByMouse) {
-					focusedByMouse = false;
-					thiss.toggle();
-				}
-
 				trigger.addClass('focus');
-				inFocus = true;
 			})
 			.on('blur.mk', function (e) {
+
+				trigger.removeClass('focus');
+				thiss.hide();
 
 				if (this.disabled) {
 					return;
 				}
-
-				inFocus = false;
 				thiss.blur();
-			})
-			.on('mousedown.mk', function (e) {
-
-				focusedByMouse = true;
-
-				if (inFocus) {
-					focusedByMouse = false;
-					thiss.toggle();
-				}
 			})
 			.on('keydown.mk', function (e) {
 				thiss._keydown(e);
 			})
-			.on('keypress.mk', function (e) {
-				thiss.search(String.fromCharCode(e.which), true);
-			});	
+			.on('keyup.mk', function (e) {
+				thiss._keyup(e);
+			});
 		},
 
-		encodeValue: function (data) {
+		_keyup: function (e) {
 
-			if (this.config.useJSON) {
-				return escape(JSON.stringify(data));
+			var behavior = this.keyIsBehavior(e.which);
+
+			if (behavior > -1) {
+
+				if (behavior === 1) {
+					e.preventDefault();
+				}
+				return;
 			}
-			return data.value;
+
+			if (this.query !== this.input.val()) {
+				this.search(this.input.val());
+			}
 		},
 
-		decodeValue: function (data) {
+		move: function (up) {
 
-			if (this.config.useJSON) {
-				return JSON.parse(unescape(data));
+			var active = this.items.find('.active')[0],
+				index = this.index(active) + (up && -1 || 1);
+
+			if (index < 0) {
+
+				this.$(active).removeClass('active');
+				this.input.attr('aria-activedescendant', '').val(this.query);
+				return;
 			}
-			return data;
+
+			this.super(up);
+		},
+
+		keyIsBehavior: function (w) {
+
+			var k = this.keycode;
+
+			switch (w) {
+
+				case k.space:
+					return 0;
+
+				case k.enter:
+				case k.up:
+				case k.down:
+				case k.left:
+				case k.right:
+				case k.esc:
+					return 1;
+			}
+
+			return -1;
 		},
 
 		buildOptionData: function (data) {
@@ -256,7 +264,7 @@
 			data = data || [];
 
 			this.each(data, function (i, o) {
-				o.$value = o.$value || this.encodeValue(o);
+				o.$value = o.$value || o.value;
 			});
 			return data;
 		},
@@ -270,16 +278,17 @@
 			}
 
 			var reg = new RegExp(' ' + this.name + ' ', 'i'),
-				cls = ' ' + this.element.className + ' ';
+				cls = ' ' + this.element.className + ' ',
+				id  = this.shadow && this.shadow.attr('id') || this.uid();
 
-			return { 
+			return {
 				classname: cls.replace(reg, ''),
 				multiple: this.multiple,
 				disabled: this.disabled,
 				list: {
-					id: this.uid(), 
+					id: id,
 					items: this.buildOptionData(data)
-				} 
+				}
 			};
 		},
 
@@ -300,10 +309,9 @@
 
 		hasCache: function (key) {
 
-			key = key || '';
-			key = key.toLowerCase();
+			key = (key || '').toLowerCase();
 
-			if (!key && this.config.data) {
+			if (this.config.remote === null && this.config.data) {
 				return true;
 			}
 
@@ -311,19 +319,14 @@
 				return true;
 			}
 
-			if (this.config.remote === null && this.config.data) {
-				return true;
-			}
-
-			return false;
+			return (!key && this.config.data !== null) || false;
 		},
 
 		getCache: function (key) {
 
-			key = key || '';
-			key = key.toLowerCase();
+			key = (key || '').toLowerCase();
 
-			if (!key && this.config.data) {
+			if (this.config.remote === null && this.config.data) {
 				return this.config.data;
 			}
 
@@ -331,61 +334,63 @@
 				return this.cache[key];
 			}
 
-			if (this.config.remote === null && this.config.data) {
-				return this.config.data;
-			}
-
-			return null;
+			return (!key && this.config.data) || null;
 		},
 
 		setCache: function (key, data) {
-
-			key = key || '';
-			key = key.toLowerCase();
-
-			if (data) {
-				this.cache[key] = data;
-			}
-
-			return data;
+			return this.cache[(key || '').toLowerCase()] = data;
 		},
 
 		search: function (key, add) {
 
-			this.query = this.query || '';
+			var q = key;
 
 			if (add === true) {
-				this.query += key;
-			}
-			else {
-				this.query = key;
+				q = (this.query || '') + key;
 			}
 
-			if (this.hasCache(this.query)) {
+			if (this.hasCache(q)) {
 
-				var raw  = this.getCache(this.query),
+				var raw  = this.getCache(q),
 					data = this.data(raw);
 
-				this.render(data);
-
-				return;
+				this.render(q, data);
+			}
+			else if (q) {
+				this.request(q);
 			}
 
-			this.fetch(this.query);
+			this.query = q;
+		},
+
+		show: function () {
+
+			var t = this.trigger,
+				l = this.list;
+
+			if (this.disabled !== true && this.isHidden) {
+
+				this.transition(l, function () {
+					l.addClass('in');
+				});
+
+				this.delay(function () {
+
+					t.attr('aria-expanded', 'true');
+					l.attr('aria-hidden', 'false');
+					
+					this.emit('show');
+				});
+			}
+			return this;
 		},
 
 		select: function (value) {
 
-			var data = value;
-
-			if (typeof value === 'string') {
-				data = this.decodeValue(value);
-			}
-			console.info('data', data)
-			if (this.exists(data) !== true) {
+			if (this.exists(value) !== true) {
 
 				if (this.limit < 2) {
-					this.clear();
+					this.removeAll();
 				}
 
 				if (this.capacity) {
@@ -394,10 +399,9 @@
 				}
 				else {
 					this.shadow.removeClass('capacity');
-					this.selections.push(data);
+					this.selections.push(value);
 					this.updateRoot().emit('change');
 				}
-
 				this.hide();
 			}
 
@@ -406,15 +410,9 @@
 
 		deselect: function (value) {
 
-			var data = value;
-
-			if (typeof value === 'string') {
-				data = this.decodeValue(value);
-			}
-
 			var result = false;
-			this.each(this.selections, function (i, o) {
-				if (o.value === data.value) {
+			this.each(this.selections, function (i, v) {
+				if (v === value) {
 					result = true; return -1;
 				}
 			});
@@ -426,14 +424,11 @@
 			return this;
 		},
 
-		exists: function (data) {
-
-			data = data || {};
+		exists: function (value) {
 
 			var result = false;
-
-			this.each(this.selections, function (i, s) {
-				if (s.value === data.value) {
+			this.each(this.selections, function (i, v) {
+				if (v === value) {
 					result = true; return false;
 				}
 			});
@@ -441,33 +436,17 @@
 			return result;
 		},
 
-		blur: function () {
-
-			this.super();
-
-			if (this.anything && (this.selections.length < 1 || (this.capacity && this.limit < 2))) {
-
-				var input = this.input,
-					value = {label: input.val(), value: input.val()};
-
-				this.select(this.encodeValue(value));
-			}
-		},
+		blur: function () {},
 
 		updateRoot: function () {
 
-			if (this.config.useJSON) {
-				this.element.value = JSON.stringify(this.selections);
-			}
-			else {
+			var values = [];
+			this.each(this.selections, function (i, o) {
+				values.push(o.value);
+			});
 
-				var values = [];
+			this.element.value = values.join('|||');
 
-				this.each(this.selections, function (i, o) {
-					values.push(o.value);
-				});
-				this.element.value = values.join('|||');
-			}
 			return this;
 		},
 
@@ -479,26 +458,39 @@
 			return this;
 		},
 
-		clear: function (data) {
+		remove: function (data) {
 
 			if (data && data.value) {
+
+				var result = false;
 				this.each(this.selections, function (i, s) {
 					if (s.value === data.value) {
-						return -1;
+						result = true; return -1;
 					}
 				});
-			}
-			else {
-				this.selections.splice(
-					0, this.selections.length);
-			}
 
-			this.emit('clear');
+				if (result) {
+					this.emit('remove', data);
+				}
+			}
 
 			return this;
 		},
 
-		fetch: function (query) {
+		removeAll: function () {
+
+			if (this.selections.length > 0) {
+
+				var removed = this.selections.splice(
+						0, this.selections.length);
+
+				this.emit('remove', removed);
+			}
+
+			return this;
+		},
+
+		request: function (query) {
 
 			if (this.config.remote) {
 
@@ -509,24 +501,34 @@
 
 				this.timer = this.delay(function () {
 
-					this.emit('fetch.before', q);
+					this.query = query;
+					this.loading(true);
 
-					var q = query,
-						url = this.format('__remote__', {'%query': q}),
+					this.emit('request.before', query);
+
+					var q = this.query,
+						url = this.format(this.config.remote, {'%query': q}),
 						thiss = this;
 
 					$.ajax({
 						url: url,
 						type: 'get',
 						dataType: this.config.type,
+						requestNumber: ++this.requests,
 						complete: function (x, c) {
-							thiss.complete(q, x, c);
+							if (this.requestNumber === thiss.requests) {
+								thiss.complete(q, x, c);
+							}
 						},
 						error: function (x) {
-							thiss.error(q, x);
+							if (this.requestNumber === thiss.requests) {
+								thiss.error(q, x);
+							}
 						},
 						success: function (d, c, x) {
-							thiss.success(q, d, c, x);
+							if (this.requestNumber === thiss.requests) {
+								thiss.success(q, d, c, x);
+							}
 						}
 					});
 
@@ -535,26 +537,45 @@
 		},
 
 		complete: function (query, xhr, code) {
-			this.emit('fetch.complete', query, xhr, code);
+			this.emit('request.complete', query, xhr, code);
 		},
 
 		error: function (query, xhr) {
-			this.emit('fetch.error', query, xhr);
+
+			this.emit('request.error', query, xhr);
+
+			this.loading(false);
+			this.render(query, null, -1);
 		},
 
 		success: function (query, data, code, xhr) {
 
-			this.emit('fetch.success', query, data, code, xhr);
+			this.emit('request.success', query, data, code, xhr);
 
 			this.setCache(query, data);
-			this.render(this.data(query));
+			this.render(query, this.data(query));
 		},
 
-		render: function (data) {
+		render: function (query, data, code) {
 
 			data = data || {};
 			data.list = data.list || {};
 			data.list.items = data.list.items || [];
+
+			if (code === -1) {
+				data.list.items.push({
+					label: this.format('error', {query: query}),
+					value: NO_VALUE,
+					disabled: 'true'
+				});
+			} 
+			else if (data.list.items.length < 1) {
+				data.list.items.push({
+					label: this.format('empty', {query: query}),
+					value: NO_VALUE,
+					disabled: 'true'
+				});
+			}
 
 			if (this.events.render && this.events.render.length > 0) {
 				this.emit('render', data);
@@ -572,6 +593,9 @@
 						this.html('item', d));
 				});
 			}
+
+			this.loading(false);
+			this.show();
 
 			return this;
 		}

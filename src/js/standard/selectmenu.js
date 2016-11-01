@@ -157,12 +157,15 @@
 				node[0].tagName.toLowerCase() !== 'select') {
 				throw new Error(':: mkNasty.Selectmenu - root must be a <select> node ::');
 			}
+
+			return true;
 		},
 
 		_define: function (r, o) {
 
-			this._verifyTag(r);
-			this.super(r, o);
+			if (this._verifyTag(r)) {
+				this.super(r, o);
+			}
 		},
 
 		_build: function () {
@@ -270,15 +273,15 @@
 			switch (w) {
 
 				case k.enter: 
-					this._enter(e); 
+					this._enter(e);
 					break;
 
 				case k.space: 
-					this._space(e); 
+					this._space(e);
 					break;
 
 				case k.esc: 
-					this._esc(e); 
+					this._esc(e);
 					break;
 
 				case k.up: 
@@ -319,6 +322,7 @@
 			var items   = this.items,
 				active  = this.items.find('.active')[0],
 				options = this.listOptions,
+				initial = false,
 				option;
 
 			if (typeof active === 'undefined') {
@@ -327,27 +331,33 @@
 
 				if (typeof active === 'undefined') {
 					active = options[0];
+					initial = true;
 				}
 
 				this.activate(active);
 			}
 
-			var increment = up && -1 || 1
-				index = this.index(active) + increment;
+			if (initial) { option = active; active = null; } 
 
-			option = options[index];
+			else {
 
-			while (option 
-				&& option.getAttribute('aria-disabled') === 'true') {
+				var increment = up && -1 || 1
+					index = this.index(active) + increment;
 
-				index += increment;
 				option = options[index];
-			}
 
-			if (typeof option === 'undefined') {
+				while (option 
+					&& option.getAttribute('aria-disabled') === 'true') {
 
-				option = up && options[0] 
-					|| options[options.length - 1];
+					index += increment;
+					option = options[index];
+				}
+
+				if (typeof option === 'undefined') {
+
+					option = up && options[0] 
+						|| options[options.length - 1];
+				}
 			}
 
 			if (option !== active) {

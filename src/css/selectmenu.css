@@ -44,6 +44,7 @@
   background: transparent;
   border: 0;
   cursor: pointer;
+  outline: none;
   padding: 0.625rem;
   position: relative;
   z-index: 1; }
