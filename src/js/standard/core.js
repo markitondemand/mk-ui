@@ -276,6 +276,7 @@
 
 	var _d = /{{([^{]+)}}/g;
 	var _n = /{{([^}]+)}}(.*)({{\/\1}})/g;
+	var _s = /\r|\t/g;
 
 	function template (n, k, t, d) {
 
@@ -286,6 +287,8 @@
 		d.$key = k;
 
 		var tmp = template.get(n, t);
+
+		tmp = tmp.replace(_s, '');
 
 		tmp = tmp.replace(_n, function (s, c, h) {
 			return template.statements(s, k, c, h, t, d);

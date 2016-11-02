@@ -13,11 +13,10 @@ html
 			form
 				fieldset
 					select.mk-selectmenu
-						optgroup(label="animals")
-							option(value="1") Lions
-							option(value="2") Tigers
-							option(value="3") Bears
-							option(value="4") Wolves
+						option(value="1") Lions
+						option(value="2") Tigers
+						option(value="3") Bears
+						option(value="4") Wolves
 
 		include ./shared/scripts
 		script(type="text/javascript", src="/src/js/standard/selectmenu.js")
@@ -25,4 +24,17 @@ html
 
 			mkNasty.transitions(true);
 
-			var select = new mkNasty.Selectmenu('.mk-selectmenu');
+			var $select = $('.mk-selectmenu')
+			var select = new mkNasty.Selectmenu($select);
+
+			select.on('change', function () {
+				console.info('changed!')
+				this.input.val("Tools")
+
+			});
+
+			select.on('activate', function (node, updateLabel) {
+
+				this.input.val("Tools")
+			});
+

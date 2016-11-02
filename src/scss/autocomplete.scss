@@ -6,6 +6,11 @@
 	to { width: 100%; }
 }
 
+@keyframes mk-autocomplete-loader {	
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /*
 //
 // mk-autocomplete
@@ -92,6 +97,32 @@
 	top: 100%;
 }
 
+.mk-autocomplete-shadow.loading .mk-autocomplete-list:before {
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+	background: rgba(255, 255, 255, 0.7);
+	position: absolute;
+	content: "";
+}
+
+.mk-autocomplete-shadow.loading .mk-autocomplete-list:after {
+	border-radius: 50%;
+    width: 46px;
+    height: 46px;
+    border: .25rem solid #999;
+    border-top-color: black;
+    animation: mk-autocomplete-loader 1s infinite linear;
+    content: "";
+    position: absolute;
+    top: 50%;
+    margin-top: -23px;
+    text-align: center;
+    left: 50%;
+    margin-left: -23px;
+}
+
 .mk-autocomplete-list.transition {
 	 display: block;
 	 transition: all $mk-selectmenu-transition-speed;
@@ -145,4 +176,26 @@
 	background: $mk-selectmenu-option-bg-disabled;
 	color: $mk-selectmenu-option-color-disabled;
 	cursor: default;
+}
+
+.mk-autocomplete-tags {
+	margin: 10px 0;
+	padding: 0;
+}
+
+.mk-autocomplete-tag {
+	background: #555;
+	list-style: none;
+	display: inline-block;
+	padding: 5px;
+}
+
+.mk-autocomplete-tag [data-action="remove"] {
+	background: #000;
+	display: inline-block;
+	padding: 0 5px;
+}
+
+.mk-autocomplete-tag [data-action="remove"]:before {
+	content: '\d7';
 }

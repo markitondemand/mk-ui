@@ -15,8 +15,8 @@ html
 					input(
 						type="text", 
 						class="mk-autocomplete", 
-						name="symbol", 
-						remote="url")
+						name="symbol"
+						data-limit="5")
 
 		include ./shared/scripts
 		script(type="text/javascript", src="/src/js/standard/selectmenu.js")
@@ -27,7 +27,7 @@ html
 
 			var Autocomplete = mkNasty.get('Autocomplete');
 			var autocomplete = new Autocomplete('.mk-autocomplete', {
-				remote: 'http://dev.markitondemand.com/Api/v2/Lookup/jsonp?input={{%query}}',
+				remote: 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/jsonp?input={{%query}}',
 				type: 'jsonp'
 			});
 
@@ -41,7 +41,7 @@ html
 			autocomplete.on('activate', function (node, updateLabel) {
 			
 				if (updateLabel) {
-					this.input.val(node.attr('data-value'));
+					this.input.val(node.attr('data-display'));
 				}
 			});
 

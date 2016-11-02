@@ -32,17 +32,33 @@
 		name: 'mk-autocomplete',
 
 		templates: {
+
 			shadow: 
 				`<div class="{{$key}}-shadow">
+					{{template:tags}}
 					{{template:trigger}}
+					{{template:notifications}}
 					{{scope:list}}{{template:list}}{{/scope:list}}
 				</div>`,
+
+			tags: `<ul class="{{$key}}-tags" aria-label="Current selections"></ul>`,
+
+			tag: 
+				`<li class="{{$key}}-tag" role="presentation" data-value="{{value}}">
+					<a href="javascript:void(0);" 
+						role="button" 
+						data-value="{{value}}" 
+						data-action="remove" 
+						aria-label="Remove {{label}}"></a>
+					{{label}}
+				</li>`,
 
 			trigger: 
 				`<div class="{{$key}}-trigger {{if:disabled}} disabled{{/if:disabled}}" 
 					role="combobox" 
 					aria-haspopup="listbox">
 					{{template:input}}
+					{{template:live}}
 				</div>`,
 
 			input: 
@@ -53,6 +69,18 @@
 					{{if:disabled}}aria-disabled="true" disabled {{/if:disabled}}
 					{{if:multiple}}aria-multiselectable="true" {{/if:multiple}}
 					value="{{label}}" />`,
+
+			live: 
+				`<div class="{{$key}}-live sr-only" 
+					aria-atomic="true" 
+					aria-live="assertive">
+				</div>`,
+
+			notifications: 
+				`<div class="{{$key}}-notifications" 
+					aria-atomic="true" 
+					aria-live="assertive">
+				</div>`,
 
 			list: 
 				`<ul id="{{id}}" class="{{$key}}-list" role="listbox">
@@ -67,7 +95,8 @@
 						href="javascript: void(0);" 
 						aria-selected="{{selected}}" 
 						aria-disabled="{{disabled}}" 
-						data-value="{{$value}}">
+						data-value="{{$value}}" 
+						data-display="{{value}}">
 						<span class="{{$key}}-label">
 							{{highlight:label}}
 						</span>
@@ -79,14 +108,35 @@
 		},
 
 		formats: {
-			loading: 'Searching for {{query}}. One moment, please.',
-			loaded: '{{count}} results loaded for {{query}}. Use arrows to navigate results.',
-			error: 'We\'re sorry, an error occured while searching for {{query}}.',
-			empty: 'No results found for {{query}}.'
+			loading: 'Searching for {{query}}',
+			loaded: '{{count}} results loaded for {{query}}',
+			error: 'We\'re sorry, an error occured while searching for {{highlight:query}}',
+			empty: 'No results found for {{highlight:query}}',
+			capacity: 'You\'ve reached your tag limit'
 		},
 
 		get version () {
 			return 'v1.0.0';
+		},
+
+		get tagroot () {
+			return this.shadow.find(
+				this.selector('tags'));
+		},
+
+		get tags () {
+			return this.tagroot.find(
+				this.selector('tag'));
+		},
+
+		get live () {
+			return this.shadow.find(
+				this.selector('live'));
+		},
+
+		get notifications () {
+			return this.shadow.find(
+				this.selector('notifications'));
 		},
 
 		get isLoading () {
@@ -111,10 +161,20 @@
 
 		get value () {
 
-			if (this.multiple) {
-				return this.rootInput.value.split('|||');
+			if (this.selections.length > 0) {
+
+				if (this.multiple) {
+					return this.flatten(this.selections);
+				}
+
+				return this.flatten(this.selections[0]);
 			}
-			return this.rootInput.value;
+
+			return null;
+		},
+
+		get isEmpty () {
+			return this.items.length < 1;
 		},
 
 		selections: null,
@@ -153,7 +213,7 @@
 
 			o.remote = o.remote || this.root.data('remote') || null;
 			o.limit = o.limit || this.root.data('limit') || 1;
-			o.time = o.time || this.root.data('time') || 1000;
+			o.time = o.time || this.root.data('time') || 500;
 			o.type = o.type || 'json';
 			o.data = o.data || null;
 
@@ -177,6 +237,13 @@
 			o.anything = anything;
 
 			this.super(o);
+		},
+
+		_bind: function () {
+
+			this._bindInputEvents();
+			this._bindListEvents();
+			this._bindLabelEvents();
 		},
 
 		_bindInputEvents: function () {
@@ -206,6 +273,16 @@
 			});
 		},
 
+		_bindLabelEvents: function () {
+
+			thiss = this;
+
+			this.tagroot.on('click.mk', '[data-action="remove"]', function (e) {
+				e.preventDefault();
+				thiss.deselect(this.getAttribute('data-value'));
+			});
+		},
+
 		_keyup: function (e) {
 
 			var behavior = this.keyIsBehavior(e.which);
@@ -218,18 +295,50 @@
 				return;
 			}
 
-			if (this.query !== this.input.val()) {
-				this.search(this.input.val());
+			this.search(this.input.val());
+		},
+
+		_enter: function (e) {
+
+			e.preventDefault();
+
+			var active = this.items.find('.active');
+
+			if (active.length < 1 && this.anything) {
+
+				var data = this.flatten({
+					label: this.input.val(),
+					value: this.input.val()
+				});
+
+				return this.abort().select(data);
 			}
+
+			if (this.isHidden && this.isEmpty !== true) {
+				return this.show();
+			}
+			this.super(e);
 		},
 
 		move: function (up) {
 
+			if (this.isEmpty) {
+				return;
+			}
+
+			if (this.isHidden) {
+				this.show();
+				return;
+			}
+
 			var active = this.items.find('.active')[0],
 				index = this.index(active) + (up && -1 || 1);
 
-			if (index < 0) {
+			if (index >= this.items.length) {
+				index = -1;
+			}
 
+			if (index < 0) {
 				this.$(active).removeClass('active');
 				this.input.attr('aria-activedescendant', '').val(this.query);
 				return;
@@ -245,6 +354,7 @@
 			switch (w) {
 
 				case k.space:
+				case k.tab:
 					return 0;
 
 				case k.enter:
@@ -264,7 +374,16 @@
 			data = data || [];
 
 			this.each(data, function (i, o) {
-				o.$value = o.$value || o.value;
+
+				o.$value = o.$value || this.flatten({
+					value: o.value, 
+					label: o.label
+				});
+
+				o.id = o.id || this.uid();
+
+				//todo:
+				//selected aka exists()
 			});
 			return data;
 		},
@@ -290,6 +409,14 @@
 					items: this.buildOptionData(data)
 				}
 			};
+		},
+
+		flatten: function (value) {
+			return btoa(JSON.stringify(value));
+		},
+
+		unflatten: function (value) {
+			return JSON.parse(atob(value));
 		},
 
 		label: function (n) {
@@ -349,21 +476,38 @@
 				q = (this.query || '') + key;
 			}
 
-			if (this.hasCache(q)) {
-
-				var raw  = this.getCache(q),
-					data = this.data(raw);
-
-				this.render(q, data);
-			}
-			else if (q) {
-				this.request(q);
-			}
-
 			this.query = q;
+
+			if (this.hasCache(this.query)) {
+				this.render(this.query, this.data(
+					this.getCache(this.query)));
+				return;
+			}
+
+			if (this.query) {
+				this.request(this.query);
+				return;
+			}
+
+			if (!this.query) {
+				this.clear();
+			}
+		},
+
+		clear: function () {
+
+			this.items.remove();
+			this.live.text('');
+			this.hide();
+
+			return this;
 		},
 
 		show: function () {
+
+			if (this.isEmpty) {
+				return;
+			}
 
 			var t = this.trigger,
 				l = this.list;
@@ -387,20 +531,22 @@
 
 		select: function (value) {
 
-			if (this.exists(value) !== true) {
+			var data = this.unflatten(value);
+
+			if (this.exists(data.value) !== true) {
 
 				if (this.limit < 2) {
 					this.removeAll();
 				}
 
 				if (this.capacity) {
-					this.shadow.addClass('capacity');
-					this.emit('capacity');
+					this.notify(1);
+					this.emit('capacity', this.selections);
 				}
 				else {
 					this.shadow.removeClass('capacity');
-					this.selections.push(value);
-					this.updateRoot().emit('change');
+					this.selections.push(data);
+					this.tag(data).updateRoot().emit('change');
 				}
 				this.hide();
 			}
@@ -410,15 +556,20 @@
 
 		deselect: function (value) {
 
-			var result = false;
-			this.each(this.selections, function (i, v) {
-				if (v === value) {
-					result = true; return -1;
+			var data = this.unflatten(value),
+				result = false;
+
+			this.each(this.selections, function (i, o) {
+				if (o.value === data.value) {
+					result = true; 
+					return -1;
 				}
 			});
 
 			if (result) {
-				this.shadow.removeClass('capacity');
+
+				this.notify();
+				this.tag(data, true);
 				this.updateRoot().emit('change');
 			}
 			return this;
@@ -427,52 +578,68 @@
 		exists: function (value) {
 
 			var result = false;
-			this.each(this.selections, function (i, v) {
-				if (v === value) {
-					result = true; return false;
+
+			this.each(this.selections, function (i, o) {
+				if (o.value === value) {
+					result = true; 
+					return false;
 				}
 			});
 
 			return result;
 		},
 
-		blur: function () {},
+		blur: function () {
+			return false;
+		},
 
-		updateRoot: function () {
+		tag: function (data, remove) {
 
-			var values = [];
-			this.each(this.selections, function (i, o) {
-				values.push(o.value);
-			});
+			var flattened = this.flatten(data);
 
-			this.element.value = values.join('|||');
-
+			if (remove) {
+				this.tags.filter('[data-value="' + flattened + '"]').remove();
+			}
+			else {
+				this.tagroot.append(
+					this.html('tag', {label: data.label, value: flattened}));
+			}
 			return this;
 		},
 
-		loading: function (show) {
+		updateRoot: function () {
+			this.element.value = this.value;
+			return this;
+		},
 
-			var method = show && 'addClass' || 'removeClass';
+		loading: function (show, query, count) {
+
+			var method = show && 'addClass' || 'removeClass',
+				format = show && 'loading' || 'loaded',
+				data = {query: query, count: count};
+
+			this.live.text('');
+
+			if ((show && query) || (query && count)) {
+				this.live.text(this.format(format, data));
+			}
+
 			this.shadow[method]('loading');
 
 			return this;
 		},
 
-		remove: function (data) {
+		notify: function (type, query) {
 
-			if (data && data.value) {
+			var label = '',
+				data = {query: query},
+				format = type === 0 && 'empty' 
+					|| type === -1 && 'error' 
+					|| type === 1 && 'capacity'
+					|| '';
 
-				var result = false;
-				this.each(this.selections, function (i, s) {
-					if (s.value === data.value) {
-						result = true; return -1;
-					}
-				});
-
-				if (result) {
-					this.emit('remove', data);
-				}
-			}
+			this.notifications.html(
+				this.format(format, data));
 
 			return this;
 		},
@@ -484,9 +651,23 @@
 				var removed = this.selections.splice(
 						0, this.selections.length);
 
-				this.emit('remove', removed);
+				this.notify();
+				this.tags.remove();
+				this.emit('change', removed);
 			}
+			return this;
+		},
 
+		abort: function () {
+
+			if (this.timer) {
+
+				clearTimeout(this.timer);
+
+				this.timer = null;
+				this.requests -= 1;
+				this.loading(false);
+			}
 			return this;
 		},
 
@@ -494,15 +675,12 @@
 
 			if (this.config.remote) {
 
-				if (this.timer) {
-					clearTimeout(this.timer);
-					this.timer = null;
-				}
+				this.abort();
 
 				this.timer = this.delay(function () {
 
 					this.query = query;
-					this.loading(true);
+					this.loading(true, query);
 
 					this.emit('request.before', query);
 
@@ -543,8 +721,6 @@
 		error: function (query, xhr) {
 
 			this.emit('request.error', query, xhr);
-
-			this.loading(false);
 			this.render(query, null, -1);
 		},
 
@@ -562,40 +738,38 @@
 			data.list = data.list || {};
 			data.list.items = data.list.items || [];
 
-			if (code === -1) {
-				data.list.items.push({
-					label: this.format('error', {query: query}),
-					value: NO_VALUE,
-					disabled: 'true'
-				});
-			} 
-			else if (data.list.items.length < 1) {
-				data.list.items.push({
-					label: this.format('empty', {query: query}),
-					value: NO_VALUE,
-					disabled: 'true'
-				});
-			}
+			this.items.remove();
 
-			if (this.events.render && this.events.render.length > 0) {
-				this.emit('render', data);
+			if (code === -1) {
+				this.notify(code, query);
+				this.hide();
+			}
+			else if (data.list.items.length < 1) {
+				this.notify(0, query);
+				this.hide();
 			}
 			else {
 
-				var list = this.list,
-					items = data.list.items;
+				this.notify();
 
-				this.items.remove();
+				if (this.events.render && this.events.render.length > 0) {
+					this.emit('render', data);
+				}
+				else {
 
-				this.each(items, function (i, d) {
+					var list = this.list,
+						items = data.list.items;
 
-					list.append(
-						this.html('item', d));
-				});
+					this.each(items, function (i, d) {
+						list.append(
+							this.html('item', d));
+					});
+				}
+
+				this.show();
 			}
 
-			this.loading(false);
-			this.show();
+			this.loading(false, query, data.list.items.length);
 
 			return this;
 		}
