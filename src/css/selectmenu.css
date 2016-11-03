@@ -50,7 +50,7 @@
   z-index: 1; }
 
 .mk-selectmenu-list {
-  background: whitesmoke;
+  background: #eee;
   border-top: 1px solid cadetblue;
   box-shadow: 0 0 24px black;
   display: none;
@@ -76,7 +76,7 @@
 .mk-selectmenu-option,
 .mk-selectmenu-optgroup {
   background: tranparent;
-  color: dimgray;
+  color: #999;
   display: block;
   font-size: 1.5rem;
   padding: 0.625rem; }
@@ -88,7 +88,7 @@
 .mk-selectmenu-option:focus,
 .mk-selectmenu-optgroup:focus {
   background: transparent;
-  color: dimgray; }
+  color: #999; }
 
 .mk-selectmenu-shadow.transitions .mk-selectmenu-option,
 .mk-selectmenu-shadow.transitions .mk-selectmenu-optgroup {
@@ -97,8 +97,8 @@
 
 .mk-selectmenu-option.active,
 .mk-selectmenu-optgroup.active {
-  color: dimgray;
-  background: #d7d7d7; }
+  color: #666;
+  background: #ccc; }
 
 .mk-selectmenu-optgroup {
   font-weight: bold; }

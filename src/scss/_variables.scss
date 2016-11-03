@@ -2,6 +2,14 @@
 $mk-primary: crimson;
 $mk-secondary: cadetblue;
 
+$mk-gray-1: #333;
+$mk-gray-2: #666;
+$mk-gray-3: #999;
+$mk-gray-4: #ccc;
+$mk-gray-5: #eee;
+
+$mk-color: white;
+
 //
 // loader
 // -------------------------------------------
@@ -17,23 +25,54 @@ $mk-loader-boxshadow-color: rgba(255, 255, 255, 0.15);
 $mk-selectmenu-transition-speed: 0.5s;
 
 $mk-selectmenu-trigger-bg: transparent;
-$mk-selectmenu-trigger-color: white;
+$mk-selectmenu-trigger-color: $mk-color;
 $mk-selectmenu-trigger-char: '\203A';
 $mk-selectmenu-trigger-char-transform: rotate(90deg);
-$mk-selectmenu-trigger-disabled-color: #666;
+$mk-selectmenu-trigger-disabled-color: $mk-gray-2;
 
-$mk-selectmenu-list-bg: whitesmoke;
+$mk-selectmenu-list-bg: $mk-gray-5;
 
-$mk-selectmenu-option-color: dimgray;
+$mk-selectmenu-option-color: $mk-gray-3;
 $mk-selectmenu-option-bg: tranparent;
 
-$mk-selectmenu-option-color-hover: dimgray;
+$mk-selectmenu-option-color-hover: $mk-gray-3;
 $mk-selectmenu-option-bg-hover: transparent;
 
-$mk-selectmenu-option-color-disabled: #ccc;
+$mk-selectmenu-option-color-disabled: $mk-gray-4;
 $mk-selectmenu-option-bg-disabled: transparent;
 
-$mk-selectmenu-option-color-active: dimgray;
-$mk-selectmenu-option-bg-active: #d7d7d7;
+$mk-selectmenu-option-color-active: $mk-gray-2;
+$mk-selectmenu-option-bg-active: $mk-gray-4;
 
 $mk-selectmenu-option-selected-char: '\2714';
+
+//
+// Autocomplete
+// -------------------------------------------
+
+$mk-autocomplete-transition-speed: 0.5s;
+
+$mk-autocomplete-trigger-bg: transparent;
+$mk-autocomplete-trigger-color: $mk-color;
+$mk-autocomplete-trigger-char: '\203A';
+$mk-autocomplete-trigger-char-transform: rotate(90deg);
+$mk-autocomplete-trigger-disabled-color: $mk-gray-2;
+
+$mk-autocomplete-list-bg: $mk-gray-5;
+
+$mk-autocomplete-option-color: $mk-gray-3;
+$mk-autocomplete-option-bg: tranparent;
+
+$mk-autocomplete-option-color-hover: $mk-gray-3;
+$mk-autocomplete-option-bg-hover: transparent;
+
+$mk-autocomplete-option-color-disabled: $mk-gray-4;
+$mk-autocomplete-option-bg-disabled: transparent;
+
+$mk-autocomplete-option-color-active:$mk-gray-2;
+$mk-autocomplete-option-bg-active: $mk-gray-4;
+
+$mk-autocomplete-option-selected-char: '\2714';
+
+$mk-autocomplete-list-loader-bg: rgba(255, 255, 255, 0.7);
+$mk-autocomplete-list-loader-size: 3.28rem;

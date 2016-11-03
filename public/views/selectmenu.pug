@@ -12,11 +12,12 @@ html
 		main.container
 			form
 				fieldset
-					select.mk-selectmenu(multiple="true")
-						option(value="1") Lions
-						option(value="2") Tigers
-						option(value="3") Bears
-						option(value="4") Wolves
+					select.mk-selectmenu(aria-label="Animal Choices")
+						optgroup(label="Animals")
+							option(value="1") Lions
+							option(value="2") Tigers
+							option(value="3") Bears
+							option(value="4") Wolves
 
 		include ./shared/scripts
 		script(type="text/javascript", src="/src/js/standard/selectmenu.js")

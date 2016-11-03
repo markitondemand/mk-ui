@@ -40,9 +40,9 @@ html
 				});
 			});
 
-			autocomplete.on('activate', function (node, updateLabel) {
+			autocomplete.on('activate', function (node, keyboard) {
 			
-				if (updateLabel) {
+				if (keyboard) {
 					this.input.val(node.attr('data-display'));
 				}
 			});

@@ -346,8 +346,7 @@
 				}
 			}
 
-			this.updateLabel();
-			return this.hide();
+			return this.updateLabel().hide();
 		},
 
 		move: function (up) {
@@ -674,12 +673,18 @@
 			if (node.length) {
 
 				var list = this.list[0],
-					scroll = node[0].offsetTop,
-					height = list.offsetHeight + list.offsetTop;
-
-				if (scroll >= height) {
-					list.scrollTop = scroll;
+					scroll  = list.scrollTop,
+					offset  = node[0].offsetTop,
+					height  = node[0].offsetHeight,
+					lheight = list.offsetHeight;
+				
+				if ((offset + height) >= (scroll + lheight)) {
+					list.scrollTop = (offset - lheight) + height;
 				}
+				else if (scroll && (offset < (scroll + lheight))) {
+					list.scrollTop = offset;
+				}
+				
 			}
 		},
 
@@ -737,7 +742,7 @@
 			return this.hide();
 		},
 
-		activate: function (n, updateLabel) {
+		activate: function (n, keyboard) {
 
 			var position = false;
 
@@ -765,11 +770,11 @@
 					this.scrollTo(n);
 				}
 
-				if (updateLabel) { 
+				if (keyboard) { 
 					this.updateLabel(n);
 				}
 
-				this.emit('activate', node, updateLabel);
+				this.emit('activate', node, keyboard);
 			}
 
 			return this;
