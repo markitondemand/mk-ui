@@ -12,7 +12,7 @@ html
 		main.container
 			form
 				fieldset
-					select.mk-selectmenu
+					select.mk-selectmenu(multiple="true")
 						option(value="1") Lions
 						option(value="2") Tigers
 						option(value="3") Bears
@@ -26,15 +26,4 @@ html
 
 			var $select = $('.mk-selectmenu')
 			var select = new mkNasty.Selectmenu($select);
-
-			select.on('change', function () {
-				console.info('changed!')
-				this.input.val("Tools")
-
-			});
-
-			select.on('activate', function (node, updateLabel) {
-
-				this.input.val("Tools")
-			});
 

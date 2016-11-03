@@ -15,8 +15,8 @@ html
 					input(
 						type="text", 
 						class="mk-autocomplete", 
-						name="symbol"
-						data-limit="5")
+						placeholder="Search for a symbol", 
+						name="symbol")
 
 		include ./shared/scripts
 		script(type="text/javascript", src="/src/js/standard/selectmenu.js")
@@ -28,7 +28,9 @@ html
 			var Autocomplete = mkNasty.get('Autocomplete');
 			var autocomplete = new Autocomplete('.mk-autocomplete', {
 				remote: 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/jsonp?input={{%query}}',
-				type: 'jsonp'
+				type: 'jsonp',
+				comma: true,
+				doubledelete: true
 			});
 
 			autocomplete.on('request.success', function (q, d) {

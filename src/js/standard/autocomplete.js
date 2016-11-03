@@ -110,7 +110,7 @@
 		formats: {
 			loading: 'Searching for {{query}}',
 			loaded: '{{count}} results loaded for {{query}}',
-			error: 'We\'re sorry, an error occured while searching for {{highlight:query}}',
+			error: 'Whoops, looks like we\'re having issues with {{highlight:query}}',
 			empty: 'No results found for {{highlight:query}}',
 			capacity: 'You\'ve reached your tag limit'
 		},
@@ -147,6 +147,10 @@
 			return this.config.limit;
 		},
 
+		get doubledelete () {
+			return this.config.doubledelete;
+		},
+
 		get multiple () {
 			return this.limit > 1;
 		},
@@ -176,6 +180,8 @@
 		get isEmpty () {
 			return this.items.length < 1;
 		},
+
+		deletecount: 0,
 
 		selections: null,
 
@@ -207,6 +213,22 @@
 			this.super(r, o);
 		},
 
+		_param: function (name, config, defaultt) {
+
+			var value, attr;
+
+			if (config.hasOwnProperty(name)) {
+				value = config[name];
+			}
+
+			if (typeof value !== 'boolean') {
+				attr  = this.root.data(name);
+				value = attr === 'true' && true || defaultt;
+			}
+
+			config[name] = value;
+		},
+
 		_config: function (o) {
 
 			o = o || {};
@@ -220,23 +242,19 @@
 			o.limit = parseFloat(o.limit, 10);
 			o.time = parseFloat(o.time, 10);
 
-			var anything = o.anything;
-
-			if (typeof anything !== 'boolean') {
-
-				var anyAttr = this.root.data('anything');
-
-				if (anyAttr) {
-					anything = attr === 'true';
-				}
-				else {
-					anything = true;
-				}
-			}
-
-			o.anything = anything;
+			this._param('doubledelete', o, this.multiple);
+			this._param('anything', o, true);
+			this._param('comma', o, false);
 
 			this.super(o);
+		},
+
+		_build: function() {
+
+			this.super();
+
+			this.input.attr('placeholder', 
+				this.root.attr('placeholder'));
 		},
 
 		_bind: function () {
@@ -285,7 +303,8 @@
 
 		_keyup: function (e) {
 
-			var behavior = this.keyIsBehavior(e.which);
+			var which = e.which,
+				behavior = this.keyIsBehavior(which);
 
 			if (behavior > -1) {
 
@@ -295,20 +314,36 @@
 				return;
 			}
 
-			this.search(this.input.val());
+			var value = this.input.val();
+
+			if (which === this.keycode.backspace && !value) {
+				return this.popByDelete().abort().clear();
+			}
+
+			this.doubledelete = false;
+
+			if (which === this.keycode.comma 
+				&& this.anything 
+				&& this.config.comma) {
+
+				return this.comma(value);
+			}
+
+			this.search(value);
 		},
 
 		_enter: function (e) {
 
 			e.preventDefault();
 
-			var active = this.items.find('.active');
+			var active = this.items.find('.active'),
+				value  = this.input.val();
 
-			if (active.length < 1 && this.anything) {
+			if (value && active.length < 1 && this.anything) {
 
 				var data = this.flatten({
-					label: this.input.val(),
-					value: this.input.val()
+					label: value,
+					value: value
 				});
 
 				return this.abort().select(data);
@@ -318,6 +353,21 @@
 				return this.show();
 			}
 			this.super(e);
+		},
+
+		popByDelete: function () {
+
+			if (this.doubledelete) {
+
+				if (this.deletecount > 0) {
+					this.deletecount = 0;
+					this.pop();
+				} 
+				else {
+					this.deletecount = 1;
+				}
+			}
+			return this;
 		},
 
 		move: function (up) {
@@ -468,6 +518,54 @@
 			return this.cache[(key || '').toLowerCase()] = data;
 		},
 
+		pop: function () {
+
+			if (this.selections.length > 0) {
+
+				var data = this.selections.pop();
+
+				if (this.multiple) {
+					this.input.val(data.value);
+				}
+				this.abort().tag(data, true);
+
+				return data;
+			}
+			return null;
+		},
+
+		comma: function (value) {
+
+			var values = value.split(/\,\s{0,}/),
+				first = true, 
+				added = false;
+
+			this.each(values, function (i, v) {
+
+				if (v) {
+
+					if (first) {
+						this.abort();
+						first = false;
+					}
+
+					added = true;
+
+					this.select(this.flatten({
+						label: v,
+						value: v
+					}));
+				}
+			});
+
+			if (added) {
+				this.clear();
+				this.input.val('');
+			}
+
+			return this;
+		},
+
 		search: function (key, add) {
 
 			var q = key;
@@ -487,10 +585,6 @@
 			if (this.query) {
 				this.request(this.query);
 				return;
-			}
-
-			if (!this.query) {
-				this.clear();
 			}
 		},
 

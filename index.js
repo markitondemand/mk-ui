@@ -8,6 +8,6 @@ middleware(express, app, __dirname);
 
 routes(express, app);
 
-app.listen(3000, function () {
+app.listen(5280, function () {
   console.log('Application started');
 });

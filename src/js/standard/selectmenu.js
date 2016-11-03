@@ -85,6 +85,10 @@
 			]
 		},
 
+		formats: {
+			label: 'Combobox'
+		},
+
 		get version () {
 			return 'v1.0.0';
 		},
@@ -168,6 +172,32 @@
 			}
 		},
 
+		_config: function (o) {
+
+			o = o || {};
+
+			o.label = o.label 
+				|| this.root.attr('aria-label') 
+				|| this.formats.label;
+
+			this.super(o);
+		},
+
+		_label: function () {
+
+			var id = this.element.id,
+				label = this.$('label[for="'+ id +'"]');
+
+			if (label.length) {
+				label.attr('for', this.input.attr('id'));
+			}
+
+			else {
+				this.input.attr('aria-label', 
+					this.root.attr('aria-label'));
+			}
+		},
+
 		_build: function () {
 
 			this.shadow = 
@@ -186,7 +216,10 @@
 				'aria-activedescendant': o.attr('id') || ''
 			});
 
+			this.input.attr('id', this.uid());
 			this.root.attr('aria-hidden', 'true');
+
+			this._label();
 		},
 
 		_bind: function () {
@@ -572,7 +605,7 @@
 			}
 
 			if (this.multiple) {
-				return this.config.label || 'NEED LABEL';
+				return this.config.label;
 			}
 
 			var l = '';
