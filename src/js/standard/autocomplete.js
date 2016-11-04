@@ -213,38 +213,20 @@
 			this.super(r, o);
 		},
 
-		_param: function (name, config, defaultt) {
-
-			var value, attr;
-
-			if (config.hasOwnProperty(name)) {
-				value = config[name];
-			}
-
-			if (typeof value !== 'boolean') {
-				attr  = this.root.data(name);
-				value = attr === 'true' && true || defaultt;
-			}
-
-			config[name] = value;
-		},
-
 		_config: function (o) {
 
 			o = o || {};
 
-			o.remote = o.remote || this.root.data('remote') || null;
-			o.limit = o.limit || this.root.data('limit') || 1;
-			o.time = o.time || this.root.data('time') || 500;
-			o.type = o.type || 'json';
 			o.data = o.data || null;
 
-			o.limit = parseFloat(o.limit, 10);
-			o.time = parseFloat(o.time, 10);
-
-			this._param('doubledelete', o, this.multiple);
-			this._param('anything', o, true);
-			this._param('comma', o, false);
+			this
+			._param('remote', 'string', o, null)
+			._param('type', 'string', o, 'json')
+			._param('limit', 'number', o, 1)
+			._param('time', 'number', o, 500)
+			._param('doubledelete', 'boolean', o, this.multiple)
+			._param('anything', 'boolean', o, true)
+			._param('comma', 'boolean', o, false);
 
 			this.super(o);
 		},

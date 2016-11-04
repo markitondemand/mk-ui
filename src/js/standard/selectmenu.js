@@ -93,10 +93,6 @@
 			return 'v1.0.0';
 		},
 
-		get element () {
-			return this.root[0];
-		},
-
 		get multiple () {
 			return this.element.multiple;
 		},
@@ -176,10 +172,10 @@
 
 			o = o || {};
 
-			o.label = o.label 
-				|| this.root.attr('aria-label') 
-				|| this.formats.label;
+			var label = this.root.attr('aria-label') || this.formats.label;
 
+			this._param('label', 'string', o, label);
+			
 			this.super(o);
 		},
 

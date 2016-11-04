@@ -674,6 +674,10 @@
 			return 'v1.0.0';
 		},
 
+		get element () {
+			return this.root[0];
+		},
+
 		super: function () {
 
 			var s = this.__stack__[this.__stack__.length - 1],
@@ -853,6 +857,51 @@
 			this.each(o.templates || {}, function (  n, v ) {
 				this.config.templates[ n ] = v;
 			});
+		},
+
+		_param: function (name, type, config, defaultt) {
+
+			var value, t;
+
+			if (config.hasOwnProperty(name)) {
+				value = config[name];
+			}
+
+			if (typeof value === 'undefined' && type !== 'undefined') {
+				value = this.root.data(name);
+			}
+
+			t = typeof value;
+
+			if (t !== type) {
+
+				switch(t) {
+
+					case 'boolean':
+						value = value === 'true' || 'false';
+						break;
+
+					case 'number':
+						value = parseFloat(value, 10);
+						break;
+
+					case 'string':
+						value = value.toString();
+
+					case 'undefined':
+						value = defaultt;
+						break;
+
+					case 'object':
+						value = value === null 
+							? defaultt : value;
+						break;
+				}
+			}
+
+			config[name] = value;
+
+			return this;
 		},
 
 		_build: function () {},

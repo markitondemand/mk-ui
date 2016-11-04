@@ -1,0 +1,22 @@
+doctype html
+html
+
+	head
+		include ./shared/head
+		link(rel="stylesheet", type="text/css", href="/src/css/tooltip.css")
+
+	body
+
+		include ./shared/header
+
+		main.container
+			a.mk-tt(href="#", data-label="This is a mo fuckin test")
+				| Tooltip
+
+		include ./shared/scripts
+		script(type="text/javascript", src="/src/js/standard/tooltip.js")
+		script.
+			
+			mkNasty.transitions(true);
+
+			var tooltip = new mkNasty.Tooltip('.container');

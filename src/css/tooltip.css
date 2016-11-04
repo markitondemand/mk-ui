@@ -1,0 +1,10 @@
+.mk-tt-modal {
+  background: #666;
+  border-radius: 5px;
+  color: white;
+  display: none;
+  padding: 10px;
+  position: absolute; }
+
+.mk-tt-modal[aria-hidden="false"] {
+  display: block; }

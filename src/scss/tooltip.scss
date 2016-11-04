@@ -1,0 +1,15 @@
+
+@import "_variables";
+
+.mk-tt-modal {
+  background: $mk-gray-2;
+  border-radius: 5px;
+  color: $mk-color;
+  display: none;
+  padding: 10px;
+  position: absolute;
+}
+
+.mk-tt-modal[aria-hidden="false"] {
+  display: block;
+}
