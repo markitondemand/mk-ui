@@ -10,8 +10,33 @@ html
 		include ./shared/header
 
 		main.container
-			a.mk-tt(href="#", data-label="This is a mo fuckin test")
-				| Tooltip
+			div
+				a.mk-tt(href="#", data-label="This is a mo fuckin test")
+					| Tooltip
+
+			div(style="position:relative")
+				button.mk-tt
+					| Tooltip
+				div.mk-tt-modal
+					| This is a tooltip baby
+
+			div
+				table
+					tbody
+						tr
+							td
+								button.mk-tt
+									| Tooltip
+								div.mk-tt-modal
+									| This is a tooltip in a table
+							td
+								button.mk-tt(aria-describedby="test")
+									| Tooltip
+			div#test.mk-tt-modal
+				| This is in the parent
+
+
+
 
 		include ./shared/scripts
 		script(type="text/javascript", src="/src/js/standard/tooltip.js")

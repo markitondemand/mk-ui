@@ -74,12 +74,15 @@
 			&& !o.hasOwnProperty('constructor') 
 			&& !o.constructor.hasOwnProperty('isPrototypeOf')) {
 
-			var 
-			r = {}, 
-			i;
+			var r = {}, i, p = false;
 
 			for(i in o) {
+				p = true;
 				r[i] = copy(o[i]);
+			}
+
+			if (p === false) {
+				r = o;
 			}
 			return r;
 		}

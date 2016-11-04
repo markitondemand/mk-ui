@@ -29,9 +29,110 @@
 
 		name: 'mk-tt',
 
+		relexp: /^relative|absolute|fixed$/i,
+
 		templates: {
 			modal: `<span class="{{$key}}-modal">{{html}}</span>`,
 			killswitch: `<button role="presentation" class="sr-only" data-action="kill"></button>`
+		},
+
+		map: {
+
+			'left center': function (m, mo, t, to) {
+
+				m.css({
+					left: to.left - mo.width,
+					top: (to.top + (to.height / 2)) - (mo.height / 2)
+				});
+			},
+
+			'left top': function (m, mo, t, to) {
+
+				m.css({
+					left: to.left - mo.width,
+					top: to.top - mo.height
+				});
+			},
+
+			'left bottom': function (m, mo, t, to) {
+
+				m.css({
+					left: to.left - mo.width,
+					top: to.top + to.height
+				});
+			},
+
+			'right center': function (m, mo, t, to) {
+
+				m.css({
+					left: to.left + to.width,
+					top: (to.top + (to.height / 2)) - (mo.height / 2)
+				});
+			},
+
+			'right top': function (m, mo, t, to) {
+
+				m.css({
+					left: to.left + to.width,
+					top: to.top - mo.height
+				});
+			},
+
+			'right bottom': function (m, mo, t, to) {
+
+				m.css({
+					left: to.left + to.width,
+					top: to.top + to.height
+				});
+			},
+
+			'top left': function (m, mo, t, to) {
+
+				m.css({
+					left: to.left,
+					top: to.top - mo.height
+				});
+			},
+
+			'top center': function (m, mo, t, to) {
+
+				m.css({
+					left: (to.left + (to.width / 2)) - (mo.width / 2),
+					top: to.top - mo.height
+				});
+			},
+
+			'top right': function (m, mo, t, to) {
+
+				m.css({
+					left: to.left + to.width - mo.width,
+					top: to.top - mo.height
+				});
+			},
+
+			'bottom left': function (m, mo, t, to) {
+
+				m.css({
+					left: to.left,
+					top: to.top + to.height
+				});
+			},
+
+			'bottom center': function (m, mo, t, to) {
+
+				m.css({
+					left: (to.left + (to.width / 2)) - (mo.width / 2),
+					top: to.top + to.height
+				});
+			},
+
+			'bottom right': function (m, mo, t, to) {
+
+				m.css({
+					left: to.left + to.width - mo.width,
+					top: to.top + to.height
+				});
+			}
 		},
 
 		_bind: function () {
@@ -57,47 +158,54 @@
 			});
 		},
 
-		_click: function (n) {
+		_click: function (trigger) {
 			
-			var node = this.$(n);
+			var node = this.$(trigger);
 
 			if (node.data('action') === 'click') {
-				this.toggle(n);
+				this.toggle(trigger);
 			}
 		},
 
-		_over: function (n) {
+		_over: function (trigger) {
 			
-			var node = this.$(n);
+			var node = this.$(trigger);
 
 			if (node.data('action') !== 'click') {
-				this.show(n);
+				this.show(trigger);
 			}
 		},
 
-		_out: function (n) {
+		_out: function (trigger) {
 			
-			var node = this.$(n);
+			var node = this.$(trigger);
 
 			if (node.data('action') !== 'click') {
-				this.hide(n);
+				this.hide(trigger);
 			}
 		},
 
-		link: function (n) {
+		link: function (trigger) {
 
-			var node = this.$(n),
+			var node = this.$(trigger),
 				html = node.data('label'),
 				role = 'tooltip',
 				uid  = this.uid(),
-				tip;
+				tip  = this.$('#' + node.attr('aria-describedby'));
+
+			if (node.data(this.name + '-linked') === 'true') {
+				return this;
+			}
 
 			if (html) {
-				tip = this.html('modal', {html: html}).appendTo(node);
+				tip = this.html('modal', {
+					html: html
+				}).appendTo(node);
 			}
 			else {
 
-				tip = node.find(this.selector('modal'));
+				tip = node.find(
+					this.selector('modal'));
 
 				if (tip.length < 1) {
 					tip = node.parent().find(
@@ -107,7 +215,7 @@
 				uid = tip.attr('id') || uid;
 			}
 
-			if (tip.find('a, button, input, textarea, select').length) {
+			if (tip.find('a, button, input, textarea, select, table').length) {
 				role = 'dialog';
 			}
 
@@ -118,19 +226,63 @@
 			});
 
 			node.attr('aria-describedby', uid);
+			node.data(this.name + '-linked', 'true');
 
 			return this;
 		},
 
-		modal: function (n) {
+		offset: function (node) {
 
-			var node = this.$(n),
+			var reg = this.relexp,
+				obj = {
+					left: node.offsetLeft,
+					top:  node.offsetTop,
+					width: node.offsetWidth,
+					height: node.offsetHeight
+			};
+
+			while ((node = node.offsetParent) 
+				&& !reg.test(node.style.position)) {
+
+				obj.left += node.offsetLeft;
+				obj.top  += node.offsetTop;
+			}
+
+			return obj;
+		},
+
+		position: function (modal, trigger) {
+
+			var m = this.$(modal),
+				t = this.$(trigger),
+				k = t.data('x');
+
+			if (typeof k !== 'string') {
+				k = 'bottom right';
+			}
+
+			f = this.map.hasOwnProperty(k) && this.map[k] || null;
+
+			if (f) {
+
+				var mOffsets = this.offset(modal),
+					tOffsets = this.offset(trigger);
+
+				f(m, mOffsets, t, tOffsets);
+			}
+
+			return this;
+		},
+
+		modal: function (trigger) {
+
+			var node = this.$(trigger),
 				uid  = node.attr('aria-describedby');
 
 			if (node.length > 0) {
 
 				if (!uid) {
-					return this.link(n).modal(n);
+					return this.link(trigger).modal(trigger);
 				}
 				return this.$('#' + uid);
 			}
@@ -141,6 +293,8 @@
 
 			var m = this.modal(trigger);
 				m.attr('aria-hidden', 'false');
+
+			this.position(m[0], trigger);
 
 			return this;
 		},
