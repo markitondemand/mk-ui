@@ -1,4 +1,9 @@
 
+
+// TODO:
+//		calculate padding/margins into positioning
+//		rework testing for focus() elements and add killswitch + event
+
 (function ( root, factory ) {
 	//
 	// AMD support
@@ -38,15 +43,19 @@
 
 		get stage () {
 
-			var de = document.documentElement,
-				db = document.body;
+			var n = this.element;
+
+			while (n.scrollTop <= 0 && n.tagName !== 'BODY') {
+				n = n.parentNode;
+			}
 
 			return {
-				top: db.scrollTop,
-				left: db.scrollLeft,
-				scroll: db.scrollTop,
-				height: db.offsetHeight + db.scrollTop,
-				width: de.offsetWidth || db.offsetWidth
+				node:   n
+				top:    n.scrollTop, 
+				left:   n.scrollLeft,
+				scroll: n.scrollTop, 
+				width:  n.offsetWidth,
+				height: n.offsetHeight
 			};
 		},
 
@@ -219,70 +228,66 @@
 					var coords = fn(mo, to),
 						left = coords.left,
 						top = coords.top,
-						k2  = '',
+						k2  = k,
 						rp;
 
 					if (to.relativeParent) {
-console.info(st)
 						rp = this._getRelativePosition(to, left, top);
-						left = rp.left;
-						top  = rp.top;
-
-						console.info(left, top)
+						left = rp.left + coords.left;
+						top  = rp.top + coords.top - st.scroll;
 					}
 
 					if (left < st.left) {
-
-						if (/^left/i.test(k)) k2 = k.replace(/left/, 'right');
-						else k2 = k.replace(/center/, 'left');
+						k2 = /^left/i.test(k) && k2.replace(/left/, 'right') 
+							|| k2.replace(/center/, 'left');
 					}
 
 					else if (left > st.width) {
-						
-						if (/^right/.test(k)) k2 = k.replace(/right/, 'left');
-						else k2 = k.replace(/center/, 'right');
+						k2 = /^right/.test(k) && k2.replace(/right/, 'left')
+							|| k2.replace(/center/, 'right');
 					}
 
-					else if (top < st.top) {
-						k2 = k.replace(/top/, 'bottom');
+					if (top < st.top) {
+						k2 = k2.replace(/top/, 'bottom');
 					}
 
 					else if (top > st.height) {
-						k2 = k.replace(/bottom/, 'top');
+						k2 = k2.replace(/bottom/, 'top');
 					}
 
-					if (k2 !== '') {
-						return this._tryPosition(k2, mo, to, st, attempt++);
+					if (k2 !== k) {
+						return this._tryPosition(
+							k2, mo, to, st, attempt++);
 					}
-
 					return coords;
 				}
 			}
-
 			return null;
 		},
 
 		link: function (trigger) {
 
-			var node = this.$(trigger),
-				html = node.data('label'),
-				role = 'tooltip',
-				uid  = this.uid(),
-				tip  = this.$('#' + node.attr('aria-describedby'));
+			var node = this.$(trigger);
 
 			if (node.data(this.name + '-linked') === 'true') {
 				return this;
 			}
 
+			var html = node.data('label'),
+				role = 'tooltip',
+				uid  = this.uid(),
+				tip  = this.$('#' + node.attr('aria-describedby'));
+
 			if (html) {
+
 				tip = this.html('modal', {
 					html: html
 				}).appendTo(node);
 			}
+
 			else {
 
-				tip = node.find(
-					this.selector('modal'));
+				tip = node.find(this.selector('modal'));
 
 				if (tip.length < 1) {
 					tip = node.parent().find(
@@ -333,18 +338,15 @@ console.info(st)
 
 		position: function (modal, trigger) {
 
-			var m = this.$(modal),
-				t = this.$(trigger),
-
+			var t = this.$(trigger),
 				k = (t.data('position') || 'top center').toLowerCase(),
 
 				coords = this._tryPosition(k,
 					this.offset(modal), this.offset(trigger), this.stage);
 
 			if (coords) {
-				m.css(coords);
+				this.$(modal).css(coords);
 			}
-
 			return this;
 		},
 
@@ -365,19 +367,26 @@ console.info(st)
 
 		show: function (trigger) {
 
-			var m = this.modal(trigger);
+			var t = this.$(trigger), m;
+
+			if (t.hasClass('locked') !== true) {
+
+				m = this.modal(trigger);
 				m.attr('aria-hidden', 'false');
-
-			this.position(m[0], trigger);
-
+				return this.position(m[0], trigger);
+			}
 			return this;
 		},
 
 		hide: function (trigger) {
 
-			var m = this.modal(trigger);
-				m.attr('aria-hidden', 'true');
+			var t = this.$(trigger), m;
 
+			if (t.hasClass('locked') !== true) {
+
+				m = this.modal(trigger);
+				m.attr('aria-hidden', 'true');
+			}
 			return this;			
 		},
 
@@ -390,6 +399,42 @@ console.info(st)
 				return this.show(trigger);
 			}
 			return this.hide(trigger);
+		},
+
+		isOpen: function (trigger) {
+			return this.modal(trigger).attr('aria-hidden') !== 'true';
+		},
+
+		isHidden: function (trigger) {
+			return this.modal(trigger).attr('aria-hidden') !== 'false';
+		},
+
+		lock: function (trigger) {
+
+			var t = this.$(trigger);
+
+			if (t.hasClass('.' + this.name)) {
+				t.addClass('locked');
+			}
+			return this;
+		},
+
+		unlock: function (trigger) {
+
+			var t = this.$(trigger);
+
+			if (t.hasClass('.' + this.name)) {
+				t.removeClass('locked');
+			}
+			return this;
+		},
+
+		isLocked: function (trigger) {
+			return this.$(trigger).hasClass('locked');
+		},
+
+		isUnlocked: function (trigger) {
+			return this.$(trigger).hasClass('locked') !== true;
 		}
 	});
 

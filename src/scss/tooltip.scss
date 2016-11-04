@@ -1,6 +1,10 @@
 
 @import "_variables";
 
+.mk-tt {
+  cursor: pointer;
+}
+
 .mk-tt-modal {
   background: $mk-gray-2;
   border-radius: 5px;
@@ -12,4 +16,10 @@
 
 .mk-tt-modal[aria-hidden="false"] {
   display: block;
+  z-index: 1000;
+}
+
+.mk-tt-kill {
+  position: absolute;
+  left: -9999px;
 }
