@@ -36,102 +36,104 @@
 			killswitch: `<button role="presentation" class="sr-only" data-action="kill"></button>`
 		},
 
+		get stage () {
+
+			var de = document.documentElement,
+				db = document.body;
+
+			return {
+				top: db.scrollTop,
+				left: db.scrollLeft,
+				scroll: db.scrollTop,
+				height: db.offsetHeight + db.scrollTop,
+				width: de.offsetWidth || db.offsetWidth
+			};
+		},
+
 		map: {
 
-			'left center': function (m, mo, t, to) {
-
-				m.css({
+			'left center': function (mo, to) {
+				return {
 					left: to.left - mo.width,
 					top: (to.top + (to.height / 2)) - (mo.height / 2)
-				});
+				};
 			},
 
-			'left top': function (m, mo, t, to) {
-
-				m.css({
+			'left top': function (mo, to) {
+				return {
 					left: to.left - mo.width,
 					top: to.top - mo.height
-				});
+				};
 			},
 
-			'left bottom': function (m, mo, t, to) {
-
-				m.css({
+			'left bottom': function (mo, to) {
+				return {
 					left: to.left - mo.width,
 					top: to.top + to.height
-				});
+				};
 			},
 
-			'right center': function (m, mo, t, to) {
-
-				m.css({
+			'right center': function (mo, to) {
+				return {
 					left: to.left + to.width,
 					top: (to.top + (to.height / 2)) - (mo.height / 2)
-				});
+				};
 			},
 
-			'right top': function (m, mo, t, to) {
-
-				m.css({
+			'right top': function (mo, to) {
+				return {
 					left: to.left + to.width,
 					top: to.top - mo.height
-				});
+				};
 			},
 
-			'right bottom': function (m, mo, t, to) {
-
-				m.css({
+			'right bottom': function (mo, to) {
+				return {
 					left: to.left + to.width,
 					top: to.top + to.height
-				});
+				};
 			},
 
-			'top left': function (m, mo, t, to) {
-
-				m.css({
+			'top left': function (mo, to) {
+				return {
 					left: to.left,
 					top: to.top - mo.height
-				});
+				};
 			},
 
-			'top center': function (m, mo, t, to) {
-
-				m.css({
+			'top center': function (mo, to) {
+				return {
 					left: (to.left + (to.width / 2)) - (mo.width / 2),
 					top: to.top - mo.height
-				});
+				};
 			},
 
-			'top right': function (m, mo, t, to) {
-
-				m.css({
+			'top right': function (mo, to) {
+				return {
 					left: to.left + to.width - mo.width,
 					top: to.top - mo.height
-				});
+				};
 			},
 
-			'bottom left': function (m, mo, t, to) {
-
-				m.css({
+			'bottom left': function (mo, to) {
+				return {
 					left: to.left,
 					top: to.top + to.height
-				});
+				};
 			},
 
-			'bottom center': function (m, mo, t, to) {
-
-				m.css({
+			'bottom center': function (mo, to) {
+				return {
 					left: (to.left + (to.width / 2)) - (mo.width / 2),
 					top: to.top + to.height
-				});
+				};
 			},
 
-			'bottom right': function (m, mo, t, to) {
-
-				m.css({
+			'bottom right': function (mo, to) {
+				return {
 					left: to.left + to.width - mo.width,
 					top: to.top + to.height
-				});
+				};
 			}
 		},
 
@@ -183,6 +185,81 @@
 			if (node.data('action') !== 'click') {
 				this.hide(trigger);
 			}
+		},
+
+		_getRelativePosition: function (o, x, y) {
+
+			var result = {left: x, top: y};
+
+			if (o.relativeParent) {
+				var p = this.offset(o.relativeParent);
+
+				result.left = p.left - x;
+				result.top  = p.top - y;
+
+				if (p.relativeParent) {
+					return this._getRelativePosition(
+						p, result.left, result.top);
+				}
+			}
+			return result;
+		},
+
+		_tryPosition: function (k, mo, to, st, attempt) {
+
+			attempt = attempt || 0;
+
+			if (attempt < 5) {
+
+				var fn = this.map.hasOwnProperty(k) 
+					&& this.map[k] || null;
+
+				if (fn) {
+
+					var coords = fn(mo, to),
+						left = coords.left,
+						top = coords.top,
+						k2  = '',
+						rp;
+
+					if (to.relativeParent) {
+console.info(st)
+						rp = this._getRelativePosition(to, left, top);
+						left = rp.left;
+						top  = rp.top;
+
+						console.info(left, top)
+					}
+
+					if (left < st.left) {
+
+						if (/^left/i.test(k)) k2 = k.replace(/left/, 'right');
+						else k2 = k.replace(/center/, 'left');
+					}
+
+					else if (left > st.width) {
+						
+						if (/^right/.test(k)) k2 = k.replace(/right/, 'left');
+						else k2 = k.replace(/center/, 'right');
+					}
+
+					else if (top < st.top) {
+						k2 = k.replace(/top/, 'bottom');
+					}
+
+					else if (top > st.height) {
+						k2 = k.replace(/bottom/, 'top');
+					}
+
+					if (k2 !== '') {
+						return this._tryPosition(k2, mo, to, st, attempt++);
+					}
+
+					return coords;
+				}
+			}
+
+			return null;
 		},
 
 		link: function (trigger) {
@@ -241,13 +318,16 @@
 					height: node.offsetHeight
 			};
 
-			while ((node = node.offsetParent) 
-				&& !reg.test(node.style.position)) {
+			while ((node = node.offsetParent)) {
 
-				obj.left += node.offsetLeft;
-				obj.top  += node.offsetTop;
+				if (!reg.test(node.style.position)) {
+					obj.left += node.offsetLeft;
+					obj.top  += node.offsetTop;
+				} 
+				else {
+					obj.relativeParent = node;
+				}
 			}
-
 			return obj;
 		},
 
@@ -255,20 +335,14 @@
 
 			var m = this.$(modal),
 				t = this.$(trigger),
-				k = t.data('x');
 
-			if (typeof k !== 'string') {
-				k = 'bottom right';
-			}
+				k = (t.data('position') || 'top center').toLowerCase(),
 
-			f = this.map.hasOwnProperty(k) && this.map[k] || null;
+				coords = this._tryPosition(k,
+					this.offset(modal), this.offset(trigger), this.stage);
 
-			if (f) {
-
-				var mOffsets = this.offset(modal),
-					tOffsets = this.offset(trigger);
-
-				f(m, mOffsets, t, tOffsets);
+			if (coords) {
+				m.css(coords);
 			}
 
 			return this;
