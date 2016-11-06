@@ -838,28 +838,33 @@
 				this.config.templates[ n ] = v;
 			});
 
-			this._config( o );
+			this._config(o);
 
 			return this;
 		},
 
-		_config: function ( o ) {
+		_config: function (o) {
 
 			o = o || {};
 
-			this.each(o, function ( n, v ) {
-				if ( n !== 'templates' && n !== 'formats') {
-					this.config[ n ] = v;
+			this.each(o, function (n, v) {
+
+				var looped = false;
+
+				if (typeof v === 'object' && this.config.hasOwnProperty(n)) {
+
+					this.each(v, function (k, vv) {
+						this.config[n][k] = vv;
+						looped = true;
+					});
+				}
+
+				if (looped === false) {
+					this.config[n] = v;
 				}
 			});
 
-			this.each(o.formats || {}, function ( n, v ) {
-				this.config.formats[ n ] = v;
-			});
-
-			this.each(o.templates || {}, function (  n, v ) {
-				this.config.templates[ n ] = v;
-			});
+			return this;
 		},
 
 		_param: function (name, type, config, defaultt) {

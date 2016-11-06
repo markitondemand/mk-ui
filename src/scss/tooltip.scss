@@ -7,16 +7,93 @@
 
 .mk-tt-modal {
   background: $mk-gray-2;
-  border-radius: 5px;
+  border-radius: 2px;
   color: $mk-color;
   display: none;
-  padding: 10px;
+  padding: 1rem;
   position: absolute;
+  margin: 1rem;
 }
 
 .mk-tt-modal[aria-hidden="false"] {
   display: block;
   z-index: 1000;
+}
+
+.mk-tt-modal:before,
+.mk-tt-modal:after {
+  content: '';
+  height: 0;
+  position: absolute;
+  width: 0;
+}
+
+.mk-tt-modal.top-left:after,
+.mk-tt-modal.top-center:after,
+.mk-tt-modal.top-right:after {
+  border-left: 1rem solid transparent;
+  border-right: 1rem solid transparent;
+  border-top: 1rem solid $mk-gray-2;
+  top: 100%;
+}
+
+.mk-tt-modal.bottom-left:after,
+.mk-tt-modal.bottom-center:after,
+.mk-tt-modal.bottom-right:after {
+  border-left: 1rem solid transparent;
+  border-right: 1rem solid transparent;
+  border-bottom: 1rem solid $mk-gray-2;
+  bottom: 100%;
+}
+
+.mk-tt-modal.left-top:after,
+.mk-tt-modal.left-center:after,
+.mk-tt-modal.left-bottom:after {
+  border-top: 1rem solid transparent;
+  border-bottom: 1rem solid transparent;
+  border-left: 1rem solid $mk-gray-2;
+  left: 100%;
+}
+
+.mk-tt-modal.right-top:after,
+.mk-tt-modal.right-center:after,
+.mk-tt-modal.right-bottom:after {
+  border-top: 1rem solid transparent;
+  border-bottom: 1rem solid transparent;
+  border-right: 1rem solid $mk-gray-2;
+  right: 100%;
+}
+
+.mk-tt-modal.top-left:after,
+.mk-tt-modal.bottom-left:after {
+  left: 1rem;
+}
+
+.mk-tt-modal.top-right:after,
+.mk-tt-modal.bottom-right:after {
+  right: 1rem;
+}
+
+.mk-tt-modal.top-center:after,
+.mk-tt-modal.bottom-center:after {
+  left: 50%;
+  margin-left: -1rem;
+}
+
+.mk-tt-modal.left-top:after,
+.mk-tt-modal.right-top:after {
+  top: 1rem;
+}
+
+.mk-tt-modal.left-bottom:after,
+.mk-tt-modal.right-bottom:after {
+  bottom: 1rem;
+}
+
+.mk-tt-modal.left-center:after,
+.mk-tt-modal.right-center:after {
+  top: 50%;
+  margin-top: -1rem;
 }
 
 .mk-tt-kill {

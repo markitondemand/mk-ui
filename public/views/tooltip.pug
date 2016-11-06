@@ -9,9 +9,9 @@ html
 
 		include ./shared/header
 
-		main.container
+		main.container(style="padding-left: 0px")
 			div
-				a.mk-tt(href="#", data-label="This is a mo fuckin test")
+				a.mk-tt(href="#", data-label="Little Tooltip")
 					| Tooltip
 
 			div#rel(style="position:relative")
@@ -30,10 +30,11 @@ html
 								div.mk-tt-modal
 									| This is a tooltip in a table
 							td
-								button.mk-tt(aria-describedby="test")
+								button.mk-tt(aria-describedby="test", data-position="right-bottom", data-action="click")
 									| Tooltip
 			div#test.mk-tt-modal
-				| This is in the parent
+				span 
+					| Parentino fofino
 
 
 

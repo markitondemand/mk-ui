@@ -1,7 +1,6 @@
 
 
 // TODO:
-//		calculate padding/margins into positioning
 //		rework testing for focus() elements and add killswitch + event
 
 (function ( root, factory ) {
@@ -41,7 +40,94 @@
 			killswitch: `<button role="presentation" class="sr-only" data-action="kill"></button>`
 		},
 
-		get stage () {
+		map: {
+
+			'left-center': function (mo, to) {
+				return {
+					left: to.left - mo.width - mo.box.left - mo.box.right,
+					top: (to.top + (to.height / 2)) - (mo.height / 2) - mo.box.top
+				};
+			},
+
+			'left-top': function (mo, to) {
+				return {
+					left: to.left - mo.width - mo.box.left - mo.box.right,
+					top: to.top - mo.box.top
+				};
+			},
+
+			'left-bottom': function (mo, to) {
+				return {
+					left: to.left - mo.width - mo.box.left - mo.box.right,
+					top: to.top + to.height - mo.height - mo.box.top
+				};
+			},
+
+			'right-center': function (mo, to) {
+				return {
+					left: to.left + to.width,
+					top: (to.top + (to.height / 2)) - (mo.height / 2) - mo.box.top
+				};
+			},
+
+			'right-top': function (mo, to) {
+				return {
+					left: to.left + to.width,
+					top: to.top - mo.box.top
+				};
+			},
+
+			'right-bottom': function (mo, to) {
+				return {
+					left: to.left + to.width,
+					top: to.top - mo.height + mo.box.top + mo.box.bottom
+				};
+			},
+
+			'top-left': function (mo, to) {
+				return {
+					left: to.left - mo.box.left,
+					top: to.top - mo.height - (mo.box.bottom + mo.box.top)
+				};
+			},
+
+			'top-center': function (mo, to) {
+				return {
+					left: (to.left + (to.width / 2)) - (mo.width / 2) - mo.box.left,
+					top: to.top - mo.height - (mo.box.bottom + mo.box.top)
+				};
+			},
+
+			'top-right': function (mo, to) {
+				return {
+					left: to.left + to.width - mo.width - mo.box.right,
+					top: to.top - mo.height - (mo.box.bottom + mo.box.top)
+				};
+			},
+
+			'bottom-left': function (mo, to) {
+				return {
+					left: to.left - mo.box.left,
+					top: to.top + to.height
+				};
+			},
+
+			'bottom-center': function (mo, to) {
+				return {
+					left: (to.left + (to.width / 2)) - (mo.width / 2) - mo.box.left,
+					top: to.top + to.height
+				};
+			},
+
+			'bottom-right': function (mo, to) {
+				return {
+					left: to.left + to.width - mo.width - mo.box.right,
+					top: to.top + to.height
+				};
+			}
+		},
+
+		get frame () {
 
 			var n = this.element;
 
@@ -50,7 +136,7 @@
 			}
 
 			return {
-				node:   n
+				node:   n,
 				top:    n.scrollTop, 
 				left:   n.scrollLeft,
 				scroll: n.scrollTop, 
@@ -59,99 +145,22 @@
 			};
 		},
 
-		map: {
+		_config: function (o) {
 
-			'left center': function (mo, to) {
-				return {
-					left: to.left - mo.width,
-					top: (to.top + (to.height / 2)) - (mo.height / 2)
-				};
-			},
+			this.config.map = {};
 
-			'left top': function (mo, to) {
-				return {
-					left: to.left - mo.width,
-					top: to.top - mo.height
-				};
-			},
+			this.each(this.map, function (n, fn) {
+				this.config.map[n] = fn;
+			});
 
-			'left bottom': function (mo, to) {
-				return {
-					left: to.left - mo.width,
-					top: to.top + to.height
-				};
-			},
+			o = o || {};
+			o.position = o.position || 'top-center';
 
-			'right center': function (mo, to) {
-				return {
-					left: to.left + to.width,
-					top: (to.top + (to.height / 2)) - (mo.height / 2)
-				};
-			},
-
-			'right top': function (mo, to) {
-				return {
-					left: to.left + to.width,
-					top: to.top - mo.height
-				};
-			},
-
-			'right bottom': function (mo, to) {
-				return {
-					left: to.left + to.width,
-					top: to.top + to.height
-				};
-			},
-
-			'top left': function (mo, to) {
-				return {
-					left: to.left,
-					top: to.top - mo.height
-				};
-			},
-
-			'top center': function (mo, to) {
-				return {
-					left: (to.left + (to.width / 2)) - (mo.width / 2),
-					top: to.top - mo.height
-				};
-			},
-
-			'top right': function (mo, to) {
-				return {
-					left: to.left + to.width - mo.width,
-					top: to.top - mo.height
-				};
-			},
-
-			'bottom left': function (mo, to) {
-				return {
-					left: to.left,
-					top: to.top + to.height
-				};
-			},
-
-			'bottom center': function (mo, to) {
-				return {
-					left: (to.left + (to.width / 2)) - (mo.width / 2),
-					top: to.top + to.height
-				};
-			},
-
-			'bottom right': function (mo, to) {
-				return {
-					left: to.left + to.width - mo.width,
-					top: to.top + to.height
-				};
-			}
+			return this.super(o);
 		},
 
 		_bind: function () {
-			this._bindRootEvents();
-		},
-
-		_bindRootEvents: function () {
-
+			
 			var thiss = this;
 
 			this.root
@@ -171,166 +180,223 @@
 
 		_click: function (trigger) {
 			
-			var node = this.$(trigger);
+			var t = this.$(trigger);
 
-			if (node.data('action') === 'click') {
+			if (t.data('action') === 'click') {
 				this.toggle(trigger);
 			}
 		},
 
 		_over: function (trigger) {
 			
-			var node = this.$(trigger);
+			var t = this.$(trigger);
 
-			if (node.data('action') !== 'click') {
+			if (t.data('action') !== 'click') {
 				this.show(trigger);
 			}
 		},
 
 		_out: function (trigger) {
 			
-			var node = this.$(trigger);
+			var t = this.$(trigger);
 
-			if (node.data('action') !== 'click') {
+			if (t.data('action') !== 'click') {
 				this.hide(trigger);
 			}
 		},
 
-		_getRelativePosition: function (o, x, y) {
+		_relativePosition: function (o, x, y) {
 
-			var result = {left: x, top: y};
+			var r = {left: x, top: y}, p;
 
 			if (o.relativeParent) {
-				var p = this.offset(o.relativeParent);
 
-				result.left = p.left - x;
-				result.top  = p.top - y;
+				p = this.offset(o.relativeParent);
+
+				r.left = p.left - x;
+				r.top  = p.top - y;
 
 				if (p.relativeParent) {
-					return this._getRelativePosition(
-						p, result.left, result.top);
+					return this._relativePosition(
+						p, r.left, r.top);
 				}
 			}
-			return result;
+
+			return r;
 		},
 
-		_tryPosition: function (k, mo, to, st, attempt) {
+		_position: function (key, mOffset, tOffset, frame, attempt) {
 
+			key = key.toLowerCase();
 			attempt = attempt || 0;
 
 			if (attempt < 5) {
 
-				var fn = this.map.hasOwnProperty(k) 
-					&& this.map[k] || null;
+				var fn = this.config.map.hasOwnProperty(key) 
+					&& this.config.map[key] || null;
 
 				if (fn) {
 
-					var coords = fn(mo, to),
+					var coords = fn(mOffset, tOffset),
+						key2 = key,
 						left = coords.left,
-						top = coords.top,
-						k2  = k,
+						top  = coords.top,
 						rp;
 
-					if (to.relativeParent) {
-						rp = this._getRelativePosition(to, left, top);
+					if (tOffset.relativeParent) {
+
+						rp = this._relativePosition(tOffset, left, top);
 						left = rp.left + coords.left;
-						top  = rp.top + coords.top - st.scroll;
+						top  = rp.top + coords.top - frame.scroll;
 					}
 
-					if (left < st.left) {
-						k2 = /^left/i.test(k) && k2.replace(/left/, 'right') 
-							|| k2.replace(/center/, 'left');
+					if (left < frame.left) {
+						key2 = /^left/i.test(key) && key2.replace(/left/, 'right') 
+							|| key2.replace(/center/, 'left');
 					}
 
-					else if (left > st.width) {
-						k2 = /^right/.test(k) && k2.replace(/right/, 'left')
-							|| k2.replace(/center/, 'right');
+					else if (left > frame.width) {
+						key2 = /^right/.test(key) && key2.replace(/right/, 'left')
+							|| key2.replace(/center/, 'right');
 					}
 
-					if (top < st.top) {
-						k2 = k2.replace(/top/, 'bottom');
+					if (top < frame.top) {
+						key2 = key2.replace(/top/, 'bottom');
 					}
 
-					else if (top > st.height) {
-						k2 = k2.replace(/bottom/, 'top');
+					else if (top > frame.height) {
+						key2 = key2.replace(/bottom/, 'top');
 					}
 
-					if (k2 !== k) {
-						return this._tryPosition(
-							k2, mo, to, st, attempt++);
+					if (key2 !== key) {
+						return this._position(
+							key2, mOffset, tOffset, frame, attempt++);
 					}
+
+					coords.key = key;
+
 					return coords;
 				}
 			}
+
 			return null;
+		},
+
+		isFocusable: function (dialog) {
+
+			var focusable = this.$(
+				'a, button, input, select, textarea, table, iframe', dialog).length > 0;
+
+			if (focusable !== true) {
+
+				this.each(this.$('[tabindex]'), function(i, n) {
+
+					if (n.tabindex > -1) {
+						focusable = true;
+						return false;
+					}
+				});
+			}
+
+			return focusable;
 		},
 
 		link: function (trigger) {
 
-			var node = this.$(trigger);
+			var t = this.$(trigger),
+				m = this.$('#' + t.attr('aria-describedby'));
 
-			if (node.data(this.name + '-linked') === 'true') {
-				return this;
+			if (m.length < 1) {
+
+				var id = this.uid(),
+					htm = t.data('label');
+				
+				if (htm) {
+					m = this.html('modal', {html: htm}).appendTo(t);
+				}
+				else {
+
+					m = t.find(this.selector('modal'));
+
+					if (m.length < 1) {
+						m = t.parent().find(this.selector('modal'));
+					}
+
+					id = m.attr('id') || id;
+				}
+				m.attr('id', id);
 			}
 
-			var html = node.data('label'),
-				role = 'tooltip',
-				uid  = this.uid(),
-				tip  = this.$('#' + node.attr('aria-describedby'));
+			return this.connect(t, m);
+		},
 
-			if (html) {
+		connect: function (trigger, modal) {
 
-				tip = this.html('modal', {
-					html: html
-				}).appendTo(node);
-			}
+			var t = this.$(trigger),
+				m = this.$(modal),
+				i = t.attr('id'),
+				r = 'tooltip';
 
-			else {
+			if (this.isFocusable(modal)) {
 
-				tip = node.find(this.selector('modal'));
+				r = 'dialog';
 
-				if (tip.length < 1) {
-					tip = node.parent().find(
-						this.selector('modal'));
+				if (!i) {
+					i = this.uid();
+					t.attr('id', i);
 				}
 
-				uid = tip.attr('id') || uid;
+				m.attr('aria-labelledby', i);
 			}
 
-			if (tip.find('a, button, input, textarea, select, table').length) {
-				role = 'dialog';
-			}
-
-			tip.attr({
-				'id': uid,
-				'role': role,
-				'aria-hidden': 'true'
-			});
-
-			node.attr('aria-describedby', uid);
-			node.data(this.name + '-linked', 'true');
+			m.attr('role', r);
+			t.attr('aria-describedby', m.attr('id'));
 
 			return this;
 		},
 
-		offset: function (node) {
+		box: function (n) {
 
-			var reg = this.relexp,
-				obj = {
-					left: node.offsetLeft,
-					top:  node.offsetTop,
-					width: node.offsetWidth,
-					height: node.offsetHeight
-			};
+			var node = this.$(n)[0], 
+				box = {top: 0, left: 0, right: 0, bottom: 0};
 
-			while ((node = node.offsetParent)) {
+			if (node) {
 
-				if (!reg.test(node.style.position)) {
-					obj.left += node.offsetLeft;
-					obj.top  += node.offsetTop;
-				} 
-				else {
-					obj.relativeParent = node;
+				var css = getComputedStyle(node);
+
+				this.each(box, function (n, v) {
+					box[n] = 
+						parseFloat(css.getPropertyValue('margin-' + n), 10) + 
+						parseFloat(css.getPropertyValue('border-' + n + '-width'), 10)
+				});
+			}
+
+			return box;
+		},
+
+		offset: function (n, box) {
+
+			var node = this.$(n)[0],
+				reg  = this.relexp,
+				obj  = {};
+
+			if (node) {
+
+				obj.left   = node.offsetLeft;
+				obj.top    = node.offsetTop;
+				obj.width  = node.offsetWidth;
+				obj.height = node.offsetHeight;
+				obj.box    = this.box(node);
+
+				while (node = node.offsetParent) {
+
+					if (reg.test(node.style.position) !== true) {
+						obj.left += node.offsetLeft;
+						obj.top  += node.offsetTop;
+					} 
+					else {
+						obj.relativeParent = node;
+					}
 				}
 			}
 			return obj;
@@ -339,30 +405,44 @@
 		position: function (modal, trigger) {
 
 			var t = this.$(trigger),
-				k = (t.data('position') || 'top center').toLowerCase(),
+				p = t.data('position') || this.config.position,
 
-				coords = this._tryPosition(k,
-					this.offset(modal), this.offset(trigger), this.stage);
+				coords = this._position(p,
+					this.offset(modal, true), this.offset(trigger), this.frame);
 
 			if (coords) {
-				this.$(modal).css(coords);
+
+				var m = this.$(modal);
+
+				this.each(this.config.map, function (key) {
+					m.removeClass(key);
+				});
+
+				m.addClass(coords.key);
+
+				m.css({
+					left: coords.left,
+					top: coords.top
+				});
 			}
+
 			return this;
 		},
 
 		modal: function (trigger) {
 
-			var node = this.$(trigger),
-				uid  = node.attr('aria-describedby');
+			var t  = this.$(trigger),
+				id = t.attr('aria-describedby'), m;
 
-			if (node.length > 0) {
-
-				if (!uid) {
-					return this.link(trigger).modal(trigger);
-				}
-				return this.$('#' + uid);
+			if (!id) {
+				return this.link(trigger).modal(trigger);
 			}
-			return this.$('');
+				
+			m = this.$('#' + id);
+
+			this.connect(t, m);
+
+			return m;
 		},
 
 		show: function (trigger) {
@@ -373,7 +453,8 @@
 
 				m = this.modal(trigger);
 				m.attr('aria-hidden', 'false');
-				return this.position(m[0], trigger);
+
+				return this.position(m, trigger);
 			}
 			return this;
 		},
@@ -393,12 +474,12 @@
 		toggle: function (trigger) {
 
 			var m = this.modal(trigger),
-				isHidden = m.attr('aria-hidden') === 'true';
+				isOpen = m.attr('aria-hidden') === 'false';
 
-			if (isHidden) {
-				return this.show(trigger);
+			if (isOpen) {
+				return this.hide(trigger);
 			}
-			return this.hide(trigger);
+			return this.show(trigger);
 		},
 
 		isOpen: function (trigger) {
