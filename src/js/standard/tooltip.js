@@ -1,7 +1,8 @@
 
 
 // TODO:
-//		rework testing for focus() elements and add killswitch + event
+// 	BUG - relative position x
+// 	BUG - back tabbing when locked
 
 (function ( root, factory ) {
 	//
@@ -37,7 +38,7 @@
 
 		templates: {
 			modal: `<span class="{{$key}}-modal">{{html}}</span>`,
-			killswitch: `<button role="presentation" class="sr-only" data-action="kill"></button>`
+			kill: `<button class="{{$key}}-kill" role="presentation"></button>`
 		},
 
 		map: {
@@ -129,6 +130,8 @@
 
 		get frame () {
 
+			//TODO - change this.element to modal.parentNode ??
+
 			var n = this.element;
 
 			while (n.scrollTop <= 0 && n.tagName !== 'BODY') {
@@ -155,6 +158,7 @@
 
 			o = o || {};
 			o.position = o.position || 'top-center';
+			o.delay = parseInt(o.delay || '100', 10) || 100;
 
 			return this.super(o);
 		},
@@ -168,14 +172,52 @@
 				e.preventDefault();
 				thiss._click(this);
 			})
-			.on('mouseover.mk, focus.mk', '.mk-tt', function (e) {
+			.on('mouseover.mk', '.mk-tt', function (e) {
 				e.preventDefault();
 				thiss._over(this);
 			})
-			.on('mouseout.mk, blur.mk', '.mk-tt', function (e) {
+			.on('mouseout.mk', '.mk-tt', function (e) {
 				e.preventDefault();
 				thiss._out(this);
+			})
+			.on('focus.mk', '.mk-tt', function (e) {
+				e.preventDefault();
+				thiss._over(this, true);
+			})
+			.on('blur.mk', '.mk-tt', function (e) {
+				e.preventDefault();
+				thiss._out(this, true);
+			})
+			.on('keyup.mk', '.mk-tt', function (e) {
+				thiss._keyup(e, this);
 			});
+
+			this.$(document.documentElement)
+			.off('mousedown.mk-tt')
+			.on ('mousedown.mk-tt', function (e) {
+				thiss._down(e);
+			});
+		},
+
+		_down: function (e) {
+
+			var t = this.$(e.target),
+				tt = this.selector(''),
+				tm = this.selector('modal');
+
+			if ((t.is(tt) || t.closest(tt).length > 0) 
+				|| (t.is(tm) || t.closest(tm).length > 0)) {
+				return false;
+			}
+
+			return this.hideAll();
+		},
+
+		_keyup: function (e, trigger) {
+
+			if (e.which === this.keycode.esc) {
+				this.unlock(trigger).hide(trigger);
+			}
 		},
 
 		_click: function (trigger) {
@@ -187,20 +229,29 @@
 			}
 		},
 
-		_over: function (trigger) {
+		_over: function (trigger, keyboard) {
 			
 			var t = this.$(trigger);
 
 			if (t.data('action') !== 'click') {
+
 				this.show(trigger);
+
+				if (keyboard === true && this.isFocusable(this.modal(trigger))) {
+					this.lock(trigger);
+				}
 			}
 		},
 
-		_out: function (trigger) {
+		_out: function (trigger, keyboard) {
 			
 			var t = this.$(trigger);
 
 			if (t.data('action') !== 'click') {
+
+				if (keyboard !== true && this.isFocusable(this.modal(trigger))) {
+					this.unlock(trigger);
+				}
 				this.hide(trigger);
 			}
 		},
@@ -282,10 +333,10 @@
 			return null;
 		},
 
-		isFocusable: function (dialog) {
+		isFocusable: function (modal) {
 
 			var focusable = this.$(
-				'a, button, input, select, textarea, table, iframe', dialog).length > 0;
+				'a, button, input, select, textarea, table, iframe', modal).length > 0;
 
 			if (focusable !== true) {
 
@@ -352,6 +403,12 @@
 			m.attr('role', r);
 			t.attr('aria-describedby', m.attr('id'));
 
+			if (this.transitions) {
+				m.addClass('transitions');
+			}
+
+			this.emit('connect', t, m);
+
 			return this;
 		},
 
@@ -378,7 +435,7 @@
 
 			var node = this.$(n)[0],
 				reg  = this.relexp,
-				obj  = {};
+				obj  = {left: 0, top: 0, width: 0, height: 0, box: this.box(node)};
 
 			if (node) {
 
@@ -386,7 +443,6 @@
 				obj.top    = node.offsetTop;
 				obj.width  = node.offsetWidth;
 				obj.height = node.offsetHeight;
-				obj.box    = this.box(node);
 
 				while (node = node.offsetParent) {
 
@@ -420,29 +476,56 @@
 
 				m.addClass(coords.key);
 
+				this.emit('position', t, m, coords);
+
 				m.css({
 					left: coords.left,
 					top: coords.top
 				});
 			}
-
 			return this;
 		},
 
 		modal: function (trigger) {
 
 			var t  = this.$(trigger),
-				id = t.attr('aria-describedby'), m;
+				id = t.attr('aria-describedby') || '', m;
 
-			if (!id) {
-				return this.link(trigger).modal(trigger);
+			if (id === '') {
+
+				this.link(trigger);
+
+				id = t.attr('aria-describedby') || '';
 			}
-				
-			m = this.$('#' + id);
 
+			if (id) {
+				id = '#' + id;
+			}
+
+			m = this.$(id);
+				
 			this.connect(t, m);
 
 			return m;
+		},
+
+		focus: function (trigger, modal) {
+
+			var m = this.$(modal),
+				k = m.find(this.selector('kill'));
+
+			if (k.length < 1) {
+
+				k = this.html('kill');
+
+				k.on('focus.mk', function () {
+					trigger.focus();
+				});
+
+				m.append(k);
+			}
+
+			return this;
 		},
 
 		show: function (trigger) {
@@ -452,9 +535,18 @@
 			if (t.hasClass('locked') !== true) {
 
 				m = this.modal(trigger);
-				m.attr('aria-hidden', 'false');
 
-				return this.position(m, trigger);
+				this.transition(m).delay(function () {
+
+					m.attr('aria-hidden', 'false');
+
+					this.position(m, trigger);
+
+					if (this.isFocusable(m)) {
+						this.focus(t, m);
+					}
+					this.emit('show', t, m);
+				});
 			}
 			return this;
 		},
@@ -466,9 +558,26 @@
 			if (t.hasClass('locked') !== true) {
 
 				m = this.modal(trigger);
-				m.attr('aria-hidden', 'true');
+
+				this.timer = this.transition(m).delay(function () {
+					m.attr('aria-hidden', 'true');
+					this.emit('hide', t, m);
+				}, this.config.delay);
 			}
 			return this;			
+		},
+
+		hideAll: function () {
+
+			var ms = this.$(this.selector('modal')).filter('[aria-hidden="false"]'),
+				ts = this.$(this.selector('')), t;
+
+			return this.each(ms, function (i, m) {
+				t = ts.filter('[aria-describedby="' + m.id + '"]');
+
+				this.unlock(t);
+				this.hide(t);
+			});
 		},
 
 		toggle: function (trigger) {
@@ -494,8 +603,9 @@
 
 			var t = this.$(trigger);
 
-			if (t.hasClass('.' + this.name)) {
+			if (t.hasClass(this.name) && !t.hasClass('locked')) {
 				t.addClass('locked');
+				this.emit('lock', t, true);
 			}
 			return this;
 		},
@@ -504,8 +614,9 @@
 
 			var t = this.$(trigger);
 
-			if (t.hasClass('.' + this.name)) {
+			if (t.hasClass(this.name) && t.hasClass('locked')) {
 				t.removeClass('locked');
+				this.emit('lock', t, false);
 			}
 			return this;
 		},

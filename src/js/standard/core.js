@@ -727,7 +727,7 @@
 		},
 
 		selector: function (n) {
-			return '.' + (this.name && this.name + '-') + n;
+			return '.' + this.name + (n && '-' + n || '');
 		},
 
 		transition: function (node, cb) {
@@ -735,6 +735,8 @@
 			var $n = this.$(node),
 				 t = mkNasty._transition(),
 				 c = this;
+
+				cb = cb || function () {};
 
 			if (t) {
 

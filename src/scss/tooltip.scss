@@ -8,16 +8,30 @@
 .mk-tt-modal {
   background: $mk-gray-2;
   border-radius: 2px;
+  box-shadow: 0px 0px 15px 6px rgba(0,0,0,0.3);
   color: $mk-color;
   display: none;
+  opacity: 0;
   padding: 1rem;
   position: absolute;
   margin: 1rem;
+  z-index: 9999;
+  -webkit-box-shadow: 0px 0px 15px 6px rgba(0,0,0,0.3);
+  -moz-box-shadow: 0px 0px 15px 6px rgba(0,0,0,0.3);
+}
+
+.mk-tt-modal.transitions {
+  transition: opacity $mk-autocomplete-transition-speed;
+ -webkit-transition: opacity $mk-autocomplete-transition-speed;
+}
+
+.mk-tt-modal.transition {
+  display: block;
 }
 
 .mk-tt-modal[aria-hidden="false"] {
   display: block;
-  z-index: 1000;
+  opacity: 1;
 }
 
 .mk-tt-modal:before,
@@ -28,6 +42,9 @@
   width: 0;
 }
 
+.mk-tt-modal.top-left:before,
+.mk-tt-modal.top-center:before,
+.mk-tt-modal.top-right:before,
 .mk-tt-modal.top-left:after,
 .mk-tt-modal.top-center:after,
 .mk-tt-modal.top-right:after {
@@ -37,6 +54,9 @@
   top: 100%;
 }
 
+.mk-tt-modal.bottom-left:before,
+.mk-tt-modal.bottom-center:before,
+.mk-tt-modal.bottom-right:before,
 .mk-tt-modal.bottom-left:after,
 .mk-tt-modal.bottom-center:after,
 .mk-tt-modal.bottom-right:after {
@@ -46,6 +66,9 @@
   bottom: 100%;
 }
 
+.mk-tt-modal.left-top:before,
+.mk-tt-modal.left-center:before,
+.mk-tt-modal.left-bottom:before,
 .mk-tt-modal.left-top:after,
 .mk-tt-modal.left-center:after,
 .mk-tt-modal.left-bottom:after {
@@ -55,6 +78,9 @@
   left: 100%;
 }
 
+.mk-tt-modal.right-top:before,
+.mk-tt-modal.right-center:before,
+.mk-tt-modal.right-bottom:before,
 .mk-tt-modal.right-top:after,
 .mk-tt-modal.right-center:after,
 .mk-tt-modal.right-bottom:after {
@@ -64,32 +90,44 @@
   right: 100%;
 }
 
+.mk-tt-modal.top-left:before,
+.mk-tt-modal.bottom-left:before,
 .mk-tt-modal.top-left:after,
 .mk-tt-modal.bottom-left:after {
   left: 1rem;
 }
 
+.mk-tt-modal.top-right:before,
+.mk-tt-modal.bottom-right:before,
 .mk-tt-modal.top-right:after,
 .mk-tt-modal.bottom-right:after {
   right: 1rem;
 }
 
+.mk-tt-modal.top-center:before,
+.mk-tt-modal.bottom-center:before,
 .mk-tt-modal.top-center:after,
 .mk-tt-modal.bottom-center:after {
   left: 50%;
   margin-left: -1rem;
 }
 
+.mk-tt-modal.left-top:before,
+.mk-tt-modal.right-top:before,
 .mk-tt-modal.left-top:after,
 .mk-tt-modal.right-top:after {
   top: 1rem;
 }
 
+.mk-tt-modal.left-bottom:before,
+.mk-tt-modal.right-bottom:before,
 .mk-tt-modal.left-bottom:after,
 .mk-tt-modal.right-bottom:after {
   bottom: 1rem;
 }
 
+.mk-tt-modal.left-center:before,
+.mk-tt-modal.right-center:before,
 .mk-tt-modal.left-center:after,
 .mk-tt-modal.right-center:after {
   top: 50%;
