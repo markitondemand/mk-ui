@@ -71,6 +71,7 @@
 	min-width: 100%;
 	position: absolute;
 	top: 100%;
+	z-index: 2;
 }
 
 .mk-selectmenu-list.transition {
@@ -145,4 +146,9 @@
 	background: $mk-selectmenu-option-bg-disabled;
 	color: $mk-selectmenu-option-color-disabled;
 	cursor: default;
+}
+
+.mk-selectmenu-alt {
+	display: block;
+	font-size: 80%;
 }

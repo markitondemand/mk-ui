@@ -4,20 +4,114 @@ html
 	head
 		include ./shared/head
 		link(rel="stylesheet", type="text/css", href="/src/css/selectmenu.css")
+		style.
+
+			.restrict-height .mk-selectmenu-list {
+				height: 200px;
+				overflow: auto;
+			}
 
 	body
 
 		include ./shared/header
 
-		main.container
-			form
-				fieldset
-					select.mk-selectmenu(aria-label="Animal Choices")
-						optgroup(label="Animals")
-							option(value="1") Lions
-							option(value="2") Tigers
-							option(value="3") Bears
-							option(value="4") Wolves
+		main.container-fluid
+			div.row
+				div.col-sm-4
+					section.panel
+						header.panel-heading
+							h2.panel-title Single Select
+						div.panel-body
+							select.mk-selectmenu(aria-label="Animal Choices")
+									option(value="1") Lions
+									option(value="2") Tigers
+									option(value="3") Bears
+									option(value="4") Wolves
+				div.col-sm-4
+					section.panel
+						header.panel-heading
+							h2.panel-title Multi Select
+						div.panel-body
+							select.mk-selectmenu(aria-label="Animal Choices", multiple="true")
+									option(value="1") Lions
+									option(value="2", selected="true") Tigers
+									option(value="3") Bears
+									option(value="4") Wolves
+				div.col-sm-4
+					section.panel
+						header.panel-heading
+							h2.panel-title Single Select W/ Optgroups
+						div.panel-body
+							select.mk-selectmenu(aria-label="Animals and Insects")
+								optgroup(label="Animals")
+									option(value="1") Lions
+									option(value="2") Tigers
+									option(value="3") Bears
+									option(value="4") Wolves
+								optgroup(label="Bugs")
+									option(value="5") Grasshoppers
+									option(value="6", selected="true") Dragonflies
+									option(value="7") Butterflies
+									option(value="8") Spiders
+				div.col-sm-4
+					section.panel
+						header.panel-heading
+							h2.panel-title Multi Select W/ Optgroups
+						div.panel-body
+							select.mk-selectmenu(aria-label="Animals and Insects", multiple="true")
+								optgroup(label="Animals")
+									option(value="1") Lions
+									option(value="2", selected="true") Tigers
+									option(value="3", selected="true") Bears
+									option(value="4") Wolves
+								optgroup(label="Bugs")
+									option(value="5") Grasshoppers
+									option(value="6") Dragonflies
+									option(value="7") Butterflies
+									option(value="8") Spiders
+				div.col-sm-4
+					section.panel
+						header.panel-heading
+							h2.panel-title Selectmenu W/ Classnames
+						div.panel-body
+							select.mk-selectmenu(aria-label="Odd Mixes", multiple="true")
+								optgroup(label="Animals")
+									option(value="1", class="icon") Lions
+									option(value="2", class="icon") Tigers
+									option(value="3", class="icon") Bears
+									option(value="4", class="icon") Wolves
+				div.col-sm-4
+					section.panel
+						header.panel-heading
+							h2.panel-title Selectmenu W/ Alt Text
+						div.panel-body
+							select.mk-selectmenu(aria-label="Odd Mixes", multiple="true")
+								optgroup(label="Animals")
+									option(value="1", data-alt="King of the Jungle") Lions
+									option(value="2", data-alt="The real King") Tigers
+									option(value="3", data-alt="Lazy honey eating, lover") Bears
+									option(value="4", data-alt="Catch me if you can") Wolves
+				div.col-sm-4
+					section.panel
+						header.panel-heading
+							h2.panel-title Selectmenu W/ Restricted Height
+						div.panel-body
+							select.restrict-height.mk-selectmenu(aria-label="Odd Mixes", multiple="true")
+								optgroup(label="Animals")
+									option(value="1") Lions
+									option(value="2") Tigers
+									option(value="3") Bears
+									option(value="4") Wolves
+								optgroup(label="Bugs")
+									option(value="5") Grasshoppers
+									option(value="6") Dragonflies
+									option(value="7") Butterflies
+									option(value="8") Spiders
+								optgroup(label="Candy")
+									option(value="9") Now &amp; Laters
+									option(value="10", selected="true") Gummy Bears
+									option(value="11") Salt Water Taffy
+									option(value="12") Chocolate
 
 		include ./shared/scripts
 		script(type="text/javascript", src="/src/js/standard/selectmenu.js")
@@ -25,6 +119,14 @@ html
 
 			mkNasty.transitions(true);
 
-			var $select = $('.mk-selectmenu')
-			var select = new mkNasty.Selectmenu($select);
+			var selects = document.querySelectorAll('.mk-selectmenu');
+			var mkSelect = mkNasty.get('Selectmenu');
 
+			for (var i = 0; i < selects.length; i++) {
+
+					var select = new mkSelect(selects[i]);
+
+					select.on('change', function () {
+						console.log('values: ', this.value);
+					});
+			}

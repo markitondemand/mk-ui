@@ -1,0 +1,47 @@
+doctype html
+html
+
+	head
+		include ./shared/head
+		link(rel="stylesheet", type="text/css", href="/src/css/dialog.css")
+
+	body
+
+		include ./shared/header
+
+		main.container(style="padding-left: 0px")
+			div
+				table
+					tbody
+						tr
+							td
+								button.mk-dg(aria-describedby="test", data-action="click")
+									| Tooltip
+			div#test.mk-dg-modal
+				span
+					| Parentino fofino
+				ul.list-unstyled
+					li
+						a(href="#")
+							| Link 001
+					li
+						a(href="#")
+							| Link 002
+					li
+						a(href="#")
+							| Link 003
+					li
+						a(href="#")
+							| Link 004
+
+
+
+
+	include ./shared/scripts
+	script(type="text/javascript", src="/src/js/standard/tooltip.js")
+	script(type="text/javascript", src="/src/js/standard/dialog.js")
+	script.
+
+		mkNasty.transitions(true);
+
+		var dialog = new mkNasty.Dialog('.mk-dg');

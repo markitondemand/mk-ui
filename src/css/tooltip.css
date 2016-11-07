@@ -1,3 +1,6 @@
+button {
+  margin: 40px; }
+
 .mk-tt {
   cursor: pointer; }
 
@@ -21,6 +24,9 @@
 
 .mk-tt-modal.transition {
   display: block; }
+
+.mk-tt-modal.out {
+  opacity: 0; }
 
 .mk-tt-modal[aria-hidden="false"] {
   display: block;

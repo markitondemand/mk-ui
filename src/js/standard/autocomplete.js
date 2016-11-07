@@ -33,7 +33,7 @@
 
 		templates: {
 
-			shadow: 
+			shadow:
 				`<div class="{{$key}}-shadow">
 					{{template:tags}}
 					{{template:trigger}}
@@ -43,59 +43,59 @@
 
 			tags: `<ul class="{{$key}}-tags" aria-label="Current selections"></ul>`,
 
-			tag: 
+			tag:
 				`<li class="{{$key}}-tag" role="presentation" data-value="{{value}}">
-					<a href="javascript:void(0);" 
-						role="button" 
-						data-value="{{value}}" 
-						data-action="remove" 
+					<a href="javascript:void(0);"
+						role="button"
+						data-value="{{value}}"
+						data-action="remove"
 						aria-label="Remove {{label}}"></a>
 					{{label}}
 				</li>`,
 
-			trigger: 
-				`<div class="{{$key}}-trigger {{if:disabled}} disabled{{/if:disabled}}" 
-					role="combobox" 
+			trigger:
+				`<div class="{{$key}}-trigger {{if:disabled}} disabled{{/if:disabled}}"
+					role="combobox"
 					aria-haspopup="listbox">
 					{{template:input}}
 					{{template:live}}
 				</div>`,
 
-			input: 
-				`<input type="text" 
-					class="{{$key}}-input" 
-					autocomplete="off" 
-					aria-autocomplete="list" 
+			input:
+				`<input type="text"
+					class="{{$key}}-input"
+					autocomplete="off"
+					aria-autocomplete="list"
 					{{if:disabled}}aria-disabled="true" disabled {{/if:disabled}}
 					{{if:multiple}}aria-multiselectable="true" {{/if:multiple}}
 					value="{{label}}" />`,
 
-			live: 
-				`<div class="{{$key}}-live sr-only" 
-					aria-atomic="true" 
+			live:
+				`<div class="{{$key}}-live sr-only"
+					aria-atomic="true"
 					aria-live="assertive">
 				</div>`,
 
-			notifications: 
-				`<div class="{{$key}}-notifications" 
-					aria-atomic="true" 
+			notifications:
+				`<div class="{{$key}}-notifications"
+					aria-atomic="true"
 					aria-live="assertive">
 				</div>`,
 
-			list: 
+			list:
 				`<ul id="{{id}}" class="{{$key}}-list" role="listbox">
 					{{loop:items}}{{template:item}}{{/loop:items}}
 				</ul>`,
 
-			item: 
+			item:
 				`<li class="{{$key}}-item" role="presentation">
-					<a id="{{id}}" 
-						class="{{$key}}-option" 
-						role="option" 
-						href="javascript: void(0);" 
-						aria-selected="{{selected}}" 
-						aria-disabled="{{disabled}}" 
-						data-value="{{$value}}" 
+					<a id="{{id}}"
+						class="{{$key}}-option"
+						role="option"
+						href="javascript: void(0);"
+						aria-selected="{{selected}}"
+						aria-disabled="{{disabled}}"
+						data-value="{{$value}}"
 						data-display="{{value}}">
 						<span class="{{$key}}-label">
 							{{highlight:label}}
@@ -235,7 +235,7 @@
 
 			this.super();
 
-			this.input.attr('placeholder', 
+			this.input.attr('placeholder',
 				this.root.attr('placeholder'));
 		},
 
@@ -304,8 +304,8 @@
 
 			this.doubledelete = false;
 
-			if (which === this.keycode.comma 
-				&& this.anything 
+			if (which === this.keycode.comma
+				&& this.anything
 				&& this.config.comma) {
 
 				return this.comma(value);
@@ -344,7 +344,7 @@
 				if (this.deletecount > 0) {
 					this.deletecount = 0;
 					this.pop();
-				} 
+				}
 				else {
 					this.deletecount = 1;
 				}
@@ -408,7 +408,7 @@
 			this.each(data, function (i, o) {
 
 				o.$value = o.$value || this.flatten({
-					value: o.value, 
+					value: o.value,
 					label: o.label
 				});
 
@@ -519,7 +519,7 @@
 		comma: function (value) {
 
 			var values = value.split(/\,\s{0,}/),
-				first = true, 
+				first = true,
 				added = false;
 
 			this.each(values, function (i, v) {
@@ -598,7 +598,7 @@
 
 					t.attr('aria-expanded', 'true');
 					l.attr('aria-hidden', 'false');
-					
+
 					this.emit('show');
 				});
 			}
@@ -637,7 +637,7 @@
 
 			this.each(this.selections, function (i, o) {
 				if (o.value === data.value) {
-					result = true; 
+					result = true;
 					return -1;
 				}
 			});
@@ -657,7 +657,7 @@
 
 			this.each(this.selections, function (i, o) {
 				if (o.value === value) {
-					result = true; 
+					result = true;
 					return false;
 				}
 			});
@@ -709,8 +709,8 @@
 
 			var label = '',
 				data = {query: query},
-				format = type === 0 && 'empty' 
-					|| type === -1 && 'error' 
+				format = type === 0 && 'empty'
+					|| type === -1 && 'error'
 					|| type === 1 && 'capacity'
 					|| '';
 

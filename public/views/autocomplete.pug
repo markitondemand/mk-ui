@@ -9,44 +9,76 @@ html
 
 		include ./shared/header
 
-		main.container
-			form
-				fieldset
-					input(
-						type="text", 
-						class="mk-autocomplete", 
-						placeholder="Search for a symbol", 
-						name="symbol")
+		main.container-fluid
+			div.row
+				div.col-sm-4
+					section.panel
+						header.panel-heading
+							h2.panel-title Autocomplete
+						div.panel-body
+							input(
+								type="text",
+								class="mk-autocomplete",
+								placeholder="Search for a symbol",
+								name="symbol-1")
+				div.col-sm-4
+					section.panel
+						header.panel-heading
+							h2.panel-title Autocomplete (0 - 4 Selections)
+						div.panel-body
+							input(
+								type="text",
+								class="mk-autocomplete",
+								placeholder="Search for a symbol",
+								name="symbol-2",
+								data-limit="4")
+				div.col-sm-4
+					section.panel
+						header.panel-heading
+							h2.panel-title Autocomplete (Comma Seperate)
+						div.panel-body
+							input(
+								type="text",
+								class="mk-autocomplete",
+								placeholder="Search for a symbol",
+								name="symbol-3",
+								data-limit="4",
+								data-comma="true")
 
 		include ./shared/scripts
 		script(type="text/javascript", src="/src/js/standard/selectmenu.js")
 		script(type="text/javascript", src="/src/js/standard/autocomplete.js")
 		script.
-			
+
 			mkNasty.transitions(true);
 
+			var inputs = document.querySelectorAll('.mk-autocomplete');
 			var Autocomplete = mkNasty.get('Autocomplete');
-			var autocomplete = new Autocomplete('.mk-autocomplete', {
-				remote: 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/jsonp?input={{%query}}',
-				type: 'jsonp',
-				comma: true,
-				doubledelete: true
-			});
 
-			autocomplete.on('request.success', function (q, d) {
-				this.each(d, function (i, o) {
-					o.label = o.Name,
-					o.value = o.Symbol
-				});
-			});
+			for (var i = 0; i < inputs.length; i++) {
 
-			autocomplete.on('activate', function (node, keyboard) {
-			
-				if (keyboard) {
-					this.input.val(node.attr('data-display'));
-				}
-			});
+					var autocomplete = new Autocomplete(inputs[i], {
+						remote: 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/jsonp?input={{%query}}',
+						type: 'jsonp'
+					});
 
-			autocomplete.on('change', function () {
-				console.info(this.selections);
-			})
+					autocomplete.on('request.success', function (q, d) {
+						this.each(d, function (i, o) {
+							o.label = o.Name,
+							o.value = o.Symbol
+						});
+					});
+
+					autocomplete.on('activate', function (node, keyboard) {
+						if (keyboard) {
+							this.input.val(node.attr('data-display'));
+						}
+					});
+
+					autocomplete.on('change', function () {
+						console.info(this.element)
+						console.info('value changed!');
+						console.info('selections (raw):', this.selections);
+						console.info('value (base64):', this.value)
+					})
+			}

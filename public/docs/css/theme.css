@@ -19,11 +19,11 @@ body a:focus {
 	text-decoration: none;
 }
 
-.documentation h1, 
-.documentation h2, 
-.documentation h3, 
-.documentation h4, 
-.documentation h5, 
+.documentation h1,
+.documentation h2,
+.documentation h3,
+.documentation h4,
+.documentation h5,
 .documentation h6 {
     color: crimson;
 }
@@ -133,4 +133,8 @@ body a:focus {
 
 .font-theme {
 	font-family: 'Roboto Slab';
+}
+
+.panel {
+	background: #444;
 }

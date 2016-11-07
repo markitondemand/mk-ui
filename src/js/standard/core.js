@@ -171,25 +171,29 @@
 			_v = copy(v);
 
 		if (typeof _v === 'function') {
+
 			_v = wrapFunction(_v, m);
-		}
 
-		Object.defineProperty(o, m, {
+			Object.defineProperty(o, m, {
 
-			get: function () {
-				return _v;
-			},
+				get: function () {
+					return _v;
+				},
 
-			set: function (value) {
+				set: function (value) {
 
-				if (typeof value === 'function' 
-					&& value.hasOwnProperty('constructor') === false
-					&& value.__id__ === undefined) {
-					value = wrapFunction(value, m);
+					if (typeof value === 'function' 
+						&& value.hasOwnProperty('constructor') === false
+						&& value.__id__ === undefined) {
+						value = wrapFunction(value, m);
+					}
+					_v = value;
 				}
-				_v = value;
-			}
-		});
+			});
+		}
+		else {
+			o[m] = _v;
+		}
 	}
 
 	function wrapFunction (fn, m) {
@@ -760,6 +764,18 @@
 				}, 1);
 			});
 		},
+
+		clearTransitions: function (node) {
+
+			var $n = this.$(node),
+				 t = mkNasty._transition();
+
+			if (t) {
+				$n.off(t);
+			}
+
+			return this;
+		}, 
 
 		delay: function (fn, ms) {
 

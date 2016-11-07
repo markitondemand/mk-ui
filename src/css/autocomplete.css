@@ -84,7 +84,9 @@
   min-width: 100%;
   min-height: 6.56rem;
   position: absolute;
-  top: 100%; }
+  top: 100%;
+  height: 200px;
+  overflow: auto; }
 
 .mk-autocomplete-shadow.loading .mk-autocomplete-list:before {
   top: 0;

@@ -34,4 +34,10 @@ module.exports = function ( express, app ) {
     });
   });
 
+  app.get('/dialog', function (req, res) {
+    res.render('dialog', {
+      title: 'Dialog'
+    });
+  });
+
 };

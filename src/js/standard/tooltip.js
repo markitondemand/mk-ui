@@ -1,15 +1,4 @@
 
-
-// TODO:
-// 	BUG - relative position x
-// 	BUG - back tabbing when locked
-
-// Make internal lock vs. external lock
-// Mouseover modal cancels mouse event from trigger
-// Mouseout  modal triggers mouseout event from trigger
-// Restructure frame() to look at modal elements rather than trigger (for positioning)
-// Cache modal() 
-
 (function ( root, factory ) {
 	//
 	// AMD support
@@ -36,6 +25,94 @@
 
 })( typeof window !== "undefined" ? window : this, function ( root, mk ) {
 
+	var map = {
+
+		'left-center': function (mo, to) {
+			return {
+				left: to.left - mo.width - mo.box.left - mo.box.right,
+				top: (to.top + (to.height / 2)) - (mo.height / 2) - mo.box.top
+			};
+		},
+
+		'left-top': function (mo, to) {
+			return {
+				left: to.left - mo.width - mo.box.left - mo.box.right,
+				top: to.top - mo.box.top
+			};
+		},
+
+		'left-bottom': function (mo, to) {
+			return {
+				left: to.left - mo.width - mo.box.left - mo.box.right,
+				top: to.top + to.height - mo.height - mo.box.top
+			};
+		},
+
+		'right-center': function (mo, to) {
+			return {
+				left: to.left + to.width,
+				top: (to.top + (to.height / 2)) - (mo.height / 2) - mo.box.top
+			};
+		},
+
+		'right-top': function (mo, to) {
+			return {
+				left: to.left + to.width,
+				top: to.top - mo.box.top
+			};
+		},
+
+		'right-bottom': function (mo, to) {
+			return {
+				left: to.left + to.width,
+				top: to.top + to.height - mo.height + mo.box.top + mo.box.bottom
+			};
+		},
+
+		'top-left': function (mo, to) {
+			return {
+				left: to.left - mo.box.left,
+				top: to.top - mo.height - (mo.box.bottom + mo.box.top)
+			};
+		},
+
+		'top-center': function (mo, to) {
+			return {
+				left: (to.left + (to.width / 2)) - (mo.width / 2) - mo.box.left,
+				top: to.top - mo.height - (mo.box.bottom + mo.box.top)
+			};
+		},
+
+		'top-right': function (mo, to) {
+			return {
+				left: to.left + to.width - mo.width - mo.box.right,
+				top: to.top - mo.height - (mo.box.bottom + mo.box.top)
+			};
+		},
+
+		'bottom-left': function (mo, to) {
+			return {
+				left: to.left - mo.box.left,
+				top: to.top + to.height
+			};
+		},
+
+		'bottom-center': function (mo, to) {
+			return {
+				left: (to.left + (to.width / 2)) - (mo.width / 2) - mo.box.left,
+				top: to.top + to.height
+			};
+		},
+
+		'bottom-right': function (mo, to) {
+			return {
+				left: to.left + to.width - mo.width - mo.box.right,
+				top: to.top + to.height
+			};
+		}
+	};
+
+
 	mk.create('Tooltip', {
 
 		name: 'mk-tt',
@@ -47,91 +124,8 @@
 			kill: `<button class="{{$key}}-kill" role="presentation"></button>`
 		},
 
-		map: {
-
-			'left-center': function (mo, to) {
-				return {
-					left: to.left - mo.width - mo.box.left - mo.box.right,
-					top: (to.top + (to.height / 2)) - (mo.height / 2) - mo.box.top
-				};
-			},
-
-			'left-top': function (mo, to) {
-				return {
-					left: to.left - mo.width - mo.box.left - mo.box.right,
-					top: to.top - mo.box.top
-				};
-			},
-
-			'left-bottom': function (mo, to) {
-				return {
-					left: to.left - mo.width - mo.box.left - mo.box.right,
-					top: to.top + to.height - mo.height - mo.box.top
-				};
-			},
-
-			'right-center': function (mo, to) {
-				return {
-					left: to.left + to.width,
-					top: (to.top + (to.height / 2)) - (mo.height / 2) - mo.box.top
-				};
-			},
-
-			'right-top': function (mo, to) {
-				return {
-					left: to.left + to.width,
-					top: to.top - mo.box.top
-				};
-			},
-
-			'right-bottom': function (mo, to) {
-				return {
-					left: to.left + to.width,
-					top: to.top - mo.height + mo.box.top + mo.box.bottom
-				};
-			},
-
-			'top-left': function (mo, to) {
-				return {
-					left: to.left - mo.box.left,
-					top: to.top - mo.height - (mo.box.bottom + mo.box.top)
-				};
-			},
-
-			'top-center': function (mo, to) {
-				return {
-					left: (to.left + (to.width / 2)) - (mo.width / 2) - mo.box.left,
-					top: to.top - mo.height - (mo.box.bottom + mo.box.top)
-				};
-			},
-
-			'top-right': function (mo, to) {
-				return {
-					left: to.left + to.width - mo.width - mo.box.right,
-					top: to.top - mo.height - (mo.box.bottom + mo.box.top)
-				};
-			},
-
-			'bottom-left': function (mo, to) {
-				return {
-					left: to.left - mo.box.left,
-					top: to.top + to.height
-				};
-			},
-
-			'bottom-center': function (mo, to) {
-				return {
-					left: (to.left + (to.width / 2)) - (mo.width / 2) - mo.box.left,
-					top: to.top + to.height
-				};
-			},
-
-			'bottom-right': function (mo, to) {
-				return {
-					left: to.left + to.width - mo.width - mo.box.right,
-					top: to.top + to.height
-				};
-			}
+		get map () {
+			return map;
 		},
 
 		get frame () {
@@ -162,43 +156,37 @@
 
 			o = o || {};
 			o.position = o.position || 'top-center';
-			o.delay = parseInt(o.delay || '100', 10) || 100;
+			o.delay = parseInt(o.delay || '200', 10) || 200;
 
 			return this.super(o);
 		},
 
 		_bind: function () {
 			
-			var thiss = this;
+			var thiss = this,
+				tt = this.selector(),
+				md = this.selector('modal');
 
 			this.root
-			.on('click.mk', '.mk-tt', function (e) {
+			.on('click.mk', tt, function (e) {
 				e.preventDefault();
 				thiss._click(this);
 			})
-			.on('mouseover.mk', '.mk-tt', function (e) {
+			.on('mouseenter.mk, focus.mk', tt, function (e) {
 				e.preventDefault();
-				thiss._over(this);
+				thiss._over(this, e.type !== 'mouseenter');
 			})
-			.on('mouseout.mk', '.mk-tt', function (e) {
+			.on('mouseleave.mk, blur.mk', tt, function (e) {
 				e.preventDefault();
-				thiss._out(this);
+				thiss._out(this, e.type !== 'mouseleave');
 			})
-			.on('focus.mk', '.mk-tt', function (e) {
-				e.preventDefault();
-				thiss._over(this, true);
-			})
-			.on('blur.mk', '.mk-tt', function (e) {
-				e.preventDefault();
-				thiss._out(this, true);
-			})
-			.on('keyup.mk', '.mk-tt', function (e) {
+			.on('keyup.mk', tt, function (e) {
 				thiss._keyup(e, this);
 			});
 
 			this.$(document.documentElement)
-			.off('mousedown.mk-tt')
-			.on ('mousedown.mk-tt', function (e) {
+			.off('mousedown' + tt)
+			.on ('mousedown' + tt, function (e) {
 				thiss._down(e);
 			});
 		},
@@ -206,7 +194,7 @@
 		_down: function (e) {
 
 			var t = this.$(e.target),
-				tt = this.selector(''),
+				tt = this.selector(),
 				tm = this.selector('modal');
 
 			if ((t.is(tt) || t.closest(tt).length > 0) 
@@ -241,7 +229,9 @@
 
 				this.show(trigger);
 
-				if (keyboard === true && this.isFocusable(this.modal(trigger))) {
+				if (keyboard === true 
+					&& this.isFocusable(this.modal(trigger))) {
+
 					this._lock(trigger);
 				}
 			}
@@ -253,9 +243,12 @@
 
 			if (t.data('action') !== 'click') {
 
-				if (keyboard !== true && this.isFocusable(this.modal(trigger))) {
+				if (keyboard !== true 
+					&& this.isFocusable(this.modal(trigger))) {
+
 					this._unlock(trigger);
 				}
+
 				this.hide(trigger);
 			}
 		},
@@ -287,9 +280,8 @@
 			if (o.relativeParent) {
 
 				p = this.offset(o.relativeParent);
-
-				r.left = p.left - x;
-				r.top  = p.top - y;
+				r.left = x + p.left;
+				r.top  = y + p.top;
 
 				if (p.relativeParent) {
 					return this._relativePosition(
@@ -364,7 +356,7 @@
 
 			if (focusable !== true) {
 
-				this.each(this.$('[tabindex]'), function(i, n) {
+				this.each(this.$('[tabindex]', modal), function(i, n) {
 
 					if (n.tabindex > -1) {
 						focusable = true;
@@ -379,7 +371,8 @@
 		link: function (trigger) {
 
 			var t = this.$(trigger),
-				m = this.$('#' + t.attr('aria-describedby'));
+				m = this.$('#' + t.attr('aria-describedby')),
+				h;
 
 			if (m.length < 1) {
 
@@ -399,7 +392,14 @@
 
 					id = m.attr('id') || id;
 				}
+
 				m.attr('id', id);
+			}
+
+			h = m.attr('aria-hidden');
+
+			if (!h) {
+				m.attr('aria-hidden', 'true');
 			}
 
 			return this.connect(t, m);
@@ -411,6 +411,10 @@
 				m = this.$(modal),
 				i = t.attr('id'),
 				r = 'tooltip';
+
+			if (m.data(this.name + '-connected')) {
+				return this;
+			}
 
 			if (this.isFocusable(modal)) {
 
@@ -430,6 +434,8 @@
 			if (this.transitions) {
 				m.addClass('transitions');
 			}
+
+			m.data(this.name + '-connected', true);
 
 			this.emit('connect', t, m);
 
@@ -485,7 +491,7 @@
 		position: function (modal, trigger) {
 
 			var t = this.$(trigger),
-				p = t.data('position') || this.config.position,
+				p = t.attr('data-position') || this.config.position,
 
 				coords = this._position(p,
 					this.offset(modal, true), this.offset(trigger), this.frame);
@@ -558,10 +564,16 @@
 
 			if (this._unlocked(t) && this.unlocked(t)) {
 
+				this.hideAll();
+
 				m = this.modal(trigger);
+				
+				this.transition(m, function (e, el) {
+					el.removeClass('in');
+				})
+				.delay(function () {
 
-				this.transition(m).delay(function () {
-
+					m.addClass('in');
 					m.attr('aria-hidden', 'false');
 
 					this.position(m, trigger);
@@ -575,31 +587,53 @@
 			return this;
 		},
 
-		hide: function (trigger) {
+		hide: function (trigger, immediate) {
 
-			var t = this.$(trigger), m;
+			var t = this.$(trigger), 
+				a = t.attr('data-action'),
+				m, d;
 
 			if (this._unlocked(t) && this.unlocked(t)) {
 
 				m = this.modal(trigger);
 
-				this.timer = this.transition(m).delay(function () {
+				d = immediate !== true
+					&& a !== 'click' 
+					&& this.isFocusable(m) 
+					&& this.config.delay || 0;
+
+				this.transition(m, function (e, el) {
+					el.removeClass('out');
+				})
+				.delay(function () {
+
+					m.addClass('out');
+
 					m.attr('aria-hidden', 'true');
+
+					if (immediate || this.transitions !== true) {
+						m.removeClass('out');
+						this.clearTransitions(m);
+					}
+
 					this.emit('hide', t, m);
-				}, this.config.delay);
+
+				}, d);
 			}
-			return this;			
+
+			return this;
 		},
 
 		hideAll: function () {
 
 			var ms = this.$(this.selector('modal')).filter('[aria-hidden="false"]'),
-				ts = this.$(this.selector('')), t;
+				ts = this.$(this.selector(), this.element), t;
 
 			return this.each(ms, function (i, m) {
+
 				t = ts.filter('[aria-describedby="' + m.id + '"]');
 
-				this._unlock(t).hide(t);
+				this._unlock(t).hide(t, true);
 			});
 		},
 
