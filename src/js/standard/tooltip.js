@@ -4,6 +4,12 @@
 // 	BUG - relative position x
 // 	BUG - back tabbing when locked
 
+// Make internal lock vs. external lock
+// Mouseover modal cancels mouse event from trigger
+// Mouseout  modal triggers mouseout event from trigger
+// Restructure frame() to look at modal elements rather than trigger (for positioning)
+// Cache modal() 
+
 (function ( root, factory ) {
 	//
 	// AMD support
@@ -130,8 +136,6 @@
 
 		get frame () {
 
-			//TODO - change this.element to modal.parentNode ??
-
 			var n = this.element;
 
 			while (n.scrollTop <= 0 && n.tagName !== 'BODY') {
@@ -216,7 +220,7 @@
 		_keyup: function (e, trigger) {
 
 			if (e.which === this.keycode.esc) {
-				this.unlock(trigger).hide(trigger);
+				this._unlock(trigger).hide(trigger);
 			}
 		},
 
@@ -238,7 +242,7 @@
 				this.show(trigger);
 
 				if (keyboard === true && this.isFocusable(this.modal(trigger))) {
-					this.lock(trigger);
+					this._lock(trigger);
 				}
 			}
 		},
@@ -250,10 +254,30 @@
 			if (t.data('action') !== 'click') {
 
 				if (keyboard !== true && this.isFocusable(this.modal(trigger))) {
-					this.unlock(trigger);
+					this._unlock(trigger);
 				}
 				this.hide(trigger);
 			}
+		},
+
+		_lock: function (trigger) {
+
+			this.$(trigger).addClass('--locked');
+			return this;
+		},
+
+		_unlock: function (trigger) {
+
+			this.$(trigger).removeClass('--locked');
+			return this;
+		},
+
+		_locked: function (trigger) {
+			return this.$(trigger).hasClass('--locked');
+		},
+
+		_unlocked: function (trigger) {
+			return this.$(trigger).hasClass('--locked') !== true;
 		},
 
 		_relativePosition: function (o, x, y) {
@@ -532,7 +556,7 @@
 
 			var t = this.$(trigger), m;
 
-			if (t.hasClass('locked') !== true) {
+			if (this._unlocked(t) && this.unlocked(t)) {
 
 				m = this.modal(trigger);
 
@@ -555,7 +579,7 @@
 
 			var t = this.$(trigger), m;
 
-			if (t.hasClass('locked') !== true) {
+			if (this._unlocked(t) && this.unlocked(t)) {
 
 				m = this.modal(trigger);
 
@@ -575,8 +599,7 @@
 			return this.each(ms, function (i, m) {
 				t = ts.filter('[aria-describedby="' + m.id + '"]');
 
-				this.unlock(t);
-				this.hide(t);
+				this._unlock(t).hide(t);
 			});
 		},
 
@@ -621,11 +644,11 @@
 			return this;
 		},
 
-		isLocked: function (trigger) {
+		locked: function (trigger) {
 			return this.$(trigger).hasClass('locked');
 		},
 
-		isUnlocked: function (trigger) {
+		unlocked: function (trigger) {
 			return this.$(trigger).hasClass('locked') !== true;
 		}
 	});
