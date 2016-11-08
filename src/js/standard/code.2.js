@@ -63,7 +63,7 @@
 
 		if (o instanceof Array) {
 			for( var i = 0, l = o.length, r = [];
-					i < l && r.push(copy(o[i]));
+					i < l && r.push(copy( o[i] ));
 					i++ ) { /* fast as hell */ }
 
 			return r;
@@ -128,15 +128,13 @@
 
 		if (transition.enabled) {
 
-			if (transition.key) {
-				return transition.key;
-			}
-
-			var el = document.createElement('xanimate'), t;
+			var el = 
+			document.createElement('xanimate'), 
+			t;
 
 			for (t in transition.keys) {
 				if (typeof el.style[t] !== 'undefined') {
-					return transition.key = transition.keys[t];
+					return transition.keys[t];
 				}
 			}
 		}
@@ -144,8 +142,6 @@
 	}
 
 	transition.enabled = false;
-
-	transition.key = null;
 
 	transition.keys = {
 		'transition': 'transitionend',
@@ -164,13 +160,13 @@
 
 	function property(o, p, m) {
 
-		var d = Object.getOwnPropertyDescriptor(p, m), v, c;
+		var d = Object.getOwnPropertyDescriptor(p, m),
+			v = p[m], 
+			c;
 
 		if (typeof d.get !== 'undefined') {
 			return Object.defineProperty(o, m, d);
 		}
-
-		v = p[m];
 
 		if (typeof v !== 'function') {
 			return o[m] = copy(v);
@@ -188,67 +184,35 @@
 
 	function wrapFunction (fn, m) {
 
-		if (fn._id_) {
-			return fn;
-		}
+		if (fn.__id__) return fn;
 
 		var func = function () {
 
-			this._pushsuper_(m);
+			var result,
+				sooper = this.__super__,
+				proto  = sooper.prototype;
 
-			var r = fn.apply(this, arguments);
+			this.__super__ = proto.__super__ || null;
 
-			this._popsuper_(m);
+			if (proto.hasOwnProperty(m)) {
+				this.super = proto[m];
+			}
 
-			return r;
+			result = fn.apply(this, arguments);
+
+			this.__super__ = sooper;
+			this.super = null;
+
+			return result;
 		};
-
-		func._id_ = uid();
 
 		func.toString = function () {
 			return fn.toString();
 		};
 
+		func.__id__ = uid();
+
 		return func;
-	}
-
-	function pushsuper (m) {
-
-		var ch = this._chain_ = this._chain_ || [],
-			st = this._stack_ = this._stack_ || [],
-			i  = ch.lastIndexOf(m),
-			s  = this._super_,
-			p  = s && s.prototype || {},
-			f  = this[m];
-
-		if (i > -1) {
-			s = st[i].super.prototype._super_ || null;
-			p = s && s.prototype || {};
-		} 
-
-		while (s !== null 
-			&& p.hasOwnProperty(m)
-			&& p[m]._id_ === f._id_) {
-
-			s = p._super_ || null;
-			p = s && s.prototype || {};
-		}
-
-		st.push({method: m, super: s});
-		ch.push(m);
-	}
-
-	function popsuper (m) {
-
-		var ch = this._chain_ = this._chain_ || [],
-			st = this._stack_ = this._stack_ || [],
-			i  = ch.lastIndexOf(m);
-
-		if (i > -1) {
-
-			ch.splice(i, 1);
-			st.splice(i, 1);
-		}
 	}
 
 	//
@@ -567,10 +531,6 @@
 
 	mkNasty._property = property;
 
-	mkNasty._pushsuper = pushsuper;
-
-	mkNasty._popsuper = popsuper;
-
 	mkNasty._transition = transition;
 
 	mkNasty._template = template;
@@ -638,28 +598,29 @@
 			&& base.prototype instanceof mkNasty 
 			&& base || mkNasty;
 
-		var member, statics, obj = function () {
+		var obj = function () {
 			this._init.apply( this, arguments );
 			return this;
 		};
 
 		obj.prototype = Object.create(base.prototype);
 
-		for (member in proto) {
+		for (var member in proto) {
 			mkNasty._property(obj.prototype, proto, member);
 		}
 
-		if (base !== mkNasty) {
+		obj.prototype.constructor = obj;
 
-			for (statics in base) {
+		obj.prototype.__base__	= base;
+		obj.prototype.__super__ = base;
+
+		if (base !== mkNasty) {
+			for (var statics in base) {
 				mkNasty._property(obj, base, statics);
 			}
 		}
 
-		obj.prototype.constructor = obj;
-		obj.prototype._super_ = base;
-
-		return this.define(name, obj);
+		return this.define( name, obj );
 	};
 
 	mkNasty.prototype = {
@@ -677,25 +638,6 @@
 		events: null,
 
 		root: null,
-
-		get _pushsuper_ () {
-			return mkNasty._pushsuper;
-		},
-
-		get _popsuper_ () {
-			return mkNasty._popsuper;
-		},
-
-		get super () {
-
-			var s = this._stack_[this._stack_.length - 1], m;
-
-			if (s) {
-				m = s.super && s.super.prototype 
-					&& s.super.prototype[s.method];
-			}
-			return m;
-		},
 
 		get keycode () {
 			return mkNasty._keycodes;
