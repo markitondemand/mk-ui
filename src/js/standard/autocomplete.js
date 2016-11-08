@@ -29,7 +29,7 @@
 
 	mk.create('Autocomplete', mk.Selectmenu, {
 
-		name: 'mk-autocomplete',
+		name: 'mk-ac',
 
 		templates: {
 

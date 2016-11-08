@@ -14,9 +14,9 @@ $mk-color: white;
 // loader
 // -------------------------------------------
 
-$mk-loader-transition-speed: 0.5s;
-$mk-loader-overlay-bg: rgba(0, 0, 0, 0.4);
-$mk-loader-boxshadow-color: rgba(255, 255, 255, 0.15);
+$mk-ld-transition-speed: 0.5s;
+$mk-ld-overlay-bg: rgba(0, 0, 0, 0.4);
+$mk-ld-boxshadow-color: rgba(255, 255, 255, 0.15);
 
 //
 // selectmenu
@@ -50,29 +50,29 @@ $mk-sm-option-selected-char: '\2714';
 // Autocomplete
 // -------------------------------------------
 
-$mk-autocomplete-transition-speed: 0.5s;
+$mk-ac-transition-speed: 0.5s;
 
-$mk-autocomplete-trigger-bg: transparent;
-$mk-autocomplete-trigger-color: $mk-color;
-$mk-autocomplete-trigger-char: '\203A';
-$mk-autocomplete-trigger-char-transform: rotate(90deg);
-$mk-autocomplete-trigger-disabled-color: $mk-gray-2;
+$mk-ac-trigger-bg: transparent;
+$mk-ac-trigger-color: $mk-color;
+$mk-ac-trigger-char: '\203A';
+$mk-ac-trigger-char-transform: rotate(90deg);
+$mk-ac-trigger-disabled-color: $mk-gray-2;
 
-$mk-autocomplete-list-bg: $mk-gray-5;
+$mk-ac-list-bg: $mk-gray-5;
 
-$mk-autocomplete-option-color: $mk-gray-3;
-$mk-autocomplete-option-bg: tranparent;
+$mk-ac-option-color: $mk-gray-3;
+$mk-ac-option-bg: tranparent;
 
-$mk-autocomplete-option-color-hover: $mk-gray-3;
-$mk-autocomplete-option-bg-hover: transparent;
+$mk-ac-option-color-hover: $mk-gray-3;
+$mk-ac-option-bg-hover: transparent;
 
-$mk-autocomplete-option-color-disabled: $mk-gray-4;
-$mk-autocomplete-option-bg-disabled: transparent;
+$mk-ac-option-color-disabled: $mk-gray-4;
+$mk-ac-option-bg-disabled: transparent;
 
-$mk-autocomplete-option-color-active:$mk-gray-2;
-$mk-autocomplete-option-bg-active: $mk-gray-4;
+$mk-ac-option-color-active:$mk-gray-2;
+$mk-ac-option-bg-active: $mk-gray-4;
 
-$mk-autocomplete-option-selected-char: '\2714';
+$mk-ac-option-selected-char: '\2714';
 
-$mk-autocomplete-list-loader-bg: rgba(255, 255, 255, 0.7);
-$mk-autocomplete-list-loader-size: 3.28rem;
+$mk-ac-list-loader-bg: rgba(255, 255, 255, 0.7);
+$mk-ac-list-loader-size: 3.28rem;

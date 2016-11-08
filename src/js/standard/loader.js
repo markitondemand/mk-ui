@@ -22,11 +22,11 @@
 		return factory( root, root.mkNasty );
 	}
 
-})( typeof window !== "undefined" ? window : this, function ( root, mk ) { 
+})( typeof window !== "undefined" ? window : this, function ( root, mk ) {
 
 	mk.create('Loader', {
 
-		name: 'mk-loader',
+		name: 'mk-ld',
 
 		templates: {
 			shadow: [
@@ -46,7 +46,7 @@
 			focus: '<button role="presentation" />'
 		},
 
-		formats: { 
+		formats: {
 			message: 'Loading content, please wait.'
 		},
 
@@ -101,7 +101,7 @@
 					this.emit('hide');
 				});
 			}
-			
+
 			if (this.config.focus === true) {
 				return this.focus();
 			}

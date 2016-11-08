@@ -25,8 +25,8 @@ button {
 }
 
 .mk-tt-modal.transitions {
-  transition: opacity $mk-autocomplete-transition-speed;
- -webkit-transition: opacity $mk-autocomplete-transition-speed;
+  transition: opacity $mk-ac-transition-speed;
+ -webkit-transition: opacity $mk-ac-transition-speed;
 }
 
 .mk-tt-modal.transition {

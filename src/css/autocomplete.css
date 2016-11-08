@@ -1,11 +1,11 @@
 @charset "UTF-8";
-@keyframes mk-autocomplete-loading {
+@keyframes mk-ac-loading {
   from {
     width: 0; }
   to {
     width: 100%; } }
 
-@keyframes mk-autocomplete-loader {
+@keyframes mk-ac-loader {
   0% {
     transform: rotate(0deg); }
   100% {
@@ -13,36 +13,36 @@
 
 /*
 //
-// mk-autocomplete
+// mk-ac
 // --------------------
 */
-.mk-autocomplete {
+.mk-ac {
   display: none; }
 
-.mk-autocomplete-shadow {
+.mk-ac-shadow {
   display: inline-block;
   position: relative; }
 
-.mk-autocomplete-trigger {
+.mk-ac-trigger {
   background: transparent;
   color: white;
   border: 1px solid crimson;
   position: relative; }
 
-.mk-autocomplete-trigger[aria-expanded="true"],
-.mk-autocomplete-trigger.focus {
+.mk-ac-trigger[aria-expanded="true"],
+.mk-ac-trigger.focus {
   color: cadetblue;
   border-color: cadetblue; }
 
-.mk-autocomplete-trigger.disabled {
+.mk-ac-trigger.disabled {
   color: #666;
   border-color: #666; }
 
-.mk-autocomplete-shadow.transitions .mk-autocomplete-trigger {
+.mk-ac-shadow.transitions .mk-ac-trigger {
   transition: all 0.5s;
   -webkit-transition: all 0.5s; }
 
-.mk-autocomplete-input {
+.mk-ac-input {
   background: transparent;
   border: 0;
   outline: none;
@@ -50,8 +50,8 @@
   position: relative;
   z-index: 1; }
 
-.mk-autocomplete-trigger:before,
-.mk-autocomplete-trigger:after {
+.mk-ac-trigger:before,
+.mk-ac-trigger:after {
   content: "";
   position: absolute;
   width: calc(100% + 2px);
@@ -64,16 +64,16 @@
   transition: all 0.5s;
   -webkit-transition: all 0.5s; }
 
-.mk-autocomplete-shadow.loading .mk-autocomplete-trigger:before {
+.mk-ac-shadow.loading .mk-ac-trigger:before {
   background: crimson; }
 
-.mk-autocomplete-shadow.loading .mk-autocomplete-trigger:after {
+.mk-ac-shadow.loading .mk-ac-trigger:after {
   background: cadetblue;
-  animation-name: mk-autocomplete-loading;
+  animation-name: mk-ac-loading;
   animation-duration: 0.5s;
   animation-iteration-count: infinite; }
 
-.mk-autocomplete-list {
+.mk-ac-list {
   background: #eee;
   border-top: 1px solid cadetblue;
   box-shadow: 0 0 1.5rem black;
@@ -84,11 +84,9 @@
   min-width: 100%;
   min-height: 6.56rem;
   position: absolute;
-  top: 100%;
-  height: 200px;
-  overflow: auto; }
+  top: 100%; }
 
-.mk-autocomplete-shadow.loading .mk-autocomplete-list:before {
+.mk-ac-shadow.loading .mk-ac-list:before {
   top: 0;
   right: 0;
   left: 0;
@@ -97,8 +95,8 @@
   position: absolute;
   content: ""; }
 
-.mk-autocomplete-shadow.loading .mk-autocomplete-list:after {
-  animation: mk-autocomplete-loader 1s infinite linear;
+.mk-ac-shadow.loading .mk-ac-list:after {
+  animation: mk-ac-loader 1s infinite linear;
   border: 0.25rem double #999;
   border-top-color: #333;
   border-radius: 50%;
@@ -112,40 +110,40 @@
   text-align: center;
   width: 3.28rem; }
 
-.mk-autocomplete-list.transition {
+.mk-ac-list.transition {
   display: block;
   transition: all 0.5s;
   -webkit-transition: all 0.5s; }
 
-.mk-autocomplete-list[aria-hidden="false"] {
+.mk-ac-list[aria-hidden="false"] {
   display: block;
   opacity: 1; }
 
-.mk-autocomplete-item {
+.mk-ac-item {
   list-style: none; }
 
-.mk-autocomplete-option {
+.mk-ac-option {
   background: tranparent;
   color: #999;
   display: block;
   font-size: 1.5rem;
   padding: 0.625rem; }
 
-.mk-autocomplete-option:hover,
-.mk-autocomplete-option:active,
-.mk-autocomplete-option:focus {
+.mk-ac-option:hover,
+.mk-ac-option:active,
+.mk-ac-option:focus {
   background: transparent;
   color: #999; }
 
-.mk-autocomplete-shadow.transitions .mk-autocomplete-option {
+.mk-ac-shadow.transitions .mk-ac-option {
   transition: background 0.5s;
   -webkit-transition: background 0.5s; }
 
-.mk-autocomplete-option.active {
+.mk-ac-option.active {
   color: #666;
   background: #ccc; }
 
-.mk-autocomplete-option[aria-selected="true"]:after {
+.mk-ac-option[aria-selected="true"]:after {
   color: crimson;
   content: "✔";
   font-size: 2rem;
@@ -153,28 +151,28 @@
   position: absolute;
   right: 1rem; }
 
-.mk-autocomplete-option[aria-disabled="true"] {
+.mk-ac-option[aria-disabled="true"] {
   background: transparent;
   color: #ccc;
   cursor: default; }
 
-.mk-autocomplete-tags {
+.mk-ac-tags {
   margin: 0.714rem 0;
   padding: 0; }
 
-.mk-autocomplete-tag {
+.mk-ac-tag {
   background: #666;
   list-style: none;
   display: inline-block;
   padding: 0.357rem; }
 
-.mk-autocomplete-tag + .mk-autocomplete-tag {
+.mk-ac-tag + .mk-ac-tag {
   margin-left: 0.357rem; }
 
-.mk-autocomplete-tag [data-action="remove"] {
+.mk-ac-tag [data-action="remove"] {
   background: #333;
   display: inline-block;
   padding: 0 0.357rem; }
 
-.mk-autocomplete-tag [data-action="remove"]:before {
+.mk-ac-tag [data-action="remove"]:before {
   content: '\d7'; }

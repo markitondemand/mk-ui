@@ -18,7 +18,7 @@ html
 						div.panel-body
 							input(
 								type="text",
-								class="mk-autocomplete",
+								class="mk-ac",
 								placeholder="Search for a symbol",
 								name="symbol-1")
 				div.col-sm-4
@@ -28,7 +28,7 @@ html
 						div.panel-body
 							input(
 								type="text",
-								class="mk-autocomplete",
+								class="mk-ac",
 								placeholder="Search for a symbol",
 								name="symbol-2",
 								data-limit="4")
@@ -39,7 +39,7 @@ html
 						div.panel-body
 							input(
 								type="text",
-								class="mk-autocomplete",
+								class="mk-ac",
 								placeholder="Search for a symbol",
 								name="symbol-3",
 								data-limit="4",
@@ -52,7 +52,7 @@ html
 
 			mkNasty.transitions(true);
 
-			var inputs = document.querySelectorAll('.mk-autocomplete');
+			var inputs = document.querySelectorAll('.mk-ac');
 			var Autocomplete = mkNasty.get('Autocomplete');
 
 			for (var i = 0; i < inputs.length; i++) {

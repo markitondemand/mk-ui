@@ -1,55 +1,55 @@
 
 @import "_variables";
 
-@keyframes mk-autocomplete-loading {
+@keyframes mk-ac-loading {
 	from { width: 0; }
 	to { width: 100%; }
 }
 
-@keyframes mk-autocomplete-loader {
+@keyframes mk-ac-loader {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
 /*
 //
-// mk-autocomplete
+// mk-ac
 // --------------------
 */
 
-.mk-autocomplete {
+.mk-ac {
 	display: none;
 }
 
-.mk-autocomplete-shadow {
+.mk-ac-shadow {
 	display: inline-block;
 	position: relative;
 }
 
-.mk-autocomplete-trigger {
-	background: $mk-autocomplete-trigger-bg;
-	color: $mk-autocomplete-trigger-color;
+.mk-ac-trigger {
+	background: $mk-ac-trigger-bg;
+	color: $mk-ac-trigger-color;
 	border: 1px solid $mk-primary;
 	position: relative;
 }
 
-.mk-autocomplete-trigger[aria-expanded="true"],
-.mk-autocomplete-trigger.focus {
+.mk-ac-trigger[aria-expanded="true"],
+.mk-ac-trigger.focus {
 	color: $mk-secondary;
 	border-color: $mk-secondary;
 }
 
-.mk-autocomplete-trigger.disabled {
-	color: $mk-autocomplete-trigger-disabled-color;
-	border-color: $mk-autocomplete-trigger-disabled-color;
+.mk-ac-trigger.disabled {
+	color: $mk-ac-trigger-disabled-color;
+	border-color: $mk-ac-trigger-disabled-color;
 }
 
-.mk-autocomplete-shadow.transitions .mk-autocomplete-trigger {
-	 transition: all $mk-autocomplete-transition-speed;
-	-webkit-transition: all $mk-autocomplete-transition-speed;
+.mk-ac-shadow.transitions .mk-ac-trigger {
+	 transition: all $mk-ac-transition-speed;
+	-webkit-transition: all $mk-ac-transition-speed;
 }
 
-.mk-autocomplete-input {
+.mk-ac-input {
 	background: transparent;
 	border: 0;
 	outline: none;
@@ -58,8 +58,8 @@
 	z-index: 1;
 }
 
-.mk-autocomplete-trigger:before,
-.mk-autocomplete-trigger:after {
+.mk-ac-trigger:before,
+.mk-ac-trigger:after {
 		content: "";
     position: absolute;
     width: calc(100% + 2px);
@@ -69,23 +69,23 @@
     text-align: center;
     left: -1px;
     top: 100%;
-    transition: all $mk-autocomplete-transition-speed;
-    -webkit-transition: all $mk-autocomplete-transition-speed;
+    transition: all $mk-ac-transition-speed;
+    -webkit-transition: all $mk-ac-transition-speed;
 }
 
-.mk-autocomplete-shadow.loading .mk-autocomplete-trigger:before {
+.mk-ac-shadow.loading .mk-ac-trigger:before {
 	background: $mk-primary;
 }
 
-.mk-autocomplete-shadow.loading .mk-autocomplete-trigger:after {
+.mk-ac-shadow.loading .mk-ac-trigger:after {
 	background: $mk-secondary;
-    animation-name: mk-autocomplete-loading;
-    animation-duration: $mk-autocomplete-transition-speed;
+    animation-name: mk-ac-loading;
+    animation-duration: $mk-ac-transition-speed;
     animation-iteration-count: infinite;
 }
 
-.mk-autocomplete-list {
-	background: $mk-autocomplete-list-bg;
+.mk-ac-list {
+	background: $mk-ac-list-bg;
 	border-top: 1px solid $mk-secondary;
 	box-shadow: 0 0 1.5rem black;
 	display: none;
@@ -93,116 +93,114 @@
 	margin: 0;
 	padding: 0;
 	min-width: 100%;
-	min-height: $mk-autocomplete-list-loader-size * 2;
+	min-height: $mk-ac-list-loader-size * 2;
 	position: absolute;
 	top: 100%;
-	height: 200px;
-	overflow: auto;
 }
 
-.mk-autocomplete-shadow.loading .mk-autocomplete-list:before {
+.mk-ac-shadow.loading .mk-ac-list:before {
 	top: 0;
 	right: 0;
 	left: 0;
 	bottom: 0;
-	background: $mk-autocomplete-list-loader-bg;
+	background: $mk-ac-list-loader-bg;
 	position: absolute;
 	content: "";
 }
 
-.mk-autocomplete-shadow.loading .mk-autocomplete-list:after {
-		animation: mk-autocomplete-loader 1s infinite linear;
+.mk-ac-shadow.loading .mk-ac-list:after {
+		animation: mk-ac-loader 1s infinite linear;
 		border: .25rem double $mk-gray-3;
 		border-top-color: $mk-gray-1;
 		border-radius: 50%;
 		content: "";
-    height: $mk-autocomplete-list-loader-size;
+    height: $mk-ac-list-loader-size;
 		left: 50%;
-    margin-top: ($mk-autocomplete-list-loader-size / 2) * -1;
-    margin-left: ($mk-autocomplete-list-loader-size / 2) * -1;
+    margin-top: ($mk-ac-list-loader-size / 2) * -1;
+    margin-left: ($mk-ac-list-loader-size / 2) * -1;
     position: absolute;
     top: 50%;
     text-align: center;
-		width: $mk-autocomplete-list-loader-size;
+		width: $mk-ac-list-loader-size;
 }
 
-.mk-autocomplete-list.transition {
+.mk-ac-list.transition {
 	 display: block;
-	 transition: all $mk-autocomplete-transition-speed;
-	-webkit-transition: all $mk-autocomplete-transition-speed;
+	 transition: all $mk-ac-transition-speed;
+	-webkit-transition: all $mk-ac-transition-speed;
 }
 
-.mk-autocomplete-list[aria-hidden="false"] {
+.mk-ac-list[aria-hidden="false"] {
 	display: block;
 	opacity: 1;
 }
 
-.mk-autocomplete-item {
+.mk-ac-item {
 	list-style: none;
 }
 
-.mk-autocomplete-option {
-	background: $mk-autocomplete-option-bg;
-	color: $mk-autocomplete-option-color;
+.mk-ac-option {
+	background: $mk-ac-option-bg;
+	color: $mk-ac-option-color;
 	display: block;
 	font-size: 1.5rem;
 	padding: 0.625rem;
 }
 
-.mk-autocomplete-option:hover,
-.mk-autocomplete-option:active,
-.mk-autocomplete-option:focus {
-	background: $mk-autocomplete-option-bg-hover;
-	color: $mk-autocomplete-option-color-hover;
+.mk-ac-option:hover,
+.mk-ac-option:active,
+.mk-ac-option:focus {
+	background: $mk-ac-option-bg-hover;
+	color: $mk-ac-option-color-hover;
 }
 
-.mk-autocomplete-shadow.transitions .mk-autocomplete-option {
-	 transition: background $mk-autocomplete-transition-speed;
-	-webkit-transition: background $mk-autocomplete-transition-speed;
+.mk-ac-shadow.transitions .mk-ac-option {
+	 transition: background $mk-ac-transition-speed;
+	-webkit-transition: background $mk-ac-transition-speed;
 }
 
-.mk-autocomplete-option.active {
-	color: $mk-autocomplete-option-color-active;
-	background: $mk-autocomplete-option-bg-active;
+.mk-ac-option.active {
+	color: $mk-ac-option-color-active;
+	background: $mk-ac-option-bg-active;
 }
 
-.mk-autocomplete-option[aria-selected="true"]:after {
+.mk-ac-option[aria-selected="true"]:after {
 	color: $mk-primary;
-	content: $mk-autocomplete-option-selected-char;
+	content: $mk-ac-option-selected-char;
 	font-size: 2rem;
 	line-height: 2rem;
 	position: absolute;
 	right: 1rem;
 }
 
-.mk-autocomplete-option[aria-disabled="true"] {
-	background: $mk-autocomplete-option-bg-disabled;
-	color: $mk-autocomplete-option-color-disabled;
+.mk-ac-option[aria-disabled="true"] {
+	background: $mk-ac-option-bg-disabled;
+	color: $mk-ac-option-color-disabled;
 	cursor: default;
 }
 
-.mk-autocomplete-tags {
+.mk-ac-tags {
 	margin: 0.714rem 0;
 	padding: 0;
 }
 
-.mk-autocomplete-tag {
+.mk-ac-tag {
 	background: $mk-gray-2;
 	list-style: none;
 	display: inline-block;
 	padding: 0.357rem;
 }
 
-.mk-autocomplete-tag + .mk-autocomplete-tag {
+.mk-ac-tag + .mk-ac-tag {
 	margin-left: 0.357rem;
 }
 
-.mk-autocomplete-tag [data-action="remove"] {
+.mk-ac-tag [data-action="remove"] {
 	background: $mk-gray-1;
 	display: inline-block;
 	padding: 0 0.357rem;
 }
 
-.mk-autocomplete-tag [data-action="remove"]:before {
+.mk-ac-tag [data-action="remove"]:before {
 	content: '\d7';
 }

@@ -3,12 +3,12 @@
 
 /*
 //
-// mk-loader
+// mk-ld
 // --------------------
 */
 
-.mk-loader-overlay {
-	background: $mk-loader-overlay-bg;
+.mk-ld-overlay {
+	background: $mk-ld-overlay-bg;
 	bottom: 0;
 	left: 0;
 	position: absolute;
@@ -17,17 +17,17 @@
 	opacity: 0;
 }
 
-.mk-loader-overlay.transition {
-	-webkit-transition: opacity $mk-loader-transition-speed;
-	 transition: opacity $mk-loader-transition-speed;
+.mk-ld-overlay.transition {
+	-webkit-transition: opacity $mk-ld-transition-speed;
+	 transition: opacity $mk-ld-transition-speed;
 }
 
-.mk-loader-overlay.in {
+.mk-ld-overlay.in {
 	opacity: 1;
 }
 
-.mk-loader-alert,
-.mk-loader-focus {
+.mk-ld-alert,
+.mk-ld-focus {
 	border: 0;
 	clip: rect(0,0,0,0);
 	height: 1px;
@@ -38,10 +38,10 @@
 	width: 1px;
 }
 
-.mk-loader-overlay .disk {
+.mk-ld-overlay .disk {
 	background: $mk-primary;
 	border-radius: 50%;
-	box-shadow: 0 0 1rem $mk-loader-boxshadow-color;
+	box-shadow: 0 0 1rem $mk-ld-boxshadow-color;
 	height: 3rem;
 	left: calc(50% - 1rem);
 	position: absolute;
@@ -49,27 +49,27 @@
 	width: 3rem;
 }
 
-.mk-loader-overlay .disk-0 {
+.mk-ld-overlay .disk-0 {
     animation: mk-disk-0 1.5s infinite;
 }
 
-.mk-loader-overlay .disk-1 {
+.mk-ld-overlay .disk-1 {
     animation: mk-disk-1 1.5s infinite;
 }
 
-.mk-loader-overlay .disk-2 {
+.mk-ld-overlay .disk-2 {
     animation: mk-disk-2 1.5s infinite;
 }
 
-.mk-loader-overlay .disk-3 {
+.mk-ld-overlay .disk-3 {
     animation: mk-disk-3 1.5s infinite;
 }
 
-.mk-loader-overlay .disk-4 {
+.mk-ld-overlay .disk-4 {
     animation: mk-disk-4 1.5s infinite;
 }
 
-.mk-loader-overlay .disk-5 {
+.mk-ld-overlay .disk-5 {
     animation: mk-disk-5 1.5s infinite;
 }
 

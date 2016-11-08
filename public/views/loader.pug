@@ -11,7 +11,7 @@ html
 
 		main.container
 			div.row
-				div.col-xs-12 
+				div.col-xs-12
 					form
 						button.btn-primary.load
 							| Load
@@ -19,16 +19,16 @@ html
 							| Unload
 			div.row
 				div.col-xs-12
-					div.mk-loader(style="height: 300px")
+					div.mk-ld(style="height: 300px")
 						| Stuff...
 
 		include ./shared/scripts
 		script(type="text/javascript", src="/src/js/standard/loader.js")
 		script.
-			
+
 			mkNasty.transitions(true);
 
-			var loader = new mkNasty.Loader('.mk-loader');
+			var loader = new mkNasty.Loader('.mk-ld');
 
 			$('button').on('click', function (e) {
 
