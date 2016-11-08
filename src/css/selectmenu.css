@@ -4,33 +4,33 @@
 // mk-selectmenu
 // --------------------
 */
-.mk-selectmenu {
+.mk-sm {
   display: none; }
 
-.mk-selectmenu-shadow {
+.mk-sm-shadow {
   display: inline-block;
   position: relative; }
 
-.mk-selectmenu-trigger {
+.mk-sm-trigger {
   background: transparent;
   color: white;
   border-bottom: 1px solid crimson;
   position: relative; }
 
-.mk-selectmenu-trigger[aria-expanded="true"],
-.mk-selectmenu-trigger.focus {
+.mk-sm-trigger[aria-expanded="true"],
+.mk-sm-trigger.focus {
   color: cadetblue;
   border-color: cadetblue; }
 
-.mk-selectmenu-trigger.disabled {
+.mk-sm-trigger.disabled {
   color: #666;
   border-color: #666; }
 
-.mk-selectmenu-shadow.transitions .mk-selectmenu-trigger {
+.mk-sm-shadow.transitions .mk-sm-trigger {
   transition: all 0.5s;
   -webkit-transition: all 0.5s; }
 
-.mk-selectmenu-trigger:before {
+.mk-sm-trigger:before {
   content: "›";
   font-size: 2em;
   height: 3em;
@@ -40,7 +40,7 @@
   top: calc(50% - 1.5em);
   transform: rotate(90deg); }
 
-.mk-selectmenu-input {
+.mk-sm-input {
   background: transparent;
   border: 0;
   cursor: pointer;
@@ -49,7 +49,7 @@
   position: relative;
   z-index: 1; }
 
-.mk-selectmenu-list {
+.mk-sm-list {
   background: #eee;
   border-top: 1px solid cadetblue;
   box-shadow: 0 0 24px black;
@@ -62,68 +62,80 @@
   top: 100%;
   z-index: 2; }
 
-.mk-selectmenu-list.transition {
+.mk-sm-list.transition {
   display: block;
   transition: all 0.5s;
   -webkit-transition: all 0.5s; }
 
-.mk-selectmenu-list[aria-hidden="false"] {
+.mk-sm-list[aria-hidden="false"] {
   display: block;
   opacity: 1; }
 
-.mk-selectmenu-item {
+.mk-sm-item {
   list-style: none; }
 
-.mk-selectmenu-option,
-.mk-selectmenu-optgroup {
+.mk-sm-option,
+.mk-sm-optgroup {
   background: tranparent;
   color: #999;
   display: block;
   font-size: 1.5rem;
-  padding: 0.625rem; }
+  padding: 0.625rem;
+  position: relative; }
 
-.mk-selectmenu-option:hover,
-.mk-selectmenu-optgroup:hover,
-.mk-selectmenu-option:active,
-.mk-selectmenu-optgroup:active,
-.mk-selectmenu-option:focus,
-.mk-selectmenu-optgroup:focus {
+.mk-sm-option:hover,
+.mk-sm-optgroup:hover,
+.mk-sm-option:active,
+.mk-sm-optgroup:active,
+.mk-sm-option:focus,
+.mk-sm-optgroup:focus {
   background: transparent;
   color: #999; }
 
-.mk-selectmenu-shadow.transitions .mk-selectmenu-option,
-.mk-selectmenu-shadow.transitions .mk-selectmenu-optgroup {
+.mk-sm-shadow.transitions .mk-sm-option,
+.mk-sm-shadow.transitions .mk-sm-optgroup {
   transition: background 0.5s;
   -webkit-transition: background 0.5s; }
 
-.mk-selectmenu-option.active,
-.mk-selectmenu-optgroup.active {
+.mk-sm-option.active,
+.mk-sm-optgroup.active {
   color: #666;
   background: #ccc; }
 
-.mk-selectmenu-optgroup {
+.mk-sm-optgroup {
   font-weight: bold; }
 
-.mk-selectmenu-optgroup[role="presentation"] {
+.mk-sm-optgroup[role="presentation"] {
   cursor: default; }
 
-.mk-selectmenu-optgroup[role="presentation"]:hover {
+.mk-sm-optgroup[role="presentation"]:hover {
   cursor: default;
   background: inherit; }
 
-.mk-selectmenu-option[aria-selected="true"]:after {
+.mk-sm-option[aria-selected="true"]:after {
   color: crimson;
   content: "✔";
   font-size: 2rem;
-  line-height: 2rem;
   position: absolute;
+  top: 0;
   right: 1rem; }
 
-.mk-selectmenu-option[aria-disabled="true"] {
+.mk-sm-option[aria-disabled="true"] {
   background: transparent;
   color: #ccc;
   cursor: default; }
 
-.mk-selectmenu-alt {
+.mk-sm-removable {
+  background: #eee;
+  border-top: 1px solid #999;
+  position: absolute;
+  top: 100%;
+  width: 100%; }
+
+.mk-sm-alt {
   display: block;
   font-size: 80%; }
+
+.mk-sm-removable .mk-sm-alt {
+  display: inline-block;
+  margin-left: 1rem; }

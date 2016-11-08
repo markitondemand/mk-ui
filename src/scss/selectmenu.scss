@@ -7,50 +7,50 @@
 // --------------------
 */
 
-.mk-selectmenu {
+.mk-sm {
 	display: none;
 }
 
-.mk-selectmenu-shadow {
+.mk-sm-shadow {
 	display: inline-block;
 	position: relative;
 }
 
-.mk-selectmenu-trigger {
-	background: $mk-selectmenu-trigger-bg;
-	color: $mk-selectmenu-trigger-color;
+.mk-sm-trigger {
+	background: $mk-sm-trigger-bg;
+	color: $mk-sm-trigger-color;
 	border-bottom: 1px solid $mk-primary;
 	position: relative;
 }
 
-.mk-selectmenu-trigger[aria-expanded="true"],
-.mk-selectmenu-trigger.focus {
+.mk-sm-trigger[aria-expanded="true"],
+.mk-sm-trigger.focus {
 	color: $mk-secondary;
 	border-color: $mk-secondary;
 }
 
-.mk-selectmenu-trigger.disabled {
-	color: $mk-selectmenu-trigger-disabled-color;
-	border-color: $mk-selectmenu-trigger-disabled-color;
+.mk-sm-trigger.disabled {
+	color: $mk-sm-trigger-disabled-color;
+	border-color: $mk-sm-trigger-disabled-color;
 }
 
-.mk-selectmenu-shadow.transitions .mk-selectmenu-trigger {
-	 transition: all $mk-selectmenu-transition-speed;
-	-webkit-transition: all $mk-selectmenu-transition-speed;
+.mk-sm-shadow.transitions .mk-sm-trigger {
+	 transition: all $mk-sm-transition-speed;
+	-webkit-transition: all $mk-sm-transition-speed;
 }
 
-.mk-selectmenu-trigger:before {
-	content: $mk-selectmenu-trigger-char;
+.mk-sm-trigger:before {
+	content: $mk-sm-trigger-char;
 	font-size: 2em;
 	height: 3em;
     line-height: 3em;
     position: absolute;
     right: 0.2em;
     top: calc(50% - 1.5em);
-    transform: $mk-selectmenu-trigger-char-transform;
+    transform: $mk-sm-trigger-char-transform;
 }
 
-.mk-selectmenu-input {
+.mk-sm-input {
 	background: transparent;
 	border: 0;
 	cursor: pointer;
@@ -60,8 +60,8 @@
 	z-index: 1;
 }
 
-.mk-selectmenu-list {
-	background: $mk-selectmenu-list-bg;
+.mk-sm-list {
+	background: $mk-sm-list-bg;
 	border-top: 1px solid $mk-secondary;
 	box-shadow: 0 0 24px black;
 	display: none;
@@ -74,81 +74,95 @@
 	z-index: 2;
 }
 
-.mk-selectmenu-list.transition {
+.mk-sm-list.transition {
 	 display: block;
-	 transition: all $mk-selectmenu-transition-speed;
-	-webkit-transition: all $mk-selectmenu-transition-speed;
+	 transition: all $mk-sm-transition-speed;
+	-webkit-transition: all $mk-sm-transition-speed;
 }
 
-.mk-selectmenu-list[aria-hidden="false"] {
+.mk-sm-list[aria-hidden="false"] {
 	display: block;
 	opacity: 1;
 }
 
-.mk-selectmenu-item {
+.mk-sm-item {
 	list-style: none;
 }
 
-.mk-selectmenu-option,
-.mk-selectmenu-optgroup {
-	background: $mk-selectmenu-option-bg;
-	color: $mk-selectmenu-option-color;
+.mk-sm-option,
+.mk-sm-optgroup {
+	background: $mk-sm-option-bg;
+	color: $mk-sm-option-color;
 	display: block;
 	font-size: 1.5rem;
 	padding: 0.625rem;
+	position: relative;
 }
 
-.mk-selectmenu-option:hover,
-.mk-selectmenu-optgroup:hover,
-.mk-selectmenu-option:active,
-.mk-selectmenu-optgroup:active,
-.mk-selectmenu-option:focus,
-.mk-selectmenu-optgroup:focus {
-	background: $mk-selectmenu-option-bg-hover;
-	color: $mk-selectmenu-option-color-hover;
+.mk-sm-option:hover,
+.mk-sm-optgroup:hover,
+.mk-sm-option:active,
+.mk-sm-optgroup:active,
+.mk-sm-option:focus,
+.mk-sm-optgroup:focus {
+	background: $mk-sm-option-bg-hover;
+	color: $mk-sm-option-color-hover;
 }
 
-.mk-selectmenu-shadow.transitions .mk-selectmenu-option,
-.mk-selectmenu-shadow.transitions .mk-selectmenu-optgroup {
-	 transition: background $mk-selectmenu-transition-speed;
-	-webkit-transition: background $mk-selectmenu-transition-speed;
+.mk-sm-shadow.transitions .mk-sm-option,
+.mk-sm-shadow.transitions .mk-sm-optgroup {
+	 transition: background $mk-sm-transition-speed;
+	-webkit-transition: background $mk-sm-transition-speed;
 }
 
-.mk-selectmenu-option.active,
-.mk-selectmenu-optgroup.active {
-	color: $mk-selectmenu-option-color-active;
-	background: $mk-selectmenu-option-bg-active;
+.mk-sm-option.active,
+.mk-sm-optgroup.active {
+	color: $mk-sm-option-color-active;
+	background: $mk-sm-option-bg-active;
 }
 
-.mk-selectmenu-optgroup {
+.mk-sm-optgroup {
 	font-weight: bold;
 }
 
-.mk-selectmenu-optgroup[role="presentation"] {
+.mk-sm-optgroup[role="presentation"] {
 	cursor: default;
 }
 
-.mk-selectmenu-optgroup[role="presentation"]:hover {
+.mk-sm-optgroup[role="presentation"]:hover {
 	cursor: default;
 	background: inherit;
 }
 
-.mk-selectmenu-option[aria-selected="true"]:after {
+.mk-sm-option[aria-selected="true"]:after {
 	color: $mk-primary;
-	content: $mk-selectmenu-option-selected-char;
+	content: $mk-sm-option-selected-char;
 	font-size: 2rem;
-	line-height: 2rem;
 	position: absolute;
+	top: 0;
 	right: 1rem;
 }
 
-.mk-selectmenu-option[aria-disabled="true"] {
-	background: $mk-selectmenu-option-bg-disabled;
-	color: $mk-selectmenu-option-color-disabled;
+.mk-sm-option[aria-disabled="true"] {
+	background: $mk-sm-option-bg-disabled;
+	color: $mk-sm-option-color-disabled;
 	cursor: default;
 }
 
-.mk-selectmenu-alt {
+.mk-sm-removable {
+	background: $mk-gray-5;
+	border-top: 1px solid $mk-gray-3;
+	position: absolute;
+	top: 100%;
+	width: 100%;
+}
+
+.mk-sm-alt {
 	display: block;
 	font-size: 80%;
+}
+
+.mk-sm-removable .mk-sm-alt {
+	display: inline-block;
+	margin-left: 1rem;
 }

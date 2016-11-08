@@ -22,7 +22,7 @@ html
 						header.panel-heading
 							h2.panel-title Single Select
 						div.panel-body
-							select.mk-selectmenu(aria-label="Animal Choices")
+							select.mk-sm(aria-label="Animal Choices")
 									option(value="1") Lions
 									option(value="2") Tigers
 									option(value="3") Bears
@@ -32,7 +32,7 @@ html
 						header.panel-heading
 							h2.panel-title Multi Select
 						div.panel-body
-							select.mk-selectmenu(aria-label="Animal Choices", multiple="true")
+							select.mk-sm(aria-label="Animal Choices", multiple="true")
 									option(value="1") Lions
 									option(value="2", selected="true") Tigers
 									option(value="3") Bears
@@ -42,7 +42,7 @@ html
 						header.panel-heading
 							h2.panel-title Single Select W/ Optgroups
 						div.panel-body
-							select.mk-selectmenu(aria-label="Animals and Insects")
+							select.mk-sm(aria-label="Animals and Insects")
 								optgroup(label="Animals")
 									option(value="1") Lions
 									option(value="2") Tigers
@@ -58,7 +58,7 @@ html
 						header.panel-heading
 							h2.panel-title Multi Select W/ Optgroups
 						div.panel-body
-							select.mk-selectmenu(aria-label="Animals and Insects", multiple="true")
+							select.mk-sm(aria-label="Animals and Insects", multiple="true")
 								optgroup(label="Animals")
 									option(value="1") Lions
 									option(value="2", selected="true") Tigers
@@ -74,7 +74,7 @@ html
 						header.panel-heading
 							h2.panel-title Selectmenu W/ Classnames
 						div.panel-body
-							select.mk-selectmenu(aria-label="Odd Mixes", multiple="true")
+							select.mk-sm(aria-label="Animals")
 								optgroup(label="Animals")
 									option(value="1", class="icon") Lions
 									option(value="2", class="icon") Tigers
@@ -83,9 +83,20 @@ html
 				div.col-sm-4
 					section.panel
 						header.panel-heading
+							h2.panel-title Selectmenu W/ Clear All
+						div.panel-body
+							select.mk-sm(aria-label="Animals", multiple="true", data-removable="true")
+								optgroup(label="Animals")
+									option(value="1", class="icon") Lions
+									option(value="2", class="icon", selected="true") Tigers
+									option(value="3", class="icon") Bears
+									option(value="4", class="icon") Wolves
+				div.col-sm-4
+					section.panel
+						header.panel-heading
 							h2.panel-title Selectmenu W/ Alt Text
 						div.panel-body
-							select.mk-selectmenu(aria-label="Odd Mixes", multiple="true")
+							select.mk-sm(aria-label="Odd Mixes", multiple="true")
 								optgroup(label="Animals")
 									option(value="1", data-alt="King of the Jungle") Lions
 									option(value="2", data-alt="The real King") Tigers
@@ -96,7 +107,7 @@ html
 						header.panel-heading
 							h2.panel-title Selectmenu W/ Restricted Height
 						div.panel-body
-							select.restrict-height.mk-selectmenu(aria-label="Odd Mixes", multiple="true")
+							select.restrict-height.mk-sm(aria-label="Odd Mixes", multiple="true")
 								optgroup(label="Animals")
 									option(value="1") Lions
 									option(value="2") Tigers
@@ -119,7 +130,7 @@ html
 
 			mkNasty.transitions(true);
 
-			var selects = document.querySelectorAll('.mk-selectmenu');
+			var selects = document.querySelectorAll('.mk-sm');
 			var mkSelect = mkNasty.get('Selectmenu');
 
 			for (var i = 0; i < selects.length; i++) {

@@ -22,29 +22,29 @@ $mk-loader-boxshadow-color: rgba(255, 255, 255, 0.15);
 // selectmenu
 // -------------------------------------------
 
-$mk-selectmenu-transition-speed: 0.5s;
+$mk-sm-transition-speed: 0.5s;
 
-$mk-selectmenu-trigger-bg: transparent;
-$mk-selectmenu-trigger-color: $mk-color;
-$mk-selectmenu-trigger-char: '\203A';
-$mk-selectmenu-trigger-char-transform: rotate(90deg);
-$mk-selectmenu-trigger-disabled-color: $mk-gray-2;
+$mk-sm-trigger-bg: transparent;
+$mk-sm-trigger-color: $mk-color;
+$mk-sm-trigger-char: '\203A';
+$mk-sm-trigger-char-transform: rotate(90deg);
+$mk-sm-trigger-disabled-color: $mk-gray-2;
 
-$mk-selectmenu-list-bg: $mk-gray-5;
+$mk-sm-list-bg: $mk-gray-5;
 
-$mk-selectmenu-option-color: $mk-gray-3;
-$mk-selectmenu-option-bg: tranparent;
+$mk-sm-option-color: $mk-gray-3;
+$mk-sm-option-bg: tranparent;
 
-$mk-selectmenu-option-color-hover: $mk-gray-3;
-$mk-selectmenu-option-bg-hover: transparent;
+$mk-sm-option-color-hover: $mk-gray-3;
+$mk-sm-option-bg-hover: transparent;
 
-$mk-selectmenu-option-color-disabled: $mk-gray-4;
-$mk-selectmenu-option-bg-disabled: transparent;
+$mk-sm-option-color-disabled: $mk-gray-4;
+$mk-sm-option-bg-disabled: transparent;
 
-$mk-selectmenu-option-color-active: $mk-gray-2;
-$mk-selectmenu-option-bg-active: $mk-gray-4;
+$mk-sm-option-color-active: $mk-gray-2;
+$mk-sm-option-bg-active: $mk-gray-4;
 
-$mk-selectmenu-option-selected-char: '\2714';
+$mk-sm-option-selected-char: '\2714';
 
 //
 // Autocomplete

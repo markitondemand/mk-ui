@@ -27,66 +27,64 @@
 
 	mk.create( 'Selectmenu', {
 
-		name: 'mk-selectmenu',
+		name: 'mk-sm',
 
 		templates: {
 
-			shadow: [
-				'<div class="{{$key}}-shadow{{if:classname}} {{classname}}{{/if:classname}}">',
-					'{{template:trigger}}',
-					'{{scope:list}}',
-						'{{template:list}}',
-					'{{/scope:list}}',
-				'<div />'
-			],
+			shadow:
+				`<div class="{{$key}}-shadow{{if:classname}} {{classname}}{{/if:classname}}">
+					{{template:trigger}}
+					{{scope:list}}
+						{{template:list}}
+					{{/scope:list}}
+				<div />`,
 
-			trigger: [
-				'<div class="{{$key}}-trigger {{if:disabled}} disabled{{/if:disabled}}" role="combobox" aria-haspopup="listbox">',
-					'<input type="text" ',
-						'class="{{$key}}-input" ',
-						'readonly ',
-						'aria-autocomplete="list" ',
-						'aria-readonly="true" ',
-						'aria-disabled="{{disabled}}" ',
-						'{{if:multiple}}aria-multiselectable="true" {{/if:multiple}}',
-						'value="{{label}}" />',
-				'</div>'
-			],
+			trigger:
+				`<div class="{{$key}}-trigger {{if:disabled}} disabled{{/if:disabled}}" role="combobox" aria-haspopup="listbox">
+					<input type="text" 
+						class="{{$key}}-input" 
+						readonly 
+						aria-autocomplete="list" 
+						aria-readonly="true" 
+						aria-disabled="{{disabled}}" 
+						{{if:multiple}}aria-multiselectable="true" {{/if:multiple}} 
+						value="{{label}}" />
+				</div>`,
 
-			list: [
-				'<ul id="{{id}}" class="{{$key}}-list" role="listbox">',
-					'{{loop:items}}',
-						'{{template:item}}',
-					'{{/loop:items}}',
-				'</ul>'
-			],
+			list:
+				`<ul id="{{id}}" class="{{$key}}-list" role="listbox">
+					{{loop:items}} 
+						{{template:item}} 
+					{{/loop:items}} 
+				</ul>`,
 
-			item: [
-				'<li class="{{$key}}-item" data-level="{{level}}" role="presentation">',
-					'{{template:option}}',
-				'</li>'
-			],
+			item:
+				`<li class="{{$key}}-item" data-level="{{level}}" role="presentation">
+					{{template:option}}
+				</li>`,
 
-			option: [
-				'<a id="{{id}}" ',
-					'class="{{$key}}-{{tagname}}{{if:classname}} {{classname}}{{/if:classname}}" ',
-					'role="{{role}}" ',
-					'href="javascript: void(0);" ',
-					'aria-selected="{{selected}}" ',
-					'aria-disabled="{{disabled}}" ',
-					'data-value="{{value}}">',
-					'<span class="{{$key}}-label">',
-						'{{label}}',
-					'</span>',
-					'{{if:alt}}',
-						'<span class="{{$key}}-alt">{{alt}}</span>',
-					'{{/if:alt}}',
-				'</a>'
-			]
+			option:
+				`<a id="{{id}}" 
+					class="{{$key}}-{{tagname}}{{if:classname}} {{classname}}{{/if:classname}}" 
+					role="{{role}}" 
+					href="javascript: void(0);" 
+					aria-selected="{{selected}}" 
+					aria-disabled="{{disabled}}" 
+					data-value="{{value}}">
+					<span class="{{$key}}-label">
+						{{label}}
+					</span>
+					<span class="{{$key}}-alt">{{alt}}</span>
+				</a>`,
+
+			removable: 
+				`<option class="{{$key}}-removable" value="{{value}}" data-alt="{{alt}}">{{label}}</option>`
 		},
 
 		formats: {
-			label: 'Combobox'
+			label: 'Combobox',
+			removable: 'Clear',
+			removableAlt: '{{if:selected}}<span>({{selected}} of {{total}})</span>{{/if:selected}}'
 		},
 
 		get version () {
@@ -172,9 +170,15 @@
 
 			o = o || {};
 
-			var label = this.root.attr('aria-label') || this.formats.label;
+			var label = this.root.attr('aria-label') 
+				|| this.formats.label;
 
 			this._param('label', 'string', o, label);
+
+			if (this.multiple) {
+				this._param('removable', 'boolean', o, false);
+				this._param('removableId', 'string', o, this.uid());
+			}
 			
 			this.super(o);
 		},
@@ -196,6 +200,10 @@
 
 		_build: function () {
 
+			if (this.config.removable) {
+				this._buildRemovable();
+			}
+
 			this.shadow = 
 				this.html('shadow', this.data())
 					.insertAfter( this.element );
@@ -216,6 +224,47 @@
 			this.root.attr('aria-hidden', 'true');
 
 			this._label();
+		},
+
+		_buildRemovable: function () {
+
+			this.html('removable', {
+				label: this.format('removable'),
+				value: this.config.removableId,
+				alt: this._getRemovableAlt()
+			}).appendTo(this.element);
+		},
+
+		_getRemovableAlt: function () {
+
+			if (this.multiple && this.value.length > 0) {
+
+				return this.format('removableAlt', {
+					selected: this.value.length,
+					total: this.options.length
+				})
+			}
+
+			return '';
+		},
+
+		_updateRemovableAlt: function () {
+
+			if (this.config.removable) {
+
+				var alt = this._getRemovableAlt();
+
+				this.$(this.options)
+					.filter(this.selector('removable'))
+					.attr('data-alt', alt);
+
+				this.items
+					.find(this.selector('removable'))
+					.find(this.selector('alt'))
+					.html(alt);
+			}
+
+			return this;
 		},
 
 		_bind: function () {
@@ -788,6 +837,7 @@
 					el.item.attr('aria-selected', 'false');
 
 					this.input.val(this.label());
+					this._updateRemovableAlt();
 
 					if (silent !== true) {
 						this.emit('change', this.value);
@@ -801,7 +851,30 @@
 			return false;
 		},
 
+		deselectAll: function (silent) {
+
+			this.each(this.options, function (i, o) {
+				o.selected = false;
+			});
+
+			if (this.config.removable) {
+				this._updateRemovableAlt();
+				this.update();
+			}
+
+			if (silent !== true) {
+				this.emit('change', this.value);
+			}
+			
+			return this;
+		},
+
 		select: function (value, silent) {
+
+			if (value === this.config.removableId) {
+				this.deselectAll();
+				return false;
+			}
 
 			var el = this.getElementsByValue(value),
 				multiple = this.multiple;
@@ -830,6 +903,8 @@
 			this.input
 				.attr('aria-activedescendant', el.item.attr('id'))
 				.val(this.label());
+
+			this._updateRemovableAlt();
 
 			if (silent !== true) {
 				this.emit('change', this.value);
@@ -898,15 +973,23 @@
 			var d = this.data(),
 				m = d.disabled && 'disable' || 'enable',
 				i = this.input,
-				l = this.html('list', data.list);
+				l = this.html('list', d.list);
 
 			this.items.remove();
 			this.list.append(l.find(this.selector('item')));
 
 			this[m]();
 
+			if (this.config.removable 
+				&& this.items.find(this.selector('removable')).length > 0) {
+
+				this._buildRemovable();
+			}
+
+			this._param('removable', 'boolean', this.config, false);
+
 			i.attr('aria-multiselectable', 
-					data.multiple && 'true' || 'false');
+					d.multiple && 'true' || 'false');
 
 			i.val(this.label());
 

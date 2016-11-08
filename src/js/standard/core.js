@@ -107,10 +107,10 @@
 	// generates unique ids
 	//
 
-	function uid() {
-		return 'xxxx-4xxx-yxxx'.replace( /[xy]/g, function( c ) {
-			var r = Math.random()*16|0, v = c == 'x' ? r : ( r&0x3 | 0x8 );
-			return v.toString( 16 );
+	function uid () {
+		return 'xxxx-4xxx-yxxx'.replace( /[xy]/g, function(c) {
+			var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3 | 0x8);
+			return v.toString(16);
 		});
 	}
 
@@ -362,7 +362,7 @@
 
 	var _d = /{{([^{]+)}}/g;
 	var _n = /{{([^}]+)}}(.*)({{\/\1}})/g;
-	var _s = /\r|\t/g;
+	var _s = /[\r|\t|\n]+/g;
 
 	function template (n, k, t, d) {
 
@@ -412,7 +412,7 @@
 			x = p[ 0 ],
 			a = p[ 1 ];
 
-		if ( template.map.hasOwnProperty( x ) ) {
+		if (template.map.hasOwnProperty(x)) {
 			//if statements get special handling and passed the entire object
 			return template.map[ x ]( h, k, t, x == 'if' ? d : (d[ a ] || d), a );
 		}
@@ -427,14 +427,13 @@
 			x = p[ 0 ],
 			a = p[ 1 ];
 
-		if ( a && template.map.hasOwnProperty( x ) ) {
-			return template.map[ x ]( a, k, t, d, a );
+		if (a && template.map.hasOwnProperty(x)) {
+			return template.map[x](a, k, t, d, a);
 		}
 
-		if ( d.hasOwnProperty( x ) ) {
-			return d[ x ];
+		if (d.hasOwnProperty(x) && (typeof d[x] !== 'undefined') && d[x] !== null) {
+			return d[x];
 		}
-
 		return '';
 	};
 
