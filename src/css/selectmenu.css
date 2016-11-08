@@ -32,12 +32,12 @@
 
 .mk-sm-trigger:before {
   content: "›";
-  font-size: 2em;
-  height: 3em;
-  line-height: 3em;
+  font-size: 2rem;
+  height: 3rem;
+  line-height: 3rem;
   position: absolute;
-  right: 0.2em;
-  top: calc(50% - 1.5em);
+  right: 0.2rem;
+  top: calc(50% - 1.5rem);
   transform: rotate(90deg); }
 
 .mk-sm-input {

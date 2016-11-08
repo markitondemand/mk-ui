@@ -1,3 +1,4 @@
+@charset "UTF-8";
 
 @import "_variables";
 
@@ -17,37 +18,37 @@
 }
 
 .mk-sm-trigger {
-	background: $mk-sm-trigger-bg;
-	color: $mk-sm-trigger-color;
-	border-bottom: 1px solid $mk-primary;
+	background: @mk-sm-trigger-bg;
+	color: @mk-sm-trigger-color;
+	border-bottom: 1px solid @mk-primary;
 	position: relative;
 }
 
 .mk-sm-trigger[aria-expanded="true"],
 .mk-sm-trigger.focus {
-	color: $mk-secondary;
-	border-color: $mk-secondary;
+	color: @mk-secondary;
+	border-color: @mk-secondary;
 }
 
 .mk-sm-trigger.disabled {
-	color: $mk-sm-trigger-disabled-color;
-	border-color: $mk-sm-trigger-disabled-color;
+	color: @mk-sm-trigger-disabled-color;
+	border-color: @mk-sm-trigger-disabled-color;
 }
 
 .mk-sm-shadow.transitions .mk-sm-trigger {
-	 transition: all $mk-sm-transition-speed;
-	-webkit-transition: all $mk-sm-transition-speed;
+	 transition: all @mk-sm-transition-speed;
+	-webkit-transition: all @mk-sm-transition-speed;
 }
 
 .mk-sm-trigger:before {
-	content: $mk-sm-trigger-char;
+	content: @mk-sm-trigger-char;
 	font-size: 2rem;
 	height: 3rem;
   line-height: 3rem;
   position: absolute;
   right: 0.2rem;
-  top: calc(50% - 1.5rem);
-  transform: $mk-sm-trigger-char-transform;
+  top: calc(~"50% - 1.5rem");
+  transform: @mk-sm-trigger-char-transform;
 }
 
 .mk-sm-input {
@@ -61,8 +62,8 @@
 }
 
 .mk-sm-list {
-	background: $mk-sm-list-bg;
-	border-top: 1px solid $mk-secondary;
+	background: @mk-sm-list-bg;
+	border-top: 1px solid @mk-secondary;
 	box-shadow: 0 0 24px black;
 	display: none;
 	opacity: 0;
@@ -76,8 +77,8 @@
 
 .mk-sm-list.transition {
 	 display: block;
-	 transition: all $mk-sm-transition-speed;
-	-webkit-transition: all $mk-sm-transition-speed;
+	 transition: all @mk-sm-transition-speed;
+	-webkit-transition: all @mk-sm-transition-speed;
 }
 
 .mk-sm-list[aria-hidden="false"] {
@@ -91,8 +92,8 @@
 
 .mk-sm-option,
 .mk-sm-optgroup {
-	background: $mk-sm-option-bg;
-	color: $mk-sm-option-color;
+	background: @mk-sm-option-bg;
+	color: @mk-sm-option-color;
 	display: block;
 	font-size: 1.5rem;
 	padding: 0.625rem;
@@ -105,20 +106,20 @@
 .mk-sm-optgroup:active,
 .mk-sm-option:focus,
 .mk-sm-optgroup:focus {
-	background: $mk-sm-option-bg-hover;
-	color: $mk-sm-option-color-hover;
+	background: @mk-sm-option-bg-hover;
+	color: @mk-sm-option-color-hover;
 }
 
 .mk-sm-shadow.transitions .mk-sm-option,
 .mk-sm-shadow.transitions .mk-sm-optgroup {
-	 transition: background $mk-sm-transition-speed;
-	-webkit-transition: background $mk-sm-transition-speed;
+	 transition: background @mk-sm-transition-speed;
+	-webkit-transition: background @mk-sm-transition-speed;
 }
 
 .mk-sm-option.active,
 .mk-sm-optgroup.active {
-	color: $mk-sm-option-color-active;
-	background: $mk-sm-option-bg-active;
+	color: @mk-sm-option-color-active;
+	background: @mk-sm-option-bg-active;
 }
 
 .mk-sm-optgroup {
@@ -135,8 +136,8 @@
 }
 
 .mk-sm-option[aria-selected="true"]:after {
-	color: $mk-primary;
-	content: $mk-sm-option-selected-char;
+	color: @mk-primary;
+	content: @mk-sm-option-selected-char;
 	font-size: 2rem;
 	position: absolute;
 	top: 0;
@@ -144,14 +145,14 @@
 }
 
 .mk-sm-option[aria-disabled="true"] {
-	background: $mk-sm-option-bg-disabled;
-	color: $mk-sm-option-color-disabled;
+	background: @mk-sm-option-bg-disabled;
+	color: @mk-sm-option-color-disabled;
 	cursor: default;
 }
 
 .mk-sm-removable {
-	background: $mk-gray-5;
-	border-top: 1px solid $mk-gray-3;
+	background: @mk-gray-5;
+	border-top: 1px solid @mk-gray-3;
 	position: absolute;
 	top: 100%;
 	width: 100%;

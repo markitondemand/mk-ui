@@ -1,0 +1,115 @@
+@charset "UTF-8";
+
+@import "_variables";
+
+/*
+//
+// mk-ld
+// --------------------
+*/
+
+.mk-ld-overlay {
+	background: @mk-ld-overlay-bg;
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+	opacity: 0;
+}
+
+.mk-ld-overlay.transition {
+	-webkit-transition: opacity @mk-ld-transition-speed;
+	 transition: opacity @mk-ld-transition-speed;
+}
+
+.mk-ld-overlay.in {
+	opacity: 1;
+}
+
+.mk-ld-alert,
+.mk-ld-focus {
+	border: 0;
+	clip: rect(0,0,0,0);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+}
+
+.mk-ld-overlay .disk {
+	background: @mk-primary;
+	border-radius: 50%;
+	box-shadow: 0 0 1rem @mk-ld-boxshadow-color;
+	height: 3rem;
+	left: calc(50% - 1rem);
+	position: absolute;
+	top: calc(50% - 1rem);
+	width: 3rem;
+}
+
+.mk-ld-overlay .disk-0 {
+    animation: mk-disk-0 1.5s infinite;
+}
+
+.mk-ld-overlay .disk-1 {
+    animation: mk-disk-1 1.5s infinite;
+}
+
+.mk-ld-overlay .disk-2 {
+    animation: mk-disk-2 1.5s infinite;
+}
+
+.mk-ld-overlay .disk-3 {
+    animation: mk-disk-3 1.5s infinite;
+}
+
+.mk-ld-overlay .disk-4 {
+    animation: mk-disk-4 1.5s infinite;
+}
+
+.mk-ld-overlay .disk-5 {
+    animation: mk-disk-5 1.5s infinite;
+}
+
+//
+// animation keyframes
+// --------------------------------------------
+
+@keyframes mk-disk-0 {
+    25% { transform: translateX(-1.5rem) scale(0.75); }
+    50% { transform: translateX(-4.5rem) scale(0.6); }
+    75% { transform: translateX(-7.5rem) scale(0.5); }
+    95% { transform: translateX(0rem) scale(1); }
+}
+
+@keyframes mk-disk-1 {
+    25% { transform: translateX(-1.5rem) scale(0.75); }
+    50%, 75% { transform: translateX(-4.5rem) scale(0.6) }
+    95% { transform: translateX(0rem) scale(1); }
+}
+
+@keyframes mk-disk-2 {
+    25%, 75% { transform: translateX(-1.5rem) scale(0.75); }
+    95% { transform: translateX(0rem) scale(1); }
+}
+
+@keyframes mk-disk-3 {
+    25%, 75% { transform: translateX(1.5rem) scale(0.75); }
+    95% { transform: translateX(0rem) scale(1); }
+}
+
+@keyframes mk-disk-4 {
+    25% { transform: translateX(1.5rem) scale(0.75); }
+    50%, 75% { transform: translateX(4.5rem) scale(0.6); }
+    95% { transform: translateX(0rem) scale(1); }
+}
+
+@keyframes mk-disk-5 {
+    25% { transform: translateX(1.5rem) scale(0.75); }
+    50% { transform: translateX(4.5rem) scale(0.6); }
+    75% { transform: translateX(7.5rem) scale(0.5); }
+    95% { transform: translateX(0rem) scale(1); }
+}
