@@ -40,7 +40,15 @@
 
 })( typeof window !== "undefined" ? window : this, function (root, $) { 
 
+	//
+	// version of mk core 
+	//
 	var version = 'v1.0.0';
+
+	//
+	// check for array-like objects -
+	// array, NodeList, jQuery (anything with an iterator)
+	// 
 
 	function arraylike (a) {
 
@@ -57,6 +65,10 @@
 			|| l === 0 
 			|| typeof l === 'number' && l > 0 && (l - 1) in a;
 	}
+
+	// test for object primitives vs. 
+	// instantiated objects and prototypes
+	//
 
 	function basicObj (o) {
 
@@ -76,6 +88,10 @@
 		return typeof c === 'function' && f.call(c) === s;
 	}
 
+	// check for vanulla functions
+	// vanilla functions have no keys and no prototype keys
+	//
+
 	function basicFunction (fn) {
 
 		if (typeof fn !== 'function') {
@@ -88,6 +104,9 @@
 		return keys.length < 1;
 	}
 
+	// generates unique ids
+	//
+
 	function uid() {
 		return 'xxxx-4xxx-yxxx'.replace( /[xy]/g, function( c ) {
 			var r = Math.random()*16|0, v = c == 'x' ? r : ( r&0x3 | 0x8 );
@@ -95,6 +114,8 @@
 		});
 	}
 
+	// deep copy objects to remove pointers
+	//
 
 	function copy(o) {
 
@@ -122,7 +143,9 @@
 		return r || o;
 	}
 
-
+	// loop arraylike objects, primities,
+	// and object instances over a callback function
+	//
 
 	function each (ctx, obj, fn) {
 
@@ -186,44 +209,50 @@
 
 	// property
 	//
-	// create copies of properties when possible while 
-	// creating unique getter/setters for each member. Also, 
-	// functions get a special super() capability which calls the 
-	// samely named super class method in context [is recursive].
+	// ES5 defineProperty, propertyDescriptor, etc. to allow getters,
+	// setters, and hyjack vanilla functions to take advantage of super() -
+	// a dynamic method allowing super object references.
 	// -------------------------------------------------------------
 
-	function property(o, p, m) {
+	function property (obj, proto, member) {
 
-		var d = Object.getOwnPropertyDescriptor(p, m), v, c;
+		var desc = Object.getOwnPropertyDescriptor(proto, member), 
+			prop, fn;
 
-		if (typeof d.get !== 'undefined') {
-			return Object.defineProperty(o, m, d);
+		if (typeof desc.get !== 'undefined') {
+			return Object.defineProperty(obj, member, desc);
 		}
 
-		v = p[m];
+		prop = proto[member];
 
-		if (typeof v !== 'function') {
-			return o[m] = copy(v);
+		if (!basicFunction(prop)) {
+			return obj[member] = copy(prop);
 		}
 
-		c = wrapFunction(v, m);
+		fn = wrapFunction(prop, member);
 
-		Object.defineProperty(o, m, {
+		Object.defineProperty(obj, member, {
 			
 			get: function () {
-				return c;
+				return fn;
 			},
 
 			set: function (value) {
 
+				var v = value;
+
 				if (basicFunction(value)) {
-					c = wrapFunction(value);
+					v = wrapFunction(value);
 				}
 
-				c = value;
+				fn = v;
 			}
 		});
 	}
+
+	//
+	// wrap vanilla functions to allow super() cabability
+	//
 
 	function wrapFunction (fn, m) {
 
@@ -251,6 +280,12 @@
 		return func;
 	}
 
+	//
+	// keeps track of call stacks
+	// which allows super() to be called properly 
+	// with nested functions (functions calling other functions calling super)
+	//
+
 	function pushsuper (m) {
 
 		var ch = this._chain_ = this._chain_ || [],
@@ -276,6 +311,11 @@
 		st.push({method: m, super: s});
 		ch.push(m);
 	}
+
+	//
+	// pop functions out of the call stack 
+	// to keep super() context in place
+	//
 
 	function popsuper (m) {
 
@@ -347,6 +387,8 @@
 		return tmp;
 	}
 
+	// find template
+
 	template.get = function (n, t) {
 
 		var tmp = n;
@@ -362,6 +404,8 @@
 		return tmp;
 	};
 
+	// parse statements only (handlbars that open/close)
+
 	template.statements = function (s, k, c, h, t, d) {
 
 		var p = c.split(':'),
@@ -374,6 +418,8 @@
 		}
 		return '';
 	};
+
+	// parse injections (handlebars that are self closing)
 
 	template.inject = function (s, k, c, t, d) {
 
@@ -406,6 +452,10 @@
 			'</span>'
 		]
 	};
+
+	// a map of the different statements
+	// allowed in templates
+	// 
 
 	template.map = {
 
