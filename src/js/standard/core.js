@@ -38,14 +38,55 @@
 		root.mkNasty = factory( root, root.jQuery );
 	}
 
-})( typeof window !== "undefined" ? window : this, function ( root, $ ) { 
+})( typeof window !== "undefined" ? window : this, function (root, $) { 
 
 	var version = 'v1.0.0';
 
-	//
-	// uid()
-	// Generate a unique id
-	// --------------------------------------
+	function arraylike (a) {
+
+		var l = !!a && typeof a.length == 'number' 
+			&& 'length' in a 
+			&& a.length;
+
+		if (typeof a === 'function' || a === root) {
+			return false;
+		}
+
+		return a instanceof Array 
+			|| a instanceof NodeList
+			|| l === 0 
+			|| typeof l === 'number' && l > 0 && (l - 1) in a;
+	}
+
+	function basicObj (o) {
+
+		if (!o || o.toString().toLowerCase() !== "[object object]" ) {
+			return false;
+		}
+
+		var p = Object.getPrototypeOf(o),
+			c = p.hasOwnProperty('constructor') && p.constructor,
+			f = ({}).hasOwnProperty.toString,
+			s = f.call(Object);
+
+		if (!p) { 
+			return true;
+		}
+
+		return typeof c === 'function' && f.call(c) === s;
+	}
+
+	function basicFunction (fn) {
+
+		if (typeof fn !== 'function') {
+			return false;
+		}
+
+		var keys = Object.keys(fn)
+			.concat(Object.keys(fn.prototype));
+
+		return keys.length < 1;
+	}
 
 	function uid() {
 		return 'xxxx-4xxx-yxxx'.replace( /[xy]/g, function( c ) {
@@ -54,67 +95,56 @@
 		});
 	}
 
-	//
-	// copy()
-	// Copy primitive types removing pointers
-	// ---------------------------------------
 
 	function copy(o) {
 
-		if (o instanceof Array) {
-			for( var i = 0, l = o.length, r = [];
-					i < l && r.push(copy(o[i]));
-					i++ ) { /* fast as hell */ }
+		var i, l ,r;
 
-			return r;
+		if (o instanceof Array) {
+
+			i = 0;
+			l = o.length;
+			r = [];
+
+			for(; i < l && r.push(copy(o[i])); i++ ) {}
 		}
 
-		if (o !== null 
-			&& typeof o === 'object' 
-			&& !o.hasOwnProperty('constructor') 
-			&& !o.constructor.hasOwnProperty('isPrototypeOf')) {
+		else if (basicObj(o)) {
 
-			var r = {}, i, p = false;
+			r = {};
 
 			for(i in o) {
-				p = true;
-				r[i] = copy(o[i]);
+				r[i] = copy(o[i]); 
+				l = true;
 			}
-
-			if (p === false) {
-				r = o;
-			}
-			return r;
 		}
-		return o;
+
+		return r || o;
 	}
 
-	function each(context, who, fn) {
 
-		who = who || null;
 
-		if (who && (who instanceof Array || who instanceof NodeList || (who.length !== undefined))) {
-			for (var i = 0, l = who.length, r; 
-				i < l && (r = fn.call(context, i, who[i])) !== false; 
-				i++) { 
-					if (r === -1) {
-						who.splice(i, 1);
-						i--; l--;
-					}
+	function each (ctx, obj, fn) {
+
+		var i = 0, l, r;
+
+		if (arraylike(obj)) {
+
+			l = obj.length;
+
+			for (; i < l && (r = fn.call(ctx, i, obj[i]) !== false); i++) {
+				if (r === -1) {
+					obj.splice(i, 1);
+					i--; l--;
 				}
+			}
 		}
-		else if (who && typeof who === 'object' 
-			&& !who.hasOwnProperty( 'constructor') 
-			&& !who.constructor.hasOwnProperty('isPrototypeOf')) {
-
-			for (var i in who) {
-		      if (fn.call( context, i, who[ i ] ) === false) { break; }
-		    }
+		else {
+			for (i in obj) {
+				if (fn.call(ctx, i, obj[i]) === false) { break; }
+			}
 		}
-		else if (who) {
-			fn.call(context, 0, who);
-		}
-		return context;
+		return ctx;
 	}
 
 	//
@@ -182,6 +212,15 @@
 			
 			get: function () {
 				return c;
+			},
+
+			set: function (value) {
+
+				if (basicFunction(value)) {
+					c = wrapFunction(value);
+				}
+
+				c = value;
 			}
 		});
 	}
@@ -650,7 +689,6 @@
 		}
 
 		if (base !== mkNasty) {
-
 			for (statics in base) {
 				mkNasty._property(obj, base, statics);
 			}

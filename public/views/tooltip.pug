@@ -31,7 +31,7 @@ html
 								div.mk-tt-modal
 									| This is a tooltip in a table
 							td
-								button.mk-tt(aria-describedby="test", data-position="right-bottom", data-action="click")
+								button.mk-tt(aria-describedby="test", data-position="right-center", data-action="click")
 									| Tooltip
 			div#test.mk-tt-modal
 				span
@@ -42,30 +42,7 @@ html
 
 
 		include ./shared/scripts
-		script(type="text/javascript", src="/src/js/standard/code.2.js")
+		script(type="text/javascript", src="/src/js/standard/tooltip.js")
 		script.
 
-			mkNasty.create('A', {
-
-				prop: 1,
-
-				prop2: null,
-
-				prop3: {},
-
-				prop4: function (f) {
-					console.info(f);
-				},
-
-				get prop5 () {
-					return "test";
-				}
-			});
-
-			mkNasty.create('B', mkNasty.A, {
-
-				prop4: function () {
-					console.info('testing');
-					this.super('Fuck you');
-				}
-			});
+			var tooltip = new mkNasty.Tooltip('.container');
