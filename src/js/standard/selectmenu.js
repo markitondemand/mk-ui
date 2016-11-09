@@ -133,6 +133,14 @@
 				'aria-expanded') === 'true';
 		},
 
+		get listsize () {
+
+			var items = this.items,
+				item  = items[items.length - 1];
+			
+			return item.offsetTop + item.offsetHeight;
+		},
+
 		get value () {
 
 			if (this.multiple) {
@@ -414,8 +422,10 @@
 				this.activate(active);
 			}
 
-			if (initial) { option = active; active = null; } 
-
+			if (initial) { 
+				option = active; 
+				active = null;
+			} 
 			else {
 
 				var increment = up && -1 || 1
@@ -439,7 +449,7 @@
 
 			if (option !== active) {
 				this.activate(option, true);
-				this.scrollTo(option);
+				this.scrollTo(option, up);
 			}
 		},
 
@@ -711,25 +721,35 @@
 			return items;
 		},
 
-		scrollTo: function (n) {
+		scrollTo: function (n, up) {
 
 			var node = this.$(n);
 
-			if (node.length) {
+			if (node.length > 0) {
 
 				var list = this.list[0],
-					scroll  = list.scrollTop,
-					offset  = node[0].offsetTop,
-					height  = node[0].offsetHeight,
-					lheight = list.offsetHeight;
-				
-				if ((offset + height) >= (scroll + lheight)) {
-					list.scrollTop = (offset - lheight) + height;
+					scroll = list.scrollTop,
+					position = scroll,
+					lheight = list.offsetHeight
+					offset = node[0].offsetTop,
+					height = node[0].offsetHeight;
+
+				if (offset + height > scroll + lheight) {
+
+					if (up === false) {
+						position = offset - lheight + height;
+					} 
+					else {
+						position = offset;
+					}
 				}
-				else if (scroll && (offset < (scroll + lheight))) {
-					list.scrollTop = offset;
+				else if (up && offset < scroll) {
+					position = offset;
 				}
-				
+
+				if (position !== scroll) {
+					list.scrollTop = position;
+				}
 			}
 		},
 
