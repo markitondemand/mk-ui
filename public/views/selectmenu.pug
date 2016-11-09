@@ -15,199 +15,308 @@ html
 
 		include ./shared/header
 
-		main.container-fluid
+		main.container.documentation
 			h2
 				| Examples
+			p
+				| Selectmenu comes with a ton of opt-in behaviors and functionality. Below we've set up a few different examples, breaking out some of the features you can add to your instances.
 			div.row
-				div.col-sm-4
+				div.col-sm-6
 					section.panel
 						header.panel-heading
 							h3.panel-title Single Select
 						div.panel-body
 							p
 								| Bare bones select menu setup. Selectmenu defaults to a single select and the label value is the currently selected option.
-							select.mk-sm(aria-label="Animal Choices")
-									option(value="1") Lions
-									option(value="2") Tigers
-									option(value="3") Bears
-									option(value="4") Wolves
-				div.col-sm-4
+							div.mk-sm-root
+								select.mk-sm(aria-label="Animal Choices")
+										option(value="1") Lions
+										option(value="2") Tigers
+										option(value="3") Bears
+										option(value="4") Wolves
+				div.col-sm-6
 					section.panel
 						header.panel-heading
 							h3.panel-title Multi Select
 						div.panel-body
 							p
 								| Add the multiple attribute to turn select menus into multiselectable comboboxes. Multiselects are recommended to be given a label via the aria-label attribute.
-							select.mk-sm(aria-label="Animal Choices", multiple="true")
-									option(value="1") Lions
-									option(value="2", selected="true") Tigers
-									option(value="3") Bears
-									option(value="4") Wolves
-				div.col-sm-4
+							div.mk-sm-root
+								select.mk-sm(aria-label="Animal Choices", multiple="true")
+										option(value="1") Lions
+										option(value="2", selected="true") Tigers
+										option(value="3") Bears
+										option(value="4") Wolves
+				div.col-sm-6
 					section.panel
 						header.panel-heading
 							h3.panel-title Single Select W/ Optgroups
 						div.panel-body
 							p
 								| Selectmenu supports optgroups as well. With single selects, optgroups are not part of the keyboard or active indexing and are presentation elements for screen readers.
-							select.mk-sm(aria-label="Animals and Insects")
-								optgroup(label="Animals")
-									option(value="1") Lions
-									option(value="2") Tigers
-									option(value="3") Bears
-									option(value="4") Wolves
-								optgroup(label="Bugs")
-									option(value="5") Grasshoppers
-									option(value="6", selected="true") Dragonflies
-									option(value="7") Butterflies
-									option(value="8") Spiders
-				div.col-sm-4
+							div.mk-sm-root
+								select.mk-sm(aria-label="Animals and Insects")
+									optgroup(label="Animals")
+										option(value="1") Lions
+										option(value="2") Tigers
+										option(value="3") Bears
+										option(value="4") Wolves
+									optgroup(label="Bugs")
+										option(value="5") Grasshoppers
+										option(value="6", selected="true") Dragonflies
+										option(value="7") Butterflies
+										option(value="8") Spiders
+				div.col-sm-6
 					section.panel
 						header.panel-heading
 							h3.panel-title Multi Select W/ Optgroups
 						div.panel-body
 							p
 								| Multiselect menus with optgroups provide the user with the ability to select the optgroup. Selecting the optgroup will activate/deactivate all child options within the optgroup.
-							select.mk-sm(aria-label="Animals and Insects", multiple="true")
-								optgroup(label="Animals")
-									option(value="1") Lions
-									option(value="2", selected="true") Tigers
-									option(value="3", selected="true") Bears
-									option(value="4") Wolves
-								optgroup(label="Bugs")
-									option(value="5") Grasshoppers
-									option(value="6") Dragonflies
-									option(value="7") Butterflies
-									option(value="8") Spiders
-				div.col-sm-4
+							div.mk-sm-root
+								select.mk-sm(aria-label="Animals and Insects", multiple="true")
+									optgroup(label="Animals")
+										option(value="1") Lions
+										option(value="2", selected="true") Tigers
+										option(value="3", selected="true") Bears
+										option(value="4") Wolves
+									optgroup(label="Bugs")
+										option(value="5") Grasshoppers
+										option(value="6") Dragonflies
+										option(value="7") Butterflies
+										option(value="8") Spiders
+				div.col-sm-6
 					section.panel
 						header.panel-heading
 							h3.panel-title Selectmenu W/ Classnames
 						div.panel-body
 							p
 								| You can customize individual options, optgroups, and the root select node by adding classnames to your setup elements. Selectmenu will copy those classnames and add them to the renered ui elements.
-							select.mk-sm(aria-label="Animals")
-								optgroup(label="Animals")
-									option(value="1", class="icon") Lions
-									option(value="2", class="icon") Tigers
-									option(value="3", class="icon") Bears
-									option(value="4", class="icon") Wolves
-				div.col-sm-4
+							div.mk-sm-root
+								select.mk-sm(aria-label="Animals")
+									optgroup(label="Animals")
+										option(value="1", class="icon") Lions
+										option(value="2", class="icon") Tigers
+										option(value="3", class="icon") Bears
+										option(value="4", class="icon") Wolves
+				div.col-sm-6
 					section.panel
 						header.panel-heading
 							h3.panel-title Selectmenu W/ Clear All
 						div.panel-body
 							p
 								| Selectmenu comes with the opt-in ability for a Clear All option (text can be changed through format options). To consume this behavior simply add a data-removable="true" to your setup select element. Clear all only works with multiselects, since single selects always have a default value.
-							select.mk-sm(aria-label="Animals", multiple="true", data-removable="true")
-								optgroup(label="Animals")
-									option(value="1", class="icon") Lions
-									option(value="2", class="icon", selected="true") Tigers
-									option(value="3", class="icon") Bears
-									option(value="4", class="icon") Wolves
-				div.col-sm-4
+							div.mk-sm-root
+								select.mk-sm(aria-label="Animals", multiple="true", data-removable="true")
+									optgroup(label="Animals")
+										option(value="1", class="icon") Lions
+										option(value="2", class="icon", selected="true") Tigers
+										option(value="3", class="icon") Bears
+										option(value="4", class="icon") Wolves
+				div.col-sm-6
 					section.panel
 						header.panel-heading
 							h3.panel-title Selectmenu W/ Alt Text
 						div.panel-body
 							p
 								| You can also provide options with alternative text or a more detailed description. Add a data-alt="&lt;your text here&gt;" to create alt labelling.
-							select.mk-sm
-								optgroup(label="Animals")
-									option(value="1", data-alt="King of the Jungle") Lions
-									option(value="2", data-alt="The real King") Tigers
-									option(value="3", data-alt="Lazy honey eating, lover") Bears
-									option(value="4", data-alt="Catch me if you can") Wolves
-				div.col-sm-4
+							div.mk-sm-root
+								select.mk-sm
+									optgroup(label="Animals")
+										option(value="1", data-alt="King of the Jungle") Lions
+										option(value="2", data-alt="The real King") Tigers
+										option(value="3", data-alt="Lazy honey eating, lover") Bears
+										option(value="4", data-alt="Catch me if you can") Wolves
+				div.col-sm-6
 					section.panel
 						header.panel-heading
 							h3.panel-title Selectmenu W/ Restricted Height
 						div.panel-body
 							p
 								| If the height of your menu needs to be restricted to a perticular height, Selectmenu also supports scrolling through lists and keeping active/selected elements in view.
-							select.restrict-height.mk-sm(aria-label="Odd Mixes", multiple="true")
-								optgroup(label="Animals")
-									option(value="1") Lions
-									option(value="2") Tigers
-									option(value="3") Bears
-									option(value="4") Wolves
-								optgroup(label="Bugs")
-									option(value="5") Grasshoppers
-									option(value="6") Dragonflies
-									option(value="7", selected="true") Butterflies
-									option(value="8") Spiders
-								optgroup(label="Candy")
-									option(value="9") Now &amp; Laters
-									option(value="10") Gummy Bears
-									option(value="11") Salt Water Taffy
-									option(value="12") Chocolate
+							div.mk-sm-root
+								select.restrict-height.mk-sm(aria-label="Odd Mixes", multiple="true")
+									optgroup(label="Animals")
+										option(value="1") Lions
+										option(value="2") Tigers
+										option(value="3") Bears
+										option(value="4") Wolves
+									optgroup(label="Bugs")
+										option(value="5") Grasshoppers
+										option(value="6") Dragonflies
+										option(value="7", selected="true") Butterflies
+										option(value="8") Spiders
+									optgroup(label="Candy")
+										option(value="9") Now &amp; Laters
+										option(value="10") Gummy Bears
+										option(value="11") Salt Water Taffy
+										option(value="12") Chocolate
 			h2
 				| Events
+			p
+				| All events are part of the Mk EventEmitter and *not* added to the DOM.
+				| Events are also called in context of the component instance so it isn't a great idea to use a proxy function to change context, as you'll loose a lot of beneficial object access.
 
-			section.panel
-				header.panel-heading
-					h3.panel-title
-						| Change
-				div.panel-body
-					p
-						| Fires when selectmenu value changes
-					pre
-						code.language-css
-							| function a () {}
+			div.row
+				div.col-md-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Change
+						div.panel-body
+							p
+								| Fires when selectmenu value changes.
+							pre
+								code.language-javascript
+									| instance.on('change', function () {
+									| 	console.info(this.value);
+									| });
+				div.col-md-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Show
+						div.panel-body
+							p
+								| Fired when menu is shown.
+							pre
+								code.language-javascript
+									| instance.on('show', function () {
+									| 	console.info('Menu has opened!');
+									| });
 
-			section.panel
-				header.panel-heading
-					h3.panel-title
-						| Show
-				div.panel-body
-					p
-						| Fired when menu is shown.
-					pre
+				div.col-md-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Hide
+						div.panel-body
+							p
+								| Fired when menu is hidden.
+							pre
+								code.language-javascript
+									| instance.on('hide', function () {
+									| 	console.info('Menu has closed!');
+									| });
 
-			section.panel
-				header.panel-heading
-					h3.panel-title
-						| Hide
-				div.panel-body
-					p
-						| Fired when menu is hidden.
-					pre
+				div.col-md-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Activate
+						div.panel-body
+							p
+								| Fired when an option becomes active.
+							pre
+								code.language-javascript
+									| instance.on('activate', function (option, keyboard) {
+									| 	console.info('active option:', option);
+									| 	console.info('came from keyboard (vs mouse):', keyboard);
+									| });
 
-			section.panel
-				header.panel-heading
-					h3.panel-title
-						| Activate
-				div.panel-body
-					p
-						| Fired when an option becomes active.
-					pre
+				div.col-md-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Disabled
+						div.panel-body
+							p
+								| Fired when selectmenu is disabled, if previously enabled.
+							pre
+								code.language-javascript
+									| instance.on('disabled', function () {
+									| 	console.info('Selectmenu has been diabled.');
+									| });
+				div.col-md-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Enabled
+						div.panel-body
+							p
+								| Fired when selectmenu is enabled, if previously disabled.
+							pre
+								code.language-javascript
+									| instance.on('enabled', function () {
+									| 	console.info('Selectmenu has become enabled.');
+									| });
+				div.col-md-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Update
+						div.panel-body
+							p
+								| Fired when updates are made to the rendered UI through the use of update().
+							pre
+								code.language-javascript
+									| instance.on('update', function () {
+									| 	console.info('Changes to the native select have been applied to the UI.');
+									| });
+			h2
+				| API
+			p
+				| Below are the different public properties and methods accessible to you, the end developer.
+				| All of these are accessible on your Selectmenu instance as well as inside events bound to your instance.
 
-			section.panel
-				header.panel-heading
-					h3.panel-title
-						| Disabled
-				div.panel-body
-					p
-						| Fired when selectmenu is disabled, if previously enabled.
-					pre
+			h3 Properties
 
-			section.panel
-				header.panel-heading
-					h3.panel-title
-						| Enabled
-				div.panel-body
-					p
-						| Fired when selectmenu is enabled, if previously disabled.
-					pre
+			ul.list-unstyled
+				li
+					h4 instance.root
+					p The root element provided by end developer when creating an instance.
 
-			section.panel
-				header.panel-heading
-					h3.panel-title
-						| Update
-				div.panel-body
-					p
-						| Fired when updates are made to the rendered UI through the use of update().
-					pre
+				li
+					h4 instance.selectmenu
+					p The wrapped select child node living in the provided root.
+
+				li
+					h4 instance.element
+					p The raw select child node living in the provided root.
+
+				li
+					h4 instance.multiple
+					p Boolean representing if the selectmenu is a multi-select or not.
+
+				li
+					h4 instance.disabled
+					p Boolean representing if the selectmenu is currently disabled.
+
+				li
+					h4 instance.enabled
+					p Boolean representing if the selectmenu is currently enabled.
+
+				li
+					h4 instance.options
+					p The raw options elements.
+
+				li
+					h4 instance.trigger
+					p The wrapped, rendered triggering input element.
+
+				li
+					h4 instance.list
+					p The wrapped, rendered UI list.
+
+				li
+					h4 instance.items
+					p The wrapped, rendered UI list items.
+
+				li
+					h4 instance.listOptions
+					p The wrapped, rendered UI list options (different than items, typically nested in an item).
+
+				li
+					h4 instance.isHidden
+					p Boolean representing if the list is hidden or not.
+
+				li
+					h4 instance.isOpen
+					p Boolean representing if the list is open (not hidden) or not.
+
+				li
+					h4 instance.value
+					p single [or array] of value(s) currently selected.
 
 		include ./shared/scripts
 		script(type="text/javascript", src="/src/js/standard/selectmenu.js")
@@ -215,7 +324,7 @@ html
 
 			mkNasty.transitions(true);
 
-			var selects = document.querySelectorAll('.mk-sm');
+			var selects = document.querySelectorAll('.mk-sm-root');
 			var mkSelect = mkNasty.get('Selectmenu');
 
 			for (var i = 0; i < selects.length; i++) {

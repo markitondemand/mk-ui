@@ -87,6 +87,14 @@
 			removableAlt: '{{if:selected}}<span>({{selected}} of {{total}})</span>{{/if:selected}}'
 		},
 
+		get selectmenu () {
+			return this.node('', this.root);
+		},
+
+		get element () {
+			return this.selectmenu[0];
+		},
+
 		get version () {
 			return 'v1.0.0';
 		},
@@ -97,6 +105,10 @@
 
 		get disabled () {
 			return this.element.disabled;
+		},
+
+		get enabled () {
+			return this.element.disabled !== true;
 		},
 
 		get options () {
@@ -133,14 +145,6 @@
 				'aria-expanded') === 'true';
 		},
 
-		get listsize () {
-
-			var items = this.items,
-				item  = items[items.length - 1];
-			
-			return item.offsetTop + item.offsetHeight;
-		},
-
 		get value () {
 
 			if (this.multiple) {
@@ -152,12 +156,12 @@
 				});
 				return values;
 			}
-			return this.root[0].value;
+			return this.element.value;
 		},
 
 		_verifyTag: function (n) {
 
-			var node = this.$(n);
+			var node = this.node('', n);
 
 			if (node.length < 1 || 
 				node[0].tagName.toLowerCase() !== 'select') {
@@ -178,13 +182,13 @@
 
 			o = o || {};
 
-			var label = this.root.attr('aria-label') 
+			var label = this.selectmenu.attr('aria-label') 
 				|| this.formats.label;
 
 			this._param('label', 'string', o, label);
 
 			if (this.multiple) {
-				this._param('removable', 'boolean', o, false);
+				this._param('removable', 'boolean', o, false, this.selectmenu);
 				this._param('removableId', 'string', o, this.uid());
 			}
 			
@@ -202,7 +206,7 @@
 
 			else {
 				this.input.attr('aria-label', 
-					this.root.attr('aria-label'));
+					this.selectmenu.attr('aria-label'));
 			}
 		},
 
@@ -214,7 +218,7 @@
 
 			this.shadow = 
 				this.html('shadow', this.data())
-					.insertAfter( this.element );
+					.appendTo(this.root);
 
 			if (this.transitions) {
 				this.shadow.addClass('transitions');
@@ -229,7 +233,7 @@
 			});
 
 			this.input.attr('id', this.uid());
-			this.root.attr('aria-hidden', 'true');
+			this.selectmenu.attr('aria-hidden', 'true');
 
 			this._label();
 		},
@@ -372,6 +376,7 @@
 
 				case k.up: 
 				case k.down: 
+					e.preventDefault();
 					this.move(w === k.up); 
 					break;
 

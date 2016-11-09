@@ -4,6 +4,9 @@
 // mk-selectmenu
 // --------------------
 */
+.mk-sm-root {
+  position: relative; }
+
 .mk-sm {
   display: none; }
 

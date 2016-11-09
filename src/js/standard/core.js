@@ -638,6 +638,23 @@
 			}
 		}
 	};
+
+	// simple device checking
+	//
+
+	var agent  = navigator.userAgent,
+		device = {
+
+		agentexp: /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i,
+
+		get is () {
+			return this.agentexp.test(agent)
+		},
+
+		get id () {
+			return (this.agentexp.exec(agent) || [])[1] || ''
+		}
+	};
 	
 	//
 	// mkNasty
@@ -664,6 +681,8 @@
 	mkNasty._template = template;
 
 	mkNasty._eventEmitter = eventEmitter;
+
+	mkNasty._device = device;
 
 	mkNasty._keycodes = {
 		backspace: 8, tab: 9, enter: 13, esc: 27, space: 32,
@@ -798,6 +817,14 @@
 
 		get element () {
 			return this.root[0];
+		},
+
+		get device () {
+			return mkNasty._device.is;
+		},
+
+		get deviceId () {
+			return mkNasty._device.id;
 		},
 
 		$: function (s, c) {
@@ -989,7 +1016,7 @@
 			return this;
 		},
 
-		_param: function (name, type, config, defaultt) {
+		_param: function (name, type, config, defaultt, elem) {
 
 			var value, t;
 
@@ -998,7 +1025,7 @@
 			}
 
 			if (typeof value === 'undefined' && type !== 'undefined') {
-				value = this.root.data(name);
+				value = (elem || this.root).data(name);
 			}
 
 			t = typeof value;
