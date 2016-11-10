@@ -95,7 +95,7 @@
 		return factory( root, root.mkNasty );
 	}
 
-})( typeof window !== "undefined" ? window : this, function ( root, mk ) { 
+})( typeof window !== "undefined" ? window : this, function ( root, mk ) {
 
 	mk.create( 'Selectmenu', {
 
@@ -113,21 +113,21 @@
 
 			trigger:
 				`<div class="{{$key}}-trigger {{if:disabled}} disabled{{/if:disabled}}" role="combobox" aria-haspopup="listbox">
-					<input type="text" 
-						class="{{$key}}-input" 
-						readonly 
-						aria-autocomplete="list" 
-						aria-readonly="true" 
-						aria-disabled="{{disabled}}" 
-						{{if:multiple}}aria-multiselectable="true" {{/if:multiple}} 
+					<input type="text"
+						class="{{$key}}-input"
+						readonly
+						aria-autocomplete="list"
+						aria-readonly="true"
+						aria-disabled="{{disabled}}"
+						{{if:multiple}}aria-multiselectable="true" {{/if:multiple}}
 						value="{{label}}" />
 				</div>`,
 
 			list:
 				`<ul id="{{id}}" class="{{$key}}-list" role="listbox">
-					{{loop:items}} 
-						{{template:item}} 
-					{{/loop:items}} 
+					{{loop:items}}
+						{{template:item}}
+					{{/loop:items}}
 				</ul>`,
 
 			item:
@@ -136,12 +136,12 @@
 				</li>`,
 
 			option:
-				`<a id="{{id}}" 
-					class="{{$key}}-{{tagname}}{{if:classname}} {{classname}}{{/if:classname}}" 
-					role="{{role}}" 
-					href="javascript: void(0);" 
-					aria-selected="{{selected}}" 
-					aria-disabled="{{disabled}}" 
+				`<a id="{{id}}"
+					class="{{$key}}-{{tagname}}{{if:classname}} {{classname}}{{/if:classname}}"
+					role="{{role}}"
+					href="javascript: void(0);"
+					aria-selected="{{selected}}"
+					aria-disabled="{{disabled}}"
 					data-value="{{value}}">
 					<span class="{{$key}}-label">
 						{{label}}
@@ -149,7 +149,7 @@
 					<span class="{{$key}}-alt">{{alt}}</span>
 				</a>`,
 
-			removable: 
+			removable:
 				`<option class="{{$key}}-removable" value="{{value}}" data-alt="{{alt}}">{{label}}</option>`
 		},
 
@@ -326,7 +326,7 @@
 
 			var node = this.node('', n);
 
-			if (node.length < 1 || 
+			if (node.length < 1 ||
 				node[0].tagName.toLowerCase() !== 'select') {
 				throw new Error(':: mkNasty.Selectmenu - root must be a <select> node ::');
 			}
@@ -345,7 +345,7 @@
 
 			o = o || {};
 
-			var label = this.selectmenu.attr('aria-label') 
+			var label = this.selectmenu.attr('aria-label')
 				|| this.formats.label;
 
 			this._param('label', 'string', o, label);
@@ -354,7 +354,7 @@
 				this._param('removable', 'boolean', o, false, this.selectmenu);
 				this._param('removableId', 'string', o, this.uid());
 			}
-			
+
 			this.super(o);
 		},
 
@@ -368,7 +368,7 @@
 			}
 
 			else {
-				this.input.attr('aria-label', 
+				this.input.attr('aria-label',
 					this.selectmenu.attr('aria-label'));
 			}
 		},
@@ -379,14 +379,14 @@
 				this._buildRemovable();
 			}
 
-			this.shadow = 
+			this.shadow =
 				this.html('shadow', this.data())
 					.appendTo(this.root);
 
 			if (this.transitions) {
 				this.shadow.addClass('transitions');
 			}
-			
+
 			var l = this.list,
 				o = l.find('[aria-selected="true"]');
 
@@ -451,13 +451,13 @@
 		_bindInputEvents: function () {
 
 			var thiss = this,
-				trigger = this.trigger, 
+				trigger = this.trigger,
 				inFocus = false,
 				focusedByMouse = false;
 
 			this.input
 			.on('focus.mk', function (e) {
-				
+
 				if (thiss.disabled) {
 					return;
 				}
@@ -494,7 +494,7 @@
 			.on('keypress.mk', function (e) {
 				e.preventDefault();
 				thiss.search(String.fromCharCode(e.which), true);
-			});	
+			});
 		},
 
 		_bindListEvents: function () {
@@ -525,26 +525,26 @@
 
 			switch (w) {
 
-				case k.enter: 
+				case k.enter:
 					this._enter(e);
 					break;
 
-				case k.space: 
+				case k.space:
 					this._space(e);
 					break;
 
-				case k.esc: 
+				case k.esc:
 					this._esc(e);
 					break;
 
-				case k.up: 
-				case k.down: 
+				case k.up:
+				case k.down:
 					e.preventDefault();
-					this.move(w === k.up); 
+					this.move(w === k.up);
 					break;
 
-				case k.tab: 
-					this._tab(e); 
+				case k.tab:
+					this._tab(e);
 					break;
 			}
 		},
@@ -600,7 +600,7 @@
 
 				var active = this.items.find('.active');
 
-				if (this.multiple !== true 
+				if (this.multiple !== true
 					&& active.attr('aria-selected') !== 'true') {
 
 					this.select(active.attr('data-value'));
@@ -631,6 +631,17 @@
 			return this.updateLabel().hide();
 		},
 
+		/*
+			<method:move>
+				<invoke>.move(up)</invoke>
+				<param:up>
+					<type>Boolean</type>
+					<desc>Set as true to move up the list. Default is false.</desc>
+				</param:up>
+				<desc>Move the active selectmenu list item by 1.</desc>
+			</method:move>
+		*/
+
 		move: function (up) {
 
 			var items   = this.items,
@@ -651,10 +662,10 @@
 				this.activate(active);
 			}
 
-			if (initial) { 
-				option = active; 
+			if (initial) {
+				option = active;
 				active = null;
-			} 
+			}
 			else {
 
 				var increment = up && -1 || 1
@@ -662,7 +673,7 @@
 
 				option = options[index];
 
-				while (option 
+				while (option
 					&& option.getAttribute('aria-disabled') === 'true') {
 
 					index += increment;
@@ -671,7 +682,7 @@
 
 				if (typeof option === 'undefined') {
 
-					option = up && options[0] 
+					option = up && options[0]
 						|| options[options.length - 1];
 				}
 			}
@@ -681,6 +692,21 @@
 				this.scrollTo(option, up);
 			}
 		},
+
+		/*
+			<method:search>
+				<invoke>.search(key, add)</invoke>
+				<param:key>
+					<type>String</type>
+					<desc>Key or text to search on.</desc>
+				</param:key>
+				<param:add>
+					<type>Boolean</type>
+					<desc>Set as true to add to the curent search, rather than start a new search. Default is false.</desc>
+				</param:add>
+				<desc>Move the active selectmenu list item by 1.</desc>
+			</method:move>
+		*/
 
 		search: function (key, add) {
 
@@ -695,7 +721,7 @@
 
 				if (add) {
 					this.query += key;
-				} 
+				}
 				else {
 					this.query = key;
 				}
@@ -795,7 +821,7 @@
 		getLabelByElement: function (n) {
 
 			var node = this.$(n),
-				tag  = node.length > 0 
+				tag  = node.length > 0
 					&& node[0].tagName.toLowerCase() || '';
 
 			if (tag === 'option') {
@@ -806,6 +832,17 @@
 				this.selector('label')).text();
 		},
 
+		/*
+			<method:updateLabel>
+				<invoke>.updateLabel(n)</invoke>
+				<param:n>
+					<type>Mixed - String/Node/undefined</type>
+					<desc>Pass as string to set select label as the string. Pass as node to parse the label from element. Leave empty to automatically update the label.</desc>
+				</param:n>
+				<desc>Updates the label (trigger input value).</desc>
+			</method:updateLabel>
+		*/
+
 		updateLabel: function (n) {
 
 			this.input.val(
@@ -813,6 +850,17 @@
 
 			return this;
 		},
+
+		/*
+			<method:label>
+				<invoke>.label(n)</invoke>
+				<param:n>
+					<type>Mixed - Node/undefined</type>
+					<desc>Pass as node to parse and return the label from element. Leave empty to return the current label..</desc>
+				</param:n>
+				<desc>Pareses a label (trigger input value) and returns it.</desc>
+			</method:label>
+		*/
 
 		label: function (n) {
 
@@ -845,15 +893,15 @@
 			var reg = new RegExp(' ' + this.name + ' ', 'i'),
 				cls = ' ' + this.element.className + ' ';
 
-			return { 
+			return {
 				label: this.label(),
 				classname: cls.replace(reg, ''),
 				multiple: this.multiple,
 				disabled: this.disabled,
 				list: {
-					id: this.uid(), 
+					id: this.uid(),
 					items: this.getOptionData()
-				} 
+				}
 			};
 		},
 
@@ -868,13 +916,13 @@
 				var tag = node.tagName.toLowerCase(),
 					role = tag === 'option' && 'option' || this.multiple && 'option' || 'presentation';
 
-				items.push({ 
+				items.push({
 					role: role,
 					tagname: tag,
 					level: level,
 					classname: node.className,
 					id: node.id || this.uid(),
-					label: node.text || node.label, 
+					label: node.text || node.label,
 					selected: node.selected || false,
 					disabled: node.disabled || false,
 					alt: node.getAttribute('data-alt'),
@@ -888,6 +936,17 @@
 
 			return items;
 		},
+
+		/*
+			<method:scrollTo>
+				<invoke>.scrollTo(n)</invoke>
+				<param:n>
+					<type>Node</type>
+					<desc>An element in the selectmenu list to scroll to.</desc>
+				</param:n>
+				<desc>Scroll a selectmenu list with a restructed height to a perticular list item.</desc>
+			</method:scrollTo>
+		*/
 
 		scrollTo: function (n, up) {
 
@@ -906,7 +965,7 @@
 
 					if (up === false) {
 						position = offset - lheight + height;
-					} 
+					}
 					else {
 						position = offset;
 					}
@@ -923,8 +982,8 @@
 
 		/*
 			<method:show>
+				<invoke>.show()</invoke>
 				<desc>Opens the list associated with the selectmenu.</desc>
-				<example>instance.show();</example>
 			</method:show>
 		*/
 
@@ -945,7 +1004,7 @@
 
 					t.attr('aria-expanded', 'true');
 					l.attr('aria-hidden', 'false');
-					
+
 					this.emit('show');
 				});
 			}
@@ -954,9 +1013,8 @@
 
 		/*
 			<method:hide>
-				<type>method</type>
+				<invoke>.hide()</invoke>
 				<desc>Closes the list associated with the selectmenu.</desc>
-				<example>instance.hide()</example>
 			</method:hide>
 		*/
 
@@ -984,8 +1042,8 @@
 
 		/*
 			<method:toggle>
+				<invoke>.toggle()</invoke>
 				<desc>Toggles between open() and show()</desc>
-				<example>instance.toggle()</example>
 			</method:toggle>
 		*/
 
@@ -996,6 +1054,21 @@
 			}
 			return this.hide();
 		},
+
+		/*
+			<method:activate>
+				<invoke>.activate(n[, keyboard])</invoke>
+				<param:n>
+					<type>Node</type>
+					<desc>A Node reference from the list of selectmenu items.</desc>
+				</param:n>
+				<param:keyboard>
+					<type>Boolean</type>
+					<desc>Pass true for additional functionality (like updating the label), as keyboard interactivity applies different behavior.</desc>
+				</param:keyboard>
+				<desc>Set an active element in the selectmenu list.</desc>
+			</method:activate>
+		*/
 
 		activate: function (n, keyboard) {
 
@@ -1025,7 +1098,7 @@
 					this.scrollTo(n);
 				}
 
-				if (keyboard) { 
+				if (keyboard) {
 					this.updateLabel(n);
 				}
 
@@ -1034,6 +1107,21 @@
 
 			return this;
 		},
+
+		/*
+			<method:deselect>
+				<invoke>.deselect(value[, silent])</invoke>
+				<param:value>
+					<type>String</type>
+					<desc>An option value or combination of option values joined with "|||".</desc>
+				</param:value>
+				<param:silent>
+					<type>Boolean</type>
+					<desc>Pass in as true to prevent the change event from emitting. Default value is false.</desc>
+				</param:silent>
+				<desc>Deselects item(s) in the selectmenu.</desc>
+			</method:deselect>
+		*/
 
 		deselect: function (value, silent) {
 
@@ -1061,6 +1149,17 @@
 			return false;
 		},
 
+		/*
+			<method:deselectAll>
+				<invoke>.deselectAll([silent])</invoke>
+				<param:silent>
+					<type>Boolean</type>
+					<desc>Pass in as true to prevent the change event from emitting. Default value is false.</desc>
+				</param:silent>
+				<desc>Deselects all items in the selectmenu.</desc>
+			</method:deselectAll>
+		*/
+
 		deselectAll: function (silent) {
 
 			this.each(this.options, function (i, o) {
@@ -1075,9 +1174,24 @@
 			if (silent !== true) {
 				this.emit('change', this.value);
 			}
-			
+
 			return this;
 		},
+
+		/*
+			<method:select>
+				<invoke>.select(value[, silent])</invoke>
+				<param:value>
+					<type>String</type>
+					<desc>An option value or combination of option values joined with "|||".</desc>
+				</param:value>
+				<param:silent>
+					<type>Boolean</type>
+					<desc>Pass in as true to prevent the change event from emitting. Default value is false.</desc>
+				</param:silent>
+				<desc>Selects item(s) in the selectmenu..</desc>
+			</method:select>
+		*/
 
 		select: function (value, silent) {
 
@@ -1093,7 +1207,7 @@
 				return this.selectGroup(value, silent);
 			}
 
-			if (el.option.disabled) { 
+			if (el.option.disabled) {
 				return false;
 			}
 
@@ -1101,7 +1215,7 @@
 				this.deselect(value, silent);
 				return false;
 			}
-			
+
 			el.option.selected = true;
 
 			if (multiple !== true) {
@@ -1138,7 +1252,7 @@
 
 				if (elems.option.selected !== true) {
 					this.select(v, true);
-				} 
+				}
 				else {
 					tally++;
 				}
@@ -1149,7 +1263,7 @@
 					this.deselect(v);
 				});
 			}
-			
+
 			if (silent !== true) {
 				this.emit('change', this.value);
 			}
@@ -1159,8 +1273,8 @@
 
 		/*
 			<method:disable>
+				<invoke>.disable()</invoke>
 				<desc>Disables the selectmenu UI if currently enabled.</desc>
-				<example>instance.disable();</example>
 			</method:disable>
 		*/
 
@@ -1177,8 +1291,8 @@
 
 		/*
 			<method:enable>
+				<invoke>.enable()</invoke>
 				<desc>Enables the selectmenu UI if currently disabled.</desc>
-				<example>instance.enable()</example>
 			</method:enable>
 		*/
 
@@ -1192,6 +1306,13 @@
 			return this;
 		},
 
+		/*
+			<method:update>
+				<invoke>.update()</invoke>
+				<desc>Make changes to your native (root) select element, then call this method to apply changes to the selectmenu UI.</desc>
+			</method:update>
+		*/
+
 		update: function () {
 
 			var d = this.data(),
@@ -1204,7 +1325,7 @@
 
 			this[m]();
 
-			if (this.config.removable 
+			if (this.config.removable
 				&& this.items.find(this.selector('removable')).length > 0) {
 
 				this._buildRemovable();
@@ -1212,7 +1333,7 @@
 
 			this._param('removable', 'boolean', this.config, false);
 
-			i.attr('aria-multiselectable', 
+			i.attr('aria-multiselectable',
 					d.multiple && 'true' || 'false');
 
 			i.val(this.label());

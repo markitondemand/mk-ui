@@ -2,21 +2,21 @@
 @import 'https://fonts.googleapis.com/css?family=Roboto+Slab:400,700';
 
 body {
-	background: #333;
-	color: #fff;
+	background: white;
+	color: #333;
     font-family: 'Roboto Slab';
     margin-bottom: 100px;
 }
 
 body a {
-	color: crimson;
+	color: #328f8a;
 }
 
 body a:hover,
 body a:active,
 body a:focus {
-	color: cadetblue;
-	text-decoration: none;
+	color: #328f8a;
+	text-decoration: underline;
 }
 
 .documentation h1,
@@ -25,15 +25,15 @@ body a:focus {
 .documentation h4,
 .documentation h5,
 .documentation h6 {
-    color: crimson;
+    color: #008e89;
 }
 
 .navbar-theme {
-	background: #000;
-    border-bottom: 1px solid crimson;
+	background: linear-gradient(45deg,#328f8a,#08ac4b);
+    border-bottom: 1px solid #328f8a;
     border-radius: 0;
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-    color: #999;
+    color: white;
     font-family: 'Roboto Slab';
     font-weight: 700;
     padding: 0 15px;
@@ -44,11 +44,11 @@ body a:focus {
 }
 
 .navbar-theme .navbar-brand {
-	color: #999;
+	color: white;
 }
 
 .navbar-theme .navbar-brand:hover {
-	color: #999;
+	color: white;
 }
 
 .navbar-theme .navbar-brand .navbar-logo {
@@ -80,7 +80,7 @@ body a:focus {
 }
 
 .navbar-theme .navbar-top > li > a {
-	color: crimson;
+	color: white;
 	display: inline-block;
     padding: 0 10px;
     font-size: 11px;
@@ -89,39 +89,9 @@ body a:focus {
 .navbar-theme .navbar-top > li > a:hover,
 .navbar-theme .navbar-top > li > a:active,
 .navbar-theme .navbar-top > li > a:focus {
-	background: #000;
-	color: cadetblue;
-}
-
-.list-theme {
-	margin: 0;
-    padding: 0;
-    list-style-type: none;
-}
-
-.list-theme > li {
-	background: #ffffff;
-    counter-increment: step-counter;
-    border: 1px solid #cccccc;
-    margin: 30px 0;
-    position: relative;
-    padding: 20px;
-}
-
-.list-theme > li:before {
-	background-color: #ffffff;
-    border: 1px solid #f95a5a;
-	border-radius: 80%;
-	color: #f95a5a;
-	content: counter(step-counter);
-	font-family: 'Roboto Slab';
-	font-size: 26px;
-	font-weight: bold;
-    margin-right: 5px;
-    padding: 2px 14px;
-    position: absolute;
-    left: -20px;
-    top: -20px;
+	background: transparent;
+	color: white;
+	text-decoration: underline;
 }
 
 .h-theme {
@@ -136,5 +106,46 @@ body a:focus {
 }
 
 .panel {
-	background: #444;
+	border-radius: 0;
+	border-color: #d7d7d7;
+}
+
+.panel-body {
+	padding-top: 0;
+}
+
+.list-methods,
+.list-property {
+	background: whitesmoke;
+}
+
+.list-methods li,
+.list-property li {
+	border-bottom: 1px solid #ccc;
+	padding: 20px;
+}
+
+.list-params {
+	background: #ccc;
+}
+
+.list-params li {
+	padding: 10px;
+}
+
+.list-params li dl {
+	margin: 0;
+}
+
+.list-params li dl {
+	display: table;
+}
+
+.list-params li dl dt,
+.list-params li dl dd {
+	display: table-cell;
+}
+
+.list-params li dl dt {
+	width: 100px;
 }

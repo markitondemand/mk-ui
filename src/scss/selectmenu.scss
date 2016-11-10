@@ -67,7 +67,7 @@
 .mk-sm-list {
 	background: $mk-sm-list-bg;
 	border-top: 1px solid $mk-secondary;
-	box-shadow: 0 0 24px black;
+	box-shadow: $mk-sm-list-boxshadow;
 	display: none;
 	opacity: 0;
 	margin: 0;
@@ -111,6 +111,7 @@
 .mk-sm-optgroup:focus {
 	background: $mk-sm-option-bg-hover;
 	color: $mk-sm-option-color-hover;
+	text-decoration: none;
 }
 
 .mk-sm-shadow.transitions .mk-sm-option,
@@ -135,6 +136,7 @@
 
 .mk-sm-optgroup[role="presentation"]:hover {
 	cursor: default;
+	color: $mk-sm-option-color;
 	background: inherit;
 }
 
@@ -154,11 +156,8 @@
 }
 
 .mk-sm-removable {
-	background: $mk-gray-5;
+	background: $mk-gray-4;
 	border-top: 1px solid $mk-gray-3;
-	position: absolute;
-	top: 100%;
-	width: 100%;
 }
 
 .mk-sm-alt {

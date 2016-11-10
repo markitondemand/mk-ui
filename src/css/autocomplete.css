@@ -25,14 +25,14 @@
 
 .mk-ac-trigger {
   background: transparent;
-  color: white;
-  border: 1px solid crimson;
+  color: #333;
+  border: 1px solid #008e89;
   position: relative; }
 
 .mk-ac-trigger[aria-expanded="true"],
 .mk-ac-trigger.focus {
-  color: cadetblue;
-  border-color: cadetblue; }
+  color: #00b140;
+  border-color: #00b140; }
 
 .mk-ac-trigger.disabled {
   color: #666;
@@ -65,17 +65,17 @@
   -webkit-transition: all 0.5s; }
 
 .mk-ac-shadow.loading .mk-ac-trigger:before {
-  background: crimson; }
+  background: #008e89; }
 
 .mk-ac-shadow.loading .mk-ac-trigger:after {
-  background: cadetblue;
+  background: #00b140;
   animation-name: mk-ac-loading;
   animation-duration: 0.5s;
   animation-iteration-count: infinite; }
 
 .mk-ac-list {
-  background: #eee;
-  border-top: 1px solid cadetblue;
+  background: white;
+  border-top: 1px solid #00b140;
   box-shadow: 0 0 1.5rem black;
   display: none;
   opacity: 0;
@@ -97,7 +97,7 @@
 
 .mk-ac-shadow.loading .mk-ac-list:after {
   animation: mk-ac-loader 1s infinite linear;
-  border: 0.25rem double #999;
+  border: 0.25rem double #ccc;
   border-top-color: #333;
   border-radius: 50%;
   content: "";
@@ -124,7 +124,7 @@
 
 .mk-ac-option {
   background: tranparent;
-  color: #999;
+  color: #ccc;
   display: block;
   font-size: 1.5rem;
   padding: 0.625rem; }
@@ -133,7 +133,7 @@
 .mk-ac-option:active,
 .mk-ac-option:focus {
   background: transparent;
-  color: #999; }
+  color: #ccc; }
 
 .mk-ac-shadow.transitions .mk-ac-option {
   transition: background 0.5s;
@@ -141,10 +141,10 @@
 
 .mk-ac-option.active {
   color: #666;
-  background: #ccc; }
+  background: #eee; }
 
 .mk-ac-option[aria-selected="true"]:after {
-  color: crimson;
+  color: #008e89;
   content: "✔";
   font-size: 2rem;
   line-height: 2rem;
@@ -153,7 +153,7 @@
 
 .mk-ac-option[aria-disabled="true"] {
   background: transparent;
-  color: #ccc;
+  color: #eee;
   cursor: default; }
 
 .mk-ac-tags {

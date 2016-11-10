@@ -1,13 +1,35 @@
 
 if methods
   h3 Methods
-  ul.list-unstyled
+  ul.list-unstyled.list-methods
     each m in methods
       li
         h4
           em
-            | instance.
-          span= m.name
+            | instance
+          span= m.invoke
         p= m.desc
-        pre
-          code.language-javascript= m.example
+        if (m.params && m.params.length)
+            h5 Params
+            ul.list-unstyled.list-params
+                each p in m.params
+                    li
+                        dl
+                            dt
+                                | Name
+                            dd= p.name
+                        dl
+                            dt
+                                | Type
+                            dd= p.type
+                        dl
+                            dt
+                                | Description
+                            dd= p.desc
+        else
+            h5 Params
+            ul.list-unstyled.list-params
+                li
+                    strong
+                        | No params available for&nbsp;
+                        span= m.name

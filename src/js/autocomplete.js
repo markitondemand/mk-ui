@@ -9,6 +9,7 @@
 			return factory( root, mk );
 		});
 	}
+
 	//
 	// CommonJS module support
 	// -----------------------------------------------------
