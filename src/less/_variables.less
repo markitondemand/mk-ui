@@ -1,15 +1,14 @@
-@charset "UTF-8";
 
-@mk-primary: crimson;
-@mk-secondary: cadetblue;
+@mk-primary: #008e89;
+@mk-secondary: #00b140;
 
 @mk-gray-1: #333;
 @mk-gray-2: #666;
-@mk-gray-3: #999;
-@mk-gray-4: #ccc;
-@mk-gray-5: #eee;
+@mk-gray-3: #ccc;
+@mk-gray-4: #eee;
+@mk-gray-5: white;
 
-@mk-color: white;
+@mk-color: #333;
 
 //
 // loader
@@ -27,13 +26,14 @@
 
 @mk-sm-trigger-bg: transparent;
 @mk-sm-trigger-color: @mk-color;
-@mk-sm-trigger-char: "›";
+@mk-sm-trigger-char: '\203A';
 @mk-sm-trigger-char-transform: rotate(90deg);
 @mk-sm-trigger-disabled-color: @mk-gray-2;
 
 @mk-sm-list-bg: @mk-gray-5;
+@mk-sm-list-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
 
-@mk-sm-option-color: @mk-gray-3;
+@mk-sm-option-color: @mk-gray-2;
 @mk-sm-option-bg: tranparent;
 
 @mk-sm-option-color-hover: @mk-gray-3;
@@ -45,7 +45,7 @@
 @mk-sm-option-color-active: @mk-gray-2;
 @mk-sm-option-bg-active: @mk-gray-4;
 
-@mk-sm-option-selected-char: "✔";
+@mk-sm-option-selected-char: '\2714';
 
 //
 // Autocomplete
@@ -72,7 +72,7 @@
 @mk-ac-option-color-active:@mk-gray-2;
 @mk-ac-option-bg-active: @mk-gray-4;
 
-@mk-ac-option-selected-char: "✔";
+@mk-ac-option-selected-char: '\2714';
 
 @mk-ac-list-loader-bg: rgba(255, 255, 255, 0.7);
 @mk-ac-list-loader-size: 3.28rem;
