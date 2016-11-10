@@ -1,5 +1,5 @@
 {
-  "name": "@markit/mk-ui",
+  "name": "mk-ui",
   "version": "0.0.1",
   "description": "A flexible UI Built on Accessibility",
   "dependencies": {},

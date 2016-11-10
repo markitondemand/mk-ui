@@ -110,6 +110,10 @@ body a:focus {
 	border-color: #d7d7d7;
 }
 
+.panel-event {
+	min-height: 275px;
+}
+
 .panel-body {
 	padding-top: 0;
 }

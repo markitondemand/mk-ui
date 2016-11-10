@@ -17,6 +17,10 @@
 // --------------------
 */
 
+.mk-ac-root {
+	position: relative;
+}
+
 .mk-ac {
 	display: none;
 }
@@ -53,14 +57,14 @@
 	background: transparent;
 	border: 0;
 	outline: none;
-	padding: 0.625rem;
+	padding: $mk-padding;
 	position: relative;
 	z-index: 1;
 }
 
 .mk-ac-trigger:before,
 .mk-ac-trigger:after {
-		content: "";
+	content: "";
     position: absolute;
     width: calc(100% + 2px);
     height: 4px;
@@ -87,7 +91,7 @@
 .mk-ac-list {
 	background: $mk-ac-list-bg;
 	border-top: 1px solid $mk-secondary;
-	box-shadow: 0 0 1.5rem black;
+	box-shadow: $mk-ac-list-boxshadow;
 	display: none;
 	opacity: 0;
 	margin: 0;
@@ -96,6 +100,7 @@
 	min-height: $mk-ac-list-loader-size * 2;
 	position: absolute;
 	top: 100%;
+	z-index: 1;
 }
 
 .mk-ac-shadow.loading .mk-ac-list:before {
@@ -109,19 +114,19 @@
 }
 
 .mk-ac-shadow.loading .mk-ac-list:after {
-		animation: mk-ac-loader 1s infinite linear;
-		border: .25rem double $mk-gray-3;
-		border-top-color: $mk-gray-1;
-		border-radius: 50%;
-		content: "";
+	animation: mk-ac-loader 1s infinite linear;
+	border: .25rem double $mk-gray-3;
+	border-top-color: $mk-gray-1;
+	border-radius: 50%;
+	content: "";
     height: $mk-ac-list-loader-size;
-		left: 50%;
+	left: 50%;
     margin-top: ($mk-ac-list-loader-size / 2) * -1;
     margin-left: ($mk-ac-list-loader-size / 2) * -1;
     position: absolute;
     top: 50%;
     text-align: center;
-		width: $mk-ac-list-loader-size;
+	width: $mk-ac-list-loader-size;
 }
 
 .mk-ac-list.transition {
@@ -144,7 +149,7 @@
 	color: $mk-ac-option-color;
 	display: block;
 	font-size: 1.5rem;
-	padding: 0.625rem;
+	padding: $mk-padding;
 }
 
 .mk-ac-option:hover,
@@ -152,6 +157,7 @@
 .mk-ac-option:focus {
 	background: $mk-ac-option-bg-hover;
 	color: $mk-ac-option-color-hover;
+	text-decoration: none;
 }
 
 .mk-ac-shadow.transitions .mk-ac-option {
@@ -180,27 +186,32 @@
 }
 
 .mk-ac-tags {
-	margin: 0.714rem 0;
+	margin: $mk-margin 0;
 	padding: 0;
 }
 
-.mk-ac-tag {
-	background: $mk-gray-2;
-	list-style: none;
-	display: inline-block;
-	padding: 0.357rem;
+.mk-ac-shadow.no-tags .mk-ac-tags {
+	display: none;
 }
 
-.mk-ac-tag + .mk-ac-tag {
-	margin-left: 0.357rem;
+.mk-ac-tag {
+	background: $mk-ac-tag-bg;
+	border: $mk-ac-tag-border;
+	list-style: none;
+	display: inline-block;
+	padding: $mk-padding $mk-padding $mk-padding 0;
+	margin: 1rem 0;
+}
+
+.mk-ac-tag {
+	margin-right: 0.6rem;
 }
 
 .mk-ac-tag [data-action="remove"] {
-	background: $mk-gray-1;
 	display: inline-block;
-	padding: 0 0.357rem;
+	padding: 0 $mk-padding;
 }
 
 .mk-ac-tag [data-action="remove"]:before {
-	content: '\d7';
+	content: $mk-ac-tag-remove-icon;
 }

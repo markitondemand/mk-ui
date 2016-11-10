@@ -1,11 +1,148 @@
+/*
 
+	Selectmenu
+	Dependencies: core
+
+	Events:
+
+	<event:render>
+		<desc>Fired when data has been retrieved and the list is ready to be built. Binding this event replaces the original rending with your own, custom, rendering.</desc>
+		<example>
+			instance.on('render', function (data) {
+				console.info(data);
+			});
+		</example>
+	</event:render>
+
+	<event:change>
+		<desc>Fires when autocomplete value changes.</desc>
+		<example>
+			instance.on('change', function () {
+				console.info('base 64:', this.value);
+				console.info('raw objects:', this.selections);
+			});
+		</example>
+	</event:change>
+
+	<event:show>
+		<desc>Fired when menu is shown.</desc>
+		<example>
+			instance.on('show', function () {
+				console.info('Menu has opened!');
+			});
+		</example>
+	</event:show>
+
+	<event:hide>
+		<desc>Fired when menu is hidden.</desc>
+		<example>
+			instance.on('hide', function () {
+				console.info('Menu has closed!');
+			});
+		</example>
+	</event:hide>
+
+	<event:activate>
+		<desc>Fired when an option becomes active.</desc>
+		<example>
+			instance.on('activate', function (option, keyboard) {
+				console.info('active option:', option);
+				console.info('came from keyboard (vs mouse):', keyboard);
+			});
+		</example>
+	</event:activate>
+
+	<event:disabled>
+		<desc>Fired when selectmenu is disabled, if previously enabled.</desc>
+		<example>
+			instance.on('disabled', function () {
+				console.info('Selectmenu has been diabled.');
+			});
+		</example>
+	</event:disabled>
+
+	<event:enabled>
+		<desc>Fired when selectmenu is enabled, if previously disabled.</desc>
+		<example>
+			instance.on('enabled', function () {
+				console.info('Selectmenu has become enabled.');
+			});
+		</example>
+	</event:enabled>
+
+	<event:update>
+		<desc>Fired when updates are made to the rendered UI through the use of update().</desc>
+		<example>
+			instance.on('update', function () {
+				console.info('Changes to the native select have been applied to the UI.');
+			});
+		</example>
+	</event:update>
+
+	<event:capacity>
+		<desc>Fired when you've reached the selection limit. Does not fire for single selects.</desc>
+		<example>
+			instance.on('capacity', function () {
+				console.info('We reached capacity!');
+			});
+		</example>
+	</event:capacity>
+
+	<event:create.label>
+		<desc>Fired when the trigger input value (label) changes.</desc>
+		<example>
+			instance.on('create.label', function (o) {
+				o.label = o.node.text() + ' new label!';
+			});
+		</example>
+	</event:create.label>
+
+	<event:request.before>
+		<desc>Fired before ajax requests search is invoked.</desc>
+		<example>
+			instance.on('request.before', function (query) {
+				console.info('about to searhc for ', query);
+			});
+		</example>
+	</event:request.before>
+
+	<event:request.error>
+		<desc>Fired before ajax requests search is invoked.</desc>
+		<example>
+			instance.on('request.error', function (query, xhr) {
+				console.info('request failed for ', query);
+			});
+		</example>
+	</event:request.error>
+
+	<event:request.complete>
+		<desc>Fired when a data request has completed</desc>
+		<example>
+			instance.on('request.complete', function (query, xhr, code) {
+				console.info('successful seach for ', query);
+			});
+		</example>
+	</event:request.complete>
+
+	<event:request.success>
+		<desc>Fired when data is ready to be cached and used by autocomplete.</desc>
+		<example>
+			instance.on('request.success', function (query, data, code, xhr) {
+				this.each(data, function (i, o) {
+					o.value = o.originalProperty;
+					o.label = o.originalPropertyLabel;
+				});
+			});
+		</example>
+	</event:request.success>
+*/
 (function ( root, factory ) {
 	//
 	// AMD support
 	// ---------------------------------------------------
 	if ( typeof define === 'function' && define.amd ) {
 
-		define( [ 'mknasty'], function ( mk ) {
+		define( [ 'mk'], function ( mk ) {
 			return factory( root, mk );
 		});
 	}
@@ -15,13 +152,13 @@
 	// -----------------------------------------------------
 	else if ( typeof module === 'object' && module.exports ) {
 
-		module.exports = factory( root, require('mknasty'));
+		module.exports = factory( root, require('mk'));
 	}
 	//
 	// Everybody else
 	// -----------------------------------------------------
 	else {
-		return factory( root, root.mkNasty );
+		return factory( root, root.Mk );
 	}
 
 })( typeof window !== "undefined" ? window : this, function ( root, mk ) {
@@ -120,49 +257,135 @@
 			return 'v1.0.0';
 		},
 
+		/*
+			<property:rootinput>
+				<desc>This is your wrapped input, living in the root container.</desc>
+			</property:rootinput>
+		*/
+
+		get rootinput () {
+			return this.node('', this.root);
+		},
+
+		/*
+			<property:element>
+				<desc>This is your raw input, living in the root container.</desc>
+			</property:element>
+		*/
+
+		get element () {
+			return this.rootinput[0];
+		},
+
+		/*
+			<property:tagroot>
+				<desc>The wrapped root element holding tags.</desc>
+			</property:tagroot>
+		*/
+
 		get tagroot () {
 			return this.shadow.find(
 				this.selector('tags'));
 		},
+
+		/*
+			<property:tags>
+				<desc>The wrapped collection of UI tags.</desc>
+			</property:tags>
+		*/
 
 		get tags () {
 			return this.tagroot.find(
 				this.selector('tag'));
 		},
 
+		/*
+			<property:live>
+				<desc>The wrapped live element responsible for updating screen reader users with atomic information.</desc>
+			</property:live>
+		*/
+
 		get live () {
 			return this.shadow.find(
 				this.selector('live'));
 		},
+
+		/*
+			<property:notifications>
+				<desc>Similar to the live element, but hold notifications such as when a request fails.</desc>
+			</property:notifications>
+		*/
 
 		get notifications () {
 			return this.shadow.find(
 				this.selector('notifications'));
 		},
 
+		/*
+			<property:isLoading>
+				<desc>Boolean representing if the autocomplete is requesting data.</desc>
+			</property:isLoading>
+		*/
+
 		get isLoading () {
 			return this.shadow.hasClass('loading');
 		},
+
+		/*
+			<property:limit>
+				<desc>Number of selections an autocompelete instance can have</desc>
+			</property:limit>
+		*/
 
 		get limit () {
 			return this.config.limit;
 		},
 
+		/*
+			<property:doubledelete>
+				<desc>Boolean representing whether doubledelete is enabled.</desc>
+			</property:doubledelete>
+		*/
+
 		get doubledelete () {
 			return this.config.doubledelete;
 		},
+
+		/*
+			<property:multiple>
+				<desc>Boolean representing if the use can select more than one result.</desc>
+			</property:multiple>
+		*/
 
 		get multiple () {
 			return this.limit > 1;
 		},
 
+		/*
+			<property:capacity>
+				<desc>Boolean representing if the autocomplete is at max selections.</desc>
+			</property:capacity>
+		*/
+
 		get capacity () {
 			return this.selections.length >= this.limit;
 		},
 
+		/*
+			<property:anything>
+				<desc>Boolean representing if the autocomplete will accept any value or only a value from the result list.</desc>
+			</property:anything>
+		*/
+
 		get anything () {
 			return this.config.anything;
 		},
+
+		/*
+			<property:value>
+				<desc>String value set on your root's input element. The value is flattened, which means it's an object that's been base64 encoded.</desc>
+			</property:value>
+		*/
 
 		get value () {
 
@@ -178,27 +401,63 @@
 			return null;
 		},
 
+		/*
+			<property:isEmpty>
+				<desc>Boolean representing if we have no results.</desc>
+			</property:isEmpty>
+		*/
+
 		get isEmpty () {
 			return this.items.length < 1;
 		},
 
+		/*
+			<property:deletecount>
+				<desc>How many times delete has been pressed in a row. Used with doubledelete.</desc>
+			</property:deletecount>
+		*/
+
 		deletecount: 0,
+
+		/*
+			<property:selections>
+				<desc>Array of objects holding the value/label pairs currently selected.</desc>
+			</property:selections>
+		*/
 
 		selections: null,
 
+		/*
+			<property:requests>
+				<desc>How many requests have been kicked off in total.</desc>
+			</property:requests>
+		*/
+
 		requests: 0,
 
+		/*
+			<property:cache>
+				<desc>Object containing all cached requests.</desc>
+			</property:cache>
+		*/
+
 		cache: null,
+
+		/*
+			<property:query>
+				<desc>The current query string.</desc>
+			</property:query>
+		*/
 
 		query: '',
 
 		_verifyTag: function (n) {
 
-			var node = this.$(n);
+			var node = this.node('', n);
 
 			if (node.length < 1 ||
 				node[0].tagName.toLowerCase() !== 'input') {
-				throw new Error(':: mkNasty.Autocomplete - root must be a <input> node ::');
+				throw new Error(':: Mk.Autocomplete - root must have a text <input> node ::');
 			}
 
 			return true;
@@ -218,16 +477,19 @@
 
 			o = o || {};
 
+			var input = this.rootinput;
+
 			o.data = o.data || null;
 
 			this
-			._param('remote', 'string', o, null)
-			._param('type', 'string', o, 'json')
-			._param('limit', 'number', o, 1)
-			._param('time', 'number', o, 500)
-			._param('doubledelete', 'boolean', o, this.multiple)
-			._param('anything', 'boolean', o, true)
-			._param('comma', 'boolean', o, false);
+			._param('remote', 'string', o, null, input)
+			._param('type', 'string', o, 'json', input)
+			._param('limit', 'number', o, 1, input)
+			._param('time', 'number', o, 500, input)
+			._param('doubledelete', 'boolean', o, this.multiple, input)
+			._param('anything', 'boolean', o, true, input)
+			._param('comma', 'boolean', o, false, input)
+			._param('notags', 'boolean', o, false, input);
 
 			this.super(o);
 		},
@@ -237,7 +499,12 @@
 			this.super();
 
 			this.input.attr('placeholder',
-				this.root.attr('placeholder'));
+				this.rootinput.attr('placeholder'));
+
+			if (this.config.notags) {
+				this.shadow.addClass('no-tags');
+				this.tagroot.attr('aria-hidden', 'true');
+			}
 		},
 
 		_bind: function () {
@@ -276,7 +543,7 @@
 
 		_bindLabelEvents: function () {
 
-			thiss = this;
+			var thiss = this;
 
 			this.tagroot.on('click.mk', '[data-action="remove"]', function (e) {
 				e.preventDefault();
@@ -338,6 +605,13 @@
 			this.super(e);
 		},
 
+		/*
+			<method:popByDelete>
+				<invoke>.popByDelete()</invoke>
+				<desc>Mostly for internal use, this method will pop the last selection out of the collection.</desc>
+			</method:popByDelete>
+		*/
+
 		popByDelete: function () {
 
 			if (this.doubledelete) {
@@ -352,6 +626,13 @@
 			}
 			return this;
 		},
+
+		/*
+			<method:move>
+				<invoke>.move([up])</invoke>
+				<desc>Move the active list item up or down from the currently activated.</desc>
+			</method:move>
+		*/
 
 		move: function (up) {
 
@@ -444,13 +725,46 @@
 			};
 		},
 
+		/*
+			<method:flatten>
+				<invoke>.flatten(value)</invoke>
+				<param:value>
+					<type>Object</type>
+					<desc>Object to convert to a flattened string.</desc>
+				</param:value>
+				<desc>Invokes JSON.stringify and btoa on an object.</desc>
+			</method:flatten>
+		*/
+
 		flatten: function (value) {
 			return btoa(JSON.stringify(value));
 		},
 
+		/*
+			<method:unflatten>
+				<invoke>.unflatten(value)</invoke>
+				<param:value>
+					<type>String</type>
+					<desc>String to convert back into an object.</desc>
+				</param:value>
+				<desc>Invokes atob and JSON.parse on a string.</desc>
+			</method:unflatten>
+		*/
+
 		unflatten: function (value) {
 			return JSON.parse(atob(value));
 		},
+
+		/*
+			<method:label>
+				<invoke>.label([n])</invoke>
+				<param:n>
+					<type>Node/undefined</type>
+					<desc>Pulls the label value out of a Node. Uf undefined, pulls the current label value. Default is undefined.</desc>
+				</param:n>
+				<desc>Invokes atob and JSON.parse on a string.</desc>
+			</method:label>
+		*/
 
 		label: function (n) {
 
@@ -467,6 +781,17 @@
 			return pointer.label;
 		},
 
+		/*
+			<method:hasCache>
+				<invoke>.hasCache(key)</invoke>
+				<param:key>
+					<type>string</type>
+					<desc>a previously searched query.</desc>
+				</param:key>
+				<desc>Returns true when cache exists for a query, false when it does not.</desc>
+			</method:hasCache>
+		*/
+
 		hasCache: function (key) {
 
 			key = (key || '').toLowerCase();
@@ -481,6 +806,17 @@
 
 			return (!key && this.config.data !== null) || false;
 		},
+
+		/*
+			<method:getCache>
+				<invoke>.getCache(key)</invoke>
+				<param:key>
+					<type>string</type>
+					<desc>a previously searched query.</desc>
+				</param:key>
+				<desc>Returns data for a previously cached query.</desc>
+			</method:getCache>
+		*/
 
 		getCache: function (key) {
 
@@ -497,9 +833,31 @@
 			return (!key && this.config.data) || null;
 		},
 
+		/*
+			<method:setCache>
+				<invoke>.getCache(key, data)</invoke>
+				<param:key>
+					<type>string</type>
+					<desc>a string represending query text.</desc>
+				</param:key>
+				<param:data>
+					<type>Object/Array</type>
+					<desc>Object to be cached.</desc>
+				</param:fata>
+				<desc>Caches object for a given query.</desc>
+			</method:setCache>
+		*/
+
 		setCache: function (key, data) {
 			return this.cache[(key || '').toLowerCase()] = data;
 		},
+
+		/*
+			<method:pop>
+				<invoke>.pop()</invoke>
+				<desc>Pop a selection from the current collection.</desc>
+			</method:pop>
+		*/
 
 		pop: function () {
 
@@ -516,6 +874,17 @@
 			}
 			return null;
 		},
+
+		/*
+			<method:comma>
+				<invoke>.comma(value)</invoke>
+				<param:value>
+					<type>String</type>
+					<desc>a string represending query text.</desc>
+				</param:value>
+				<desc>Run the comma parsing on a string value. Only works when anything flag is true.</desc>
+			</method:pop>
+		*/
 
 		comma: function (value) {
 
@@ -549,6 +918,21 @@
 			return this;
 		},
 
+		/*
+			<method:search>
+				<invoke>.search(key, add)</invoke>
+				<param:key>
+					<type>String</type>
+					<desc>a string representing query text.</desc>
+				</param:key>
+				<param:add>
+					<type>Boolean</type>
+					<desc>Add the the current query, or replace the current query. Default is false (replace).</desc>
+				</param:add>
+				<desc>Runs a search for the query.</desc>
+			</method:search>
+		*/
+
 		search: function (key, add) {
 
 			var q = key;
@@ -571,6 +955,13 @@
 			}
 		},
 
+		/*
+			<method:clear>
+				<invoke>.clear()</invoke>
+				<desc>Clear query, list results, and close the menu.</desc>
+			</method:clear>
+		*/
+
 		clear: function () {
 
 			this.items.remove();
@@ -579,6 +970,20 @@
 
 			return this;
 		},
+
+		/*
+			<method:show>
+				<invoke>.show()</invoke>
+				<desc>Shows the menu.</desc>
+			</method:show>
+		*/
+
+		/*
+			<method:hide>
+				<invoke>.hide()</invoke>
+				<desc>Hides the menu</desc>
+			</method:hide>
+		*/
 
 		show: function () {
 
@@ -606,6 +1011,17 @@
 			return this;
 		},
 
+		/*
+			<method:select>
+				<invoke>.select(value)</invoke>
+				<param:value>
+					<type>String</type>
+					<desc>a flattened string representing a selection object.</desc>
+				</param:value>
+				<desc>Selects a value from results, or a custom value provided by you.</desc>
+			</method:select>
+		*/
+
 		select: function (value) {
 
 			var data = this.unflatten(value);
@@ -631,11 +1047,22 @@
 			return this;
 		},
 
+		/*
+			<method:deselect>
+				<invoke>.deselect(value)</invoke>
+				<param:value>
+					<type>String</type>
+					<desc>a flattened string representing a selection object.</desc>
+				</param:value>
+				<desc>Deselects a value from results, or a custom value provided by you.</desc>
+			</method:deselect>
+		*/
+
 		deselect: function (value) {
 
 			var data = this.unflatten(value),
 				result = false;
-
+console.info(this.selections)
 			this.each(this.selections, function (i, o) {
 				if (o.value === data.value) {
 					result = true;
@@ -721,6 +1148,13 @@
 			return this;
 		},
 
+		/*
+			<method:removeAll>
+				<invoke>.removeAll()</invoke>
+				<desc>Removes all selections.</desc>
+			</method:removeAll>
+		*/
+
 		removeAll: function () {
 
 			if (this.selections.length > 0) {
@@ -735,6 +1169,13 @@
 			return this;
 		},
 
+		/*
+			<method:abort>
+				<invoke>.abort()</invoke>
+				<desc>Aborts current request.</desc>
+			</method:abort>
+		*/
+
 		abort: function () {
 
 			if (this.timer) {
@@ -747,6 +1188,17 @@
 			}
 			return this;
 		},
+
+		/*
+			<method:request>
+				<invoke>.request(query)</invoke>
+				<param:query>
+					<type>String</type>
+					<desc>String representing text to query on.</desc>
+				</param:query>
+				<desc>Bypasses the logic in search() and kicks off request for query.</desc>
+			</method:request>
+		*/
 
 		request: function (query) {
 

@@ -23,16 +23,16 @@ module.exports = function ( express, app ) {
   app.get('/selectmenu', function (req, res) {
 
     docBuilder.parse('js/selectmenu.js', function (data) {
-
-      data.title = 'Selectmenu';
-
-      res.render('selectmenu', data);
+        data.title = 'Selectmenu';
+        res.render('selectmenu', data);
     });
   });
 
   app.get('/autocomplete', function (req, res) {
-    res.render('autocomplete', {
-      title: 'Autocomplete'
+
+    docBuilder.parse('js/autocomplete.js', function (data) {
+        data.title = 'Autocomplete';
+        res.render('autocomplete', data);
     });
   });
 

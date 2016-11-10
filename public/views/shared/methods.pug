@@ -10,7 +10,7 @@ if methods
           span= m.invoke
         p= m.desc
         if (m.params && m.params.length)
-            h5 Params
+            h5 Parameters
             ul.list-unstyled.list-params
                 each p in m.params
                     li
@@ -27,9 +27,7 @@ if methods
                                 | Description
                             dd= p.desc
         else
-            h5 Params
             ul.list-unstyled.list-params
                 li
                     strong
-                        | No params available for&nbsp;
-                        span= m.name
+                        | No params required.

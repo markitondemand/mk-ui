@@ -9,76 +9,123 @@ html
 
 		include ./shared/header
 
-		main.container-fluid
+		main.container.documentation
+			p
+				em
+					| Autocomplete inherits from Selectmenu. For a detailed list of inherited members and events, go to&nbsp;
+					a(href="/selectmenu")
+			h2
+				| Examples
+			p
+				| Autocomplete comes with a ton of opt-in behaviors and functionality. Below we've set up a few different examples, breaking out some of the features you can add to your instances.
 			div.row
-				div.col-sm-4
+				div.col-sm-6
 					section.panel
 						header.panel-heading
 							h2.panel-title Autocomplete
 						div.panel-body
-							input(
-								type="text",
-								class="mk-ac",
-								placeholder="Search for a symbol",
-								name="symbol-1")
-				div.col-sm-4
+							div.mk-ac-root
+								input(
+									type="text",
+									class="mk-ac",
+									placeholder="Search for a symbol",
+									name="symbol-1")
+				div.col-sm-6
 					section.panel
 						header.panel-heading
 							h2.panel-title Autocomplete (0 - 4 Selections)
 						div.panel-body
-							input(
-								type="text",
-								class="mk-ac",
-								placeholder="Search for a symbol",
-								name="symbol-2",
-								data-limit="4")
-				div.col-sm-4
+							div.mk-ac-root
+								input(
+									type="text",
+									class="mk-ac",
+									placeholder="Search for a symbol",
+									name="symbol-2",
+									data-limit="4")
+				div.col-sm-6
 					section.panel
 						header.panel-heading
 							h2.panel-title Autocomplete (Comma Seperate)
 						div.panel-body
-							input(
-								type="text",
-								class="mk-ac",
-								placeholder="Search for a symbol",
-								name="symbol-3",
-								data-limit="4",
-								data-comma="true")
+							div.mk-ac-root
+								input(
+									type="text",
+									class="mk-ac",
+									placeholder="Search for a symbol",
+									name="symbol-3",
+									data-limit="4",
+									data-comma="true")
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h2.panel-title Autocomplete (Results Only)
+						div.panel-body
+							div.mk-ac-root
+								input(
+									type="text",
+									class="mk-ac",
+									placeholder="Search for a symbol",
+									name="symbol-4",
+									data-limit="4",
+									data-comma="true",
+									data-anything="false")
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h2.panel-title Autocomplete (No Tags)
+						div.panel-body
+							div.mk-ac-root
+								input(
+									type="text",
+									class="mk-ac",
+									placeholder="Search for a symbol",
+									name="symbol-5",
+									data-comma="true",
+									data-notags="true")
 
+			include ./shared/events
+			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/src/js/standard/selectmenu.js")
-		script(type="text/javascript", src="/src/js/standard/autocomplete.js")
+		script(type="text/javascript", src="/src/js/selectmenu.js")
+		script(type="text/javascript", src="/src/js/autocomplete.js")
 		script.
 
-			mkNasty.transitions(true);
+			Mk.transitions(true);
 
-			var inputs = document.querySelectorAll('.mk-ac');
-			var Autocomplete = mkNasty.get('Autocomplete');
+			var inputs = $('.mk-ac-root'),
+				Autocomplete = Mk.get('Autocomplete'),
+				ac = [],
+				autocomplete;
+
+			inputs.each(function () {
+
+				autocomplete = new Autocomplete(this, {
+					remote: 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/jsonp?input={{%query}}',
+					type: 'jsonp'
+				});
+
+				autocomplete.on('request.success', function (q, d) {
+					this.each(d, function (i, o) {
+						o.label = o.Name,
+						o.value = o.Symbol
+					});
+				});
+
+				autocomplete.on('activate', function (node, keyboard) {
+					if (keyboard) {
+						this.input.val(node.attr('data-display'));
+					}
+				});
+
+				autocomplete.on('change', function () {
+					console.info('selections (raw):', this.selections);
+					console.info('value (base64):', this.value)
+				});
+
+				ac.push(autocomplete)
+			});
 
 			for (var i = 0; i < inputs.length; i++) {
 
-					var autocomplete = new Autocomplete(inputs[i], {
-						remote: 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/jsonp?input={{%query}}',
-						type: 'jsonp'
-					});
 
-					autocomplete.on('request.success', function (q, d) {
-						this.each(d, function (i, o) {
-							o.label = o.Name,
-							o.value = o.Symbol
-						});
-					});
-
-					autocomplete.on('activate', function (node, keyboard) {
-						if (keyboard) {
-							this.input.val(node.attr('data-display'));
-						}
-					});
-
-					autocomplete.on('change', function () {
-						console.info(this.element)
-						console.info('value changed!');
-						console.info('selections (raw):', this.selections);
-						console.info('value (base64):', this.value)
-					})
 			}

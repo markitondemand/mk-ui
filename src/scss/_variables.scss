@@ -10,6 +10,9 @@ $mk-gray-5: white;
 
 $mk-color: #333;
 
+$mk-padding: 0.8rem;
+$mk-margin: 0.8rem;
+
 //
 // loader
 // -------------------------------------------
@@ -59,8 +62,9 @@ $mk-ac-trigger-char-transform: rotate(90deg);
 $mk-ac-trigger-disabled-color: $mk-gray-2;
 
 $mk-ac-list-bg: $mk-gray-5;
+$mk-ac-list-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
 
-$mk-ac-option-color: $mk-gray-3;
+$mk-ac-option-color: $mk-gray-2;
 $mk-ac-option-bg: tranparent;
 
 $mk-ac-option-color-hover: $mk-gray-3;
@@ -76,3 +80,7 @@ $mk-ac-option-selected-char: '\2714';
 
 $mk-ac-list-loader-bg: rgba(255, 255, 255, 0.7);
 $mk-ac-list-loader-size: 3.28rem;
+
+$mk-ac-tag-bg: $mk-gray-4;
+$mk-ac-tag-border: 1px solid $mk-gray-3;
+$mk-ac-tag-remove-icon: '\d7';

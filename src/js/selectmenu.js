@@ -1,6 +1,5 @@
 
 /*
-
 	Selectmenu
 	Dependencies: core
 
@@ -328,7 +327,7 @@
 
 			if (node.length < 1 ||
 				node[0].tagName.toLowerCase() !== 'select') {
-				throw new Error(':: Mk.Selectmenu - root must be a <select> node ::');
+				throw new Error(':: Mk.Selectmenu - root must have a <select> node ::');
 			}
 
 			return true;
