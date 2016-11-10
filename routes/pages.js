@@ -22,7 +22,7 @@ module.exports = function ( express, app ) {
 
   app.get('/selectmenu', function (req, res) {
 
-    docBuilder.parse('js/standard/selectmenu.js', function (data) {
+    docBuilder.parse('js/selectmenu.js', function (data) {
 
       data.title = 'Selectmenu';
 

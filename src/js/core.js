@@ -8,8 +8,8 @@
 
 		define( [ 'jquery' ], function ( $ ) {
 			// assign to root in case there are global non-amd scripts on the page,
-			// which use mkNasty
-			return (root.mkNasty = factory( root, $ ));
+			// which use Mk
+			return (root.Mk = factory( root, $ ));
 		});
 	}
 
@@ -24,7 +24,7 @@
 
 			function( w ) {
 				if ( !w.document ) {
-					throw new Error( "mkNasty requires a window with a document" );
+					throw new Error( "Mk requires a window with a document" );
 				}
 				return factory( w, require( 'jquery' ) );
 			};
@@ -35,38 +35,38 @@
 	// -----------------------------------------------------
 	else {
 
-		root.mkNasty = factory( root, root.jQuery );
+		root.Mk = factory( root, root.jQuery );
 	}
 
-})( typeof window !== "undefined" ? window : this, function (root, $) { 
+})( typeof window !== "undefined" ? window : this, function (root, $) {
 
 	//
-	// version of mk core 
+	// version of mk core
 	//
 	var version = 'v1.0.0';
 
 	//
 	// check for array-like objects -
 	// array, NodeList, jQuery (anything with an iterator)
-	// 
+	//
 
 	function arraylike (a) {
 
-		var l = !!a && typeof a.length == 'number' 
-			&& 'length' in a 
+		var l = !!a && typeof a.length == 'number'
+			&& 'length' in a
 			&& a.length;
 
 		if (typeof a === 'function' || a === root) {
 			return false;
 		}
 
-		return a instanceof Array 
+		return a instanceof Array
 			|| a instanceof NodeList
-			|| l === 0 
+			|| l === 0
 			|| typeof l === 'number' && l > 0 && (l - 1) in a;
 	}
 
-	// test for object primitives vs. 
+	// test for object primitives vs.
 	// instantiated objects and prototypes
 	//
 
@@ -81,7 +81,7 @@
 			f = ({}).hasOwnProperty.toString,
 			s = f.call(Object);
 
-		if (!p) { 
+		if (!p) {
 			return true;
 		}
 
@@ -135,7 +135,7 @@
 			r = {};
 
 			for(i in o) {
-				r[i] = copy(o[i]); 
+				r[i] = copy(o[i]);
 				l = true;
 			}
 		}
@@ -173,7 +173,7 @@
 	//
 	// transition
 	//
-	// Give us our browser transition key if 
+	// Give us our browser transition key if
 	// transitions are enabled
 	// --------------------------------------------------
 
@@ -216,7 +216,7 @@
 
 	function property (obj, proto, member) {
 
-		var desc = Object.getOwnPropertyDescriptor(proto, member), 
+		var desc = Object.getOwnPropertyDescriptor(proto, member),
 			prop, fn;
 
 		if (typeof desc.get !== 'undefined') {
@@ -232,7 +232,7 @@
 		fn = wrapFunction(prop, member);
 
 		Object.defineProperty(obj, member, {
-			
+
 			get: function () {
 				return fn;
 			},
@@ -282,7 +282,7 @@
 
 	//
 	// keeps track of call stacks
-	// which allows super() to be called properly 
+	// which allows super() to be called properly
 	// with nested functions (functions calling other functions calling super)
 	//
 
@@ -298,9 +298,9 @@
 		if (i > -1) {
 			s = st[i].super.prototype._super_ || null;
 			p = s && s.prototype || {};
-		} 
+		}
 
-		while (s !== null 
+		while (s !== null
 			&& p.hasOwnProperty(m)
 			&& p[m]._id_ === f._id_) {
 
@@ -313,7 +313,7 @@
 	}
 
 	//
-	// pop functions out of the call stack 
+	// pop functions out of the call stack
 	// to keep super() context in place
 	//
 
@@ -354,8 +354,8 @@
 	// change object scope using the keyword 'scope.'
 	// you must close the scope using the data point name (key) of access.
 	//
-	// Add your own rules by following the syntax style and creating callbacks in 
-	// the tempalte.map object. to add custom markup injections, add markup templates 
+	// Add your own rules by following the syntax style and creating callbacks in
+	// the tempalte.map object. to add custom markup injections, add markup templates
 	// to the templates._markup object.
 	//
 	// ---------------------------------------------------------------------------
@@ -454,7 +454,7 @@
 
 	// a map of the different statements
 	// allowed in templates
-	// 
+	//
 
 	template.map = {
 
@@ -490,7 +490,7 @@
 					idx = idx || 0;
 
 					b.push(template(h, k, t, {
-						key: i, 
+						key: i,
 						value: d[i],
 						$index: idx++
 					}));
@@ -505,7 +505,7 @@
 
 				var dp = d[a];
 
-				if ((dp !== undefined && dp !== null && dp !== '' && dp !== false) 
+				if ((dp !== undefined && dp !== null && dp !== '' && dp !== false)
 					|| (dp instanceof Array && dp.length > 0)) {
 					return template(h, k, t, d);
 				}
@@ -612,7 +612,7 @@
 
 			var args = this.args(argz),
 				event = args.shift(),
-				e = this.e( event ), 
+				e = this.e( event ),
 				stack, item;
 
 			if (bucket.hasOwnProperty(e.name)) {
@@ -628,7 +628,7 @@
 						item.handler.apply(item.context || root, args);
 
 						if (item.single) {
-							
+
 							stack.splice(i, 1);
 							l = stack.length;
 							i--;
@@ -655,45 +655,45 @@
 			return (this.agentexp.exec(agent) || [])[1] || ''
 		}
 	};
-	
+
 	//
-	// mkNasty
+	// Mk
 	// -----------------------------------
 
-	function mkNasty() {}
+	function Mk() {}
 
-	mkNasty._$ = $;
+	Mk._$ = $;
 
-	mkNasty._uid = uid;
+	Mk._uid = uid;
 
-	mkNasty._copy = copy;
+	Mk._copy = copy;
 
-	mkNasty._each = each;
+	Mk._each = each;
 
-	mkNasty._property = property;
+	Mk._property = property;
 
-	mkNasty._pushsuper = pushsuper;
+	Mk._pushsuper = pushsuper;
 
-	mkNasty._popsuper = popsuper;
+	Mk._popsuper = popsuper;
 
-	mkNasty._transition = transition;
+	Mk._transition = transition;
 
-	mkNasty._template = template;
+	Mk._template = template;
 
-	mkNasty._eventEmitter = eventEmitter;
+	Mk._eventEmitter = eventEmitter;
 
-	mkNasty._device = device;
+	Mk._device = device;
 
-	mkNasty._keycodes = {
+	Mk._keycodes = {
 		backspace: 8, tab: 9, enter: 13, esc: 27, space: 32,
 		pageup: 33, pagedown: 34, end: 35, home: 36,
 		left: 37, up: 38, right: 39, down: 40, left: 37, right: 39,
 		comma: 188
 	};
 
-	mkNasty.define = function (n, o) {
+	Mk.define = function (n, o) {
 
-		var a = mkNasty, 
+		var a = Mk,
 			p = n.split( '.' );
 
 		for (var i = 0, l = p.length - 1; i < l; i++) {
@@ -706,10 +706,10 @@
 		return a[ p[ p.length - 1 ] ] = o;
 	};
 
-	mkNasty.get = function (n) {
+	Mk.get = function (n) {
 
-		var o = null, 
-			m = mkNasty,
+		var o = null,
+			m = Mk,
 			p = n.split('.');
 
 		for (var i = 0, l = p.length; i < l; i++) {
@@ -725,25 +725,25 @@
 		return o;
 	};
 
-	mkNasty.transitions = function (b) {
+	Mk.transitions = function (b) {
 
 		if (b === true) {
-			mkNasty._transition.enabled = true;
+			Mk._transition.enabled = true;
 		} else if (b === false) {
-			mkNasty._transition.enabled = false;
+			Mk._transition.enabled = false;
 		}
-		return mkNasty._transition.enabled;
+		return Mk._transition.enabled;
 	};
 
-	mkNasty.create = function (name, base, proto) {
+	Mk.create = function (name, base, proto) {
 
 		name = name || '';
 
 		proto = proto || base || {};
 
-		base = typeof base === 'function' 
-			&& base.prototype instanceof mkNasty 
-			&& base || mkNasty;
+		base = typeof base === 'function'
+			&& base.prototype instanceof Mk
+			&& base || Mk;
 
 		var member, statics, obj = function () {
 			this._init.apply( this, arguments );
@@ -753,12 +753,12 @@
 		obj.prototype = Object.create(base.prototype);
 
 		for (member in proto) {
-			mkNasty._property(obj.prototype, proto, member);
+			Mk._property(obj.prototype, proto, member);
 		}
 
-		if (base !== mkNasty) {
+		if (base !== Mk) {
 			for (statics in base) {
-				mkNasty._property(obj, base, statics);
+				Mk._property(obj, base, statics);
 			}
 		}
 
@@ -768,11 +768,11 @@
 		return this.define(name, obj);
 	};
 
-	mkNasty.prototype = {
+	Mk.prototype = {
 
 		name: '',
 
-		constructor: mkNasty,
+		constructor: Mk,
 
 		templates: {},
 
@@ -785,11 +785,11 @@
 		root: null,
 
 		get _pushsuper_ () {
-			return mkNasty._pushsuper;
+			return Mk._pushsuper;
 		},
 
 		get _popsuper_ () {
-			return mkNasty._popsuper;
+			return Mk._popsuper;
 		},
 
 		get super () {
@@ -797,18 +797,18 @@
 			var s = this._stack_[this._stack_.length - 1], m;
 
 			if (s) {
-				m = s.super && s.super.prototype 
+				m = s.super && s.super.prototype
 					&& s.super.prototype[s.method];
 			}
 			return m;
 		},
 
 		get keycode () {
-			return mkNasty._keycodes;
+			return Mk._keycodes;
 		},
 
 		get transitions () {
-			return mkNasty._transition.enabled;
+			return Mk._transition.enabled;
 		},
 
 		get version () {
@@ -820,32 +820,32 @@
 		},
 
 		get device () {
-			return mkNasty._device.is;
+			return Mk._device.is;
 		},
 
 		get deviceId () {
-			return mkNasty._device.id;
+			return Mk._device.id;
 		},
 
 		$: function (s, c) {
-			return mkNasty._$( s, c );
+			return Mk._$( s, c );
 		},
 
 		uid: function () {
-			return mkNasty._uid();
+			return Mk._uid();
 		},
 
 		copy: function (o) {
-			return mkNasty._copy( o );
+			return Mk._copy( o );
 		},
 
 		template: function (n, d) {
-			return mkNasty._template( 
+			return Mk._template(
 				n, this.name, this.config.templates, d) ;
 		},
 
 		format: function (n, d) {
-			return mkNasty._template( 
+			return Mk._template(
 				n, this.name, this.config.formats, d);
 		},
 
@@ -854,7 +854,7 @@
 		},
 
 		each: function (who, fn) {
-			return mkNasty._each(this, who, fn);
+			return Mk._each(this, who, fn);
 		},
 
 		node: function (n, c) {
@@ -868,7 +868,7 @@
 		transition: function (node, cb) {
 
 			var $n = this.$(node),
-				 t = mkNasty._transition(),
+				 t = Mk._transition(),
 				 c = this;
 
 				cb = cb || function () {};
@@ -899,14 +899,14 @@
 		clearTransitions: function (node) {
 
 			var $n = this.$(node),
-				 t = mkNasty._transition();
+				 t = Mk._transition();
 
 			if (t) {
 				$n.off(t);
 			}
 
 			return this;
-		}, 
+		},
 
 		delay: function (fn, ms) {
 
@@ -918,7 +918,7 @@
 
 		on: function ( event, handler ) {
 
-			mkNasty._eventEmitter.on( 
+			Mk._eventEmitter.on(
 				this.events,
 				event,
 				handler,
@@ -929,7 +929,7 @@
 
 		one: function ( event, handler ) {
 
-			mkNasty._eventEmitter.one(
+			Mk._eventEmitter.one(
 				this.events,
 				event,
 				handler,
@@ -940,7 +940,7 @@
 
 		off: function ( event, handler ) {
 
-			mkNasty._eventEmitter.off(
+			Mk._eventEmitter.off(
 				this.events,
 				event,
 				handler
@@ -950,7 +950,7 @@
 
 		emit: function ( event /*, arguments */ ) {
 
-			mkNasty._eventEmitter.emit(
+			Mk._eventEmitter.emit(
 				this.events, arguments);
 			return this;
 		},
@@ -1050,7 +1050,7 @@
 						break;
 
 					case 'object':
-						value = value === null 
+						value = value === null
 							? defaultt : value;
 						break;
 				}
@@ -1066,5 +1066,5 @@
 		_bind: function () {}
 	};
 
-	return mkNasty;
+	return Mk;
 });

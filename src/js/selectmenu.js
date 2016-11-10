@@ -77,7 +77,7 @@
 	// ---------------------------------------------------
 	if ( typeof define === 'function' && define.amd ) {
 
-		define( [ 'mknasty' ], function ( mk ) {
+		define( [ 'mk' ], function ( mk ) {
 			return factory( root, mk );
 		});
 	}
@@ -86,13 +86,13 @@
 	// -----------------------------------------------------
 	else if ( typeof module === 'object' && module.exports ) {
 
-		module.exports = factory( root, require( 'mknasty' ));
+		module.exports = factory( root, require( 'mk' ));
 	}
 	//
 	// Everybody else
 	// -----------------------------------------------------
 	else {
-		return factory( root, root.mkNasty );
+		return factory( root, root.Mk );
 	}
 
 })( typeof window !== "undefined" ? window : this, function ( root, mk ) {
@@ -328,7 +328,7 @@
 
 			if (node.length < 1 ||
 				node[0].tagName.toLowerCase() !== 'select') {
-				throw new Error(':: mkNasty.Selectmenu - root must be a <select> node ::');
+				throw new Error(':: Mk.Selectmenu - root must be a <select> node ::');
 			}
 
 			return true;

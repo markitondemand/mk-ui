@@ -154,19 +154,20 @@ html
 			include ./shared/events
 			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/src/js/standard/selectmenu.js")
+		script(type="text/javascript", src="/src/js/selectmenu.js")
 		script.
 
-			mkNasty.transitions(true);
+			Mk.transitions(true);
 
-			var selects = document.querySelectorAll('.mk-sm-root');
-			var mkSelect = mkNasty.get('Selectmenu');
+			var selects = $('.mk-sm-root'),
+				mkSelect = Mk.get('Selectmenu'),
+				select;
 
-			for (var i = 0; i < selects.length; i++) {
+			selects.each(function () {
 
-					var select = new mkSelect(selects[i]);
+				select = new mkSelect(this /*, options */);
 
-					select.on('change', function () {
-						console.log('values: ', this.value);
-					});
-			}
+				select.on('change', function () {
+					console.log('values: ', this.value);
+				});
+			});
