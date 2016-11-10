@@ -1,0 +1,11 @@
+
+if properties
+  h3 Properties
+  ul.list-unstyled
+    each p in properties
+      li
+        h4
+          em
+            | instance.
+          span= p.name
+        p= p.desc

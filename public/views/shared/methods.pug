@@ -1,0 +1,13 @@
+
+if methods
+  h3 Methods
+  ul.list-unstyled
+    each m in methods
+      li
+        h4
+          em
+            | instance.
+          span= m.name
+        p= m.desc
+        pre
+          code.language-javascript= m.example

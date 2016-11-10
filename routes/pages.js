@@ -1,4 +1,8 @@
 
+require('rootpath')()
+
+var docBuilder = require('src/node/doc-builder');
+
 module.exports = function ( express, app ) {
 
   //
@@ -17,8 +21,12 @@ module.exports = function ( express, app ) {
   });
 
   app.get('/selectmenu', function (req, res) {
-    res.render('selectmenu', {
-      title: 'Selectmenu'
+
+    docBuilder.parse('js/standard/selectmenu.js', function (data) {
+
+      data.title = 'Selectmenu';
+
+      res.render('selectmenu', data);
     });
   });
 

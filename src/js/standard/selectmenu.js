@@ -1,4 +1,76 @@
 
+/*
+
+	Selectmenu
+	Dependencies: core
+
+	Events:
+
+	<event:change>
+		<desc>Fires when selectmenu value changes.</desc>
+		<example>
+			instance.on('change', function () {
+				console.info(this.value);
+			});
+		</example>
+	</event:change>
+
+	<event:show>
+		<desc>Fired when menu is shown.</desc>
+		<example>
+			instance.on('show', function () {
+				console.info('Menu has opened!');
+			});
+		</example>
+	</event:show>
+
+	<event:hide>
+		<desc>Fired when menu is hidden.</desc>
+		<example>
+			instance.on('hide', function () {
+				console.info('Menu has closed!');
+			});
+		</example>
+	</event:hide>
+
+	<event:activate>
+		<desc>Fired when an option becomes active.</desc>
+		<example>
+			instance.on('activate', function (option, keyboard) {
+				console.info('active option:', option);
+				console.info('came from keyboard (vs mouse):', keyboard);
+			});
+		</example>
+	</event:activate>
+
+	<event:disabled>
+		<desc>Fired when selectmenu is disabled, if previously enabled.</desc>
+		<example>
+			instance.on('disabled', function () {
+				console.info('Selectmenu has been diabled.');
+			});
+		</example>
+	</event:disabled>
+
+	<event:enabled>
+		<desc>Fired when selectmenu is enabled, if previously disabled.</desc>
+		<example>
+			instance.on('enabled', function () {
+				console.info('Selectmenu has become enabled.');
+			});
+		</example>
+	</event:enabled>
+
+	<event:update>
+		<desc>Fired when updates are made to the rendered UI through the use of update().</desc>
+		<example>
+			instance.on('update', function () {
+				console.info('Changes to the native select have been applied to the UI.');
+			});
+		</example>
+	</event:update>
+*/
+
 (function ( root, factory ) {
 	//
 	// AMD support
@@ -87,63 +159,154 @@
 			removableAlt: '{{if:selected}}<span>({{selected}} of {{total}})</span>{{/if:selected}}'
 		},
 
+		/*
+			<property:selectmenu>
+				<desc>The wrapped select child node living in the provided root.</desc>
+			</property:selectmenu>
+		*/
+
 		get selectmenu () {
 			return this.node('', this.root);
 		},
+
+		/*
+			<property:element>
+				<desc>The raw select child node living in the provided root.</desc>
+			</property:element>
+		*/
 
 		get element () {
 			return this.selectmenu[0];
 		},
 
+		/*
+			<property:version>
+				<type>property</type>
+				<desc>Selectmenu version</desc>
+			</property:version>
+		*/
+
 		get version () {
 			return 'v1.0.0';
 		},
+
+		/*
+			<property:multiple>
+				<desc>Boolean representing if the selectmenu is a multi-select or not.</desc>
+			</property:multiple>
+		*/
 
 		get multiple () {
 			return this.element.multiple;
 		},
 
+		/*
+			<property:disabled>
+				<desc>Boolean representing if the selectmenu is currently disabled.</desc>
+			</property:disabled>
+		*/
+
 		get disabled () {
 			return this.element.disabled;
 		},
+
+		/*
+			<property:enabled>
+				<desc>Boolean representing if the selectmenu is currently enabled.</desc>
+			</property:enabled>
+		*/
 
 		get enabled () {
 			return this.element.disabled !== true;
 		},
 
+		/*
+			<property:options>
+				<desc>The raw option elements.</desc>
+			</property:options>
+		*/
+
 		get options () {
 			return this.element.options || [];
 		},
+
+		/*
+			<property:trigger>
+				<desc>TThe wrapped, rendered trigger root.</desc>
+			</property:trigger>
+		*/
 
 		get trigger () {
 			return this.node('trigger', this.shadow);
 		},
 
+		/*
+			<property:input>
+				<desc>The wrapped, rendered triggering input element.</desc>
+			</property:input>
+		*/
+
 		get input () {
 			return this.node('input', this.shadow);
 		},
+
+		/*
+			<property:list>
+				<desc>The wrapped, rendered UI list.</desc>
+			</property:list>
+		*/
 
 		get list () {
 			return this.node('list', this.shadow);
 		},
 
+		/*
+			<property:items>
+				<desc>The wrapped, rendered UI list items.</desc>
+			</property:items>
+		*/
+
 		get items () {
 			return this.list.find(this.selector('item'));
 		},
 
+		/*
+			<property:listOptions>
+				<desc>The wrapped, rendered UI list options (different than items, typically nested in an item).</desc>
+			</property:listOptions>
+		*/
+
 		get listOptions () {
 			return this.list.find('[role="option"]');
 		},
+
+		/*
+			<property:isHidden>
+				<desc>Boolean representing if the list is hidden or not.</desc>
+			</property:isHidden>
+		*/
 
 		get isHidden () {
 			return this.trigger.attr(
 				'aria-expanded') !== 'true';
 		},
 
+		/*
+			<property:isOpen>
+				<desc>Boolean representing if the list is open (not hidden) or not.</desc>
+			</property:isOpen>
+		*/
+
 		get isOpen () {
 			return this.trigger.attr(
 				'aria-expanded') === 'true';
 		},
+
+		/*
+			<property:value>
+				<desc>Single [or array] of value(s) currently selected.</desc>
+			</property:value>
+		*/
 
 		get value () {
 
@@ -386,6 +549,67 @@
 			}
 		},
 
+		_enter: function (e) {
+
+			e.preventDefault();
+
+			if (this.isHidden) {
+				return this.show();
+			}
+
+			var active = this.items.find('.active'),
+				value = active.attr('data-value');
+
+			if (active.attr('aria-selected') !== 'true') {
+				this.select(value);
+			}
+			else if (this.multiple) {
+				this.deselect(value);
+			}
+
+			if (this.multiple !== true) {
+				return this.hide();
+			}
+		},
+
+		_space: function (e) {
+
+			e.preventDefault();
+
+			if (this.isHidden) {
+				return this.show();
+			}
+			return this._enter(e);
+		},
+
+		_esc: function(e) {
+
+			e.preventDefault();
+
+			if (this.isOpen) {
+				this.hide();
+			}
+			return this;
+		},
+
+		_tab: function (e) {
+
+			if (this.isOpen) {
+
+				e.preventDefault();
+
+				var active = this.items.find('.active');
+
+				if (this.multiple !== true 
+					&& active.attr('aria-selected') !== 'true') {
+
+					this.select(active.attr('data-value'));
+				}
+
+				this.hide();
+			}
+		},
+
 		blur: function () {
 
 			if (this.disabled) {
@@ -455,67 +679,6 @@
 			if (option !== active) {
 				this.activate(option, true);
 				this.scrollTo(option, up);
-			}
-		},
-
-		_enter: function (e) {
-
-			e.preventDefault();
-
-			if (this.isHidden) {
-				return this.show();
-			}
-
-			var active = this.items.find('.active'),
-				value = active.attr('data-value');
-
-			if (active.attr('aria-selected') !== 'true') {
-				this.select(value);
-			}
-			else if (this.multiple) {
-				this.deselect(value);
-			}
-
-			if (this.multiple !== true) {
-				return this.hide();
-			}
-		},
-
-		_space: function (e) {
-
-			e.preventDefault();
-
-			if (this.isHidden) {
-				return this.show();
-			}
-			return this._enter(e);
-		},
-
-		_esc: function(e) {
-
-			e.preventDefault();
-
-			if (this.isOpen) {
-				this.hide();
-			}
-			return this;
-		},
-
-		_tab: function (e) {
-
-			if (this.isOpen) {
-
-				e.preventDefault();
-
-				var active = this.items.find('.active');
-
-				if (this.multiple !== true 
-					&& active.attr('aria-selected') !== 'true') {
-
-					this.select(active.attr('data-value'));
-				}
-
-				this.hide();
 			}
 		},
 
@@ -758,6 +921,13 @@
 			}
 		},
 
+		/*
+			<method:show>
+				<desc>Opens the list associated with the selectmenu.</desc>
+				<example>instance.show();</example>
+			</method:show>
+		*/
+
 		show: function () {
 
 			var t = this.trigger,
@@ -782,6 +952,14 @@
 			return this;
 		},
 
+		/*
+			<method:hide>
+				<type>method</type>
+				<desc>Closes the list associated with the selectmenu.</desc>
+				<example>instance.hide()</example>
+			</method:hide>
+		*/
+
 		hide: function () {
 
 			var t = this.trigger,
@@ -803,6 +981,13 @@
 			}
 			return this;
 		},
+
+		/*
+			<method:toggle>
+				<desc>Toggles between open() and show()</desc>
+				<example>instance.toggle()</example>
+			</method:toggle>
+		*/
 
 		toggle: function () {
 
@@ -972,6 +1157,13 @@
 			return this;
 		},
 
+		/*
+			<method:disable>
+				<desc>Disables the selectmenu UI if currently enabled.</desc>
+				<example>instance.disable();</example>
+			</method:disable>
+		*/
+
 		disable: function () {
 
 			this.element.disabled = true;
@@ -982,6 +1174,13 @@
 
 			return this;
 		},
+
+		/*
+			<method:enable>
+				<desc>Enables the selectmenu UI if currently disabled.</desc>
+				<example>instance.enable()</example>
+			</method:enable>
+		*/
 
 		enable: function () {
 

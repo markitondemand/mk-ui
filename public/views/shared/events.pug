@@ -1,0 +1,17 @@
+
+if events
+  h2 Events
+  p
+    | All events are part of the Mk EventEmitter and *not* added to the DOM.
+    | Events are also called in context of the component instance so it isn't a great idea to use a proxy function to change context, as you'll loose a lot of beneficial object access.
+
+  div.row
+    each e in events
+      div.col-sm-6
+        section.panel
+          header.panel-heading
+            h3.panel-title= e.name
+          div.panel-body
+            p= e.desc
+            pre
+              code.language-javascript= e.example
