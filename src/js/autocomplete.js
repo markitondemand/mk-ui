@@ -163,8 +163,6 @@
 
 })( typeof window !== "undefined" ? window : this, function ( root, mk ) {
 
-	var NO_VALUE = mk._uid();
-
 	mk.create('Autocomplete', mk.Selectmenu, {
 
 		name: 'mk-ac',
@@ -1062,7 +1060,7 @@
 
 			var data = this.unflatten(value),
 				result = false;
-console.info(this.selections)
+
 			this.each(this.selections, function (i, o) {
 				if (o.value === data.value) {
 					result = true;
@@ -1094,7 +1092,8 @@ console.info(this.selections)
 		},
 
 		blur: function () {
-			return false;
+			this.abort().loading(false);
+			return this;
 		},
 
 		tag: function (data, remove) {

@@ -84,3 +84,19 @@ $mk-ac-list-loader-size: 3.28rem;
 $mk-ac-tag-bg: $mk-gray-4;
 $mk-ac-tag-border: 1px solid $mk-gray-3;
 $mk-ac-tag-remove-icon: '\d7';
+
+//
+// Tooltip
+// -------------------------------------------
+
+$mk-tt-bg: $mk-gray-5;
+$mk-tt-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
+$mk-tt-transition-speed: 0.5s;
+
+//
+// Dialog
+// -------------------------------------------
+
+$mk-dg-bg: $mk-gray-5;
+$mk-dg-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
+$mk-dg-transition-speed: 0.5s;

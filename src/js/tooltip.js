@@ -5,7 +5,7 @@
 	// ---------------------------------------------------
 	if ( typeof define === 'function' && define.amd ) {
 
-		define( ['mknasty'], function ( mk ) {
+		define( ['mk'], function ( mk ) {
 			return factory( root, mk );
 		});
 	}
@@ -14,13 +14,13 @@
 	// -----------------------------------------------------
 	else if ( typeof module === 'object' && module.exports ) {
 
-		module.exports = factory( root, require('mknasty'));
+		module.exports = factory( root, require('mk'));
 	}
 	//
 	// Everybody else
 	// -----------------------------------------------------
 	else {
-		return factory( root, root.mkNasty );
+		return factory( root, root.Mk );
 	}
 
 })( typeof window !== "undefined" ? window : this, function ( root, mk ) {
@@ -138,9 +138,9 @@
 
 			return {
 				node:   n,
-				top:    n.scrollTop, 
+				top:    n.scrollTop,
 				left:   n.scrollLeft,
-				scroll: n.scrollTop, 
+				scroll: n.scrollTop,
 				width:  n.offsetWidth,
 				height: n.offsetHeight
 			};
@@ -162,7 +162,7 @@
 		},
 
 		_bind: function () {
-			
+
 			var thiss = this,
 				tt = this.selector(),
 				md = this.selector('modal');
@@ -197,7 +197,7 @@
 				tt = this.selector(),
 				tm = this.selector('modal');
 
-			if ((t.is(tt) || t.closest(tt).length > 0) 
+			if ((t.is(tt) || t.closest(tt).length > 0)
 				|| (t.is(tm) || t.closest(tm).length > 0)) {
 				return false;
 			}
@@ -213,7 +213,7 @@
 		},
 
 		_click: function (trigger) {
-			
+
 			var t = this.$(trigger);
 
 			if (t.data('action') === 'click') {
@@ -222,14 +222,14 @@
 		},
 
 		_over: function (trigger, keyboard) {
-			
+
 			var t = this.$(trigger);
 
 			if (t.data('action') !== 'click') {
 
 				this.show(trigger);
 
-				if (keyboard === true 
+				if (keyboard === true
 					&& this.isFocusable(this.modal(trigger))) {
 
 					this._lock(trigger);
@@ -238,12 +238,12 @@
 		},
 
 		_out: function (trigger, keyboard) {
-			
+
 			var t = this.$(trigger);
 
 			if (t.data('action') !== 'click') {
 
-				if (keyboard !== true 
+				if (keyboard !== true
 					&& this.isFocusable(this.modal(trigger))) {
 
 					this._unlock(trigger);
@@ -299,7 +299,7 @@
 
 			if (attempt < 5) {
 
-				var fn = this.config.map.hasOwnProperty(key) 
+				var fn = this.config.map.hasOwnProperty(key)
 					&& this.config.map[key] || null;
 
 				if (fn) {
@@ -318,7 +318,7 @@
 					}
 
 					if (left < frame.left) {
-						key2 = /^left/i.test(key) && key2.replace(/left/, 'right') 
+						key2 = /^left/i.test(key) && key2.replace(/left/, 'right')
 							|| key2.replace(/center/, 'left');
 					}
 
@@ -377,10 +377,11 @@
 			if (m.length < 1) {
 
 				var id = this.uid(),
-					htm = t.data('label');
-				
+					htm = t.attr('aria-label');
+
 				if (htm) {
 					m = this.html('modal', {html: htm}).appendTo(t);
+					t.attr('aria-label', '');
 				}
 				else {
 
@@ -444,7 +445,7 @@
 
 		box: function (n) {
 
-			var node = this.$(n)[0], 
+			var node = this.$(n)[0],
 				box = {top: 0, left: 0, right: 0, bottom: 0};
 
 			if (node) {
@@ -452,8 +453,8 @@
 				var css = getComputedStyle(node);
 
 				this.each(box, function (n, v) {
-					box[n] = 
-						parseFloat(css.getPropertyValue('margin-' + n), 10) + 
+					box[n] =
+						parseFloat(css.getPropertyValue('margin-' + n), 10) +
 						parseFloat(css.getPropertyValue('border-' + n + '-width'), 10)
 				});
 			}
@@ -479,7 +480,7 @@
 					if (reg.test(node.style.position) !== true) {
 						obj.left += node.offsetLeft;
 						obj.top  += node.offsetTop;
-					} 
+					}
 					else {
 						obj.relativeParent = node;
 					}
@@ -533,7 +534,7 @@
 			}
 
 			m = this.$(id);
-				
+
 			this.connect(t, m);
 
 			return m;
@@ -567,7 +568,7 @@
 				this.hideAll();
 
 				m = this.modal(trigger);
-				
+
 				this.transition(m, function (e, el) {
 					el.removeClass('in');
 				})
@@ -589,7 +590,7 @@
 
 		hide: function (trigger, immediate) {
 
-			var t = this.$(trigger), 
+			var t = this.$(trigger),
 				a = t.attr('data-action'),
 				m, d;
 
@@ -598,8 +599,8 @@
 				m = this.modal(trigger);
 
 				d = immediate !== true
-					&& a !== 'click' 
-					&& this.isFocusable(m) 
+					&& a !== 'click'
+					&& this.isFocusable(m)
 					&& this.config.delay || 0;
 
 				this.transition(m, function (e, el) {

@@ -50,8 +50,7 @@
   border: 0;
   outline: none;
   padding: 0.8rem;
-  position: relative;
-  z-index: 1; }
+  position: relative; }
 
 .mk-ac-trigger:before,
 .mk-ac-trigger:after {

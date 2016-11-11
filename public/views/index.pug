@@ -5,10 +5,35 @@ html
 		include ./shared/head
 
 	body
-
 		include ./shared/header
-
 		main.container
-			| Hello World
+			div.row
+				div.col-sm-8
+					h2
+						| Mk[ui] Core
+					h3
+						| Template System
+					h3
+						| Super Functions
+					h3
+						| Event Emitters
 
+				div.col-sm-4
+					h3
+						| Components
+					ul.list-unstyled
+						li
+							a(href="/selectmenu")
+								| Selectmenu
+						li
+							a(href="/autocomplete")
+								| Autocomplete
+						li
+							a(href="/tooltip")
+								| Tooltip
+						li
+							a(href="/dialog")
+								| Dialog
+
+			include ./shared/api
 		include ./shared/scripts

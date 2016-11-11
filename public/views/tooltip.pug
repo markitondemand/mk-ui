@@ -4,45 +4,82 @@ html
 	head
 		include ./shared/head
 		link(rel="stylesheet", type="text/css", href="/src/css/tooltip.css")
+		style.
 
+			#position-toggler {
+				border: 1px solid #ccc;
+				margin: 50px 0 0;
+				padding: 50px;
+				text-align: center;
+			}
+
+			#tools {
+				background: #f7f7f7;
+				border: 1px solid #ccc;
+				border-width: 0 1px 1px;
+				padding: 5px;
+				text-align: center;
+			}
+
+			#tools div {
+				margin-bottom: 5px;
+			}
+
+			#tools button + button{
+				margin-left: 5px;
+			}
 	body
-
 		include ./shared/header
 
-		main.container(style="padding-left: 0px")
-			div
-				a.mk-tt(href="#", data-label="Little Tooltip")
-					| Tooltip
-
-			div#rel(style="position:relative")
-				button.mk-tt
-					| Tooltip
+		main.container
+			div#position-toggler
+				button.mk-tt.btn.btn-primary
+					| Position Me Below
 				div.mk-tt-modal
-					| This is a tooltip baby
-					input(type="text", name="testing", value="whaat")
+					h4
+						| Tooltip
+					p
+						| Some contents.
+			div#tools
+				div
+					button.btn(data-position="top-left")
+						| Top Left
+					button.btn(data-position="top-center")
+						| Top Center
+					button.btn(data-position="top-right")
+						| Top Right
+					button.btn(data-position="right-top")
+						| Right Top
+					button.btn(data-position="right-center")
+						| Right Center
+					button.btn(data-position="right-bottom")
+						| Right Bottom
+				div
+					button.btn(data-position="bottom-left")
+						| Bottom Left
+					button.btn(data-position="bottom-center")
+						| Bottom Center
+					button.btn(data-position="bottom-right")
+						| Bottom Right
+					button.btn(data-position="left-top")
+						| Left Top
+					button.btn(data-position="left-center")
+						| Left Center
+					button.btn(data-position="left-bottom")
+						| Left Bottom
 
-			div
-				table
-					tbody
-						tr
-							td
-								button.mk-tt
-									| Tooltip
-								div.mk-tt-modal
-									| This is a tooltip in a table
-							td
-								button.mk-tt(aria-describedby="test", data-position="right-center", data-action="click")
-									| Tooltip
-			div#test.mk-tt-modal
-				span
-					| Parentino fofino
-				input(type="text", name="test", value="whaat")
+
 
 
 
 
 		include ./shared/scripts
-		script(type="text/javascript", src="/src/js/standard/tooltip.js")
+		script(type="text/javascript", src="/src/js/tooltip.js")
 		script.
 
-			var tooltip = new mkNasty.Tooltip('.container');
+			var tooltip = new Mk.Tooltip('.container'),
+				btn = $('#position-toggler button');
+
+			$('#tools').on('click', 'button', function () {
+				btn.attr('data-position', $(this).attr('data-position'));
+			});
