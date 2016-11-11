@@ -1,55 +1,51 @@
 
 var fs = require('fs'),
 	path = require('path'),
-	eventExp = /<event\:([^\:]+)>(.*)<\/event\:\1>/g,
-	paramExp = /<param\:([^\:]+)>(.*)<\/param\:\1>/g,
-	methodExp = /<method\:([^\:]+)>(.*)<\/method\:\1>/g,
-	propertyExp = /<property\:([^\:]+)>(.*)<\/property\:\1>/g,
 	valueExp = /<([^\:]+)>([^<]+)<\/\1>/g;
 
-function stripspace (blob) {
-	return blob.replace(/[\t|\r|\n]/g, '');
+function getExpression (tag) {
+	return new RegExp('<' + tag + '\\:([^\\:]+)>([^\\#\\$\\@]+)<\\/' + tag + '\\:\\1>', 'g');
 }
 
-function replacer (prop, data, obj) {
+function replacer (prop, blob, obj) {
 
-	return function (full, name, blob) {
+	return function (full, name) {
 
 		var start = (prop + name).length + 3;
-			first = data.indexOf('<' + prop + ':' + name + '>'),
-			last  = data.indexOf('</' + prop + ':' + name + '>');
+			first = blob.indexOf('<' + prop + ':' + name + '>'),
+			last  = blob.indexOf('</' + prop + ':' + name + '>'),
+			index = first + start,
+			count = last - first - start;
 
-		values(
-			prop,
-			name,
-			data.substr(first + start, last - first - start),
-			obj
-		);
-
-		return '';
+		return values(prop, name, blob.substr(index, count), obj);
 	}
 }
 
-function params (name, blob, flatblob, entry) {
+function params (name, blob, entry) {
 
 	entry.params = [];
 
-	flatblob = flatblob.replace(
-		paramExp, replacer('param', blob, entry.params));
+	blob = blob.replace(
+		getExpression('param'),
+		replacer('param', blob, entry.params));
 
-	return flatblob;
+	return blob;
 }
 
 function values (prop, name, blob, o) {
 
-	var entry = {name: name},
-		blobb = blob.replace(/[\t|\r|\n]/g, '');
+	var entry = {name: name};
 
-	if (prop == 'method') {
-		blobb = params(name, blob, blobb, entry);
+	if (prop === 'method') {
+
+		entry.params = [];
+
+		blob = blob.replace(
+			getExpression('param'),
+			replacer('param', blob, entry.params));
 	}
 
-	blobb = blobb.replace(valueExp, function (full, param) {
+	blob = blob.replace(valueExp, function (full, param, capture) {
 
 		var start = param.length + 2;
 			first = blob.indexOf('<' + param + '>'),
@@ -61,19 +57,34 @@ function values (prop, name, blob, o) {
 			value = value.replace(new RegExp(formatting[1], 'g'), '\n');
 		}
 		entry[param] = value;
+
+		return '';
 	});
 
 	o.push(entry);
+
+	return blob;
 }
 
 function parse (data) {
 
-	var c = stripspace(data),
-		o = {events: [], properties: [], methods: []};
+	var o = {
+		events: [],
+		properties: [],
+		methods: []
+	};
 
-	c = c.replace(eventExp, replacer('event', data, o.events));
-	c = c.replace(methodExp, replacer('method', data, o.methods));
-	c = c.replace(propertyExp, replacer('property', data, o.properties));
+	data = data.replace(
+		getExpression('event'),
+		replacer('event', data, o.events));
+
+	data = data.replace(
+		getExpression('property'),
+		replacer('property', data, o.properties));
+
+	data = data.replace(
+		getExpression('method'),
+		replacer('method', data, o.methods));
 
 	return o;
 }
@@ -87,12 +98,12 @@ module.exports = {
 			{encoding: 'utf-8'},
 			function (err, data) {
 
-			if (err) {
-				fn({error: err, message: 'unable to parse file'});
-				return;
-			}
+				if (err) {
+					fn({error: err, message: 'unable to parse file'});
+					return;
+				}
 
-			fn(parse(data));
+				fn(parse(data));
 		});
 	}
 };
