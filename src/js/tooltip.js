@@ -1,3 +1,54 @@
+/*
+	Selectmenu
+	Dependencies: core
+
+	Events:
+
+	<event:show>
+		<desc>Fires when tooltip is shown.</desc>
+		<example>
+			instance.on('show', function (tip, modal) {
+				console.info('Showing for:', tip, modal);
+			});
+		</example>
+	</event:show>
+
+	<event:hide>
+		<desc>Fired when tooltip is hidden.</desc>
+		<example>
+			instance.on('show', function (tip, modal) {
+				console.info('Hiding for:', tip, modal);
+			});
+		</example>
+	</event:hide>
+
+	<event:connect>
+		<desc>Fired when a connection is being made between a trigger and it's modal.</desc>
+		<example>
+			instance.on('connect', function (tip, modal) {
+				console.info('Connection being made for:', tip, modal);
+			});
+		</example>
+	</event:connect>
+
+	<event:position>
+		<desc>Fired when positioning is invoked for a tooltip modal.</desc>
+		<example>
+			instance.on('position', function (tip, modal, coords) {
+				console.info('Coors for positioning are:', coords);
+			});
+		</example>
+	</event:position>
+
+	<event:lock>
+		<desc>Fires when tooltip is locked or unlocked.</desc>
+		<example>
+			instance.on('lock', function (tip, isLocked) {
+				console.info('This tooltip is now ', isLocked && 'locked' || 'unlocked');
+			});
+		</example>
+	</event:lock>
+*/
 
 (function ( root, factory ) {
 	//
@@ -112,7 +163,6 @@
 		}
 	};
 
-
 	mk.create('Tooltip', {
 
 		name: 'mk-tt',
@@ -123,6 +173,12 @@
 			modal: `<span class="{{$key}}-modal">{{html}}</span>`,
 			kill: `<button class="{{$key}}-kill" role="presentation"></button>`
 		},
+
+		/*
+			<property:map>
+				<desc>Holds the different calculations used for positioning.</desc>
+			</property:map>
+		*/
 
 		get map () {
 			return map;
@@ -331,6 +387,17 @@
 			return null;
 		},
 
+		/*
+			<method:isFocusable>
+				<invoke>.isFocusable(modal)</invoke>
+				<param:modal>
+					<type>Node</type>
+					<desc>Modal element (.mk-tt-modal)</desc>
+				</param:modal>
+				<desc>Checks modal to see if it has focusable elements or not. Returns boolean.</desc>
+			</method:isFocusable>
+		*/
+
 		isFocusable: function (modal) {
 
 			var focusable = this.$(
@@ -349,6 +416,17 @@
 
 			return focusable;
 		},
+
+		/*
+			<method:link>
+				<invoke>.link(trigger)</invoke>
+				<param:trigger>
+					<type>Node</type>
+					<desc>Trigger element (.mk-tt)</desc>
+				</param:trigger>
+				<desc>Links a trigger element to a modal element.</desc>
+			</method:link>
+		*/
 
 		link: function (trigger) {
 
@@ -496,6 +574,21 @@
 			return {node: null};
 		},
 
+		/*
+			<method:position>
+				<invoke>.position(modal, trigger)</invoke>
+				<param:modal>
+					<type>Node</type>
+					<desc>Modal element (.mk-tt-modal)</desc>
+				</param:modal>
+				<param:trigger>
+					<type>Node</type>
+					<desc>Trigger element (.mk-tt)</desc>
+				</param:trigger>
+				<desc>Positions a modal next to a trigger.</desc>
+			</method:position>
+		*/
+
 		position: function (modal, trigger) {
 
 			var t = this.$(trigger),
@@ -523,6 +616,17 @@
 			}
 			return this;
 		},
+
+		/*
+			<method:modal>
+				<invoke>.modal(trigger)</invoke>
+				<param:trigger>
+					<type>Node</type>
+					<desc>Trigger element (.mk-tt)</desc>
+				</param:trigger>
+				<desc>Finds the modal associated with the trigger.</desc>
+			</method:modal>
+		*/
 
 		modal: function (trigger) {
 
@@ -566,6 +670,17 @@
 			return this;
 		},
 
+		/*
+			<method:show>
+				<invoke>.show(trigger)</invoke>
+				<param:trigger>
+					<type>Node</type>
+					<desc>Trigger element (.mk-tt)</desc>
+				</param:trigger>
+				<desc>Shows the modal associated with the trigger.</desc>
+			</method:show>
+		*/
+
 		show: function (trigger) {
 
 			var t = this.$(trigger), m;
@@ -594,6 +709,21 @@
 			}
 			return this;
 		},
+
+		/*
+			<method:hide>
+				<invoke>.hide(trigger[, immediate])</invoke>
+				<param:trigger>
+					<type>Node</type>
+					<desc>Trigger element (.mk-tt)</desc>
+				</param:trigger>
+				<param:immediate>
+					<type>Boolean</type>
+					<desc>Forces hide without a delay or animation.</desc>
+				</param:immediate>
+				<desc>Hides the modal associated with the trigger.</desc>
+			</method:hide>
+		*/
 
 		hide: function (trigger, immediate) {
 
@@ -632,6 +762,13 @@
 			return this;
 		},
 
+		/*
+			<method:hideAll>
+				<invoke>.hideAll()</invoke>
+				<desc>Hides all tooltips in the given root context.</desc>
+			</method:hideAll>
+		*/
+
 		hideAll: function () {
 
 			var ms = this.$(this.selector('modal')).filter('[aria-hidden="false"]'),
@@ -645,6 +782,17 @@
 			});
 		},
 
+		/*
+			<method:toggle>
+				<invoke>.toggle(trigger)</invoke>
+				<param:trigger>
+					<type>Node</type>
+					<desc>Trigger element (.mk-tt)</desc>
+				</param:trigger>
+				<desc>Toggles between show() and hide().</desc>
+			</method:toggle>
+		*/
+
 		toggle: function (trigger) {
 
 			var m = this.modal(trigger),
@@ -656,13 +804,46 @@
 			return this.show(trigger);
 		},
 
+		/*
+			<method:isOpen>
+				<invoke>.isOpen(trigger)</invoke>
+				<param:trigger>
+					<type>Node</type>
+					<desc>Trigger element (.mk-tt)</desc>
+				</param:trigger>
+				<desc>Returns boolean value for if the modal is open or not.</desc>
+			</method:isOpen>
+		*/
+
 		isOpen: function (trigger) {
 			return this.modal(trigger).attr('aria-hidden') !== 'true';
 		},
 
+		/*
+			<method:isHidden>
+				<invoke>.isHidden(trigger)</invoke>
+				<param:trigger>
+					<type>Node</type>
+					<desc>Trigger element (.mk-tt)</desc>
+				</param:trigger>
+				<desc>Returns boolean value for if the modal is hidden or not.</desc>
+			</method:isHidden>
+		*/
+
 		isHidden: function (trigger) {
 			return this.modal(trigger).attr('aria-hidden') !== 'false';
 		},
+
+		/*
+			<method:lock>
+				<invoke>.lock(trigger)</invoke>
+				<param:trigger>
+					<type>Node</type>
+					<desc>Trigger element (.mk-tt)</desc>
+				</param:trigger>
+				<desc>Lock the modal. This diables show() and hide().</desc>
+			</method:lock>
+		*/
 
 		lock: function (trigger) {
 
@@ -675,6 +856,17 @@
 			return this;
 		},
 
+		/*
+			<method:unlock>
+				<invoke>.unlock(trigger)</invoke>
+				<param:trigger>
+					<type>Node</type>
+					<desc>Trigger element (.mk-tt)</desc>
+				</param:trigger>
+				<desc>Unlock the modal. This enables show() and hide().</desc>
+			</method:unlock>
+		*/
+
 		unlock: function (trigger) {
 
 			var t = this.$(trigger);
@@ -686,9 +878,31 @@
 			return this;
 		},
 
+		/*
+			<method:locked>
+				<invoke>.locked(trigger)</invoke>
+				<param:trigger>
+					<type>Node</type>
+					<desc>Trigger element (.mk-tt)</desc>
+				</param:trigger>
+				<desc>Returns boolean value for if the modal is locked or not.</desc>
+			</method:locked>
+		*/
+
 		locked: function (trigger) {
 			return this.$(trigger).hasClass('locked');
 		},
+
+		/*
+			<method:unlocked>
+				<invoke>.unlocked(trigger)</invoke>
+				<param:trigger>
+					<type>Node</type>
+					<desc>Trigger element (.mk-tt)</desc>
+				</param:trigger>
+				<desc>Returns boolean value for if the modal is unlocked or not.</desc>
+			</method:unlocked>
+		*/
 
 		unlocked: function (trigger) {
 			return this.$(trigger).hasClass('locked') !== true;
