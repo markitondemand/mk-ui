@@ -60,6 +60,7 @@ $mk-ac-trigger-bg: transparent;
 $mk-ac-trigger-color: $mk-color;
 $mk-ac-trigger-char-transform: rotate(90deg);
 $mk-ac-trigger-disabled-color: $mk-gray-2;
+$mk-ac-trigger-transition-speed: 1s;
 
 $mk-ac-list-bg: $mk-gray-5;
 $mk-ac-list-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
@@ -84,6 +85,11 @@ $mk-ac-list-loader-size: 3.28rem;
 $mk-ac-tag-bg: $mk-gray-4;
 $mk-ac-tag-border: 1px solid $mk-gray-3;
 $mk-ac-tag-remove-icon: '\d7';
+$mk-ac-tag-padding: 0.3rem;
+$mk-ac-tag-min-height: 4.6rem;
+$mk-ac-tag-label: 'Tags';
+$mk-ac-tag-label-left: 0.6rem;
+$mk-ac-tag-label-offset: -0.8rem;
 
 //
 // Tooltip

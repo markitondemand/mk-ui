@@ -26,7 +26,7 @@
 }
 
 .mk-ac-shadow {
-	display: inline-block;
+	display: block;
 	position: relative;
 }
 
@@ -59,6 +59,7 @@
 	outline: none;
 	padding: $mk-padding;
 	position: relative;
+	width: 100%;
 }
 
 .mk-ac-trigger:before,
@@ -72,8 +73,8 @@
     text-align: center;
     left: -1px;
     top: 100%;
-    transition: all $mk-ac-transition-speed;
-    -webkit-transition: all $mk-ac-transition-speed;
+    transition: background $mk-ac-transition-speed;
+    -webkit-transition: background $mk-ac-transition-speed;
 }
 
 .mk-ac-shadow.loading .mk-ac-trigger:before {
@@ -83,7 +84,7 @@
 .mk-ac-shadow.loading .mk-ac-trigger:after {
 	background: $mk-secondary;
     animation-name: mk-ac-loading;
-    animation-duration: $mk-ac-transition-speed;
+    animation-duration: $mk-ac-trigger-transition-speed;
     animation-iteration-count: infinite;
 }
 
@@ -96,7 +97,6 @@
 	margin: 0;
 	padding: 0;
 	min-width: 100%;
-	min-height: $mk-ac-list-loader-size * 2;
 	position: absolute;
 	top: 100%;
 	z-index: 1;
@@ -184,9 +184,26 @@
 	cursor: default;
 }
 
+.mk-ac-label .highlight {
+	font-weight: bold;
+}
+
 .mk-ac-tags {
 	margin: $mk-margin 0;
-	padding: 0;
+	border: 1px solid $mk-gray-3;
+	min-height: $mk-ac-tag-min-height;
+	padding: $mk-padding;
+	position: relative;
+}
+
+.mk-ac-tags:before {
+	background: $mk-gray-5;
+	content: $mk-ac-tag-label;
+	font-size: 80%;
+	left: $mk-ac-tag-label-left;
+	margin-top: $mk-ac-tag-label-offset;
+	position: absolute;
+	top: 0;
 }
 
 .mk-ac-shadow.no-tags .mk-ac-tags {
@@ -198,8 +215,8 @@
 	border: $mk-ac-tag-border;
 	list-style: none;
 	display: inline-block;
-	padding: $mk-padding $mk-padding $mk-padding 0;
-	margin: 1rem 0;
+	padding: $mk-ac-tag-padding $mk-ac-tag-padding $mk-ac-tag-padding 0;
+	margin: 0;
 }
 
 .mk-ac-tag {
@@ -208,7 +225,7 @@
 
 .mk-ac-tag [data-action="remove"] {
 	display: inline-block;
-	padding: 0 $mk-padding;
+	padding: 0 $mk-ac-tag-padding;
 }
 
 .mk-ac-tag [data-action="remove"]:before {

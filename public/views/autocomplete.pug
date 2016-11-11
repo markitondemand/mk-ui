@@ -12,74 +12,87 @@ html
 		main.container.documentation
 			p
 				em
-					| Autocomplete inherits from Selectmenu. For a detailed list of inherited members and events, go to&nbsp;
+					| Autocomplete inherits from Selectmenu. For a detailed list of inherited members and events, visit&nbsp;
 					a(href="/selectmenu")
-						| Selectmenu
+						| Selectmenu.
 			h2
 				| Examples
 			p
 				| Autocomplete comes with a ton of opt-in behaviors and functionality. Below we've set up a few different examples, breaking out some of the features you can add to your instances.
 			div.row
-				div.col-sm-6
+				div.col-sm-4
 					section.panel
 						header.panel-heading
-							h2.panel-title Autocomplete
+							h2.panel-title Static Data
 						div.panel-body
 							div.mk-ac-root
 								input(
 									type="text",
 									class="mk-ac",
-									placeholder="Search for a symbol",
+									placeholder="Movie Genres",
 									name="symbol-1")
-				div.col-sm-6
+				div.col-sm-4
 					section.panel
 						header.panel-heading
-							h2.panel-title Autocomplete (0 - 4 Selections)
+							h2.panel-title Up to Four Selections
 						div.panel-body
 							div.mk-ac-root
 								input(
 									type="text",
 									class="mk-ac",
-									placeholder="Search for a symbol",
+									placeholder="Movie Genres",
 									name="symbol-2",
 									data-limit="4")
+				div.col-sm-4
+					section.panel
+						header.panel-heading
+							h2.panel-title Remote URLs
+						div.panel-body
+							div.mk-ac-root
+								input#remote(
+									type="text",
+									class="mk-ac",
+									placeholder="Search for a symbol",
+									name="symbol-1",
+									data-limit="4")
+			div.row
 				div.col-sm-6
 					section.panel
 						header.panel-heading
-							h2.panel-title Autocomplete (Comma Seperate)
+							h2.panel-title Comma Seperate
 						div.panel-body
 							div.mk-ac-root
 								input(
 									type="text",
 									class="mk-ac",
-									placeholder="Search for a symbol",
+									placeholder="Movie Genres",
 									name="symbol-3",
 									data-limit="4",
 									data-comma="true")
 				div.col-sm-6
 					section.panel
 						header.panel-heading
-							h2.panel-title Autocomplete (Results Only)
+							h2.panel-title Only Allow Result Selections
 						div.panel-body
 							div.mk-ac-root
 								input(
 									type="text",
 									class="mk-ac",
-									placeholder="Search for a symbol",
+									placeholder="Movie Genres",
 									name="symbol-4",
 									data-limit="4",
-									data-comma="true",
 									data-anything="false")
-				div.col-sm-6
+			div.row
+				div.col-sm-12
 					section.panel
 						header.panel-heading
-							h2.panel-title Autocomplete (No Tags)
+							h2.panel-title Removed Tag UI
 						div.panel-body
 							div.mk-ac-root
 								input(
 									type="text",
 									class="mk-ac",
-									placeholder="Search for a symbol",
+									placeholder="Movie Genres",
 									name="symbol-5",
 									data-comma="true",
 									data-notags="true")
@@ -97,27 +110,85 @@ html
 				Autocomplete = Mk.get('Autocomplete'),
 				autocomplete;
 
-			inputs.each(function () {
+			inputs.each(function (i) {
 
-				autocomplete = new Autocomplete(this, {
-					remote: 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/jsonp?input={{%query}}',
-					type: 'jsonp'
-				});
+				if (this.id && this.id === 'remote') {
 
-				autocomplete.on('create.taglabel', function (data) {
-						data.label = data.raw.value;
-				});
-
-				autocomplete.on('request.success', function (q, d) {
-					this.each(d, function (i, o) {
-						o.label = o.Name,
-						o.value = o.Symbol
+					autocomplete = new Autocomplete(this, {
+						remote: 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/jsonp?input={{%query}}',
+						type: 'jsonp'
 					});
-				});
+
+					autocomplete.on('create.taglabel', function (data) {
+							data.label = data.raw.value;
+					});
+
+					autocomplete.on('request.success', function (q, d) {
+						this.each(d, function (i, o) {
+							o.label = o.Name,
+							o.value = o.Symbol
+						});
+					});
+				}
+				else {
+
+					autocomplete = new Autocomplete(this, {
+						data: [{
+							label: 'Comedy',
+							value: 'Comedy'
+						},
+						{
+							label: 'Horror',
+							value: 'Horror'
+						},
+						{
+							label: 'Thriller',
+							value: 'Thriller'
+						},
+						{
+							label: 'Disney',
+							value: 'Disney'
+						},
+						{
+							label: 'Action',
+							value: 'Action'
+						},
+						{
+							label: 'Adventure',
+							value: 'Adventure'
+						},
+						{
+							label: 'Fantasy',
+							value: 'Fantasy'
+						},
+						{
+							label: 'SyFi',
+							value: 'SyFi'
+						},
+						{
+							label: 'Drama',
+							value: 'Drama'
+						},
+						{
+							label: 'Romance',
+							value: 'Romance'
+						},
+						{
+							label: 'Independent',
+							value: 'Independent'
+						}]
+					});
+				}
+
 
 				autocomplete.on('activate', function (node, keyboard) {
+
 					if (keyboard) {
-						this.input.val(node.attr('data-display'));
+
+						var data = this.unflatten(
+								node.attr('data-value'));
+
+						this.input.val(data.value);
 					}
 				});
 

@@ -602,6 +602,17 @@
 			this.super(e);
 		},
 
+		_render: function (data) {
+
+			var list = this.list,
+				items = data.list.items;
+
+			this.each(items, function (i, d) {
+				list.append(
+					this.html('item', d));
+			});
+		},
+
 		updateTagroot: function () {
 
 			var tagMethod = 'removeClass',
@@ -636,6 +647,10 @@
 		/*
 			<method:move>
 				<invoke>.move([up])</invoke>
+				<param:up>
+					<type>Boolean</type>
+					<desc>Set to true to move up the list. Default is false.</desc>
+				</param:up>
 				<desc>Move the active list item up or down from the currently activated.</desc>
 			</method:move>
 		*/
@@ -643,7 +658,13 @@
 		move: function (up) {
 
 			if (this.isEmpty) {
-				return;
+
+				if (this.hasCache()) {
+					this.search('');
+				}
+				else {
+					return;
+				}
 			}
 
 			if (this.isHidden) {
@@ -653,6 +674,10 @@
 
 			var active = this.items.find('.active')[0],
 				index = this.index(active) + (up && -1 || 1);
+
+			if (!active) {
+				index = 0;
+			}
 
 			if (index >= this.items.length) {
 				index = -1;
@@ -689,7 +714,7 @@
 			return -1;
 		},
 
-		buildOptionData: function (data) {
+		buildOptionData: function (data, query) {
 
 			data = data || [];
 
@@ -699,20 +724,31 @@
 					value: o.value,
 					label: o.label
 				});
-
+				o.highlight = query || '';
 				o.id = o.id || this.uid();
-
-				//todo:
-				//selected aka exists()
 			});
 			return data;
 		},
+
+		/*
+			<method:data>
+				<invoke>.data([value])</invoke>
+				<param:value>
+					<type>String</type>
+					<desc>Cache key for query data. Empty will give you static data (if provided).</desc>
+				</param:value>
+				<desc>Generate a JSON representation of the current autocomplete state.</desc>
+			</method:data>
+		*/
 
 		data: function (data) {
 
 			data = data || this.getCache();
 
+			var query = this.input.val();
+
 			if (typeof data == 'string') {
+				query = data;
 				data = this.getCache(data);
 			}
 
@@ -726,7 +762,7 @@
 				disabled: this.disabled,
 				list: {
 					id: id,
-					items: this.buildOptionData(data)
+					items: this.buildOptionData(data, query)
 				}
 			};
 		},
@@ -743,7 +779,7 @@
 		*/
 
 		flatten: function (value) {
-			return btoa(JSON.stringify(value));
+			return value && btoa(JSON.stringify(value)) || '';
 		},
 
 		/*
@@ -758,7 +794,7 @@
 		*/
 
 		unflatten: function (value) {
-			return JSON.parse(atob(value));
+			return value && JSON.parse(atob(value)) || {};
 		},
 
 		/*
@@ -785,6 +821,40 @@
 			this.emit('create.label', pointer);
 
 			return pointer.label;
+		},
+
+		/*
+			<method:filterData>
+				<invoke>.filterData(key, data)</invoke>
+				<param:key>
+					<type>String</type>
+					<desc>a text query to filter data with.</desc>
+				</param:key>
+				<param:data>
+					<type>Array</type>
+					<desc>An array of data objects to filter by key.</desc>
+				</param:data>
+				<desc>Filters a set of data results by a query term.</desc>
+			</method:filterData>
+		*/
+
+		filterData: function (key, data) {
+
+			var result = data, reg;
+
+			if (key) {
+
+				result = [],
+				reg = new RegExp(key, 'i');
+
+				this.each(data, function (i, o) {
+					if (reg.test(o.label) || reg.test(o.value)) {
+						result.push(o);
+					}
+				});
+			}
+
+			return result;
 		},
 
 		/*
@@ -829,7 +899,7 @@
 			key = (key || '').toLowerCase();
 
 			if (this.config.remote === null && this.config.data) {
-				return this.config.data;
+				return this.filterData(key, this.config.data);
 			}
 
 			if (this.cache.hasOwnProperty(key)) {
@@ -841,7 +911,7 @@
 
 		/*
 			<method:setCache>
-				<invoke>.getCache(key, data)</invoke>
+				<invoke>.setCache(key, data)</invoke>
 				<param:key>
 					<type>string</type>
 					<desc>a string represending query text.</desc>
@@ -886,7 +956,7 @@
 				<invoke>.comma(value)</invoke>
 				<param:value>
 					<type>String</type>
-					<desc>a string represending query text.</desc>
+					<desc>a string represending query text (comma seperted values).</desc>
 				</param:value>
 				<desc>Run the comma parsing on a string value. Only works when anything flag is true.</desc>
 			</method:pop>
@@ -926,7 +996,7 @@
 
 		/*
 			<method:search>
-				<invoke>.search(key, add)</invoke>
+				<invoke>.search(key[, add])</invoke>
 				<param:key>
 					<type>String</type>
 					<desc>a string representing query text.</desc>
@@ -1084,6 +1154,17 @@
 			}
 			return this;
 		},
+
+		/*
+			<method:exists>
+				<invoke>.exists(value)</invoke>
+				<param:value>
+					<type>Object</type>
+					<desc>Object with a property named 'value' to check for selection matches.</desc>
+				</param:value>
+				<desc>Check raw object against autocomplete selections for a match.</desc>
+			</method:exists>
+		*/
 
 		exists: function (value) {
 
@@ -1296,14 +1377,7 @@
 					this.emit('render', data);
 				}
 				else {
-
-					var list = this.list,
-						items = data.list.items;
-
-					this.each(items, function (i, d) {
-						list.append(
-							this.html('item', d));
-					});
+					this._render(data);
 				}
 				this.show();
 			}
@@ -1311,6 +1385,13 @@
 			return this.loading(
 				false, query, data.list.items.length);
 		},
+
+		/*
+			<method:update>
+				<invoke>.update()</invoke>
+				<desc>Make changes to your original input then call this for the UI to consume new changes.</desc>
+			</method:update>
+		*/
 
 		update: function () {
 

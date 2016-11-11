@@ -23,7 +23,7 @@
   display: none; }
 
 .mk-ac-shadow {
-  display: inline-block;
+  display: block;
   position: relative; }
 
 .mk-ac-trigger {
@@ -50,7 +50,8 @@
   border: 0;
   outline: none;
   padding: 0.8rem;
-  position: relative; }
+  position: relative;
+  width: 100%; }
 
 .mk-ac-trigger:before,
 .mk-ac-trigger:after {
@@ -63,8 +64,8 @@
   text-align: center;
   left: -1px;
   top: 100%;
-  transition: all 0.5s;
-  -webkit-transition: all 0.5s; }
+  transition: background 0.5s;
+  -webkit-transition: background 0.5s; }
 
 .mk-ac-shadow.loading .mk-ac-trigger:before {
   background: #008e89; }
@@ -72,7 +73,7 @@
 .mk-ac-shadow.loading .mk-ac-trigger:after {
   background: #00b140;
   animation-name: mk-ac-loading;
-  animation-duration: 0.5s;
+  animation-duration: 1s;
   animation-iteration-count: infinite; }
 
 .mk-ac-list {
@@ -84,7 +85,6 @@
   margin: 0;
   padding: 0;
   min-width: 100%;
-  min-height: 6.56rem;
   position: absolute;
   top: 100%;
   z-index: 1; }
@@ -160,9 +160,24 @@
   color: #eee;
   cursor: default; }
 
+.mk-ac-label .highlight {
+  font-weight: bold; }
+
 .mk-ac-tags {
   margin: 0.8rem 0;
-  padding: 0; }
+  border: 1px solid #ccc;
+  min-height: 4.6rem;
+  padding: 0.8rem;
+  position: relative; }
+
+.mk-ac-tags:before {
+  background: white;
+  content: "Tags";
+  font-size: 80%;
+  left: 0.6rem;
+  margin-top: -0.8rem;
+  position: absolute;
+  top: 0; }
 
 .mk-ac-shadow.no-tags .mk-ac-tags {
   display: none; }
@@ -172,15 +187,15 @@
   border: 1px solid #ccc;
   list-style: none;
   display: inline-block;
-  padding: 0.8rem 0.8rem 0.8rem 0;
-  margin: 1rem 0; }
+  padding: 0.3rem 0.3rem 0.3rem 0;
+  margin: 0; }
 
 .mk-ac-tag {
   margin-right: 0.6rem; }
 
 .mk-ac-tag [data-action="remove"] {
   display: inline-block;
-  padding: 0 0.8rem; }
+  padding: 0 0.3rem; }
 
 .mk-ac-tag [data-action="remove"]:before {
   content: "×"; }

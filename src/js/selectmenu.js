@@ -600,8 +600,7 @@
 				var active = this.items.find('.active');
 
 				if (this.multiple !== true
-					&& active.attr('aria-selected') !== 'true') {
-
+					&& active.length && active.attr('aria-selected') !== 'true') {
 					this.select(active.attr('data-value'));
 				}
 
@@ -632,12 +631,12 @@
 
 		/*
 			<method:move>
-				<invoke>.move(up)</invoke>
+				<invoke>.move([up])</invoke>
 				<param:up>
 					<type>Boolean</type>
 					<desc>Set as true to move up the list. Default is false.</desc>
 				</param:up>
-				<desc>Move the active selectmenu list item by 1.</desc>
+				<desc>Move the active selectmenu list item by one.</desc>
 			</method:move>
 		*/
 
@@ -694,14 +693,14 @@
 
 		/*
 			<method:search>
-				<invoke>.search(key, add)</invoke>
+				<invoke>.search(key[, add])</invoke>
 				<param:key>
 					<type>String</type>
-					<desc>Key or text to search on.</desc>
+					<desc>Letter or text to search on.</desc>
 				</param:key>
 				<param:add>
 					<type>Boolean</type>
-					<desc>Set as true to add to the curent search, rather than start a new search. Default is false.</desc>
+					<desc>Set as true to add to the curent search term, false to replace it. Default is false.</desc>
 				</param:add>
 				<desc>Move the active selectmenu list item by 1.</desc>
 			</method:move>
@@ -739,6 +738,17 @@
 			}
 		},
 
+		/*
+			<method:index>
+				<invoke>.index(n)</invoke>
+				<param:key>
+					<type>Node</type>
+					<desc>Option in the selectmenu list UI.</desc>
+				</param:key>
+				<desc>Get the index of an individual list option.</desc>
+			</method:index>
+		*/
+
 		index: function ( n ) {
 
 			var index = 0;
@@ -753,6 +763,17 @@
 
 			return index;
 		},
+
+		/*
+			<method:getOptgroupValue>
+				<invoke>.getOptgroupValue(optgroup)</invoke>
+				<param:optgroup>
+					<type>Node</type>
+					<desc>Optgroup Elment.</desc>
+				</param:optgroup>
+				<desc>Get a generated value for an optgroup, representing the child option elements.</desc>
+			</method:getOptgroupValue>
+		*/
 
 		getOptgroupValue: function (node) {
 
@@ -783,6 +804,17 @@
 			return o;
 		},
 
+		/*
+			<method:getElementsByValue>
+				<invoke>.getElementsByValue(value)</invoke>
+				<param:value>
+					<type>String</type>
+					<desc>Value of an option.</desc>
+				</param:value>
+				<desc>Get the native option AND UI option element by searching the value.</desc>
+			</method:getElementsByValue>
+		*/
+
 		getElementsByValue: function (v) {
 
 			var items = this.listOptions,
@@ -803,6 +835,17 @@
 
 			return elems;
 		},
+
+		/*
+			<method:getOptionByValue>
+				<invoke>.getOptionByValue(value)</invoke>
+				<param:value>
+					<type>String</type>
+					<desc>Value of an option.</desc>
+				</param:value>
+				<desc>Get the native option by searching the value.</desc>
+			</method:getOptionByValue>
+		*/
 
 		getOptionByValue: function (v) {
 
@@ -886,6 +929,13 @@
 
 			return l;
 		},
+
+		/*
+			<method:data>
+				<invoke>.data()</invoke>
+				<desc>Generate a JSON representation of the selectmenu.</desc>
+			</method:data>
+		*/
 
 		data: function () {
 

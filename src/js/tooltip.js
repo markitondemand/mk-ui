@@ -128,24 +128,6 @@
 			return map;
 		},
 
-		get frame () {
-
-			var n = this.element;
-
-			while (n.scrollTop <= 0 && n.tagName !== 'BODY') {
-				n = n.parentNode;
-			}
-
-			return {
-				node:   n,
-				top:    n.scrollTop,
-				left:   n.scrollLeft,
-				scroll: n.scrollTop,
-				width:  n.offsetWidth,
-				height: n.offsetHeight
-			};
-		},
-
 		_config: function (o) {
 
 			this.config.map = {};
@@ -466,7 +448,8 @@
 
 			var node = this.$(n)[0],
 				reg  = this.relexp,
-				obj  = {left: 0, top: 0, width: 0, height: 0, box: this.box(node)};
+				obj  = {left: 0, top: 0, width: 0, height: 0, box: this.box(node)},
+				css;
 
 			if (node) {
 
@@ -477,7 +460,9 @@
 
 				while (node = node.offsetParent) {
 
-					if (reg.test(node.style.position) !== true) {
+					css = getComputedStyle(node);
+
+					if (reg.test(css.getPropertyValue('position')) !== true) {
 						obj.left += node.offsetLeft;
 						obj.top  += node.offsetTop;
 					}
@@ -489,13 +474,35 @@
 			return obj;
 		},
 
+		frame: function (n) {
+
+			var node = this.$(n)[0];
+
+			if (node) {
+
+				while (node.scrollTop <= 0 && node.tagName !== 'BODY') {
+					node = node.parentNode;
+				}
+
+				return {
+					node:   node,
+					top:    n.scrollTop,
+					left:   n.scrollLeft,
+					scroll: n.scrollTop,
+					width:  n.offsetWidth,
+					height: n.offsetHeight
+				};
+			}
+			return {node: null};
+		},
+
 		position: function (modal, trigger) {
 
 			var t = this.$(trigger),
 				p = t.attr('data-position') || this.config.position,
 
 				coords = this._position(p,
-					this.offset(modal, true), this.offset(trigger), this.frame);
+					this.offset(modal, true), this.offset(trigger), this.frame(modal));
 
 			if (coords) {
 

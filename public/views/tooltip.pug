@@ -8,15 +8,21 @@ html
 
 			#position-toggler {
 				border: 1px solid #ccc;
-				margin: 50px 0 0;
-				padding: 50px;
+				margin: 20px 0 0;
+				padding: 20px;
 				text-align: center;
+			}
+
+			#position-toggler button {
+				border-radius: 80%;
+				padding: 42px 14px;
 			}
 
 			#tools {
 				background: #f7f7f7;
 				border: 1px solid #ccc;
 				border-width: 0 1px 1px;
+				margin-bottom: 20px;
 				padding: 5px;
 				text-align: center;
 			}
@@ -31,10 +37,21 @@ html
 	body
 		include ./shared/header
 
-		main.container
+		main.container.documentation
+			p
+				em
+					| Tooltip inherits from Core. For a detailed list of inherited members and events, visit&nbsp;
+					a(href="/")
+						| Core.
+			h2
+				| Examples
+			p
+				| Tooltips comes with a ton of opt-in behaviors and functionality.
+				| Below we've set up a few different examples, breaking out some of the features you can add to your instances.
+
 			div#position-toggler
 				button.mk-tt.btn.btn-primary
-					| Position Me Below
+					img(src="/src/images/logo.png", alt="Mk[ui]")
 				div.mk-tt-modal
 					h4
 						| Tooltip
@@ -67,15 +84,111 @@ html
 						| Left Center
 					button.btn(data-position="left-bottom")
 						| Left Bottom
+			div.row
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Tooltip As Attribute
+						div.panel-body
+							p
+								| Supply tooltip triggers with an aria-label attribute which will be consumed by Tooltip and generate a modal.
+								| HTML in the attribute is also acceptable.
+							div
+								button.btn.btn-primary.mk-tt(aria-label="<strong>This</strong> is a label.")
+									| Tooltip
+
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Tooltip As Sibling
+						div.panel-body
+							p
+								| You can also provide your own tooltip modal by creating a sibling element of your .mk-tt (trigger) with a class name of .mk-tt-moal.
+							div
+								button.btn.btn-primary.mk-tt
+									| Tooltip
+								div.mk-tt-modal
+									h4
+										| Tooltip Title
+									p
+										| Tooltip Content.
+			div.row
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Tooltip Anywhere in the Document
+						div.panel-body
+							p
+								| You can put a tooltip modal in any place possible, really.
+								| If you decide your tooltip modal needs placement somewhere other than as a sibling or child element of the trigger, link them by id and aria-describedby attribute.
+							div
+								button.btn.btn-primary.mk-tt(aria-describedby="example-3")
+									| Tooltip
+
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Tooltip by Click
+						div.panel-body
+							p
+								| Tooltips don't have to be triggered by mouseenter. Set the data-action attribute to "click" on the tooltip trigger and mouse events will be ignored, while click events will be enabled.
+							div
+								button.btn.btn-primary.mk-tt(data-action="click")
+									| Tooltip
+								div.mk-tt-modal
+									h4
+										| Tooltip Title
+									p
+										| Tooltip Content.
+			div.row
+				div.col-sm-12
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Interactive Tooltips
+						div.panel-body
+							p
+								| If your tooltip contains focusable content (ie: links, form elements, etc) it will become focuasable.
+								| Basically what this means is it's read differently by screen readers and behavior changes.
+								| You can tab and interact with the elements inside the tooltip. Focus then becomes more like a Modal.
+							div
+								button.btn.btn-primary.mk-tt(data-action="click")
+									| Tooltip
+								div.mk-tt-modal
+									h4
+										| Links &amp; Forms
+									p
+										| Oh look at all these neat little elements we've piled into our tooltip.
+									ul.list-inline
+										li
+											a(href="javascript:void(0);")
+												| Link 001
+										li
+											a(href="javascript:void(0);")
+												| Link 002
+									form
+										input.form-control(type="text", value="Example")
+										input.form-control(type="text", value="Example")
+										button.btn
+											| Submit
 
 
 
-
-
+			div#example-3.mk-tt-modal
+				h4
+					| Tooltip Title
+				p
+					| Tooltip Content.
 
 		include ./shared/scripts
 		script(type="text/javascript", src="/src/js/tooltip.js")
 		script.
+
+			Mk.transitions(true);
 
 			var tooltip = new Mk.Tooltip('.container'),
 				btn = $('#position-toggler button');
