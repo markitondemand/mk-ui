@@ -65,7 +65,7 @@
 		'right-bottom': function (mo, to) {
 			return {
 				left: to.left + to.width,
-				top: to.top + to.height - mo.height + mo.box.top + mo.box.bottom
+				top: to.top + to.height - mo.height - mo.box.top
 			};
 		},
 

@@ -19,21 +19,33 @@ html
 						| Event Emitters
 
 				div.col-sm-4
-					h3
-						| Components
-					ul.list-unstyled
-						li
-							a(href="/selectmenu")
-								| Selectmenu
-						li
-							a(href="/autocomplete")
-								| Autocomplete
-						li
-							a(href="/tooltip")
-								| Tooltip
-						li
-							a(href="/dialog")
-								| Dialog
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| FirstClass Components
+						div.panel-body
+							ul.list-unstyled
+								li
+									a(href="/selectmenu")
+										| Selectmenu
+								li
+									a(href="/tooltip")
+										| Tooltip
+								li
+									a(href="/loader")
+										| Loader
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| SecondClass Components
+						div.panel-body
+							ul.list-unstyled
+								li
+									a(href="/autocomplete")
+										| Autocomplete
+								li
+									a(href="/dialog")
+										| Dialog
 
 			include ./shared/api
 		include ./shared/scripts

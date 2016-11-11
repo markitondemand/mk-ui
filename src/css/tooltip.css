@@ -2,10 +2,10 @@
   cursor: pointer; }
 
 .mk-tt-modal {
-  background: white;
+  background: #333;
   border-radius: 2px;
   box-shadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
-  color: #333;
+  color: white;
   display: none;
   opacity: 0;
   padding: 1rem;
@@ -40,9 +40,9 @@
 .mk-tt-modal.top-left:after,
 .mk-tt-modal.top-center:after,
 .mk-tt-modal.top-right:after {
-  border-left: 1rem solid transparent;
-  border-right: 1rem solid transparent;
-  border-top: 1rem solid white;
+  border-left: 0.6rem solid transparent;
+  border-right: 0.6rem solid transparent;
+  border-top: 0.6rem solid #333;
   top: 100%; }
 
 .mk-tt-modal.bottom-left:before,
@@ -51,9 +51,9 @@
 .mk-tt-modal.bottom-left:after,
 .mk-tt-modal.bottom-center:after,
 .mk-tt-modal.bottom-right:after {
-  border-left: 1rem solid transparent;
-  border-right: 1rem solid transparent;
-  border-bottom: 1rem solid white;
+  border-left: 0.6rem solid transparent;
+  border-right: 0.6rem solid transparent;
+  border-bottom: 0.6rem solid #333;
   bottom: 100%; }
 
 .mk-tt-modal.left-top:before,
@@ -62,9 +62,9 @@
 .mk-tt-modal.left-top:after,
 .mk-tt-modal.left-center:after,
 .mk-tt-modal.left-bottom:after {
-  border-top: 1rem solid transparent;
-  border-bottom: 1rem solid transparent;
-  border-left: 1rem solid white;
+  border-top: 0.6rem solid transparent;
+  border-bottom: 0.6rem solid transparent;
+  border-left: 0.6rem solid #333;
   left: 100%; }
 
 .mk-tt-modal.right-top:before,
@@ -73,9 +73,9 @@
 .mk-tt-modal.right-top:after,
 .mk-tt-modal.right-center:after,
 .mk-tt-modal.right-bottom:after {
-  border-top: 1rem solid transparent;
-  border-bottom: 1rem solid transparent;
-  border-right: 1rem solid white;
+  border-top: 0.6rem solid transparent;
+  border-bottom: 0.6rem solid transparent;
+  border-right: 0.6rem solid #333;
   right: 100%; }
 
 .mk-tt-modal.top-left:before,

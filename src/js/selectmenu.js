@@ -347,7 +347,7 @@
 			var label = this.selectmenu.attr('aria-label')
 				|| this.formats.label;
 
-			this._param('label', 'string', o, label);
+			this._param('label', 'string', o, label, this.selectmenu);
 
 			if (this.multiple) {
 				this._param('removable', 'boolean', o, false, this.selectmenu);
@@ -1324,17 +1324,15 @@
 
 			this[m]();
 
+			this._param(
+				'removable', 'boolean', this.config, false, this.selectmenu);
+
 			if (this.config.removable
 				&& this.items.find(this.selector('removable')).length > 0) {
-
 				this._buildRemovable();
 			}
 
-			this._param('removable', 'boolean', this.config, false);
-
-			i.attr('aria-multiselectable',
-					d.multiple && 'true' || 'false');
-
+			i.attr('aria-multiselectable', d.multiple && 'true' || 'false');
 			i.val(this.label());
 
 			this.emit('update');

@@ -95,7 +95,6 @@ html
 
 			var inputs = $('.mk-ac-root'),
 				Autocomplete = Mk.get('Autocomplete'),
-				ac = [],
 				autocomplete;
 
 			inputs.each(function () {
@@ -103,6 +102,10 @@ html
 				autocomplete = new Autocomplete(this, {
 					remote: 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/jsonp?input={{%query}}',
 					type: 'jsonp'
+				});
+
+				autocomplete.on('create.taglabel', function (data) {
+						data.label = data.raw.value;
 				});
 
 				autocomplete.on('request.success', function (q, d) {
@@ -122,11 +125,4 @@ html
 					console.info('selections (raw):', this.selections);
 					console.info('value (base64):', this.value)
 				});
-
-				ac.push(autocomplete)
 			});
-
-			for (var i = 0; i < inputs.length; i++) {
-
-
-			}

@@ -471,7 +471,7 @@
 			this.super(r, o);
 		},
 
-		_config: function (o) {
+		_config: function (o, internal) {
 
 			o = o || {};
 
@@ -484,12 +484,14 @@
 			._param('type', 'string', o, 'json', input)
 			._param('limit', 'number', o, 1, input)
 			._param('time', 'number', o, 500, input)
-			._param('doubledelete', 'boolean', o, this.multiple, input)
+			._param('doubledelete', 'boolean', o, o.limit > 1, input)
 			._param('anything', 'boolean', o, true, input)
 			._param('comma', 'boolean', o, false, input)
 			._param('notags', 'boolean', o, false, input);
 
-			this.super(o);
+			if (internal !== true) {
+				this.super(o);
+			}
 		},
 
 		_build: function() {
@@ -499,10 +501,7 @@
 			this.input.attr('placeholder',
 				this.rootinput.attr('placeholder'));
 
-			if (this.config.notags) {
-				this.shadow.addClass('no-tags');
-				this.tagroot.attr('aria-hidden', 'true');
-			}
+			this.updateTagroot();
 		},
 
 		_bind: function () {
@@ -603,12 +602,21 @@
 			this.super(e);
 		},
 
-		/*
-			<method:popByDelete>
-				<invoke>.popByDelete()</invoke>
-				<desc>Mostly for internal use, this method will pop the last selection out of the collection.</desc>
-			</method:popByDelete>
-		*/
+		updateTagroot: function () {
+
+			var tagMethod = 'removeClass',
+				ariaHidden = 'false';
+
+			if (this.config.notags) {
+				tagMethod = 'addClass';
+				ariaHidden = 'true';
+			}
+
+			this.shadow[tagMethod]('no-tags');
+			this.tagroot.attr('aria-hidden', ariaHidden);
+
+			return this;
+		},
 
 		popByDelete: function () {
 
@@ -1098,14 +1106,18 @@
 
 		tag: function (data, remove) {
 
-			var flattened = this.flatten(data);
+			var flattened = this.flatten(data),
+				pointer = {label: data.label, value: flattened, raw: data};
 
 			if (remove) {
 				this.tags.filter('[data-value="' + flattened + '"]').remove();
 			}
 			else {
+
+				this.emit('create.taglabel', pointer);
+
 				this.tagroot.append(
-					this.html('tag', {label: data.label, value: flattened}));
+					this.html('tag', pointer));
 			}
 			return this;
 		},
@@ -1293,13 +1305,22 @@
 							this.html('item', d));
 					});
 				}
-
 				this.show();
 			}
 
-			this.loading(false, query, data.list.items.length);
+			return this.loading(
+				false, query, data.list.items.length);
+		},
 
-			return this;
+		update: function () {
+
+			this._config(this.config);
+			this.super();
+
+			this.input.attr('placeholder',
+				this.rootinput.attr('placeholder'));
+
+			this.updateTagroot();
 		}
 	});
 
