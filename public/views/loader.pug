@@ -4,31 +4,75 @@ html
 	head
 		include ./shared/head
 		link(rel="stylesheet", type="text/css", href="/src/css/loader.css")
+		style.
 
+			#content {
+				border: 1px solid #ccc;
+				padding: 150px 0;
+				position: relative;
+				text-align: center;
+			}
+
+			#buttons {
+				background: #f7f7f7;
+				border: 1px solid #ccc;
+				border-width: 0 1px 1px;
+				padding: 10px;
+				text-align: center;
+			}
+
+			#buttons button + button {
+				margin-left: 10px;
+			}
 	body
-
 		include ./shared/header
 
 		main.container
-			div.row
-				div.col-xs-12
-					form
-						button.btn-primary.load
-							| Load
-						button.btn-secondary.unload
-							| Unload
-			div.row
-				div.col-xs-12
-					div.mk-ld(style="height: 300px")
-						| Stuff...
+			p
+				em
+					| Loader inherits from Core. For a detailed list of features, visit&nbsp;
+					a(href="/")
+						| Core.
+			h2
+				| Example
+			div
+				div#content
+					ul.list-inline
+						li
+							a(href="#")
+								| Load.
+						li
+							a(href="#")
+								| Unload.
+						li
+							a(href="#")
+								| Then
+						li
+							a(href="#")
+								| tab
+						li
+							a(href="#")
+								| through
+						li
+							a(href="#")
+								| us.
+			div#buttons
+				form
+					button.btn.btn-primary.load
+						| Load
+					button.btn.btn-secondary.unload
+						| Unload
 
+			include ./shared/events
+			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/src/js/standard/loader.js")
+		script(type="text/javascript", src="/src/js/loader.js")
 		script.
 
-			mkNasty.transitions(true);
+			Mk.transitions(true);
 
-			var loader = new mkNasty.Loader('.mk-ld');
+			var Loader = Mk.get('Loader');
+			var loader = new Loader('#content');
 
 			$('button').on('click', function (e) {
 

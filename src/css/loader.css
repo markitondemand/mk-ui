@@ -4,7 +4,7 @@
 // --------------------
 */
 .mk-ld-overlay {
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.7);
   bottom: 0;
   left: 0;
   position: absolute;
@@ -33,7 +33,7 @@
 .mk-ld-overlay .disk {
   background: #008e89;
   border-radius: 50%;
-  box-shadow: 0 0 1rem rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 1rem rgba(0, 0, 0, 0.15);
   height: 3rem;
   left: calc(50% - 1rem);
   position: absolute;

@@ -15,9 +15,11 @@ module.exports = function ( express, app ) {
   });
 
   app.get('/loader', function (req, res) {
-    res.render('loader', {
-      title: 'Loader'
-    });
+
+      docBuilder.parse('js/loader.js', function (data) {
+          data.title = 'Loader';
+          res.render('loader', data);
+      });
   });
 
   app.get('/selectmenu', function (req, res) {
@@ -37,8 +39,10 @@ module.exports = function ( express, app ) {
   });
 
   app.get('/tooltip', function (req, res) {
-    res.render('tooltip', {
-      title: 'Tooltip'
+
+    docBuilder.parse('js/tooltip.js', function (data) {
+        data.title = 'Tooltip';
+        res.render('tooltip', data);
     });
   });
 
