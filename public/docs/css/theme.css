@@ -42,7 +42,43 @@ body a:focus {
 	width: 100%;
 }
 
+.component-brand {
+	font-size: 16px;
+}
 
+.component-brand:hover,
+.component-brand:active,
+.component-brand:focus {
+	text-decoration: none;
+}
+
+.component-brand:before {
+	display: inline-block;
+	font-style: italic;
+	margin-right: 10px;
+	text-align: right;
+	width: 32px;
+}
+
+.component-brand-sm:before {
+	content: '[sm]';
+}
+
+.component-brand-tt:before {
+	content: '[tt]';
+}
+
+.component-brand-ld:before {
+	content: '[ld]';
+}
+
+.component-brand-ac:before {
+	content: '[ac]';
+}
+
+.component-brand-dg:before {
+	content: '[dg]';
+}
 
 .documentation h1,
 .documentation h2,

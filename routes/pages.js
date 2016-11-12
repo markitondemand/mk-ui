@@ -9,9 +9,11 @@ module.exports = function ( express, app ) {
   // home
   // ---------------------------------
   app.get('/', function (req, res) {
-    res.render('index', {
-    	title: 'Core'
-    });
+
+      docBuilder.parse('js/core.js', function (data) {
+          data.title = 'Core';
+          res.render('index', data);
+      });
   });
 
   app.get('/loader', function (req, res) {

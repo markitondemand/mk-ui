@@ -10,13 +10,39 @@ html
 			div.row
 				div.col-sm-8
 					h2
-						| Mk[ui] Core
+						| What is Mk[ui] ?
+					p
+						| Mk[ui] is a flexible ES5 library build with WCAG 2.0 accessiblity, mobility, and responsive design at the forefront.
+						| All of our components follow the W3 guidlines on accessibility. We also accurately mimic native browser controls for the best user experience possible.
+						| With mobile, we degrate to triggering device controls when applicable, again, for the best user experience possible.
+						| All components support AMD module loading, and play nicely with Angular. Mk[ui] is also DOM library agnostic, which means you can substitute jQuery (the default) with anything you like.
+						| All components are written as cleanly as possible and insert DOM nodes into descrete places as to place nicely with frameworks like React and the Virtual DOM.
+						| We also use HTML5 and CSS3 with all of our components, written in both LESS and SASS depending on what you need for your project.
+
+					p
+						| At the base, each components inherits from Core, which is basically just an abstract object bundled with a bunch of goodies.
+						| Components derived directly from core are called 1st Class components.
+						| Components derived from 1st Class components are called 2nd Class components. And so on.
+						| Below we outline the different features of Core available to you, whether using an existing component or building your own.
 					h3
 						| Template System
+					p
+						| Mk[ui] comes with a light-weight templating system similar to handlebars.
+						| The template system is accessed with methods like template(), format(), and html() on the prototype of Core.
+						| You may pass in template string directly or, pass in reference keys, while keeping the actual define templates in an organized place (templates and formats property on the Core prototype).
+						| Below is a list of the Template Engine features and how to use them.
 					h3
 						| Super Functions
+					p
+						| JavaScript is a bit restrictive when it comes to inheritance. Thankfully with ES5 we have a ton of new features that allowed us to create Super Functions.
+						| All component methods are passed through a defineProperty scrubber which sets up a call-stack to track the chain of invoked methods.
+						| Each time a method is invoked, you have access to the 'super' property on each Mk instance.
+						| The super property is at first a getter, which will return you the super class method of the same named method invoking.
+						| You may then invoke that super method, which calls the function is proper context. Super invoking is recursive, so it's possible to continue calling super functions all the way down to the base object (Core).
 					h3
 						| Event Emitters
+					h3
+						| Device
 
 				div.col-sm-4
 					section.panel
@@ -29,13 +55,13 @@ html
 						div.panel-body
 							ul.list-unstyled
 								li
-									a(href="/selectmenu")
+									a.component-brand.component-brand-sm(href="/selectmenu")
 										| Selectmenu
 								li
-									a(href="/tooltip")
+									a.component-brand.component-brand-tt(href="/tooltip")
 										| Tooltip
 								li
-									a(href="/loader")
+									a.component-brand.component-brand-ld(href="/loader")
 										| Loader
 					section.panel
 						header.panel-heading
@@ -47,10 +73,10 @@ html
 						div.panel-body
 							ul.list-unstyled
 								li
-									a(href="/autocomplete")
+									a.component-brand.component-brand-ac(href="/autocomplete")
 										| Autocomplete
 								li
-									a(href="/dialog")
+									a.component-brand.component-brand-dg(href="/dialog")
 										| Dialog
 
 			include ./shared/api

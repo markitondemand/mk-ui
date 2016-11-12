@@ -4,7 +4,7 @@ var fs = require('fs'),
 	valueExp = /<([^\:]+)>([^<]+)<\/\1>/g;
 
 function getExpression (tag) {
-	return new RegExp('<' + tag + '\\:([^\\:]+)>([^\\#\\$\\@]+)<\\/' + tag + '\\:\\1>', 'g');
+	return new RegExp('<' + tag + '\\:([^\\:]+)>([^\\^]+)<\\/' + tag + '\\:\\1>', 'g');
 }
 
 function replacer (prop, blob, obj) {
