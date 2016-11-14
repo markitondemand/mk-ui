@@ -3,13 +3,11 @@ html
 
 	head
 		include ./shared/head
-		link(rel="stylesheet", type="text/css", href="/src/css/dialog.css")
+		link(rel="stylesheet", type="text/css", href="/dist/css/dialog.css")
 
 	body
-
 		include ./shared/header
-
-		main.container(style="padding-left: 0px")
+		main.container.documentation
 			div
 				table
 					tbody
@@ -34,14 +32,13 @@ html
 						a(href="#")
 							| Link 004
 
-
-
-
+			include ./shared/events
+			include ./shared/api
 	include ./shared/scripts
-	script(type="text/javascript", src="/src/js/standard/tooltip.js")
-	script(type="text/javascript", src="/src/js/standard/dialog.js")
+	script(type="text/javascript", src="/dist/js/tooltip.min.js")
+	script(type="text/javascript", src="/dist/js/dialog.min.js")
 	script.
 
-		mkNasty.transitions(true);
+		Mk.transitions(true);
 
-		var dialog = new mkNasty.Dialog('.mk-dg');
+		var dialog = new Mk.Dialog('.mk-dg');

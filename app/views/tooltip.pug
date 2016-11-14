@@ -3,7 +3,7 @@ html
 
 	head
 		include ./shared/head
-		link(rel="stylesheet", type="text/css", href="/src/css/tooltip.css")
+		link(rel="stylesheet", type="text/css", href="/dist/css/tooltip.css")
 		style.
 
 			#position-toggler {
@@ -51,7 +51,7 @@ html
 
 			div#position-toggler
 				button.mk-tt.btn.btn-primary
-					img(src="/src/images/logo.png", alt="Mk[ui]")
+					img(src="/app/assets/images/logo.png", alt="Mk[ui]")
 				div.mk-tt-modal
 					h4
 						| Tooltip
@@ -187,7 +187,7 @@ html
 			include ./shared/events
 			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/src/js/tooltip.js")
+		script(type="text/javascript", src="/dist/js/tooltip.min.js")
 		script.
 
 			Mk.transitions(true);

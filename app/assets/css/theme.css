@@ -29,11 +29,11 @@ body a:focus {
 }
 
 .error-404 {
-	background-image: url(/src/images/404.jpg);
+	background-image: url(/app/assets/images/404.jpg);
 }
 
 .error-500 {
-	background-image: url(/src/images/500.jpg);
+	background-image: url(/app/assets/src/images/500.jpg);
 }
 
 .error-500 > header,

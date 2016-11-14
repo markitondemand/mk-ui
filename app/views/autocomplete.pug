@@ -3,7 +3,7 @@ html
 
 	head
 		include ./shared/head
-		link(rel="stylesheet", type="text/css", href="/src/css/autocomplete.css")
+		link(rel="stylesheet", type="text/css", href="/dist/css/autocomplete.css")
 
 	body
 
@@ -100,8 +100,8 @@ html
 			include ./shared/events
 			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/src/js/selectmenu.js")
-		script(type="text/javascript", src="/src/js/autocomplete.js")
+		script(type="text/javascript", src="/dist/js/selectmenu.min.js")
+		script(type="text/javascript", src="/dist/js/autocomplete.min.js")
 		script.
 
 			Mk.transitions(true);

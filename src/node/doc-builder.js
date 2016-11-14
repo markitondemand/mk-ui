@@ -71,8 +71,20 @@ function parse (data) {
 	var o = {
 		events: [],
 		properties: [],
-		methods: []
+		methods: [],
+		depedencies: [],
+		files: []
 	};
+
+	data = data.replace(
+		getExpression('depedency'),
+		replacer('depedency', data, o.depedencies)
+	);
+
+	data = data.replace(
+		getExpression('file'),
+		replacer('file', data, o.files)
+	);
 
 	data = data.replace(
 		getExpression('event'),
