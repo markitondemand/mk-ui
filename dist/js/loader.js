@@ -1,10 +1,20 @@
 /*
-
-	Loader
-	Dependencies: core
-
-	Events:
-
+	<depedency:Core>
+		<src>dist/js/core.js</src>
+		<docs>/</docs>
+	</depedency:Core>
+	<file:js>
+		<src>dist/js/loader.js</src>
+	</file:js>
+	<file:css>
+		<src>dist/css/loader.css</src>
+	</file:css>
+	<file:less>
+		<src>dist/less/loader.less</src>
+	</file:less>
+	<file:scss>
+		<src>dist/scss/loader.scss</src>
+	</file:scss>
 	<event:show>
 		<desc>Fires when the loader is shown.</desc>
 		<example>
@@ -13,7 +23,6 @@
 			});
 		</example>
 	</event:show>
-
 	<event:hide>
 		<desc>Fires when the loader is hidden.</desc>
 		<example>
@@ -22,7 +31,6 @@
 			});
 		</example>
 	</event:hide>
-
 	<event:focus>
 		<desc>Fired when focus is re-shifted to the root.</desc>
 		<example>

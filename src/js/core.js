@@ -1,4 +1,8 @@
-
+/*
+	<file:js>
+		<src>dist/js/core.js</src>
+	</file:js>
+*/
 (function ( root, factory ) {
 
 	//

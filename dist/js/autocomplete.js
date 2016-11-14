@@ -1,10 +1,24 @@
 /*
-
-	Selectmenu
-	Dependencies: core
-
-	Events:
-
+	<depedency:Core>
+		<src>dist/js/core.js</src>
+		<docs>/</docs>
+	</depedency:Core>
+	<depedency:Selectmenu>
+		<src>dist/js/selectmenu.js</src>
+		<docs>/selectmenu</docs>
+	</depedency:Selectmenu>
+	<file:js>
+		<src>dist/js/autocomplete.js</src>
+	</file:js>
+	<file:css>
+		<src>dist/css/autocomplete.css</src>
+	</file:css>
+	<file:less>
+		<src>dist/less/autocomplete.less</src>
+	</file:less>
+	<file:scss>
+		<src>dist/scss/autocomplete.scss</src>
+	</file:scss>
 	<event:render>
 		<desc>Fired when data has been retrieved and the list is ready to be built. Binding this event replaces the original rending with your own, custom, rendering.</desc>
 		<example>
@@ -13,7 +27,6 @@
 			});
 		</example>
 	</event:render>
-
 	<event:change>
 		<desc>Fires when autocomplete value changes.</desc>
 		<example>
@@ -23,7 +36,6 @@
 			});
 		</example>
 	</event:change>
-
 	<event:show>
 		<desc>Fired when menu is shown.</desc>
 		<example>
@@ -32,7 +44,6 @@
 			});
 		</example>
 	</event:show>
-
 	<event:hide>
 		<desc>Fired when menu is hidden.</desc>
 		<example>
@@ -41,7 +52,6 @@
 			});
 		</example>
 	</event:hide>
-
 	<event:activate>
 		<desc>Fired when an option becomes active.</desc>
 		<example>
@@ -51,7 +61,6 @@
 			});
 		</example>
 	</event:activate>
-
 	<event:disabled>
 		<desc>Fired when selectmenu is disabled, if previously enabled.</desc>
 		<example>
@@ -60,7 +69,6 @@
 			});
 		</example>
 	</event:disabled>
-
 	<event:enabled>
 		<desc>Fired when selectmenu is enabled, if previously disabled.</desc>
 		<example>
@@ -69,7 +77,6 @@
 			});
 		</example>
 	</event:enabled>
-
 	<event:update>
 		<desc>Fired when updates are made to the rendered UI through the use of update().</desc>
 		<example>
@@ -78,7 +85,6 @@
 			});
 		</example>
 	</event:update>
-
 	<event:capacity>
 		<desc>Fired when you've reached the selection limit. Does not fire for single selects.</desc>
 		<example>
@@ -87,7 +93,6 @@
 			});
 		</example>
 	</event:capacity>
-
 	<event:create.label>
 		<desc>Fired when the trigger input value (label) changes.</desc>
 		<example>
@@ -96,7 +101,6 @@
 			});
 		</example>
 	</event:create.label>
-
 	<event:request.before>
 		<desc>Fired before ajax requests search is invoked.</desc>
 		<example>
@@ -105,7 +109,6 @@
 			});
 		</example>
 	</event:request.before>
-
 	<event:request.error>
 		<desc>Fired before ajax requests search is invoked.</desc>
 		<example>
@@ -114,7 +117,6 @@
 			});
 		</example>
 	</event:request.error>
-
 	<event:request.complete>
 		<desc>Fired when a data request has completed</desc>
 		<example>
@@ -123,7 +125,6 @@
 			});
 		</example>
 	</event:request.complete>
-
 	<event:request.success>
 		<desc>Fired when data is ready to be cached and used by autocomplete.</desc>
 		<example>

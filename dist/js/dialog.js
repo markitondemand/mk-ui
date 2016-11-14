@@ -1,29 +1,25 @@
 /*
-	Dialog
-
 	<depedency:Core>
-		<src>/js/core.js</src>
+		<src>dist/js/core.js</src>
 		<docs>/</docs>
 	</depedency:Core>
 	<depedency:Tooltip>
-		<src>/js/tooltip.js</src>
+		<src>dist/js/tooltip.js</src>
 		<docs>/tooltip</docs>
 	</depedency:Tooltip>
 
 	<file:js>
-		<src>/js/dialog.js</src>
+		<src>dist/js/dialog.js</src>
 	</file:js>
 	<file:css>
-		<src>/css/dialog.css</src>
+		<src>dist/css/dialog.css</src>
 	</file:css>
 	<file:less>
-		<src>/less/dialog.less</src>
+		<src>dist/less/dialog.less</src>
 	</file:less>
 	<file:scss>
-		<src>/scss/dialog.scss</src>
+		<src>dist/scss/dialog.scss</src>
 	</file:scss>
-
-	Events:
 
 	<event:show>
 		<desc>Fires when dialog is shown.</desc>

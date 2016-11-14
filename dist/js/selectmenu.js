@@ -1,10 +1,20 @@
-
 /*
-	Selectmenu
-	Dependencies: core
-
-	Events:
-
+	<depedency:Core>
+		<src>dist/js/core.js</src>
+		<docs>/</docs>
+	</depedency:Core>
+	<file:js>
+		<src>dist/js/selectmenu.js</src>
+	</file:js>
+	<file:css>
+		<src>dist/css/selectmenu.css</src>
+	</file:css>
+	<file:less>
+		<src>dist/less/selectmenu.less</src>
+	</file:less>
+	<file:scss>
+		<src>dist/scss/selectmenu.scss</src>
+	</file:scss>
 	<event:change>
 		<desc>Fires when selectmenu value changes.</desc>
 		<example>
@@ -13,7 +23,6 @@
 			});
 		</example>
 	</event:change>
-
 	<event:show>
 		<desc>Fired when menu is shown.</desc>
 		<example>
@@ -22,7 +31,6 @@
 			});
 		</example>
 	</event:show>
-
 	<event:hide>
 		<desc>Fired when menu is hidden.</desc>
 		<example>
@@ -31,7 +39,6 @@
 			});
 		</example>
 	</event:hide>
-
 	<event:activate>
 		<desc>Fired when an option becomes active.</desc>
 		<example>
@@ -41,7 +48,6 @@
 			});
 		</example>
 	</event:activate>
-
 	<event:disabled>
 		<desc>Fired when selectmenu is disabled, if previously enabled.</desc>
 		<example>
@@ -50,7 +56,6 @@
 			});
 		</example>
 	</event:disabled>
-
 	<event:enabled>
 		<desc>Fired when selectmenu is enabled, if previously disabled.</desc>
 		<example>
@@ -59,7 +64,6 @@
 			});
 		</example>
 	</event:enabled>
-
 	<event:update>
 		<desc>Fired when updates are made to the rendered UI through the use of update().</desc>
 		<example>

@@ -1,9 +1,21 @@
 /*
-	Selectmenu
-	Dependencies: core
+	<depedency:Core>
+		<src>dist/js/core.js</src>
+		<docs>/</docs>
+	</depedency:Core>
 
-	Events:
-
+	<file:js>
+		<src>dist/js/tooltip.js</src>
+	</file:js>
+	<file:css>
+		<src>dist/css/tooltip.css</src>
+	</file:css>
+	<file:less>
+		<src>dist/less/tooltip.less</src>
+	</file:less>
+	<file:scss>
+		<src>dist/scss/tooltip.scss</src>
+	</file:scss>
 	<event:show>
 		<desc>Fires when tooltip is shown.</desc>
 		<example>
@@ -12,7 +24,6 @@
 			});
 		</example>
 	</event:show>
-
 	<event:hide>
 		<desc>Fired when tooltip is hidden.</desc>
 		<example>
@@ -21,7 +32,6 @@
 			});
 		</example>
 	</event:hide>
-
 	<event:connect>
 		<desc>Fired when a connection is being made between a trigger and it's modal.</desc>
 		<example>
@@ -30,7 +40,6 @@
 			});
 		</example>
 	</event:connect>
-
 	<event:position>
 		<desc>Fired when positioning is invoked for a tooltip modal.</desc>
 		<example>
@@ -39,7 +48,6 @@
 			});
 		</example>
 	</event:position>
-
 	<event:lock>
 		<desc>Fires when tooltip is locked or unlocked.</desc>
 		<example>

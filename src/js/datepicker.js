@@ -1,3 +1,21 @@
+/*
+	<depedency:Core>
+		<src>dist/js/core.js</src>
+		<docs>/</docs>
+	</depedency:Core>
+	<file:js>
+		<src>dist/js/datepicker.js</src>
+	</file:js>
+	<file:css>
+		<src>dist/css/datepicker.css</src>
+	</file:css>
+	<file:less>
+		<src>dist/less/datepicker.less</src>
+	</file:less>
+	<file:scss>
+		<src>dist/scss/datepicker.scss</src>
+	</file:scss>
+*/
 (function ( root, factory ) {
 	//
 	// AMD support
@@ -22,7 +40,7 @@
 		return factory( root, root.mkNasty );
 	}
 
-})( typeof window !== "undefined" ? window : this, function ( root, mk ) { 
+})( typeof window !== "undefined" ? window : this, function ( root, mk ) {
 
 
 

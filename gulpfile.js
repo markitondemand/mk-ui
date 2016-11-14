@@ -26,8 +26,8 @@ gulp.task('minify', function () {
 	gulp.src(paths.scripts.src)
 		.pipe(mini({
 			ext: {
-				src: paths.script.original,
-				min: paths.script.minified
+				src: paths.scripts.original,
+				min: paths.scripts.minified
 			},
 			mangle: true
 		}))
