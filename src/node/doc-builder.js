@@ -72,18 +72,18 @@ function parse (data) {
 		events: [],
 		properties: [],
 		methods: [],
-		depedencies: [],
-		files: []
+		dependencies: [],
+		assets: []
 	};
 
 	data = data.replace(
 		getExpression('depedency'),
-		replacer('depedency', data, o.depedencies)
+		replacer('depedency', data, o.dependencies)
 	);
 
 	data = data.replace(
 		getExpression('file'),
-		replacer('file', data, o.files)
+		replacer('file', data, o.assets)
 	);
 
 	data = data.replace(

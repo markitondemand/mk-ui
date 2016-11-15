@@ -1,0 +1,13 @@
+
+if assets && assets.length
+    h2 Assets
+    table.table
+        thead
+            tr
+                th Type
+                th File
+        tbody
+            each a in assets
+                tr
+                    td= a.name
+                    td= a.src

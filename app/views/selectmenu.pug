@@ -1,30 +1,14 @@
 doctype html
 html
-
 	head
 		include ./shared/head
 		link(rel="stylesheet", type="text/css", href="/dist/css/selectmenu.css")
-		style.
-
-			.restrict-height .mk-sm-list {
-				height: 200px;
-				overflow: auto;
-			}
-
+		link(rel="stylesheet", type="text/css", href="/app/assets/css/selectmenu.css")
 	body
 		include ./shared/header
-
-		main.container.documentation
-			p
-				em
-					| Selectmenu inherits from Core. For a detailed list of inherited members and events, visit&nbsp;
-					a(href="/")
-						| Core.
-			h2
-				| Examples
-			p
-				| Selectmenu comes with a ton of opt-in behaviors and functionality.
-				| Below we've set up a few different examples, breaking out some of the features you can add to your instances.
+		main.container
+			include ./shared/info
+			h2 Examples
 			div.row
 				div.col-sm-6
 					section.panel
@@ -77,7 +61,8 @@ html
 							h3.panel-title Multi Select W/ Optgroups
 						div.panel-body
 							p
-								| Multiselect menus with optgroups provide the user with the ability to select the optgroup. Selecting the optgroup will activate/deactivate all child options within the optgroup.
+								| Multiselect menus with optgroups provide the user with the ability to select the optgroup.
+								| Selecting the optgroup will activate/deactivate all child options within the optgroup.
 							div.mk-sm-root
 								select.mk-sm(aria-label="Animals and Insects", multiple="true")
 									optgroup(label="Animals")
@@ -96,7 +81,8 @@ html
 							h3.panel-title Selectmenu W/ Classnames
 						div.panel-body
 							p
-								| You can customize individual options, optgroups, and the root select node by adding classnames to your setup elements. Selectmenu will copy those classnames and add them to the renered ui elements.
+								| You can customize individual options, optgroups, and the root select node by adding classnames to your setup elements.
+								| Selectmenu will copy those classnames and add them to the renered ui elements.
 							div.mk-sm-root
 								select.mk-sm(aria-label="Animals")
 									optgroup(label="Animals")
@@ -110,7 +96,8 @@ html
 							h3.panel-title Selectmenu W/ Clear All
 						div.panel-body
 							p
-								| Selectmenu comes with the opt-in ability for a Clear All option (text can be changed through format options). To consume this behavior simply add a data-removable="true" to your setup select element. Clear all only works with multiselects, since single selects always have a default value.
+								| Selectmenu comes with the opt-in ability for a Clear All option (text can be changed through format options).
+								| To consume this behavior simply add a data-removable="true" to your setup select element. Clear all only works with multiselects, since single selects always have a default value.
 							div.mk-sm-root
 								select.mk-sm(aria-label="Animals", multiple="true", data-removable="true")
 									optgroup(label="Animals")
@@ -124,7 +111,8 @@ html
 							h3.panel-title Selectmenu W/ Alt Text
 						div.panel-body
 							p
-								| You can also provide options with alternative text or a more detailed description. Add a data-alt="&lt;your text here&gt;" to create alt labelling.
+								| You can also provide options with alternative text or a more detailed description.
+								| Add a data-alt="&lt;your text here&gt;" to create alt labelling.
 							div.mk-sm-root
 								select.mk-sm
 									optgroup(label="Animals")
@@ -162,7 +150,6 @@ html
 		include ./shared/scripts
 		script(type="text/javascript", src="/dist/js/selectmenu.min.js")
 		script.
-
 			Mk.transitions(true);
 
 			var selects = $('.mk-sm-root'),

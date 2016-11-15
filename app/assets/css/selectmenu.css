@@ -1,0 +1,5 @@
+
+.restrict-height .mk-sm-list {
+    height: 200px;
+    overflow: auto;
+}

@@ -1,6 +1,10 @@
 
 @import 'https://fonts.googleapis.com/css?family=Roboto+Slab:400,700';
 
+/***********************
+  Tag Stuff
+ ************************/
+
 body {
 	background: white;
 	color: #333;
@@ -9,15 +13,23 @@ body {
 }
 
 body a {
-	color: #328f8a;
+	color: #236192;
 }
 
 body a:hover,
 body a:active,
 body a:focus {
-	color: #328f8a;
+	color: #236192;
 	text-decoration: underline;
 }
+
+h1, h2, h3, h4, h5, h6 {
+    color: #008e89 !important;
+}
+
+/***********************
+  Error Stuff
+ ************************/
 
 .error-404,
 .error-500 {
@@ -41,6 +53,10 @@ body a:focus {
 	position: absolute;
 	width: 100%;
 }
+
+/***********************
+  Component Stuff
+ ************************/
 
 .component-brand {
 	font-size: 16px;
@@ -80,14 +96,9 @@ body a:focus {
 	content: '[dg]';
 }
 
-.documentation h1,
-.documentation h2,
-.documentation h3,
-.documentation h4,
-.documentation h5,
-.documentation h6 {
-    color: #008e89;
-}
+/***********************
+  Navbar Stuff
+************************/
 
 .navbar-theme {
 	background: linear-gradient(45deg,#328f8a,#08ac4b);
@@ -155,16 +166,9 @@ body a:focus {
 	text-decoration: underline;
 }
 
-.h-theme {
-	margin: 0 0 10px;
-	font-family: 'Roboto Slab';
-	color: #666666;
-	font-size: 18px;
-}
-
-.font-theme {
-	font-family: 'Roboto Slab';
-}
+/***********************
+  Panel Stuff
+************************/
 
 .panel {
 	border-radius: 0;
@@ -178,6 +182,10 @@ body a:focus {
 .panel-body {
 	padding-top: 0;
 }
+
+/***********************
+  List Stuff
+************************/
 
 .list-methods,
 .list-property {

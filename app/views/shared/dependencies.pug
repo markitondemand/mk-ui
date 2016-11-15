@@ -1,0 +1,14 @@
+
+if dependencies && dependencies.length
+    h2 Dependencies
+    table.table
+        thead
+            tr
+                th Name
+                th File
+        tbody
+            each d in dependencies
+                tr
+                    td
+                        a(href=d.docs)= d.name
+                    td= d.src

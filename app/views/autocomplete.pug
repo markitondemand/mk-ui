@@ -1,24 +1,13 @@
 doctype html
 html
-
 	head
 		include ./shared/head
 		link(rel="stylesheet", type="text/css", href="/dist/css/autocomplete.css")
-
 	body
-
 		include ./shared/header
-
-		main.container.documentation
-			p
-				em
-					| Autocomplete inherits from Selectmenu. For a detailed list of inherited members and events, visit&nbsp;
-					a(href="/selectmenu")
-						| Selectmenu.
-			h2
-				| Examples
-			p
-				| Autocomplete comes with a ton of opt-in behaviors and functionality. Below we've set up a few different examples, breaking out some of the features you can add to your instances.
+		main.container
+			include ./shared/info
+			h2 Examples
 			div.row
 				div.col-sm-4
 					section.panel

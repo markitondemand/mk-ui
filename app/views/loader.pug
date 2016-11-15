@@ -4,37 +4,12 @@ html
 	head
 		include ./shared/head
 		link(rel="stylesheet", type="text/css", href="/dist/css/loader.css")
-		style.
-
-			#content {
-				border: 1px solid #ccc;
-				padding: 150px 0;
-				position: relative;
-				text-align: center;
-			}
-
-			#buttons {
-				background: #f7f7f7;
-				border: 1px solid #ccc;
-				border-width: 0 1px 1px;
-				padding: 10px;
-				text-align: center;
-			}
-
-			#buttons button + button {
-				margin-left: 10px;
-			}
+		link(rel="stylesheet", type="text/css", href="/app/assets/css/loader.css")
 	body
 		include ./shared/header
-
 		main.container
-			p
-				em
-					| Loader inherits from Core. For a detailed list of features, visit&nbsp;
-					a(href="/")
-						| Core.
-			h2
-				| Example
+			include ./shared/info
+			h2 Example
 			div
 				div#content
 					ul.list-inline

@@ -4,59 +4,18 @@ html
 	head
 		include ./shared/head
 		link(rel="stylesheet", type="text/css", href="/dist/css/tooltip.css")
-		style.
-
-			#position-toggler {
-				border: 1px solid #ccc;
-				margin: 20px 0 0;
-				padding: 20px;
-				text-align: center;
-			}
-
-			#position-toggler button {
-				border-radius: 80%;
-				padding: 42px 14px;
-			}
-
-			#tools {
-				background: #f7f7f7;
-				border: 1px solid #ccc;
-				border-width: 0 1px 1px;
-				margin-bottom: 20px;
-				padding: 5px;
-				text-align: center;
-			}
-
-			#tools div {
-				margin-bottom: 5px;
-			}
-
-			#tools button + button{
-				margin-left: 5px;
-			}
+		link(rel="stylesheet", type="text/css", href="/app/assets/css/tooltip.css")
 	body
 		include ./shared/header
-
-		main.container.documentation
-			p
-				em
-					| Tooltip inherits from Core. For a detailed list of inherited members and events, visit&nbsp;
-					a(href="/")
-						| Core.
-			h2
-				| Examples
-			p
-				| Tooltips comes with a ton of opt-in behaviors and functionality.
-				| Below we've set up a few different examples, breaking out some of the features you can add to your instances.
-
+		main.container
+			include ./shared/info
+			h2 Examples
 			div#position-toggler
 				button.mk-tt.btn.btn-primary
 					img(src="/app/assets/images/logo.png", alt="Mk[ui]")
 				div.mk-tt-modal
-					h4
-						| Tooltip
-					p
-						| Some contents.
+					h4 Tooltip
+					p Some contents.
 			div#tools
 				div
 					button.btn(data-position="top-left")

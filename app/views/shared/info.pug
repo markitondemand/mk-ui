@@ -1,0 +1,8 @@
+
+div.row
+    if dependencies && dependencies.length
+        div.col-sm-6
+            include ./dependencies
+    if assets && assets.length
+        div.col-sm-6
+            include ./assets

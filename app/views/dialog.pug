@@ -1,13 +1,13 @@
 doctype html
 html
-
 	head
 		include ./shared/head
 		link(rel="stylesheet", type="text/css", href="/dist/css/dialog.css")
-
 	body
 		include ./shared/header
-		main.container.documentation
+		main.container
+			include ./shared/info
+			h2 Examples
 			div
 				table
 					tbody

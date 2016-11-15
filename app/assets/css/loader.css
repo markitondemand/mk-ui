@@ -1,0 +1,19 @@
+
+#content {
+    border: 1px solid #ccc;
+    padding: 150px 0;
+    position: relative;
+    text-align: center;
+}
+
+#buttons {
+    background: #f7f7f7;
+    border: 1px solid #ccc;
+    border-width: 0 1px 1px;
+    padding: 10px;
+    text-align: center;
+}
+
+#buttons button + button {
+    margin-left: 10px;
+}
