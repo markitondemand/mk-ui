@@ -3,7 +3,7 @@ html
 
 	head
 		include ./shared/head
-		link(rel="stylesheet", type="text/css", href="/src/css/datepicker.css")
+		link(rel="stylesheet", type="text/css", href="/dist/css/datepicker.css")
 
 	body
 
@@ -15,9 +15,9 @@ html
 					input(type="date", class="mk-datepicker")
 
 		include ./shared/scripts
-		script(type="text/javascript", src="/src/js/standard/datepicker.js")
+		script(type="text/javascript", src="/dist/js/datepicker.min.js")
 		script.
-			
+
 			mkNasty.transitions(true);
 
 			//ar select = new mkNasty.Selectmenu('.mk-selectmenu');

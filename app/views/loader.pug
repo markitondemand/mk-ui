@@ -3,7 +3,7 @@ html
 
 	head
 		include ./shared/head
-		link(rel="stylesheet", type="text/css", href="/src/css/loader.css")
+		link(rel="stylesheet", type="text/css", href="/dist/css/loader.css")
 		style.
 
 			#content {
@@ -66,7 +66,7 @@ html
 			include ./shared/events
 			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/src/js/loader.js")
+		script(type="text/javascript", src="/dist/js/loader.min.js")
 		script.
 
 			Mk.transitions(true);

@@ -1,13 +1,14 @@
 {
   "name": "mk-ui",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A flexible UI Built on Accessibility",
   "dependencies": {},
   "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-sass": "^2.3.2",
-    "gulp-less": "^3.1.0",
     "express": "^4.14.0",
+    "gulp": "^3.9.1",
+    "gulp-less": "^3.1.0",
+    "gulp-minify": "0.0.14",
+    "gulp-sass": "^2.3.2",
     "pug": "^2.0.0-beta3",
     "rootpath": "^0.1.2"
   },
@@ -32,10 +33,10 @@
   },
   "homepage": "https://github.com/micha3ldavid/mk-ui",
   "files": [
-    "src/js/*.js",
-    "src/css/*.css",
-    "src/scss/*.scss",
-    "src/less/*.less",
+    "dist/js/*.js",
+    "dist/css/*.css",
+    "dist/scss/*.scss",
+    "dist/less/*.less",
     "LICENSE"
   ]
 }

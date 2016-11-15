@@ -100,7 +100,7 @@ $mk-tt-color: $mk-gray-5;
 $mk-tt-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
 $mk-tt-transition-speed: 0.5s;
 $mk-tt-arrow-size: 0.6rem;
-$mk-tt-arrow-offset: 1rem;
+$mk-tt-arrow-offset: 0.6rem;
 $mk-tt-margin: 1rem;
 $mk-tt-padding: 1rem;
 
@@ -108,7 +108,11 @@ $mk-tt-padding: 1rem;
 // Dialog
 // -------------------------------------------
 
-$mk-dg-bg: $mk-gray-3;
+$mk-dg-bg: $mk-gray-1;
 $mk-dg-color: $mk-gray-5;
 $mk-dg-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
 $mk-dg-transition-speed: 0.5s;
+$mk-dg-arrow-size: 0;
+$mk-dg-arrow-offset: 0;
+$mk-dg-margin: 0;
+$mk-dg-padding: 1rem;

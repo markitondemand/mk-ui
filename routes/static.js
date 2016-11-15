@@ -3,6 +3,6 @@ module.exports = function ( express, app ) {
   //
   // static files
   // ----------------------------------
-  app.use('/src', express.static('src'));
-  app.use('/public', express.static('public'));
+  app.use('/dist', express.static('dist'));
+  app.use('/app', express.static('app'));
 };
