@@ -144,7 +144,7 @@ var dom = (function () {
         find: function (s, c) {
 
             s = s || doc;
-            c = c || doc;
+            c = c || this.length && this || doc;
 
             var n = s;
 
@@ -300,11 +300,10 @@ var dom = (function () {
         css: function (n, v) {
             return this.nv(n, v, function (_n, _v) {
                 if (_v === void+1 && this.length) {
-                    return getComputedStyle(this[0])
-                        .getPropertyValue(_v);
+                    return getComputedStyle(this[0]).getPropertyValue(_v);
                 }
                 return this.each(function (i, el) {
-                    el.style[_n] = typeof _v === 'number' && _v + 'px' || _v;
+                    el.style[_n] = typeof _v === 'number' && (_v + 'px') || _v;
                 });
             });
         },
