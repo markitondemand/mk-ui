@@ -1,25 +1,44 @@
 
-var gulp = require('gulp'),
-	sass = require('gulp-sass'),
-	less = require('gulp-less'),
-	mini = require('gulp-minify'),
-	paths = {
+var gulp   = require('gulp'),
+	sass   = require('gulp-sass'),
+	less   = require('gulp-less'),
+	mini   = require('gulp-minify'),
+	concat = require('gulp-concat'),
+	paths  = {
 		'style': {
-			// sass lives in dist bc developers should take advantags
 			sass: './dist/scss/*.scss',
-			// less lives in dist bc developers should take advantags
 			less: './dist/less/*.less',
-			// static css if you have to...
 			output: './dist/css'
 		},
 		'scripts': {
-			// grab all src js files
 			src: './src/js/*.js',
 			output: './dist/js',
 			original: '.js',
 			minified: '.min.js'
+		},
+		'core': {
+			files: [
+				'./src/js/core/intro.js',
+				'./src/js/core/helpers.js',
+				'./src/js/core/transitions.js',
+				'./src/js/core/property.js',
+				'./src/js/core/templates.js',
+				'./src/js/core/eventemitter.js',
+				'./src/js/core/device.js',
+				'./src/js/core/dom.js',
+				'./src/js/core/definition.js',
+				'./src/js/core/prototype.js',
+				'./src/js/core/outro.js'
+			]
 		}
 	};
+
+gulp.task('concat', function () {
+
+	gulp.src(paths.core.files)
+		.pipe(concat('core.js'))
+		.pipe(gulp.dest('./src/js'))
+});
 
 gulp.task('minify', function () {
 
