@@ -151,7 +151,12 @@ function each (ctx, obj, fn) {
 
         l = obj.length;
 
-        for (; i < l && (r = fn.call(ctx, i, obj[i]) !== false); i++) {
+        for (; i < l; i++) {
+
+            r = fn.call(ctx, i, obj[i]);
+
+            if (r === false) break;
+
             if (r === -1) {
                 obj.splice(i, 1);
                 i--; l--;
@@ -710,7 +715,6 @@ var agent  = navigator.userAgent,
 */
 
 var dom = (function () {
-
     /*
         Members:
 
@@ -720,28 +724,25 @@ var dom = (function () {
         each()
         find()
         filter()
+        parent() (also does closest)
         hasClass()
         addClass()
         removeClass()
         attr()
+        prop()
         data()
         html()
         text()
         markup()
         appendTo()
         prependTo()
-
-        TODO:
-
-        remove()
         append()
         prepend()
-        parent()
-
+        remove()
         on()
         one()
         off()
-
+        emit()
         ajax()
     */
 
@@ -805,7 +806,7 @@ var dom = (function () {
 
             // undefined
             if (v === void+1) {
-                v = c[k] || node.getAttribute('data-' + k) || null;
+                v = c[k] || n.getAttribute('data-' + k) || null;
                 c[k] = v;
             }
             // remove key
@@ -822,6 +823,126 @@ var dom = (function () {
         }
     }
 
+    //
+    // jsonp
+    // -----------------------------------
+
+    function jsonp (url, fn, cx) {
+
+        var id = 'JSONP' + uid(),
+            s = doc.createElement('script');
+
+        s.type = 'text/javascript';
+        s.language = 'javascript';
+        s.async = true;
+        s.src = url;
+
+        var cb = function (data) {
+            fn.call(cx, data);
+            delete window[id];
+        };
+
+        window[id] = cb;
+        doc.documentElement.firstChild.appendChild(s);
+
+        return {
+            abort: function () {
+                if (s && s.parentNode) {
+                    s.parentNode.removeChild(s);
+                }
+                window[id] = function () {
+                    delete window[id];
+                };
+                window[id]();
+            }
+        }
+    }
+
+    //
+    // dom events
+    // -----------------------------------
+
+    function event (n, a, t, s, f, x) {
+
+        var h, d;
+
+        if (a) {
+
+            h = function (e) {
+
+                var r = null;
+
+                if (e.ns) {
+                    if (e.ns === s) {
+                        r = f.apply(this, [e].concat(e.data));
+                    }
+                }
+                else {
+                    r = f.call(this, e);
+                }
+
+                if (r !== null && x) {
+                    event(n, false, t, s, f, x);
+                }
+                return r;
+            };
+
+            d = data(n, 'events') || {};
+            d[t] = d[t] || [];
+            d[t].push({
+                type: t,
+                ns: s,
+                original: f,
+                handler: h
+            });
+
+            data(n, 'events', d);
+
+            n.addEventListener(t, h, false);
+            return;
+        }
+
+        d = (data(n, 'events') || {})[t] || [];
+
+        each(this, d, function (i, o) {
+
+            if (!s || s && o.ns === s) {
+                if (!f || f === o.original) {
+                    n.removeEventListener(t, o.handler);
+                    return -1;
+                }
+            }
+        });
+    }
+
+    function on (n, t, d, h, x) {
+
+        var p = t.split('.'),
+        e = p.shift();
+
+        event(n, true, e, p.join('.'), h, x);
+    }
+
+    function off (n, t, h) {
+
+        var p = t.split('.'),
+            e = p.shift();
+
+        event(n, false, e, p.join('.'), h);
+    }
+
+    function emit (n, t, d) {
+
+        var p = t.split('.'),
+            e = p.shift(),
+            ev = new Event(e);
+
+        ev.ns = p.join('.');
+        ev.data = d || [];
+
+        n.dispatchEvent(ev);
+    }
+
     function dom (s, c) {
         this.find(s, c);
     }
@@ -829,6 +950,8 @@ var dom = (function () {
     dom.prototype = {
 
         length: 0,
+
+        context: null,
 
         constructor: dom,
 
@@ -839,14 +962,27 @@ var dom = (function () {
         find: function (s, c) {
 
             s = s || doc;
-            c = c || this.length && this || doc;
+            c = c || this.length && this || [doc];
+
+            if (typeof c === 'string') {
+                c = new dom(c, doc);
+            }
 
             var n = s;
 
             if (typeof s === 'string') {
 
-                n = tg.test(s) && this.markup(s)
-                    || c.querySelectorAll(s);
+                if (tg.test(s)) {
+                    n = this.markup(s);
+                }
+                else {
+
+                    n = [];
+
+                    each(this, c, function (i, el) {
+                        n = n.concat(slice.call(el.querySelectorAll(s)));
+                    });
+                }
             }
 
             if (n && nt.test(n.nodeType)) {
@@ -893,6 +1029,34 @@ var dom = (function () {
                 });
             });
             return new dom(filtered, this.context);
+        },
+
+        parent: function (s, c) {
+
+            var p = [], ps;
+
+            if (arguments.length) {
+
+                ps = new dom(s, c);
+
+                this.each(function (i, el) {
+
+                    while (el.parentNode) {
+                        ps.each(function (x, _el) {
+                            if (_el === el.parentNode) {
+                                p.push(_el); return false;
+                            }
+                        });
+                        el = el.parentNode;
+                    }
+                });
+            }
+            else {
+                this.each(function (i, el) {
+                    if (el.parentNode) p.push(el.parentNode);
+                });
+            }
+            return new dom(p);
         },
 
         markup: function (s) {
@@ -981,6 +1145,17 @@ var dom = (function () {
             });
         },
 
+        prop: function (n, v) {
+            return this.nv(n, v, function (_n, _v) {
+                if (_v === void+1) {
+                    return this.length && this[0][_n] || null;
+                }
+                return this.each(function (i, el) {
+                    el[_n] = _v;
+                });
+            });
+        },
+
         data: function (n, v) {
             return this.nv(n, v, function (_n, _v) {
                 if (_v === void+1) {
@@ -1062,6 +1237,74 @@ var dom = (function () {
                 });
             }
             return this;
+        },
+
+        append: function (s, c) {
+
+            if (this.length) {
+
+                var elem = this[this.length - 1];
+
+                new dom(s, c).each(function (i, el) {
+                    elem.appendChild(el);
+                });
+            }
+            return this;
+        },
+
+        prepend: function (s, c) {
+
+            if (this.length) {
+
+                var elem = this[this.length - 1];
+
+                new dom(s, c).each(function (i, el) {
+                    if (elem.firstChild) {
+                        elem.insertBefore(el, elem.firstChild);
+                        return;
+                    }
+                    elem.appendChild(el);
+                });
+            }
+        },
+
+        remove: function (s) {
+
+            var o = this;
+
+            if (arguments.length) {
+                o = new dom(s, this);
+            }
+
+            o.each(function (i, el) {
+                el.parentNode.removeChild(el);
+            });
+
+            return this;
+        },
+
+        on: function (t, h) {
+            return this.each(function (i, el) {
+                on(el, t, '', h, false);
+            });
+        },
+
+        one: function (t, h) {
+            return this.each(function (i, el) {
+                on(el, t, '', h, true);
+            });
+        },
+
+        off: function (t, h) {
+            return this.each(function (i, el) {
+                off(el, t, h);
+            });
+        },
+
+        emit: function (t, d) {
+            return this.each(function (i, el) {
+                emit(el, t, d);
+            });
         }
     };
     return dom;

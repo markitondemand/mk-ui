@@ -109,7 +109,12 @@ function each (ctx, obj, fn) {
 
         l = obj.length;
 
-        for (; i < l && (r = fn.call(ctx, i, obj[i]) !== false); i++) {
+        for (; i < l; i++) {
+
+            r = fn.call(ctx, i, obj[i]);
+
+            if (r === false) break;
+
             if (r === -1) {
                 obj.splice(i, 1);
                 i--; l--;
