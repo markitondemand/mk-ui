@@ -6,6 +6,7 @@ Mk.prototype = {
         </property:name>
     */
     name: '',
+
     constructor: Mk,
     /*
         <property:templates>
@@ -115,7 +116,7 @@ Mk.prototype = {
     </method:$>
     */
     $: function (s, c) {
-        return Mk._$( s, c );
+        return new Mk._$( s, c );
     },
     /*
     <method:uid>

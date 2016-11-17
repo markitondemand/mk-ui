@@ -56,12 +56,22 @@ module.exports = function ( express, app ) {
       });
   });
 
+  // testing ajax functionality
+
   app.get('/ajax', function (req, res) {
       res.write(JSON.stringify({
           "status": 200,
-          "message": "success"
+          "message": "successful GET"
       }));
       res.end();
+  });
+
+  app.post('/ajax', function (req, res) {
+     res.write(JSON.stringify({
+         "status": 200,
+         "message": "successful POST"
+     }));
+     res.end();
   });
 
 };

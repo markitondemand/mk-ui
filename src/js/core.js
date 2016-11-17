@@ -721,6 +721,7 @@ var dom = (function () {
         length
 
         is()
+        val()
         each()
         find()
         filter()
@@ -772,6 +773,10 @@ var dom = (function () {
     // nodeType testing
     // ------------------------------------
     nt = /1|9|11/,
+    //
+    // no operation
+    // ------------------------------------
+    noop = function () {},
     //
     // html creation wrappers
     // -------------------------------------
@@ -878,6 +883,7 @@ var dom = (function () {
             o = copy(o || {});
 
             o.url = this.url(o.url);
+            o.data = this.qs(o.data);
             o.method = (o.method || 'GET').toUpperCase();
             o.type = o.type || 'html';
             o.headers = o.headers || {};
@@ -886,6 +892,10 @@ var dom = (function () {
             o.encoding = o.encoding || 'utf-8';
             o.user = o.user || '';
             o.password = o.password || '';
+
+            o.complete = o.complete || noop;
+            o.success = o.success || noop;
+            o.error = o.error || noop;
 
             if (o.data && o.method === 'GET') {
                 o.url  = o.url.indexOf('?') > -1 && o.url || o.url + '?';
@@ -914,29 +924,49 @@ var dom = (function () {
 
         jsonp: function jsonp () {
 
+            if (this.open) {
+                return this;
+            }
+
             var x = this,
-                o = this.options,
+                o = x.options,
                 s = doc.createElement('script'),
-                id = o.jsonpid = 'JSONP' + uid().replace(/\-/g, '');
+
+                id = o.jsonpid = 'MKUI' + uid().split('-').join(''),
+                qs = 'callback=' + id;
 
             s.type = 'text/javascript';
             s.language = 'javascript';
             s.async = o.async;
-            s.src = o.url + '&callback=' + id;
+            s.src = o.url + (o.url.indexOf('?') > -1 && '&' || '?') + qs;
             s.id = o.scriptid = uid();
+
+            s.onerror = function () {
+                o.error.call(x);
+            };
+
+            s.onload = function () {
+                o.complete.call(x);
+            };
 
             var cb = function (data) {
 
                 x.response = data;
                 x.status = 200;
-                o.success.call(x, data, x.status, x);
+
+                s.onload  = null;
+                s.onerror = null;
                 s.parentNode.removeChild(s);
+
+                o.success.call(x, data);
+
                 delete root[id];
             };
 
             root[id] = cb;
 
-            doc.documentElement.firstChild.appendChild(s);
+            doc.documentElement
+                .firstChild.appendChild(s);
 
             this.open = true;
             this.status = 0;
@@ -950,13 +980,15 @@ var dom = (function () {
                 return this;
             }
 
-            if (this.options.type === 'jsonp') {
+            var x = this,
+                o = x.options,
+                xhr;
+
+            if (o.type === 'jsonp') {
                 return this.jsonp();
             }
 
-            var xhr = this.xhr = new XMLHttpRequest(),
-                o = this.options,
-                x = this;
+            xhr = this.xhr = new XMLHttpRequest();
 
             xhr.open(o.method, o.url, o.async, o.user, o.password);
             xhr.onreadystatechange = function () {
@@ -971,6 +1003,10 @@ var dom = (function () {
                 xhr.setRequestHeader(n, v);
             });
 
+            if (o.type && o.type !== 'text') {
+                xhr.responseType = o.type;
+            }
+
             x.open = true;
             x.status = 0;
 
@@ -984,9 +1020,14 @@ var dom = (function () {
 
         abort: function () {
 
+            this.open = false;
+            this.status = 0;
+
             if (this.xhr) {
                 this.xhr.abort();
-                return;
+                this.xhr.onreadystatechange = null;
+                this.xhr = null;
+                return this;
             }
 
             var x = this,
@@ -994,12 +1035,17 @@ var dom = (function () {
                 s = doc.getElementById(o.scriptid),
                 id = o.jsonpid;
 
-            if (s) { s.parentNode.removeChild(s); }
+            if (s) {
+                s.parentNode.removeChild(s);
+            }
 
             root[id] = function () {
                 delete root[id];
             };
+
             root[id]();
+
+            return this;
         },
 
         stateChange: function () {
@@ -1012,32 +1058,30 @@ var dom = (function () {
                 return;
             }
 
+            o.complete.call(x, xhr);
+
             x.status = xhr.status;
+            x.statusText = xhr.statusText;
 
             if (x.status === 1223) {
                 x.status = 204;
+                x.statusText = 'No Content';
             }
 
             x.open = false;
-            x.response = xhr.responseText || '';
+            x.response = xhr.response || null;
 
-            if (o.type === 'json') {
-
-                try {
-                    x.response = JSON.parse(x.response);
-                }
-                catch(e) {
-                    x.response = {message: 'error parsing response'};
-                }
+            if (xhr.responseType === '' || xhr.responseType === 'text') {
+                x.response = xhr.responseText;
             }
 
             xhr.onreadystatechange = function () {};
 
-            var args = x.status >= 200 && x.status < 300
-                ? [x.response || '', x.status, xhr]
-                : [x.status];
-
-            x.options.success.apply(x, args);
+            if (x.status >= 200 && x.status < 300) {
+                o.success.call(x, x.response, xhr);
+            } else {
+                o.error.call(x, xhr);
+            }
         }
     };
 
@@ -1045,7 +1089,27 @@ var dom = (function () {
     // dom events
     // -----------------------------------
 
-    function event (n, a, t, s, f, x) {
+    function del (p, n, x) {
+
+        if (!x) {
+            return true;
+        }
+
+        if (p === n) {
+            return true;
+        }
+
+        var r = false;
+        new dom(x, p).each(function (i, el) {
+            if (n === el) {
+                r = true;
+                return false;
+            }
+        });
+        return r;
+    }
+
+    function event (n, a, t, s, f, o, x) {
 
         var h, d;
 
@@ -1053,42 +1117,47 @@ var dom = (function () {
 
             h = function (e) {
 
-                var r = null;
+                var r, z = false, w = del(n, e.target, x);
 
                 if (e.ns) {
-                    if (e.ns === s) {
-                        r = f.apply(this, [e].concat(e.data));
+                    if (e.ns === s && w) {
+                        r = f.apply(e.target, [e].concat(e.data));
+                        z = true;
                     }
                 }
-                else {
-                    r = f.call(this, e);
+                else if (w) {
+                    r = f.call(e.target, e);
+                    z = true;
                 }
 
-                if (r !== null && x) {
-                    event(n, false, t, s, f, x);
+                if (z && o) {
+                    event(n, false, t, s, f, o, x);
                 }
                 return r;
             };
 
             d = data(n, 'events') || {};
+
             d[t] = d[t] || [];
+
             d[t].push({
                 type: t,
                 ns: s,
                 original: f,
-                handler: h
+                handler: h,
+                delegate: x
             });
 
             data(n, 'events', d);
 
             n.addEventListener(t, h, false);
+
             return;
         }
 
         d = (data(n, 'events') || {})[t] || [];
 
         each(this, d, function (i, o) {
-
             if (!s || s && o.ns === s) {
                 if (!f || f === o.original) {
                     n.removeEventListener(t, o.handler);
@@ -1098,12 +1167,12 @@ var dom = (function () {
         });
     }
 
-    function on (n, t, d, h, x) {
+    function on (n, t, d, h, o, x) {
 
         var p = t.split('.'),
-        e = p.shift();
+            e = p.shift();
 
-        event(n, true, e, p.join('.'), h, x);
+        event(n, true, e, p.join('.'), h, o, x);
     }
 
     function off (n, t, h) {
@@ -1130,6 +1199,10 @@ var dom = (function () {
         this.find(s, c);
     }
 
+    dom.ajax = function () {
+        return new xhr(o);
+    };
+
     dom.prototype = {
 
         length: 0,
@@ -1149,6 +1222,8 @@ var dom = (function () {
 
             if (typeof c === 'string') {
                 c = new dom(c, doc);
+            } else if (c.nodeType) {
+                c = [c];
             }
 
             var n = s;
@@ -1339,6 +1414,17 @@ var dom = (function () {
             });
         },
 
+        val: function (v) {
+
+            if (v === void+1 && this.length) {
+                return this[0].value;
+            }
+
+            return this.each(function(i, el) {
+                el.value = v;
+            })
+        },
+
         data: function (n, v) {
             return this.nv(n, v, function (_n, _v) {
                 if (_v === void+1) {
@@ -1466,15 +1552,27 @@ var dom = (function () {
             return this;
         },
 
-        on: function (t, h) {
+        on: function (t, d, h) {
+
+            if (!h) {
+                h = d;
+                d = null;
+            }
+
             return this.each(function (i, el) {
-                on(el, t, '', h, false);
+                on(el, t, '', h, false, d);
             });
         },
 
-        one: function (t, h) {
+        one: function (t, d, h) {
+
+            if (!h) {
+                h = d;
+                d = null;
+            }
+
             return this.each(function (i, el) {
-                on(el, t, '', h, true);
+                on(el, t, '', h, true, d);
             });
         },
 
@@ -1488,18 +1586,12 @@ var dom = (function () {
             return this.each(function (i, el) {
                 emit(el, t, d);
             });
-        },
-
-        ajax: function (o) {
-            return new xhr(o)
         }
     };
-    return dom;
-})();
 
-window.dom = function (s, c) {
-    return new dom(s, c);
-};
+    return dom;
+
+})();
 
 
 function Mk() {}
@@ -1618,6 +1710,7 @@ Mk.prototype = {
         </property:name>
     */
     name: '',
+
     constructor: Mk,
     /*
         <property:templates>
@@ -1727,7 +1820,7 @@ Mk.prototype = {
     </method:$>
     */
     $: function (s, c) {
-        return Mk._$( s, c );
+        return new Mk._$( s, c );
     },
     /*
     <method:uid>
