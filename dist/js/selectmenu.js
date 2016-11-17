@@ -449,6 +449,7 @@
 
 			this._bindInputEvents();
 			this._bindListEvents();
+			this._bindListItemEvents();
 		},
 
 		_bindInputEvents: function () {
@@ -510,9 +511,19 @@
 			})
 			.on('click.mk', '[role="option"]', function (e) {
 				e.preventDefault();
+				if (thiss.transitioning(thiss.list)) { return; }
 				thiss.select( this.getAttribute('data-value') );
-			})
-			.on('mouseover.mk', '[role="option"]', function (e) {
+			});
+		},
+
+		_bindListItemEvents: function () {
+
+			var thiss = this;
+			this.list.find('[role="option"]').on('mouseenter.mk', function (e) {
+
+				if (thiss.transitioning(thiss.list)) {
+					return;
+				}
 				thiss.activate(this);
 			});
 		},
@@ -622,7 +633,7 @@
 				t.removeClass('focus');
 
 			if (this.isHidden) {
-				
+
 				var o = this.items.find('.active');
 
 				if (o.length && o.attr('aria-selected') !== 'true') {
@@ -1375,6 +1386,8 @@
 
 			this.items.remove();
 			this.list.append(l.find(this.selector('item')));
+
+			this._bindListItemEvents();
 
 			this[m]();
 

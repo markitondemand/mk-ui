@@ -6,7 +6,7 @@
 // transitions are enabled
 // --------------------------------------------------
 
-function transition() {
+function transition () {
 
     if (transition.enabled) {
 

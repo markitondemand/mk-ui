@@ -10,13 +10,16 @@
 
 @mk-color: #333;
 
+@mk-padding: 0.8rem;
+@mk-margin: 0.8rem;
+
 //
 // loader
 // -------------------------------------------
 
 @mk-ld-transition-speed: 0.5s;
-@mk-ld-overlay-bg: rgba(0, 0, 0, 0.4);
-@mk-ld-boxshadow-color: rgba(255, 255, 255, 0.15);
+@mk-ld-overlay-bg: rgba(255, 255, 255, 0.7);
+@mk-ld-boxshadow-color: rgba(0, 0, 0, 0.15);
 
 //
 // selectmenu
@@ -36,7 +39,7 @@
 @mk-sm-option-color: @mk-gray-2;
 @mk-sm-option-bg: tranparent;
 
-@mk-sm-option-color-hover: @mk-gray-3;
+@mk-sm-option-color-hover: @mk-gray-2;
 @mk-sm-option-bg-hover: transparent;
 
 @mk-sm-option-color-disabled: @mk-gray-4;
@@ -57,10 +60,12 @@
 @mk-ac-trigger-color: @mk-color;
 @mk-ac-trigger-char-transform: rotate(90deg);
 @mk-ac-trigger-disabled-color: @mk-gray-2;
+@mk-ac-trigger-transition-speed: 1s;
 
 @mk-ac-list-bg: @mk-gray-5;
+@mk-ac-list-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
 
-@mk-ac-option-color: @mk-gray-3;
+@mk-ac-option-color: @mk-gray-2;
 @mk-ac-option-bg: tranparent;
 
 @mk-ac-option-color-hover: @mk-gray-3;
@@ -76,3 +81,38 @@
 
 @mk-ac-list-loader-bg: rgba(255, 255, 255, 0.7);
 @mk-ac-list-loader-size: 3.28rem;
+
+@mk-ac-tag-bg: @mk-gray-4;
+@mk-ac-tag-border: 1px solid @mk-gray-3;
+@mk-ac-tag-remove-icon: '\d7';
+@mk-ac-tag-padding: 0.3rem;
+@mk-ac-tag-min-height: 4.6rem;
+@mk-ac-tag-label: 'Tags';
+@mk-ac-tag-label-left: 0.6rem;
+@mk-ac-tag-label-offset: -0.8rem;
+
+//
+// Tooltip
+// -------------------------------------------
+
+@mk-tt-bg: @mk-gray-1;
+@mk-tt-color: @mk-gray-5;
+@mk-tt-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
+@mk-tt-transition-speed: 0.5s;
+@mk-tt-arrow-size: 0.6rem;
+@mk-tt-arrow-offset: 0.6rem;
+@mk-tt-margin: 1rem;
+@mk-tt-padding: 1rem;
+
+//
+// Dialog
+// -------------------------------------------
+
+@mk-dg-bg: @mk-gray-1;
+@mk-dg-color: @mk-gray-5;
+@mk-dg-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
+@mk-dg-transition-speed: 0.5s;
+@mk-dg-arrow-size: 0;
+@mk-dg-arrow-offset: 0;
+@mk-dg-margin: 0;
+@mk-dg-padding: 1rem;

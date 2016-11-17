@@ -148,8 +148,9 @@ html
 			include ./shared/events
 			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/dist/js/selectmenu.min.js")
+		script(type="text/javascript", src="/dist/js/selectmenu.js")
 		script.
+
 			Mk.transitions(true);
 
 			var selects = $('.mk-sm-root'),
@@ -163,4 +164,6 @@ html
 				select.on('change', function () {
 					console.log('values: ', this.value);
 				});
+
+				$(this).data('select', select);
 			});

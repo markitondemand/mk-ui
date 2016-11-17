@@ -260,19 +260,17 @@ Mk.prototype = {
              t = Mk._transition(),
              c = this;
 
-            cb = cb || function () {};
+        cb = cb || function () {};
 
         if (t) {
 
             $n.addClass('transition');
 
             $n.one(t, function (e) {
-
-                var el = c.$(this);
-
-                cb.call(c, e, el);
-                el.removeClass('transition');
+                $n.removeClass('transition');
+                cb.call(c, e, $n);
             });
+
             return this;
         }
 
@@ -294,16 +292,27 @@ Mk.prototype = {
         <desc>Clear transition handlers on node.</desc>
     </method:clearTransitions>
     */
-    clearTransitions: function (node) {
+    clearTransitions: function (n) {
 
-        var $n = this.$(node),
-             t = Mk._transition();
+        var t = Mk._transition();
 
         if (t) {
-            $n.off(t);
+            this.$(n).off(t);
         }
-
         return this;
+    },
+    /*
+    <method:transitioning>
+        <invoke>.transitioning(node)</invoke>
+        <param:node>
+            <type>Mixed</type>
+            <desc>A Selector/Node/Wrapped ($) Node.</desc>
+        </param:node>
+        <desc>Returns true if element is currently transitioning. False for anything else.</desc>
+    </method:clearTransitions>
+    */
+    transitioning: function (n) {
+        return this.$(n).hasClass('transition');
     },
     /*
     <method:delay>

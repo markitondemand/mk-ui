@@ -182,7 +182,7 @@ function each (ctx, obj, fn) {
 // transitions are enabled
 // --------------------------------------------------
 
-function transition() {
+function transition () {
 
     if (transition.enabled) {
 
@@ -809,6 +809,13 @@ var dom = (function () {
                 c  = cache[id] || {},
                 v  = vl;
 
+            if (k === null) {
+
+                n._id = null;
+                delete cache[id];
+                return c;
+            }
+
             // undefined
             if (v === void+1) {
                 v = c[k] || n.getAttribute('data-' + k) || null;
@@ -823,9 +830,33 @@ var dom = (function () {
             else {
                 c[k] = v;
             }
+
             cache[id] = c;
+
             return v;
         }
+    }
+
+    function remove (n) {
+
+        var d;
+
+        each(this, n.childNodes, function (i, c) {
+            if (c && c.nodeType === 1) {
+                remove(c);
+            }
+        });
+
+        var d = data(n, null);
+
+        if (d && d.events) {
+            each(this, d.events, function (t, v) {
+                console.info('removing', t)
+                off(n, t);
+            });
+        }
+
+        n.parentNode.removeChild(n);
     }
 
     //
@@ -1091,21 +1122,22 @@ var dom = (function () {
 
     function del (p, n, x) {
 
+        var r = {s: false, t: p};
+
         if (!x) {
-            return true;
+            r.s = true;
+        }
+        else {
+            new dom(x, p).each(function (i, el) {
+
+                if (n === el || new dom(n).parent(el).length) {
+                    r.s = true;
+                    r.t = el;
+                    return false;
+                }
+            });
         }
 
-        if (p === n) {
-            return true;
-        }
-
-        var r = false;
-        new dom(x, p).each(function (i, el) {
-            if (n === el) {
-                r = true;
-                return false;
-            }
-        });
         return r;
     }
 
@@ -1117,16 +1149,18 @@ var dom = (function () {
 
             h = function (e) {
 
-                var r, z = false, w = del(n, e.target, x);
+                var z = false,
+                    w = del(this, e.target, x),
+                    r;
 
                 if (e.ns) {
-                    if (e.ns === s && w) {
-                        r = f.apply(e.target, [e].concat(e.data));
+                    if (e.ns === s && w.s) {
+                        r = f.apply(w.t, [e].concat(e.data));
                         z = true;
                     }
                 }
-                else if (w) {
-                    r = f.call(e.target, e);
+                else if (w.s) {
+                    r = f.call(w.t, e);
                     z = true;
                 }
 
@@ -1301,8 +1335,13 @@ var dom = (function () {
 
                     while (el.parentNode) {
                         ps.each(function (x, _el) {
+
                             if (_el === el.parentNode) {
-                                p.push(_el); return false;
+
+                                if (p.indexOf(_el) < 0) {
+                                    p.push(_el);
+                                }
+                                return false;
                             }
                         });
                         el = el.parentNode;
@@ -1539,14 +1578,14 @@ var dom = (function () {
 
         remove: function (s) {
 
-            var o = this;
+            var o = this, e;
 
             if (arguments.length) {
                 o = new dom(s, this);
             }
 
             o.each(function (i, el) {
-                el.parentNode.removeChild(el);
+                remove(el);
             });
 
             return this;
@@ -1596,7 +1635,9 @@ var dom = (function () {
 
 function Mk() {}
 
-Mk._$ = $;
+Mk._$ = function (s, c) {
+    return new dom(s, c);
+};
 
 Mk._uid = uid;
 
@@ -1964,19 +2005,17 @@ Mk.prototype = {
              t = Mk._transition(),
              c = this;
 
-            cb = cb || function () {};
+        cb = cb || function () {};
 
         if (t) {
 
             $n.addClass('transition');
 
             $n.one(t, function (e) {
-
-                var el = c.$(this);
-
-                cb.call(c, e, el);
-                el.removeClass('transition');
+                $n.removeClass('transition');
+                cb.call(c, e, $n);
             });
+
             return this;
         }
 
@@ -1998,16 +2037,27 @@ Mk.prototype = {
         <desc>Clear transition handlers on node.</desc>
     </method:clearTransitions>
     */
-    clearTransitions: function (node) {
+    clearTransitions: function (n) {
 
-        var $n = this.$(node),
-             t = Mk._transition();
+        var t = Mk._transition();
 
         if (t) {
-            $n.off(t);
+            this.$(n).off(t);
         }
-
         return this;
+    },
+    /*
+    <method:transitioning>
+        <invoke>.transitioning(node)</invoke>
+        <param:node>
+            <type>Mixed</type>
+            <desc>A Selector/Node/Wrapped ($) Node.</desc>
+        </param:node>
+        <desc>Returns true if element is currently transitioning. False for anything else.</desc>
+    </method:clearTransitions>
+    */
+    transitioning: function (n) {
+        return this.$(n).hasClass('transition');
     },
     /*
     <method:delay>

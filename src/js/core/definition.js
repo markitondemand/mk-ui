@@ -1,7 +1,9 @@
 
 function Mk() {}
 
-Mk._$ = $;
+Mk._$ = function (s, c) {
+    return new dom(s, c);
+};
 
 Mk._uid = uid;
 

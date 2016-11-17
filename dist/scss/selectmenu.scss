@@ -103,6 +103,11 @@
 	position: relative;
 }
 
+.mk-sm-list.transition .mk-sm-option,
+.mk-sm-list.transition .mk-sm-optgroup {
+	cursor: default;
+}
+
 .mk-sm-option:hover,
 .mk-sm-optgroup:hover,
 .mk-sm-option:active,

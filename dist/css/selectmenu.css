@@ -86,6 +86,10 @@
   padding: 0.625rem;
   position: relative; }
 
+.mk-sm-list.transition .mk-sm-option,
+.mk-sm-list.transition .mk-sm-optgroup {
+  cursor: default; }
+
 .mk-sm-option:hover,
 .mk-sm-optgroup:hover,
 .mk-sm-option:active,
@@ -93,7 +97,7 @@
 .mk-sm-option:focus,
 .mk-sm-optgroup:focus {
   background: transparent;
-  color: #ccc;
+  color: #666;
   text-decoration: none; }
 
 .mk-sm-shadow.transitions .mk-sm-option,
