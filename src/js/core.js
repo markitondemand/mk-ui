@@ -40,98 +40,128 @@
 
 })( typeof window !== "undefined" ? window : this, function (root, $) {
 
+	var noop = function () {},
+		hasOwn = {}.hasOwnProperty,
+		undf = void+1;
 
-//
-// check for array-like objects -
-// array, NodeList, jQuery (anything with an iterator)
-//
+	function Mk () {}
 
-function arraylike (a) {
+	Mk.noop = function () {};
 
-    var l = !!a && typeof a.length == 'number'
-        && 'length' in a
-        && a.length;
 
-    if (typeof a === 'function' || a === root) {
-        return false;
-    }
-
-    return a instanceof Array
-        || a instanceof NodeList
-        || l === 0
-        || typeof l === 'number' && l > 0 && (l - 1) in a;
-}
-
-// test for object primitives vs.
-// instantiated objects and prototypes
-//
-
-function basicObj (o) {
-
-    if (!o || o.toString().toLowerCase() !== "[object object]" ) {
-        return false;
-    }
-
-    var p = Object.getPrototypeOf(o),
-        c = p.hasOwnProperty('constructor') && p.constructor,
-        f = ({}).hasOwnProperty.toString,
-        s = f.call(Object);
-
-    if (!p) {
-        return true;
-    }
-
-    return typeof c === 'function' && f.call(c) === s;
-}
-
-// check for vanulla functions
-// vanilla functions have no keys and no prototype keys
-//
-
-function basicFunction (fn) {
-
-    if (typeof fn !== 'function') {
-        return false;
-    }
-
-    var keys = Object.keys(fn)
-        .concat(Object.keys(fn.prototype));
-
-    return keys.length < 1;
-}
-
-// generates unique ids
-//
-
-function uid () {
+Mk.uid = function uid () {
     return 'xxxx-4xxx-yxxx'.replace( /[xy]/g, function(c) {
         var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3 | 0x8);
         return v.toString(16);
     });
-}
+};
 
-// deep copy objects to remove pointers
-//
 
-function copy(o) {
+Mk.type = function (o, k) {
+
+    var m = Mk.typemap;
+
+    return m.hasOwnProperty(k)
+        && m[k](o) || false;
+};
+
+Mk.typemap = {
+
+    s: function (o) {
+        return typeof o == 'string';
+    },
+
+    u: function (o) {
+        return o === void+1;
+    },
+
+    f: function (o) {
+        return typeof o == 'function';
+    },
+
+    n: function (o) {
+        return typeof o == 'number';
+    },
+
+    a: function (o) {
+        return o instanceof Array;
+    },
+
+    o: function (o) {
+
+        if (!o || o.toString().toLowerCase() !== "[object object]" ) {
+            return false;
+        }
+
+        var p = Object.getPrototypeOf(o),
+            c = p.hasOwnProperty('constructor') && p.constructor,
+            f = ({}).hasOwnProperty.toString,
+            s = f.call(Object);
+
+        if (!p) {
+            return true;
+        }
+
+        return this.f(c) && f.call(c) === s;
+    },
+
+    c: function (o) {
+
+        if (this.f(o)) {
+            return Object.keys(o).concat(
+                Object.keys(o.prototype)).length > 0;
+        }
+        return false;
+    },
+
+    nl: function (o) {
+        return o instanceof NodeList;
+    },
+
+    nd: function (o) {
+        return o && o.nodeType === 1 || false;
+    },
+
+    al: function (o) {
+
+        if (this.f(o) || this.s(o) || o === root) {
+            return false;
+        }
+
+        var l = !!o && this.n(o.length)
+            && 'length' in o && o.length;
+
+        return this.a(o)
+            || this.nl(o)
+            || l === 0
+            || this.n(l) && l > 0 && (l - 1) in o;
+    },
+
+    bf: function (o) {
+        return this.f(o) && !this.c(o);
+    }
+};
+
+
+Mk.copy = function (o) {
 
     var i, l ,r;
 
-    if (o instanceof Array) {
+    if (Mk.type(o, 'al')) {
 
         i = 0;
         l = o.length;
         r = [];
 
-        for(; i < l && r.push(copy(o[i])); i++ ) {}
+        for(; i < l && r.push(Mk.copy(o[i])); i++) {}
     }
 
-    else if (basicObj(o)) {
+    else if (Mk.type(o, 'o')) {
 
         r = {};
 
-        for(i in o) {
-            r[i] = copy(o[i]);
+        for (i in o) {
+            r[i] = Mk.copy(o[i]);
             l = true;
         }
     }
@@ -139,15 +169,17 @@ function copy(o) {
     return r || o;
 }
 
-// loop arraylike objects, primities,
+
+//
+// loop arraylike objects, primitives,
 // and object instances over a callback function
 //
 
-function each (ctx, obj, fn) {
+Mk.each = function (ctx, obj, fn) {
 
     var i = 0, l, r;
 
-    if (arraylike(obj)) {
+    if (Mk.type(obj, 'al')) {
 
         l = obj.length;
 
@@ -171,46 +203,9 @@ function each (ctx, obj, fn) {
             else if (r === -1) { delete obj[i]; }
         }
     }
+
     return ctx;
 }
-
-
-//
-// transition
-//
-// Give us our browser transition key if
-// transitions are enabled
-// --------------------------------------------------
-
-function transition () {
-
-    if (transition.enabled) {
-
-        if (transition.key) {
-            return transition.key;
-        }
-
-        var el = document.createElement('xanimate'), t;
-
-        for (t in transition.keys) {
-            if (typeof el.style[t] !== 'undefined') {
-                return transition.key = transition.keys[t];
-            }
-        }
-    }
-    return null;
-}
-
-transition.enabled = false;
-
-transition.key = null;
-
-transition.keys = {
-    'transition': 'transitionend',
-    'OTransition': 'oTransitionEnd',
-    'MozTransition': 'transitionend',
-    'WebkitTransition': 'webkitTransitionEnd'
-};
 
 
 // property
@@ -220,22 +215,22 @@ transition.keys = {
 // a dynamic method allowing super object references.
 // -------------------------------------------------------------
 
-function property (obj, proto, member) {
+Mk.property = function (obj, proto, member) {
 
     var desc = Object.getOwnPropertyDescriptor(proto, member),
         prop, fn;
 
-    if (typeof desc.get !== 'undefined') {
+    if (!Mk.type(desc.get, 'u')) {
         return Object.defineProperty(obj, member, desc);
     }
 
     prop = proto[member];
 
-    if (!basicFunction(prop)) {
-        return obj[member] = copy(prop);
+    if (!Mk.type(prop, 'bf')) {
+        return obj[member] = Mk.copy(prop);
     }
 
-    fn = wrapFunction(prop, member);
+    fn = Mk.wrapFunction(prop, member);
 
     Object.defineProperty(obj, member, {
 
@@ -247,10 +242,9 @@ function property (obj, proto, member) {
 
             var v = value;
 
-            if (basicFunction(value)) {
+            if (MK.type(value, 'bf')) {
                 v = wrapFunction(value);
             }
-
             fn = v;
         }
     });
@@ -260,7 +254,7 @@ function property (obj, proto, member) {
 // wrap vanilla functions to allow super() cabability
 //
 
-function wrapFunction (fn, m) {
+Mk.wrapFunction = function (fn, m) {
 
     if (fn._id_) {
         return fn;
@@ -277,12 +271,11 @@ function wrapFunction (fn, m) {
         return r;
     };
 
-    func._id_ = uid();
+    func._id_ = Mk.uid();
 
     func.toString = function () {
         return fn.toString();
     };
-
     return func;
 }
 
@@ -292,7 +285,7 @@ function wrapFunction (fn, m) {
 // with nested functions (functions calling other functions calling super)
 //
 
-function pushsuper (m) {
+Mk.pushSuper = function (m) {
 
     var ch = this._chain_ = this._chain_ || [],
         st = this._stack_ = this._stack_ || [],
@@ -323,14 +316,13 @@ function pushsuper (m) {
 // to keep super() context in place
 //
 
-function popsuper (m) {
+Mk.popSuper = function (m) {
 
     var ch = this._chain_ = this._chain_ || [],
         st = this._stack_ = this._stack_ || [],
         i  = ch.lastIndexOf(m);
 
     if (i > -1) {
-
         ch.splice(i, 1);
         st.splice(i, 1);
     }
@@ -371,7 +363,7 @@ var _d = /{{([^{]+)}}/g;
 var _n = /{{([^}]+)}}(.*)({{\/\1}})/g;
 var _s = /[\r|\t|\n]+/g;
 
-function template (n, k, t, d) {
+Mk.template = function (n, k, t, d) {
 
     n = n || '';
     t = t || {};
@@ -379,72 +371,67 @@ function template (n, k, t, d) {
 
     d.$key = k;
 
-    var tmp = template.get(n, t);
+    var tmp = Mk.template.get(n, t);
 
     tmp = tmp.replace(_s, '');
 
     tmp = tmp.replace(_n, function (s, c, h) {
-        return template.statements(s, k, c, h, t, d);
+        return Mk.template.statements(s, k, c, h, t, d);
     });
 
     tmp = tmp.replace(_d, function (s, c) {
-        return template.inject(s, k, c, t, d)
+        return Mk.template.inject(s, k, c, t, d)
     });
-
     return tmp;
 }
 
-// find template
-
-template.get = function (n, t) {
+Mk.template.get = function (n, t) {
 
     var tmp = n;
 
     if (t && t.hasOwnProperty(n)) {
         tmp = t[n];
     }
-
     if (tmp instanceof Array) {
         tmp = tmp.join('');
     }
-
     return tmp;
 };
 
 // parse statements only (handlbars that open/close)
 
-template.statements = function (s, k, c, h, t, d) {
+Mk.template.statements = function (s, k, c, h, t, d) {
 
     var p = c.split(':'),
         x = p[ 0 ],
         a = p[ 1 ];
 
-    if (template.map.hasOwnProperty(x)) {
+    if (hasOwn.call(Mk.template.map, x)) {
         //if statements get special handling and passed the entire object
-        return template.map[ x ]( h, k, t, x == 'if' ? d : (d[ a ] || d), a );
+        return Mk.template.map[ x ]( h, k, t, x == 'if' ? d : (d[ a ] || d), a );
     }
     return '';
 };
 
 // parse injections (handlebars that are self closing)
 
-template.inject = function (s, k, c, t, d) {
+Mk.template.inject = function (s, k, c, t, d) {
 
     var p = c.split( ':' ),
         x = p[ 0 ],
         a = p[ 1 ];
 
-    if (a && template.map.hasOwnProperty(x)) {
-        return template.map[x](a, k, t, d, a);
+    if (a && hasOwn.call(Mk.template.map, x)) {
+        return Mk.template.map[x](a, k, t, d, a);
     }
 
-    if (d.hasOwnProperty(x) && (typeof d[x] !== 'undefined') && d[x] !== null) {
+    if (hasOwn.call(d, x) && (!Mk.type(d[x], 'u')) && d[x] !== null) {
         return d[x];
     }
     return '';
 };
 
-template.markup = {
+Mk.template.markup = {
 
     highlight: [
         '<span class="highlight">',
@@ -463,32 +450,28 @@ template.markup = {
 // allowed in templates
 //
 
-template.map = {
+Mk.template.map = {
 
     'loop': function (h, k, t, d, a) {
 
-
         var b = [], i, x, l, di, idx;
 
-        if (typeof d === 'number' || (x = parseInt(a, 10)) > -1) {
-
+        if (Mk.type(d, 'n') || (x = parseInt(a, 10)) > -1) {
             for (i = 0; i < (x || d); i++) {
                 d.$index = i;
-                b.push(template(h, k, t, d));
+                b.push(Mk.template(h, k, t, d));
             }
         }
         else if (d instanceof Array) {
-
             for(i = 0, l = d.length; i < l; i++) {
 
                 di = d[i];
 
-                if (typeof di !== 'object') {
+                if (typeof di != 'object') {
                     di = {key: '', value: d[i]};
                 }
-
                 di.$index = i;
-                b.push(template(h, k, t, di));
+                b.push(Mk.template(h, k, t, di));
             }
         }
         else {
@@ -496,7 +479,7 @@ template.map = {
 
                 idx = idx || 0;
 
-                b.push(template(h, k, t, {
+                b.push(Mk.template(h, k, t, {
                     key: i,
                     value: d[i],
                     $index: idx++
@@ -508,13 +491,13 @@ template.map = {
 
     'if': function (h, k, t, d, a) {
 
-        if (d.hasOwnProperty(a)) {
+        if (hasOwn.call(d, a)) {
 
             var dp = d[a];
 
-            if ((dp !== undefined && dp !== null && dp !== '' && dp !== false)
+            if ((dp !== void+1 && dp !== null && dp !== '' && dp !== false)
                 || (dp instanceof Array && dp.length > 0)) {
-                return template(h, k, t, d);
+                return Mk.template(h, k, t, d);
             }
         }
         return '';
@@ -526,18 +509,18 @@ template.map = {
             v  = d[h], w;
 
         if (hl) {
-            w = template.get('highlight', template.markup);
+            w = Mk.template.get('highlight', Mk.template.markup);
             v = v.replace(new RegExp('(' + hl + ')', 'gi'), w);
         }
         return v;
     },
 
     'scope': function (h, k, t, d, a) {
-        return template(h, k, t, d);
+        return Mk.template(h, k, t, d);
     },
 
     'template': function (h, k, t, d, a) {
-        return template(h, k, t, d);
+        return Mk.template(h, k, t, d);
     }
 };
 
@@ -547,7 +530,7 @@ template.map = {
 // and JavaScript event UI
 // --------------------------------------------------
 
-var eventEmitter = {
+Mk.eventEmitter = {
 
     xname: /^(\w+)\.?/,
 
@@ -555,15 +538,15 @@ var eventEmitter = {
 
     _add: function ( bucket, name, handler, context, single ) {
 
-        var e = this.e( name );
+        var e = this.e(name);
 
-        if ( bucket.hasOwnProperty( e.name ) !== true ) {
-             bucket[ e.name ] = [];
+        if (bucket.hasOwnProperty(e.name) !== true) {
+             bucket[e.name] = [];
         }
 
-        bucket[ e.name ].push({
+        bucket[e.name].push({
             ns: e.ns || undefined,
-            handler: handler || function () {},
+            handler: handler || Mk.noop,
             context: context || null,
             single: single === true
         });
@@ -580,7 +563,7 @@ var eventEmitter = {
     args: function (args) {
 
         for( var i = 0, a = [], l = args.length;
-                i < l && a.push( args[ i ] );
+                i < l && a.push(args[ i ]);
                 i++) { }
 
         return a;
@@ -596,18 +579,20 @@ var eventEmitter = {
 
     off: function off (bucket, event, handler) {
 
-        var e = this.e(event), stack, item, ns;
+        var e = this.e(event),
+            i = 0, stack, item, ns, l;
 
-        if (bucket.hasOwnProperty(e.name)) {
+        if (hasOwn.call(bucket, e.name)) {
 
-            stack = bucket[ e.name ];
-            ns = e.ns || undefined;
+            stack = bucket[e.name];
+            ns = e.ns || undf;
+            l = stack.length;
 
-            for (var i = 0, l = stack.length; i < l; i++) {
+            for (; i < l; i++) {
 
-                item = stack[ i ];
+                item = stack[i];
 
-                if (item.ns === ns && (typeof handler === 'undefined' || handler === item.handler)) {
+                if (item.ns === ns && (Mk.type(handler, 'u') || handler === item.handler)) {
                     stack.splice(i, 1);
                     l = stack.length;
                     i--;
@@ -621,13 +606,15 @@ var eventEmitter = {
         var args = this.args(argz),
             event = args.shift(),
             e = this.e( event ),
-            stack, item;
+            i = 0,
+            stack, item, l;
 
-        if (bucket.hasOwnProperty(e.name)) {
+        if (hasOwn.call(bucket, e.name)) {
 
             stack = bucket[e.name];
+            l = stack.length;
 
-            for (var i = 0, l = stack.length; i < l; i++) {
+            for (; i < l; i++) {
 
                 item = stack[ i ];
 
@@ -636,10 +623,8 @@ var eventEmitter = {
                     item.handler.apply(item.context || root, args);
 
                     if (item.single) {
-
                         stack.splice(i, 1);
-                        l = stack.length;
-                        i--;
+                        l--; i--;
                     }
                 }
             }
@@ -649,53 +634,94 @@ var eventEmitter = {
 
 
 //
+// transition
+//
+// Give us our browser transition key if
+// transitions are enabled
+// --------------------------------------------------
+
+Mk.transition = function () {
+
+    var tr = Mk.transition;
+
+    if (tr.enabled) {
+
+        if (tr.key) {
+            return tr.key;
+        }
+
+        var el = document.createElement('xanimate'), t;
+
+        for (t in tr.keys) {
+            if (typeof el.style[t] !== 'undefined') {
+                return tr.key = tr.keys[t];
+            }
+        }
+    }
+    return null;
+}
+
+Mk.transition.enabled = false;
+
+Mk.transition.key = null;
+
+Mk.transition.keys = {
+    'transition': 'transitionend',
+    'OTransition': 'oTransitionEnd',
+    'MozTransition': 'transitionend',
+    'WebkitTransition': 'webkitTransitionEnd'
+};
+
+
+//
 // simple device checking
 //
 
-var agent  = navigator.userAgent,
-    device = {
+var agent = navigator.userAgent;
 
-        agentexp: /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
+Mk.device = {
 
-        get is () {
-            return this.agentexp.test(agent)
-        },
+    agentexp: /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
 
-        get isAndroid () {
-            return this.id === 'android';
-        },
+    get is () {
+        return this.agentexp.test(agent)
+    },
 
-        get isWebos () {
-            return this.id === 'webos';
-        },
+    get isAndroid () {
+        return this.id === 'android';
+    },
 
-        get isiPhone () {
-            return this.id === 'iphone';
-        },
+    get isWebos () {
+        return this.id === 'webos';
+    },
 
-        get isiPad () {
-            return this.id === 'ipad';
-        },
+    get isiPhone () {
+        return this.id === 'iphone';
+    },
 
-        get isiPod () {
-            return this.id === 'ipod';
-        },
+    get isiPad () {
+        return this.id === 'ipad';
+    },
 
-        get isBlackberry () {
-            return this.id === 'blackberry';
-        },
+    get isiPod () {
+        return this.id === 'ipod';
+    },
 
-        get isIEMobile () {
-            return this.id === 'iemobile';
-        },
+    get isBlackberry () {
+        return this.id === 'blackberry';
+    },
 
-        get isOperaMini () {
-            return this.id === 'opera mini';
-        },
+    get isIEMobile () {
+        return this.id === 'iemobile';
+    },
 
-        get id () {
-            return ((this.agentexp.exec(agent) || [])[1] || '').toLowerCase();
-        }
+    get isOperaMini () {
+        return this.id === 'opera mini';
+    },
+
+    get id () {
+        return ((this.agentexp.exec(agent) || [])[1] || '').toLowerCase();
+    }
 };
 
 
@@ -712,968 +738,931 @@ var agent  = navigator.userAgent,
     The Core.$ will be overridden with the new library you've specified.
     Make sure method names for the below are the SAME or current components will break
     on referencing non existent members.
+
+    Members:
+
+    length
+
+    is()
+    val()
+    each()
+    find()
+    filter()
+    parent() (also does closest)
+    hasClass()
+    addClass()
+    removeClass()
+    attr()
+    prop()
+    data()
+    html()
+    text()
+    markup()
+    appendTo()
+    prependTo()
+    append()
+    prepend()
+    remove()
+    on()
+    one()
+    off()
+    emit()
+    ajax()
 */
 
-var dom = (function () {
-    /*
-        Members:
+var
+doc = document,
+//
+// elem cache system
+// ------------------------------------
+cache = {},
+//
+// shorthand slice
+// ------------------------------------
+slice = [].slice,
+//
+// clearing out arraylike objects
+// ------------------------------------
+splice = [].splice,
+//
+// making objects arraylike
+// ------------------------------------
+push = [].push,
+//
+// tag/markup testing
+// ------------------------------------
+tg = /^\s*<([^>\s]+)/,
+//
+// nodeType testing
+// ------------------------------------
+nt = /1|9|11/,
+//
+// html creation wrappers
+// -------------------------------------
+wrap = {
+    option: [ 1, '<select multiple="multiple">', '</select>' ],
+    thead: [ 1, '<table>', '</table>' ],
+    col: [ 2, '<table><colgroup>', '</colgroup></table>' ],
+    tr: [ 2, '<table><tbody>', '</tbody></table>' ],
+    td: [ 3, '<table><tbody><tr>', '</tr></tbody></table>' ],
+    li: [1, '<ul>', '</ul>'],
+    dd: [1, '<dl>', '</dl>'],
+    defaultt: [ 0, "", "" ]
+};
+//
+// element wrap duplicates
+// ----------------------------------------
+wrap.caption = wrap.thead;
+wrap.optgroup = wrap.option;
+wrap.tbody = wrap.thead;
+wrap.tfoot = wrap.thead;
+wrap.dt = wrap.dd;
 
-        length
+function Dom (s, c) {
+    return this.find(s, c);
+}
 
-        is()
-        val()
-        each()
-        find()
-        filter()
-        parent() (also does closest)
-        hasClass()
-        addClass()
-        removeClass()
-        attr()
-        prop()
-        data()
-        html()
-        text()
-        markup()
-        appendTo()
-        prependTo()
-        append()
-        prepend()
-        remove()
-        on()
-        one()
-        off()
-        emit()
-        ajax()
-    */
 
-    var
-    doc = document,
-    //
-    // elem cache system
-    // ------------------------------------
-    cache = {},
-    //
-    // shorthand slice
-    // ------------------------------------
-    slice = [].slice,
-    //
-    // clearing out arraylike objects
-    // ------------------------------------
-    splice = [].splice,
-    //
-    // making objects arraylike
-    // ------------------------------------
-    push = [].push,
-    //
-    // tag/markup testing
-    // ------------------------------------
-    tg = /^\s*<([^>\s]+)/,
-    //
-    // nodeType testing
-    // ------------------------------------
-    nt = /1|9|11/,
-    //
-    // no operation
-    // ------------------------------------
-    noop = function () {},
-    //
-    // html creation wrappers
-    // -------------------------------------
-    wrap = {
-    	option: [ 1, '<select multiple="multiple">', '</select>' ],
-    	thead: [ 1, '<table>', '</table>' ],
-    	col: [ 2, '<table><colgroup>', '</colgroup></table>' ],
-    	tr: [ 2, '<table><tbody>', '</tbody></table>' ],
-    	td: [ 3, '<table><tbody><tr>', '</tr></tbody></table>' ],
-        li: [1, '<ul>', '</ul>'],
-        dd: [1, '<dl>', '</dl>'],
-    	defaultt: [ 0, "", "" ]
-    };
-    //
-    // element wrap duplicates
-    // ----------------------------------------
-    wrap.caption = wrap.thead;
-    wrap.optgroup = wrap.option;
-    wrap.tbody = wrap.thead;
-    wrap.tfoot = wrap.thead;
-    wrap.dt = wrap.dd;
-    //
-    // data - store/retrieve data and data attributes
-    // ----------------------------------------
-    function data (n, k, vl) {
+//
+// data - store/retrieve data and data attributes
+// ----------------------------------------
 
-        if (n) {
+Dom.data = function (n, k, vl) {
 
-            var id = n._id = n._id || uid(),
-                c  = cache[id] || {},
-                v  = vl;
+    if (n) {
 
-            if (k === null) {
+        var id = n._id = n._id || Mk.uid(),
+            c  = cache[id] || {},
+            v  = vl;
 
-                n._id = null;
-                delete cache[id];
-                return c;
-            }
+        // remove entire entry
+        if (k === null) {
 
-            // undefined
-            if (v === void+1) {
-                v = c[k] || n.getAttribute('data-' + k) || null;
-                c[k] = v;
-            }
-            // remove key
-            else if (vl === null) {
-                v = c[k];
-                delete c[k];
-            }
-            // set key
-            else {
-                c[k] = v;
-            }
-
-            cache[id] = c;
-
-            return v;
+            n._id = null;
+            delete cache[id];
+            return c;
         }
+
+        // undefined
+        if (v === undf) {
+            v = c[k] || n.getAttribute('data-' + k) || null;
+            c[k] = v;
+        }
+        // remove key
+        else if (vl === null) {
+            v = c[k];
+            delete c[k];
+        }
+        // set key
+        else {
+            c[k] = v;
+        }
+
+        cache[id] = c;
+
+        return v;
     }
+}
 
-    function remove (n) {
 
-        var d;
+//
+// removes elements, events, and data from memory
+//
 
-        each(this, n.childNodes, function (i, c) {
-            if (c && c.nodeType === 1) {
-                remove(c);
+Dom.remove = function (n) {
+
+    var d;
+
+    Mk.each(this, n.childNodes, function (i, c) {
+        if (c && c.nodeType === 1) {
+            remove(c);
+        }
+    });
+
+    var d = data(n, null);
+
+    if (d && d.events) {
+        Mk.each(this, d.events, function (t, v) {
+            off(n, t);
+        });
+    }
+    n.parentNode.removeChild(n);
+}
+
+
+Dom.ajax = function (o) {
+    return new this.xhr(o);
+}
+
+Dom.xhr = function (o) {
+    this.init(o);
+}
+
+Dom.xhr.prototype = {
+
+    headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
+    },
+
+    xhr: null,
+
+    open: false,
+
+    options: null,
+
+    url: function (u) {
+
+        u = (u || location.href);
+
+        var t = u.lastIndexOf('/');
+
+        if (t > -1 && (t = u.indexOf('#')) > -1) {
+            u = u.substr(0, t)
+        }
+        return u;
+    },
+
+    qs: function (o) {
+
+        o = o || '';
+
+        if (!Mk.type(o, 's')) {
+
+            var d = [];
+
+            Mk.each(this, o, function (n, v) {
+                d.push(n + '=' + encodeURIComponent(v));
+            });
+            return d.join('&');
+        }
+        return o;
+    },
+
+    init: function (o) {
+
+        o = Mk.copy(o || {});
+
+        o.url = this.url(o.url);
+        o.data = this.qs(o.data);
+        o.method = (o.method || 'GET').toUpperCase();
+        o.type = o.type || 'text';
+        o.headers = o.headers || {};
+        o.async = o.async || true;
+        o.encode = o.encode || true;
+        o.encoding = o.encoding || 'utf-8';
+        o.user = o.user || '';
+        o.password = o.password || '';
+        // callbacks
+        o.complete = o.complete || noop;
+        o.success = o.success || noop;
+        o.error = o.error || noop;
+
+        if (o.data && o.method === 'GET') {
+            o.url  = o.url.indexOf('?') > -1 && o.url || o.url + '?';
+            o.url += o.data;
+            o.data = null;
+        }
+
+        Mk.each(this, this.headers, function (n, v) {
+            if (hasOwn.call(o.headers, n) !== true) {
+                o.headers[n] = v;
             }
         });
 
-        var d = data(n, null);
-
-        if (d && d.events) {
-            each(this, d.events, function (t, v) {
-                console.info('removing', t)
-                off(n, t);
-            });
+        if (o.encode && ['POST', 'PUT'].indexOf(o.type) > -1) {
+            o.headers['Content-type'] =
+                'application/x-www-form-urlencoded' + o.encoding
         }
 
-        n.parentNode.removeChild(n);
-    }
+        this.options = o;
 
-    //
-    // jsonp
-    // -----------------------------------
-
-    function xhr (o) {
-        this.init(o);
-    }
-
-    xhr.prototype = {
-
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
-        },
-
-        xhr: null,
-
-        open: false,
-
-        options: null,
-
-        url: function (u) {
-
-            u = (u || location.href);//.replace(/^http[s]?\:\/\//, '');
-
-            var t = u.lastIndexOf('/');
-
-            if (t > -1 && (t = u.indexOf('#')) > -1) {
-                u = u.substr(0, t)
-            }
-            return u;
-        },
-
-        qs: function (o) {
-
-            o = o || '';
-
-            if (typeof o !== 'string') {
-
-                var d = [];
-
-                each(this, o, function (n, v) {
-                    d.push(n + '=' + encodeURIComponent(v));
-                });
-
-                return d.join('&');
-            }
-            return o;
-        },
-
-        init: function (o) {
-
-            o = copy(o || {});
-
-            o.url = this.url(o.url);
-            o.data = this.qs(o.data);
-            o.method = (o.method || 'GET').toUpperCase();
-            o.type = o.type || 'html';
-            o.headers = o.headers || {};
-            o.async = o.async || true;
-            o.encode = o.encode || true;
-            o.encoding = o.encoding || 'utf-8';
-            o.user = o.user || '';
-            o.password = o.password || '';
-
-            o.complete = o.complete || noop;
-            o.success = o.success || noop;
-            o.error = o.error || noop;
-
-            if (o.data && o.method === 'GET') {
-                o.url  = o.url.indexOf('?') > -1 && o.url || o.url + '?';
-                o.url += o.data;
-                o.data = null;
-            }
-
-            each(this, this.headers, function (n, v) {
-                if (o.headers.hasOwnProperty(n) !== true) {
-                    o.headers[n] = v;
-                }
-            });
-
-            if (o.encode && ['POST', 'PUT'].indexOf(o.type) > -1) {
-                o.headers['Content-type'] =
-                    'application/x-www-form-urlencoded' + o.encoding
-            }
-
-            this.options = o;
-
-            if (o.now !== false) {
-                this.send();
-            }
-            return this;
-        },
-
-        jsonp: function jsonp () {
-
-            if (this.open) {
-                return this;
-            }
-
-            var x = this,
-                o = x.options,
-                s = doc.createElement('script'),
-
-                id = o.jsonpid = 'MKUI' + uid().split('-').join(''),
-                qs = 'callback=' + id;
-
-            s.type = 'text/javascript';
-            s.language = 'javascript';
-            s.async = o.async;
-            s.src = o.url + (o.url.indexOf('?') > -1 && '&' || '?') + qs;
-            s.id = o.scriptid = uid();
-
-            s.onerror = function () {
-                o.error.call(x);
-            };
-
-            s.onload = function () {
-                o.complete.call(x);
-            };
-
-            var cb = function (data) {
-
-                x.response = data;
-                x.status = 200;
-
-                s.onload  = null;
-                s.onerror = null;
-                s.parentNode.removeChild(s);
-
-                o.success.call(x, data);
-
-                delete root[id];
-            };
-
-            root[id] = cb;
-
-            doc.documentElement
-                .firstChild.appendChild(s);
-
-            this.open = true;
-            this.status = 0;
-
-            return this;
-        },
-
-        send: function () {
-
-            if (this.open) {
-                return this;
-            }
-
-            var x = this,
-                o = x.options,
-                xhr;
-
-            if (o.type === 'jsonp') {
-                return this.jsonp();
-            }
-
-            xhr = this.xhr = new XMLHttpRequest();
-
-            xhr.open(o.method, o.url, o.async, o.user, o.password);
-            xhr.onreadystatechange = function () {
-                x.stateChange();
-            };
-
-            if (o.user && 'withCredentials' in xhr) {
-                xhr.withCredentials = true;
-            }
-
-            each(this, o.headers, function (n, v) {
-                xhr.setRequestHeader(n, v);
-            });
-
-            if (o.type && o.type !== 'text') {
-                xhr.responseType = o.type;
-            }
-
-            x.open = true;
-            x.status = 0;
-
-            xhr.send(o.data);
-
-            if (o.async !== true) {
-                this.stateChange();
-            }
-            return this;
-        },
-
-        abort: function () {
-
-            this.open = false;
-            this.status = 0;
-
-            if (this.xhr) {
-                this.xhr.abort();
-                this.xhr.onreadystatechange = null;
-                this.xhr = null;
-                return this;
-            }
-
-            var x = this,
-                o = x.options,
-                s = doc.getElementById(o.scriptid),
-                id = o.jsonpid;
-
-            if (s) {
-                s.parentNode.removeChild(s);
-            }
-
-            root[id] = function () {
-                delete root[id];
-            };
-
-            root[id]();
-
-            return this;
-        },
-
-        stateChange: function () {
-
-            var xhr = this.xhr,
-                x = this,
-                o = x.options;
-
-            if (xhr.readyState !== 4) {
-                return;
-            }
-
-            o.complete.call(x, xhr);
-
-            x.status = xhr.status;
-            x.statusText = xhr.statusText;
-
-            if (x.status === 1223) {
-                x.status = 204;
-                x.statusText = 'No Content';
-            }
-
-            x.open = false;
-            x.response = xhr.response || null;
-
-            if (xhr.responseType === '' || xhr.responseType === 'text') {
-                x.response = xhr.responseText;
-            }
-
-            xhr.onreadystatechange = function () {};
-
-            if (x.status >= 200 && x.status < 300) {
-                o.success.call(x, x.response, xhr);
-            } else {
-                o.error.call(x, xhr);
-            }
+        if (o.now !== false) {
+            this.send();
         }
-    };
+        return this;
+    },
 
-    //
-    // dom events
-    // -----------------------------------
+    jsonp: function jsonp () {
 
-    function del (p, n, x) {
-
-        var r = {s: false, t: p};
-
-        if (!x) {
-            r.s = true;
-        }
-        else {
-            new dom(x, p).each(function (i, el) {
-
-                if (n === el || new dom(n).parent(el).length) {
-                    r.s = true;
-                    r.t = el;
-                    return false;
-                }
-            });
+        if (this.open) {
+            return this;
         }
 
-        return r;
-    }
+        var x = this,
+            o = x.options,
+            s = doc.createElement('script'),
 
-    function event (n, a, t, s, f, o, x) {
+            id = o.jsonpid = 'MKUI' + Mk.uid().split('-').join(''),
+            qs = 'callback=' + id;
 
-        var h, d;
+        s.type = 'text/javascript';
+        s.language = 'javascript';
+        s.async = o.async;
+        s.src = o.url + (o.url.indexOf('?') > -1 && '&' || '?') + qs;
+        s.id = o.scriptid = Mk.uid();
 
-        if (a) {
+        s.onerror = function () {
+            o.error.call(x);
+        };
 
-            h = function (e) {
+        s.onload = function () {
+            o.complete.call(x);
+        };
 
-                var z = false,
-                    w = del(this, e.target, x),
-                    r;
+        var cb = function (data) {
 
-                if (e.ns) {
-                    if (e.ns === s && w.s) {
-                        r = f.apply(w.t, [e].concat(e.data));
-                        z = true;
-                    }
-                }
-                else if (w.s) {
-                    r = f.call(w.t, e);
-                    z = true;
-                }
+            x.response = data;
+            x.status = 200;
 
-                if (z && o) {
-                    event(n, false, t, s, f, o, x);
-                }
-                return r;
-            };
+            s.onload  = null;
+            s.onerror = null;
+            s.parentNode.removeChild(s);
 
-            d = data(n, 'events') || {};
+            o.success.call(x, data);
 
-            d[t] = d[t] || [];
+            delete root[id];
+        };
 
-            d[t].push({
-                type: t,
-                ns: s,
-                original: f,
-                handler: h,
-                delegate: x
-            });
+        root[id] = cb;
 
-            data(n, 'events', d);
+        doc.documentElement
+            .firstChild.appendChild(s);
 
-            n.addEventListener(t, h, false);
+        this.open = true;
+        this.status = 0;
 
+        return this;
+    },
+
+    send: function () {
+
+        if (this.open) {
+            return this;
+        }
+
+        var x = this,
+            o = x.options,
+            xhr;
+
+        if (o.type === 'jsonp') {
+            return this.jsonp();
+        }
+
+        xhr = this.xhr = new XMLHttpRequest();
+
+        xhr.open(o.method, o.url, o.async, o.user, o.password);
+        xhr.onreadystatechange = function () {
+            x.stateChange();
+        };
+
+        if (o.user && 'withCredentials' in xhr) {
+            xhr.withCredentials = true;
+        }
+
+        Mk.each(this, o.headers, function (n, v) {
+            xhr.setRequestHeader(n, v);
+        });
+
+        if (o.type && o.type !== 'text') {
+            xhr.responseType = o.type;
+        }
+
+        x.open = true;
+        x.status = 0;
+
+        xhr.send(o.data);
+
+        if (o.async !== true) {
+            this.stateChange();
+        }
+        return this;
+    },
+
+    abort: function () {
+
+        this.open = false;
+        this.status = 0;
+
+        if (this.xhr) {
+            this.xhr.abort();
+            this.xhr.onreadystatechange = null;
+            this.xhr = null;
+            return this;
+        }
+
+        var x = this,
+            o = x.options,
+            s = doc.getElementById(o.scriptid),
+            id = o.jsonpid;
+
+        if (s) {
+            s.parentNode.removeChild(s);
+        }
+
+        root[id] = function () {
+            delete root[id];
+        };
+
+        root[id]();
+
+        return this;
+    },
+
+    stateChange: function () {
+
+        var xhr = this.xhr,
+            x = this,
+            o = x.options;
+
+        if (xhr.readyState !== 4) {
             return;
         }
 
-        d = (data(n, 'events') || {})[t] || [];
+        o.complete.call(x, xhr);
 
-        each(this, d, function (i, o) {
-            if (!s || s && o.ns === s) {
-                if (!f || f === o.original) {
-                    n.removeEventListener(t, o.handler);
-                    return -1;
-                }
+        x.status = xhr.status;
+        x.statusText = xhr.statusText;
+
+        if (x.status === 1223) {
+            x.status = 204;
+            x.statusText = 'No Content';
+        }
+
+        x.open = false;
+        x.response = xhr.response || null;
+
+        if (xhr.responseType === '' || xhr.responseType === 'text') {
+            x.response = xhr.responseText;
+        }
+
+        xhr.onreadystatechange = function () {};
+
+        if (x.status >= 200 && x.status < 300) {
+            o.success.call(x, x.response, xhr);
+        } else {
+            o.error.call(x, xhr);
+        }
+    }
+};
+
+
+Dom.delegate = function (p, n, x) {
+
+    var r = {s: false, t: p};
+
+    if (!x) {
+        r.s = true;
+    }
+    else {
+        new Dom(x, p).each(function (i, el) {
+
+            if (n === el || new Dom(n).parent(el).length) {
+                r.s = true;
+                r.t = el;
+                return false;
             }
         });
     }
+    return r;
+}
 
-    function on (n, t, d, h, o, x) {
+Dom.event = function (n, a, t, s, f, o, x) {
 
-        var p = t.split('.'),
-            e = p.shift();
+    var h, d;
 
-        event(n, true, e, p.join('.'), h, o, x);
-    }
+    if (a) {
 
-    function off (n, t, h) {
+        h = function (e) {
 
-        var p = t.split('.'),
-            e = p.shift();
+            var z = false,
+                w = Dom.delegate(this, e.target, x),
+                r;
 
-        event(n, false, e, p.join('.'), h);
-    }
-
-    function emit (n, t, d) {
-
-        var p = t.split('.'),
-            e = p.shift(),
-            ev = new Event(e);
-
-        ev.ns = p.join('.');
-        ev.data = d || [];
-
-        n.dispatchEvent(ev);
-    }
-
-    function dom (s, c) {
-        this.find(s, c);
-    }
-
-    dom.ajax = function () {
-        return new xhr(o);
-    };
-
-    dom.prototype = {
-
-        length: 0,
-
-        context: null,
-
-        constructor: dom,
-
-        each: function (fn) {
-            return each(this, this, fn);
-        },
-
-        find: function (s, c) {
-
-            s = s || doc;
-            c = c || this.length && this || [doc];
-
-            if (typeof c === 'string') {
-                c = new dom(c, doc);
-            } else if (c.nodeType) {
-                c = [c];
-            }
-
-            var n = s;
-
-            if (typeof s === 'string') {
-
-                if (tg.test(s)) {
-                    n = this.markup(s);
-                }
-                else {
-
-                    n = [];
-
-                    each(this, c, function (i, el) {
-                        n = n.concat(slice.call(el.querySelectorAll(s)));
-                    });
+            if (e.ns) {
+                if (e.ns === s && w.s) {
+                    r = f.apply(w.t, [e].concat(e.data));
+                    z = true;
                 }
             }
-
-            if (n && nt.test(n.nodeType)) {
-                n = [n];
+            else if (w.s) {
+                r = f.call(w.t, e);
+                z = true;
             }
 
-            if (arraylike(n)) {
-                n = slice.call(n);
+            if (z && o) {
+                Dom.event(n, false, t, s, f, o, x);
             }
+            return r;
+        };
 
-            splice.call(this, 0, this.length || 0);
-            push.apply(this, n);
+        d = Dom.data(n, 'events') || {};
 
-            this.context = c;
+        d[t] = d[t] || [];
 
-            return this;
-        },
+        d[t].push({
+            type: t,
+            ns: s,
+            original: f,
+            handler: h,
+            delegate: x
+        });
 
-        is: function (s) {
+        Dom.data(n, 'events', d);
 
-            var elems = new dom(s, this.context),
-                result = false;
+        n.addEventListener(t, h, false);
 
-            this.each(function (i, el) {
-                elems.each(function (x, _el) {
-                    if (el === _el) {
-                        result = true; return false;
-                    }
-                });
-                if (result) return false;
-            });
+        return;
+    }
 
-            return result;
-        },
+    d = (Dom.data(n, 'events') || {})[t] || [];
 
-        filter: function (s) {
+    Mk.each(this, d, function (i, o) {
+        if (!s || s && o.ns === s) {
+            if (!f || f === o.original) {
+                n.removeEventListener(t, o.handler);
+                return -1;
+            }
+        }
+    });
+}
 
-            var elems = new dom(s, this.context),
-                filtered = [];
+Dom.on = function (n, t, d, h, o, x) {
 
-            this.each(function (i, el) {
-                elems.each(function (x, _el) {
-                    if (el === _el) filtered.push(el);
-                });
-            });
-            return new dom(filtered, this.context);
-        },
+    var p = t.split('.'),
+        e = p.shift();
 
-        parent: function (s, c) {
+    Dom.event(n, true, e, p.join('.'), h, o, x);
+}
 
-            var p = [], ps;
+Dom.off = function (n, t, h) {
 
-            if (arguments.length) {
+    var p = t.split('.'),
+        e = p.shift();
 
-                ps = new dom(s, c);
+    Dom.event(n, false, e, p.join('.'), h);
+}
 
-                this.each(function (i, el) {
+Dom.emit = function (n, t, d) {
 
-                    while (el.parentNode) {
-                        ps.each(function (x, _el) {
+    var p = t.split('.'),
+        e = p.shift(),
+        ev = new Event(e);
 
-                            if (_el === el.parentNode) {
+    ev.ns = p.join('.');
+    ev.data = d || [];
 
-                                if (p.indexOf(_el) < 0) {
-                                    p.push(_el);
-                                }
-                                return false;
-                            }
-                        });
-                        el = el.parentNode;
-                    }
-                });
+    n.dispatchEvent(ev);
+}
+
+
+Dom.prototype = {
+
+    length: 0,
+
+    context: null,
+
+    constructor: Dom,
+
+    each: function (fn) {
+        return Mk.each(this, this, fn);
+    },
+
+    find: function (s, c) {
+
+        s = s || doc;
+        c = c || this.length && this || [doc];
+
+        if (Mk.type(c, 's')) {
+            c = new Dom(c, doc);
+        }
+        else if (c.nodeType) {
+            c = [c];
+        }
+
+        var n = s;
+
+        if (Mk.type(s, 's')) {
+
+            if (tg.test(s)) {
+                n = this.markup(s);
             }
             else {
-                this.each(function (i, el) {
-                    if (el.parentNode) p.push(el.parentNode);
+
+                n = [];
+
+                Mk.each(this, c, function (i, el) {
+                    n = n.concat(slice.call(el.querySelectorAll(s)));
                 });
             }
-            return new dom(p);
-        },
+        }
 
-        markup: function (s) {
+        if (n && nt.test(n.nodeType)) {
+            n = [n];
+        }
 
-            // if we support html5 templates (everybody but IE)
-            var c = doc.createElement('template');
+        if (Mk.type(n, 'al')) {
+            n = slice.call(n);
+        }
 
-            if (c.content) {
-                c.innerHTML = s;
-                return slice.call(c.content.childNodes);
-            }
+        splice.call(this, 0, this.length || 0);
+        push.apply(this, n);
 
-            // IE does this...
-            var t = tg.exec(s)[1] || null,
-                a = t && wrap.hasOwnProperty(t) && wrap[t] || wrap.defaultt,
-                i = 0;
+        this.context = c;
 
-            c = doc.createElement('div');
-            c.innerHTML = a[1] + s + a[2];
+        return this;
+    },
 
-            while (i < a[0]) {
-                c = c.firstChild;
-                i++;
-            }
+    is: function (s) {
 
-            return slice.call(c.childNodes);
-        },
+        var elems = new Dom(s, this.context),
+            result = false;
 
-        html: function (s) {
-
-            if (s === void+1) {
-                if (this.length) {
-                    return this[0].innerHTML;
+        this.each(function (i, el) {
+            elems.each(function (x, _el) {
+                if (el === _el) {
+                    result = true; return false;
                 }
-                return null;
-            }
-
-            return this.each(function (i, el) {
-                while (el.firstChild) {
-                    el.removeChild(el.firstChild);
-                }
-                each(this, this.markup(s), function (x, f) {
-                    el.appendChild(f);
-                });
             });
-        },
+            if (result) return false;
+        });
+        return result;
+    },
 
-        text: function (s) {
+    filter: function (s) {
 
-            if (s === void+1) {
-                if (this.length) {
-                    return this[0].textContent;
-                }
-                return null;
-            }
+        var elems = new Dom(s, this.context),
+            filtered = [];
 
-            return this.each(function (i, el) {
-                el.textContent = s;
+        this.each(function (i, el) {
+            elems.each(function (x, _el) {
+                if (el === _el) filtered.push(el);
             });
-        },
+        });
+        return new Dom(filtered, this.context);
+    },
 
-        nv: function (n, v, fn) {
+    parent: function (s, c) {
 
-            if (typeof n === 'object') {
-                for (var i in n) {
-                    fn.call(this, i, n[i]);
-                }
-                return this;
-            }
-            return fn.call(this, n, v);
-        },
+        var p = [], ps;
 
-        attr: function (n, v) {
-            return this.nv(n, v, function (_n, _v) {
+        if (arguments.length) {
 
-                if (_v === void+1) {
-                    return this.length && this[0].getAttribute(_n);
-                }
-                return this.each(function (i, el) {
-                    if (_v === null) {
-                        el.removeAttribute(_n);
-                        return;
-                    }
-                    el.setAttribute(_n, _v);
-                });
-            });
-        },
+            ps = new Dom(s, c);
 
-        prop: function (n, v) {
-            return this.nv(n, v, function (_n, _v) {
-                if (_v === void+1) {
-                    return this.length && this[0][_n] || null;
-                }
-                return this.each(function (i, el) {
-                    el[_n] = _v;
-                });
-            });
-        },
-
-        val: function (v) {
-
-            if (v === void+1 && this.length) {
-                return this[0].value;
-            }
-
-            return this.each(function(i, el) {
-                el.value = v;
-            })
-        },
-
-        data: function (n, v) {
-            return this.nv(n, v, function (_n, _v) {
-                if (_v === void+1) {
-                    return data(this[0], _n);
-                }
-                return this.each(function (i, el) {
-                    data(el, _n, _v);
-                });
-            });
-        },
-
-        css: function (n, v) {
-            return this.nv(n, v, function (_n, _v) {
-                if (_v === void+1 && this.length) {
-                    return getComputedStyle(this[0]).getPropertyValue(_v);
-                }
-                return this.each(function (i, el) {
-                    el.style[_n] = typeof _v === 'number' && (_v + 'px') || _v;
-                });
-            });
-        },
-
-        hasClass: function (v) {
-
-            var r = false;
             this.each(function (i, el) {
-                if (el.classList.contains(v)) {
-                    r = true; return false;
+
+                while (el.parentNode) {
+                    ps.each(function (x, _el) {
+
+                        if (_el === el.parentNode) {
+
+                            if (p.indexOf(_el) < 0) {
+                                p.push(_el);
+                            }
+                            return false;
+                        }
+                    });
+                    el = el.parentNode;
                 }
-            });
-            return r;
-        },
-
-        addClass: function (value) {
-
-            var values = value.split(' '), c;
-
-            return each(this, values, function (i, v) {
-                this.each(function (x, el) {
-                    el.classList.add(v);
-                });
-            });
-        },
-
-        removeClass: function (value) {
-
-            var values = value.split(' '), c, _v;
-
-            return each(this, values, function (i, v) {
-                this.each(function (x, el) {
-                    el.classList.remove(v);
-                });
-            });
-        },
-
-        appendTo: function (s, c) {
-
-            var elem = new dom(s, c)[0] || null;
-
-            if (elem) {
-                this.each(function (i, el) {
-                    elem.appendChild(el);
-                });
-            }
-            return this;
-        },
-
-        prependTo: function (s, c) {
-
-            var elem = new dom(s, c)[0] || null;
-
-            if (elem) {
-                this.each(function (i, el) {
-                    if (elem.firstChild) {
-                        elem.insertBefore(el, elem.firstChild);
-                        return;
-                    }
-                    elem.appendChild(el);
-                });
-            }
-            return this;
-        },
-
-        append: function (s, c) {
-
-            if (this.length) {
-
-                var elem = this[this.length - 1];
-
-                new dom(s, c).each(function (i, el) {
-                    elem.appendChild(el);
-                });
-            }
-            return this;
-        },
-
-        prepend: function (s, c) {
-
-            if (this.length) {
-
-                var elem = this[this.length - 1];
-
-                new dom(s, c).each(function (i, el) {
-                    if (elem.firstChild) {
-                        elem.insertBefore(el, elem.firstChild);
-                        return;
-                    }
-                    elem.appendChild(el);
-                });
-            }
-        },
-
-        remove: function (s) {
-
-            var o = this, e;
-
-            if (arguments.length) {
-                o = new dom(s, this);
-            }
-
-            o.each(function (i, el) {
-                remove(el);
-            });
-
-            return this;
-        },
-
-        on: function (t, d, h) {
-
-            if (!h) {
-                h = d;
-                d = null;
-            }
-
-            return this.each(function (i, el) {
-                on(el, t, '', h, false, d);
-            });
-        },
-
-        one: function (t, d, h) {
-
-            if (!h) {
-                h = d;
-                d = null;
-            }
-
-            return this.each(function (i, el) {
-                on(el, t, '', h, true, d);
-            });
-        },
-
-        off: function (t, h) {
-            return this.each(function (i, el) {
-                off(el, t, h);
-            });
-        },
-
-        emit: function (t, d) {
-            return this.each(function (i, el) {
-                emit(el, t, d);
             });
         }
-    };
+        else {
+            this.each(function (i, el) {
+                if (el.parentNode) p.push(el.parentNode);
+            });
+        }
+        return new Dom(p);
+    },
 
-    return dom;
+    markup: function (s) {
 
-})();
+        // if we support html5 templates (everybody but IE)
+        var c = doc.createElement('template');
 
+        if (c.content) {
+            c.innerHTML = s;
+            return slice.call(c.content.childNodes);
+        }
 
-function Mk() {}
+        // IE does this...
+        var t = tg.exec(s)[1] || null,
+            a = t && wrap.hasOwnProperty(t) && wrap[t] || wrap.defaultt,
+            i = 0;
 
-Mk._$ = function (s, c) {
-    return new dom(s, c);
+        c = doc.createElement('div');
+        c.innerHTML = a[1] + s + a[2];
+
+        while (i < a[0]) {
+            c = c.firstChild;
+            i++;
+        }
+
+        return slice.call(c.childNodes);
+    },
+
+    html: function (s) {
+
+        if (s === undf) {
+            if (this.length) {
+                return this[0].innerHTML;
+            }
+            return null;
+        }
+
+        return this.each(function (i, el) {
+            while (el.firstChild) {
+                remove(el.firstChild);
+            }
+            Mk.each(this, this.markup(s), function (x, f) {
+                el.appendChild(f);
+            });
+        });
+    },
+
+    text: function (s) {
+
+        if (s === undf) {
+            if (this.length) {
+                return this[0].textContent;
+            }
+            return null;
+        }
+
+        return this.each(function (i, el) {
+            el.textContent = s;
+        });
+    },
+
+    nv: function (n, v, fn) {
+
+        if (typeof n === 'object') {
+            for (var i in n) {
+                fn.call(this, i, n[i]);
+            }
+            return this;
+        }
+        return fn.call(this, n, v);
+    },
+
+    attr: function (n, v) {
+        return this.nv(n, v, function (_n, _v) {
+
+            if (_v === undf) {
+                return this.length && this[0].getAttribute(_n);
+            }
+            return this.each(function (i, el) {
+                if (_v === null) {
+                    el.removeAttribute(_n);
+                    return;
+                }
+                el.setAttribute(_n, _v);
+            });
+        });
+    },
+
+    prop: function (n, v) {
+        return this.nv(n, v, function (_n, _v) {
+            if (_v === undf) {
+                return this.length && this[0][_n] || null;
+            }
+            return this.each(function (i, el) {
+                el[_n] = _v;
+            });
+        });
+    },
+
+    val: function (v) {
+
+        if (v === undf && this.length) {
+            return this[0].value;
+        }
+
+        return this.each(function(i, el) {
+            el.value = v;
+        });
+    },
+
+    data: function (n, v) {
+        return this.nv(n, v, function (_n, _v) {
+            if (_v === undf) {
+                return Dom.data(this[0], _n);
+            }
+            return this.each(function (i, el) {
+                Dom.data(el, _n, _v);
+            });
+        });
+    },
+
+    css: function (n, v) {
+        return this.nv(n, v, function (_n, _v) {
+            if (_v === undf && this.length) {
+                return getComputedStyle(this[0]).getPropertyValue(_v);
+            }
+            return this.each(function (i, el) {
+                el.style[_n] = Mk.type(_v, 'n') && (_v + 'px') || _v;
+            });
+        });
+    },
+
+    hasClass: function (v) {
+
+        var r = false;
+        this.each(function (i, el) {
+            if (el.classList.contains(v)) {
+                r = true;
+                return false;
+            }
+        });
+        return r;
+    },
+
+    addClass: function (value) {
+
+        var values = value.split(' '), c;
+
+        return Mk.each(this, values, function (i, v) {
+            this.each(function (x, el) {
+                el.classList.add(v);
+            });
+        });
+    },
+
+    removeClass: function (value) {
+
+        var values = value.split(' '), c, _v;
+
+        return Mk.each(this, values, function (i, v) {
+            this.each(function (x, el) {
+                el.classList.remove(v);
+            });
+        });
+    },
+
+    appendTo: function (s, c) {
+
+        var elem = new Dom(s, c)[0] || null;
+
+        if (elem) {
+            this.each(function (i, el) {
+                elem.appendChild(el);
+            });
+        }
+        return this;
+    },
+
+    prependTo: function (s, c) {
+
+        var elem = new Dom(s, c)[0] || null;
+
+        if (elem) {
+            this.each(function (i, el) {
+                if (elem.firstChild) {
+                    elem.insertBefore(el, elem.firstChild);
+                    return;
+                }
+                elem.appendChild(el);
+            });
+        }
+        return this;
+    },
+
+    append: function (s, c) {
+
+        if (this.length) {
+
+            var elem = this[this.length - 1];
+
+            new Dom(s, c).each(function (i, el) {
+                elem.appendChild(el);
+            });
+        }
+        return this;
+    },
+
+    prepend: function (s, c) {
+
+        if (this.length) {
+
+            var elem = this[this.length - 1];
+
+            new Dom(s, c).each(function (i, el) {
+                if (elem.firstChild) {
+                    elem.insertBefore(el, elem.firstChild);
+                    return;
+                }
+                elem.appendChild(el);
+            });
+        }
+        return this;
+    },
+
+    remove: function (s) {
+
+        var o = this, e;
+
+        if (arguments.length) {
+            o = new Dom(s, this);
+        }
+
+        o.each(function (i, el) {
+            remove(el);
+        });
+        return this;
+    },
+
+    on: function (t, d, h) {
+
+        if (!h) {
+            h = d;
+            d = null;
+        }
+
+        return this.each(function (i, el) {
+            Dom.on(el, t, '', h, false, d);
+        });
+    },
+
+    one: function (t, d, h) {
+
+        if (!h) {
+            h = d;
+            d = null;
+        }
+
+        return this.each(function (i, el) {
+            Dom.on(el, t, '', h, true, d);
+        });
+    },
+
+    off: function (t, h) {
+        return this.each(function (i, el) {
+            Dom.off(el, t, h);
+        });
+    },
+
+    emit: function (t, d) {
+        return this.each(function (i, el) {
+            Dom.emit(el, t, d);
+        });
+    }
 };
 
-Mk._uid = uid;
 
-Mk._copy = copy;
-
-Mk._each = each;
-
-Mk._property = property;
-
-Mk._pushsuper = pushsuper;
-
-Mk._popsuper = popsuper;
-
-Mk._transition = transition;
-
-Mk._template = template;
-
-Mk._eventEmitter = eventEmitter;
-
-Mk._device = device;
-
-Mk._keycodes = {
-    backspace: 8, tab: 9, enter: 13, esc: 27, space: 32,
-    pageup: 33, pagedown: 34, end: 35, home: 36,
-    left: 37, up: 38, right: 39, down: 40, left: 37, right: 39,
-    comma: 188
+Mk.$ = function (s, c) {
+    return new Dom(s, c);
 };
+
 
 Mk.define = function (n, o) {
 
     var a = Mk,
-        p = n.split( '.' );
+        p = n.split( '.' ),
+        i = 0,
+        l = p.length - 1;
 
-    for (var i = 0, l = p.length - 1; i < l; i++) {
-
-        if (!a.hasOwnProperty(p[ i ])) {
+    for (; i < l; i++) {
+        if (hasOwn.call(a, p[i])) {
             a[ p[ i ] ] = {};
         }
         a = a[ p[ i ] ];
@@ -1685,11 +1674,13 @@ Mk.get = function (n) {
 
     var o = null,
         m = Mk,
-        p = n.split('.');
+        p = n.split('.'),
+        i = 0,
+        l = p.length;
 
-    for (var i = 0, l = p.length; i < l; i++) {
+    for (; i < l; i++) {
 
-        if (m.hasOwnProperty( p [ i ] )) {
+        if (hasOwn.call(m, p[i])) {
             o = m[ p[ i ] ];
             m = o;
         }
@@ -1703,11 +1694,11 @@ Mk.get = function (n) {
 Mk.transitions = function (b) {
 
     if (b === true) {
-        Mk._transition.enabled = true;
+        Mk.transition.enabled = true;
     } else if (b === false) {
-        Mk._transition.enabled = false;
+        Mk.transition.enabled = false;
     }
-    return Mk._transition.enabled;
+    return Mk.transition.enabled;
 };
 
 Mk.create = function (name, base, proto) {
@@ -1721,19 +1712,19 @@ Mk.create = function (name, base, proto) {
         && base || Mk;
 
     var member, statics, obj = function () {
-        this._init.apply( this, arguments );
+        this._init.apply(this, arguments);
         return this;
     };
 
     obj.prototype = Object.create(base.prototype);
 
     for (member in proto) {
-        Mk._property(obj.prototype, proto, member);
+        Mk.property(obj.prototype, proto, member);
     }
 
     if (base !== Mk) {
         for (statics in base) {
-            Mk._property(obj, base, statics);
+            Mk.property(obj, base, statics);
         }
     }
 
@@ -1785,11 +1776,11 @@ Mk.prototype = {
     root: null,
 
     get _pushsuper_ () {
-        return Mk._pushsuper;
+        return Mk.pushSuper;
     },
 
     get _popsuper_ () {
-        return Mk._popsuper;
+        return Mk.popSuper;
     },
     /*
     <property:super>
@@ -1812,7 +1803,7 @@ Mk.prototype = {
     </property:super>
     */
     get keycode () {
-        return Mk._keycodes;
+        return Mk.keycodes;
     },
     /*
     <property:transitions>
@@ -1820,7 +1811,7 @@ Mk.prototype = {
     </property:transitions>
     */
     get transitions () {
-        return Mk._transition.enabled;
+        return Mk.transition.enabled;
     },
     /*
     <property:version>
@@ -1844,7 +1835,7 @@ Mk.prototype = {
     </property:device>
     */
     get device () {
-        return Mk._device;
+        return Mk.device;
     },
     /*
     <method:$>
@@ -1861,7 +1852,7 @@ Mk.prototype = {
     </method:$>
     */
     $: function (s, c) {
-        return new Mk._$( s, c );
+        return new Mk.$(s, c);
     },
     /*
     <method:uid>
@@ -1870,7 +1861,7 @@ Mk.prototype = {
     </method:uid>
     */
     uid: function () {
-        return Mk._uid();
+        return Mk.uid();
     },
     /*
     <method:copy>
@@ -1883,7 +1874,7 @@ Mk.prototype = {
     </method:copy>
     */
     copy: function (o) {
-        return Mk._copy( o );
+        return Mk.copy(o);
     },
     /*
     <method:template>
@@ -1900,7 +1891,7 @@ Mk.prototype = {
     </method:template>
     */
     template: function (n, d) {
-        return Mk._template(
+        return Mk.template(
             n, this.name, this.config.templates, d) ;
     },
     /*
@@ -1918,7 +1909,7 @@ Mk.prototype = {
     </method:format>
     */
     format: function (n, d) {
-        return Mk._template(
+        return Mk.template(
             n, this.name, this.config.formats, d);
     },
     /*
@@ -1953,7 +1944,7 @@ Mk.prototype = {
     </method:each>
     */
     each: function (who, fn) {
-        return Mk._each(this, who, fn);
+        return Mk.each(this, who, fn);
     },
     /*
     <method:node>
@@ -2002,7 +1993,7 @@ Mk.prototype = {
     transition: function (node, cb) {
 
         var $n = this.$(node),
-             t = Mk._transition(),
+             t = Mk.transition(),
              c = this;
 
         cb = cb || function () {};
@@ -2039,7 +2030,7 @@ Mk.prototype = {
     */
     clearTransitions: function (n) {
 
-        var t = Mk._transition();
+        var t = Mk.transition();
 
         if (t) {
             this.$(n).off(t);
@@ -2094,9 +2085,9 @@ Mk.prototype = {
         <desc>Binds a handler to an event type through the Event Emitter. Allows for namespaced events.</desc>
     </method:on>
     */
-    on: function ( event, handler ) {
+    on: function (event, handler) {
 
-        Mk._eventEmitter.on(
+        Mk.eventEmitter.on(
             this.events,
             event,
             handler,
@@ -2118,9 +2109,9 @@ Mk.prototype = {
         <desc>Binds a handler to an event type through the Event Emitter. Once fired, an event bound through one() will be removed. Allows for namespaced events.</desc>
     </method:one>
     */
-    one: function ( event, handler ) {
+    one: function (event, handler) {
 
-        Mk._eventEmitter.one(
+        Mk.eventEmitter.one(
             this.events,
             event,
             handler,
@@ -2142,9 +2133,9 @@ Mk.prototype = {
         <desc>Removes a handler (or all handlers) from an event type.</desc>
     </method:off>
     */
-    off: function ( event, handler ) {
+    off: function (event, handler) {
 
-        Mk._eventEmitter.off(
+        Mk.eventEmitter.off(
             this.events,
             event,
             handler
@@ -2165,9 +2156,9 @@ Mk.prototype = {
         <desc>Invokes handler(s) bound to event type.</desc>
     </method:emit>
     */
-    emit: function ( event /*, arguments */ ) {
+    emit: function (event /*, arguments */) {
 
-        Mk._eventEmitter.emit(
+        Mk.eventEmitter.emit(
             this.events, arguments);
         return this;
     },
@@ -2185,11 +2176,11 @@ Mk.prototype = {
         <desc>Internal, private, method used as a contructor. Useful when building your own custom components. Invoked internally only.</desc>
     </method:_init>
     */
-    _init: function ( r, o ) {
+    _init: function (r, o) {
 
         // define properties such as:
         // templates, formats, name, etc.
-        this._define( r, o );
+        this._define(r, o);
 
         //build markup or invoke logic
         this._build();
@@ -2211,9 +2202,9 @@ Mk.prototype = {
         <desc>A setup function called by _init. This initializes the root, events, config object, formats, templates, etc. Invoked internally only.</desc>
     </method:_define>
     */
-    _define: function ( r, o ) {
+    _define: function (r, o) {
 
-        this.root = this.$( r );
+        this.root = this.$(r);
 
         this.events = {};
 
@@ -2222,11 +2213,11 @@ Mk.prototype = {
             formats: {}
         };
 
-        this.each(this.formats, function ( n, v ) {
+        this.each(this.formats, function (n, v) {
             this.config.formats[ n ] = v;
         });
 
-        this.each(this.templates, function ( n, v ) {
+        this.each(this.templates, function (n, v) {
             this.config.templates[ n ] = v;
         });
 

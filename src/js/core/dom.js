@@ -12,922 +12,917 @@
     The Core.$ will be overridden with the new library you've specified.
     Make sure method names for the below are the SAME or current components will break
     on referencing non existent members.
+
+    Members:
+
+    length
+
+    is()
+    val()
+    each()
+    find()
+    filter()
+    parent() (also does closest)
+    hasClass()
+    addClass()
+    removeClass()
+    attr()
+    prop()
+    data()
+    html()
+    text()
+    markup()
+    appendTo()
+    prependTo()
+    append()
+    prepend()
+    remove()
+    on()
+    one()
+    off()
+    emit()
+    ajax()
 */
 
-var dom = (function () {
-    /*
-        Members:
+var
+doc = document,
+//
+// elem cache system
+// ------------------------------------
+cache = {},
+//
+// shorthand slice
+// ------------------------------------
+slice = [].slice,
+//
+// clearing out arraylike objects
+// ------------------------------------
+splice = [].splice,
+//
+// making objects arraylike
+// ------------------------------------
+push = [].push,
+//
+// tag/markup testing
+// ------------------------------------
+tg = /^\s*<([^>\s]+)/,
+//
+// nodeType testing
+// ------------------------------------
+nt = /1|9|11/,
+//
+// html creation wrappers
+// -------------------------------------
+wrap = {
+    option: [ 1, '<select multiple="multiple">', '</select>' ],
+    thead: [ 1, '<table>', '</table>' ],
+    col: [ 2, '<table><colgroup>', '</colgroup></table>' ],
+    tr: [ 2, '<table><tbody>', '</tbody></table>' ],
+    td: [ 3, '<table><tbody><tr>', '</tr></tbody></table>' ],
+    li: [1, '<ul>', '</ul>'],
+    dd: [1, '<dl>', '</dl>'],
+    defaultt: [ 0, "", "" ]
+};
+//
+// element wrap duplicates
+// ----------------------------------------
+wrap.caption = wrap.thead;
+wrap.optgroup = wrap.option;
+wrap.tbody = wrap.thead;
+wrap.tfoot = wrap.thead;
+wrap.dt = wrap.dd;
 
-        length
+function Dom (s, c) {
+    return this.find(s, c);
+}
 
-        is()
-        val()
-        each()
-        find()
-        filter()
-        parent() (also does closest)
-        hasClass()
-        addClass()
-        removeClass()
-        attr()
-        prop()
-        data()
-        html()
-        text()
-        markup()
-        appendTo()
-        prependTo()
-        append()
-        prepend()
-        remove()
-        on()
-        one()
-        off()
-        emit()
-        ajax()
-    */
 
-    var
-    doc = document,
-    //
-    // elem cache system
-    // ------------------------------------
-    cache = {},
-    //
-    // shorthand slice
-    // ------------------------------------
-    slice = [].slice,
-    //
-    // clearing out arraylike objects
-    // ------------------------------------
-    splice = [].splice,
-    //
-    // making objects arraylike
-    // ------------------------------------
-    push = [].push,
-    //
-    // tag/markup testing
-    // ------------------------------------
-    tg = /^\s*<([^>\s]+)/,
-    //
-    // nodeType testing
-    // ------------------------------------
-    nt = /1|9|11/,
-    //
-    // no operation
-    // ------------------------------------
-    noop = function () {},
-    //
-    // html creation wrappers
-    // -------------------------------------
-    wrap = {
-    	option: [ 1, '<select multiple="multiple">', '</select>' ],
-    	thead: [ 1, '<table>', '</table>' ],
-    	col: [ 2, '<table><colgroup>', '</colgroup></table>' ],
-    	tr: [ 2, '<table><tbody>', '</tbody></table>' ],
-    	td: [ 3, '<table><tbody><tr>', '</tr></tbody></table>' ],
-        li: [1, '<ul>', '</ul>'],
-        dd: [1, '<dl>', '</dl>'],
-    	defaultt: [ 0, "", "" ]
-    };
-    //
-    // element wrap duplicates
-    // ----------------------------------------
-    wrap.caption = wrap.thead;
-    wrap.optgroup = wrap.option;
-    wrap.tbody = wrap.thead;
-    wrap.tfoot = wrap.thead;
-    wrap.dt = wrap.dd;
-    //
-    // data - store/retrieve data and data attributes
-    // ----------------------------------------
-    function data (n, k, vl) {
+//
+// data - store/retrieve data and data attributes
+// ----------------------------------------
 
-        if (n) {
+Dom.data = function (n, k, vl) {
 
-            var id = n._id = n._id || uid(),
-                c  = cache[id] || {},
-                v  = vl;
+    if (n) {
 
-            if (k === null) {
+        var id = n._id = n._id || Mk.uid(),
+            c  = cache[id] || {},
+            v  = vl;
 
-                n._id = null;
-                delete cache[id];
-                return c;
-            }
+        // remove entire entry
+        if (k === null) {
 
-            // undefined
-            if (v === void+1) {
-                v = c[k] || n.getAttribute('data-' + k) || null;
-                c[k] = v;
-            }
-            // remove key
-            else if (vl === null) {
-                v = c[k];
-                delete c[k];
-            }
-            // set key
-            else {
-                c[k] = v;
-            }
-
-            cache[id] = c;
-
-            return v;
+            n._id = null;
+            delete cache[id];
+            return c;
         }
+
+        // undefined
+        if (v === undf) {
+            v = c[k] || n.getAttribute('data-' + k) || null;
+            c[k] = v;
+        }
+        // remove key
+        else if (vl === null) {
+            v = c[k];
+            delete c[k];
+        }
+        // set key
+        else {
+            c[k] = v;
+        }
+
+        cache[id] = c;
+
+        return v;
     }
+}
 
-    function remove (n) {
 
-        var d;
+//
+// removes elements, events, and data from memory
+//
 
-        each(this, n.childNodes, function (i, c) {
-            if (c && c.nodeType === 1) {
-                remove(c);
+Dom.remove = function (n) {
+
+    var d;
+
+    Mk.each(this, n.childNodes, function (i, c) {
+        if (c && c.nodeType === 1) {
+            remove(c);
+        }
+    });
+
+    var d = data(n, null);
+
+    if (d && d.events) {
+        Mk.each(this, d.events, function (t, v) {
+            off(n, t);
+        });
+    }
+    n.parentNode.removeChild(n);
+}
+
+
+Dom.ajax = function (o) {
+    return new this.xhr(o);
+}
+
+Dom.xhr = function (o) {
+    this.init(o);
+}
+
+Dom.xhr.prototype = {
+
+    headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
+    },
+
+    xhr: null,
+
+    open: false,
+
+    options: null,
+
+    url: function (u) {
+
+        u = (u || location.href);
+
+        var t = u.lastIndexOf('/');
+
+        if (t > -1 && (t = u.indexOf('#')) > -1) {
+            u = u.substr(0, t)
+        }
+        return u;
+    },
+
+    qs: function (o) {
+
+        o = o || '';
+
+        if (!Mk.type(o, 's')) {
+
+            var d = [];
+
+            Mk.each(this, o, function (n, v) {
+                d.push(n + '=' + encodeURIComponent(v));
+            });
+            return d.join('&');
+        }
+        return o;
+    },
+
+    init: function (o) {
+
+        o = Mk.copy(o || {});
+
+        o.url = this.url(o.url);
+        o.data = this.qs(o.data);
+        o.method = (o.method || 'GET').toUpperCase();
+        o.type = o.type || 'text';
+        o.headers = o.headers || {};
+        o.async = o.async || true;
+        o.encode = o.encode || true;
+        o.encoding = o.encoding || 'utf-8';
+        o.user = o.user || '';
+        o.password = o.password || '';
+        // callbacks
+        o.complete = o.complete || noop;
+        o.success = o.success || noop;
+        o.error = o.error || noop;
+
+        if (o.data && o.method === 'GET') {
+            o.url  = o.url.indexOf('?') > -1 && o.url || o.url + '?';
+            o.url += o.data;
+            o.data = null;
+        }
+
+        Mk.each(this, this.headers, function (n, v) {
+            if (hasOwn.call(o.headers, n) !== true) {
+                o.headers[n] = v;
             }
         });
 
-        var d = data(n, null);
-
-        if (d && d.events) {
-            each(this, d.events, function (t, v) {
-                console.info('removing', t)
-                off(n, t);
-            });
+        if (o.encode && ['POST', 'PUT'].indexOf(o.type) > -1) {
+            o.headers['Content-type'] =
+                'application/x-www-form-urlencoded' + o.encoding
         }
 
-        n.parentNode.removeChild(n);
-    }
+        this.options = o;
 
-    //
-    // jsonp
-    // -----------------------------------
-
-    function xhr (o) {
-        this.init(o);
-    }
-
-    xhr.prototype = {
-
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
-        },
-
-        xhr: null,
-
-        open: false,
-
-        options: null,
-
-        url: function (u) {
-
-            u = (u || location.href);//.replace(/^http[s]?\:\/\//, '');
-
-            var t = u.lastIndexOf('/');
-
-            if (t > -1 && (t = u.indexOf('#')) > -1) {
-                u = u.substr(0, t)
-            }
-            return u;
-        },
-
-        qs: function (o) {
-
-            o = o || '';
-
-            if (typeof o !== 'string') {
-
-                var d = [];
-
-                each(this, o, function (n, v) {
-                    d.push(n + '=' + encodeURIComponent(v));
-                });
-
-                return d.join('&');
-            }
-            return o;
-        },
-
-        init: function (o) {
-
-            o = copy(o || {});
-
-            o.url = this.url(o.url);
-            o.data = this.qs(o.data);
-            o.method = (o.method || 'GET').toUpperCase();
-            o.type = o.type || 'html';
-            o.headers = o.headers || {};
-            o.async = o.async || true;
-            o.encode = o.encode || true;
-            o.encoding = o.encoding || 'utf-8';
-            o.user = o.user || '';
-            o.password = o.password || '';
-
-            o.complete = o.complete || noop;
-            o.success = o.success || noop;
-            o.error = o.error || noop;
-
-            if (o.data && o.method === 'GET') {
-                o.url  = o.url.indexOf('?') > -1 && o.url || o.url + '?';
-                o.url += o.data;
-                o.data = null;
-            }
-
-            each(this, this.headers, function (n, v) {
-                if (o.headers.hasOwnProperty(n) !== true) {
-                    o.headers[n] = v;
-                }
-            });
-
-            if (o.encode && ['POST', 'PUT'].indexOf(o.type) > -1) {
-                o.headers['Content-type'] =
-                    'application/x-www-form-urlencoded' + o.encoding
-            }
-
-            this.options = o;
-
-            if (o.now !== false) {
-                this.send();
-            }
-            return this;
-        },
-
-        jsonp: function jsonp () {
-
-            if (this.open) {
-                return this;
-            }
-
-            var x = this,
-                o = x.options,
-                s = doc.createElement('script'),
-
-                id = o.jsonpid = 'MKUI' + uid().split('-').join(''),
-                qs = 'callback=' + id;
-
-            s.type = 'text/javascript';
-            s.language = 'javascript';
-            s.async = o.async;
-            s.src = o.url + (o.url.indexOf('?') > -1 && '&' || '?') + qs;
-            s.id = o.scriptid = uid();
-
-            s.onerror = function () {
-                o.error.call(x);
-            };
-
-            s.onload = function () {
-                o.complete.call(x);
-            };
-
-            var cb = function (data) {
-
-                x.response = data;
-                x.status = 200;
-
-                s.onload  = null;
-                s.onerror = null;
-                s.parentNode.removeChild(s);
-
-                o.success.call(x, data);
-
-                delete root[id];
-            };
-
-            root[id] = cb;
-
-            doc.documentElement
-                .firstChild.appendChild(s);
-
-            this.open = true;
-            this.status = 0;
-
-            return this;
-        },
-
-        send: function () {
-
-            if (this.open) {
-                return this;
-            }
-
-            var x = this,
-                o = x.options,
-                xhr;
-
-            if (o.type === 'jsonp') {
-                return this.jsonp();
-            }
-
-            xhr = this.xhr = new XMLHttpRequest();
-
-            xhr.open(o.method, o.url, o.async, o.user, o.password);
-            xhr.onreadystatechange = function () {
-                x.stateChange();
-            };
-
-            if (o.user && 'withCredentials' in xhr) {
-                xhr.withCredentials = true;
-            }
-
-            each(this, o.headers, function (n, v) {
-                xhr.setRequestHeader(n, v);
-            });
-
-            if (o.type && o.type !== 'text') {
-                xhr.responseType = o.type;
-            }
-
-            x.open = true;
-            x.status = 0;
-
-            xhr.send(o.data);
-
-            if (o.async !== true) {
-                this.stateChange();
-            }
-            return this;
-        },
-
-        abort: function () {
-
-            this.open = false;
-            this.status = 0;
-
-            if (this.xhr) {
-                this.xhr.abort();
-                this.xhr.onreadystatechange = null;
-                this.xhr = null;
-                return this;
-            }
-
-            var x = this,
-                o = x.options,
-                s = doc.getElementById(o.scriptid),
-                id = o.jsonpid;
-
-            if (s) {
-                s.parentNode.removeChild(s);
-            }
-
-            root[id] = function () {
-                delete root[id];
-            };
-
-            root[id]();
-
-            return this;
-        },
-
-        stateChange: function () {
-
-            var xhr = this.xhr,
-                x = this,
-                o = x.options;
-
-            if (xhr.readyState !== 4) {
-                return;
-            }
-
-            o.complete.call(x, xhr);
-
-            x.status = xhr.status;
-            x.statusText = xhr.statusText;
-
-            if (x.status === 1223) {
-                x.status = 204;
-                x.statusText = 'No Content';
-            }
-
-            x.open = false;
-            x.response = xhr.response || null;
-
-            if (xhr.responseType === '' || xhr.responseType === 'text') {
-                x.response = xhr.responseText;
-            }
-
-            xhr.onreadystatechange = function () {};
-
-            if (x.status >= 200 && x.status < 300) {
-                o.success.call(x, x.response, xhr);
-            } else {
-                o.error.call(x, xhr);
-            }
+        if (o.now !== false) {
+            this.send();
         }
-    };
+        return this;
+    },
 
-    //
-    // dom events
-    // -----------------------------------
+    jsonp: function jsonp () {
 
-    function del (p, n, x) {
-
-        var r = {s: false, t: p};
-
-        if (!x) {
-            r.s = true;
-        }
-        else {
-            new dom(x, p).each(function (i, el) {
-
-                if (n === el || new dom(n).parent(el).length) {
-                    r.s = true;
-                    r.t = el;
-                    return false;
-                }
-            });
+        if (this.open) {
+            return this;
         }
 
-        return r;
-    }
+        var x = this,
+            o = x.options,
+            s = doc.createElement('script'),
 
-    function event (n, a, t, s, f, o, x) {
+            id = o.jsonpid = 'MKUI' + Mk.uid().split('-').join(''),
+            qs = 'callback=' + id;
 
-        var h, d;
+        s.type = 'text/javascript';
+        s.language = 'javascript';
+        s.async = o.async;
+        s.src = o.url + (o.url.indexOf('?') > -1 && '&' || '?') + qs;
+        s.id = o.scriptid = Mk.uid();
 
-        if (a) {
+        s.onerror = function () {
+            o.error.call(x);
+        };
 
-            h = function (e) {
+        s.onload = function () {
+            o.complete.call(x);
+        };
 
-                var z = false,
-                    w = del(this, e.target, x),
-                    r;
+        var cb = function (data) {
 
-                if (e.ns) {
-                    if (e.ns === s && w.s) {
-                        r = f.apply(w.t, [e].concat(e.data));
-                        z = true;
-                    }
-                }
-                else if (w.s) {
-                    r = f.call(w.t, e);
-                    z = true;
-                }
+            x.response = data;
+            x.status = 200;
 
-                if (z && o) {
-                    event(n, false, t, s, f, o, x);
-                }
-                return r;
-            };
+            s.onload  = null;
+            s.onerror = null;
+            s.parentNode.removeChild(s);
 
-            d = data(n, 'events') || {};
+            o.success.call(x, data);
 
-            d[t] = d[t] || [];
+            delete root[id];
+        };
 
-            d[t].push({
-                type: t,
-                ns: s,
-                original: f,
-                handler: h,
-                delegate: x
-            });
+        root[id] = cb;
 
-            data(n, 'events', d);
+        doc.documentElement
+            .firstChild.appendChild(s);
 
-            n.addEventListener(t, h, false);
+        this.open = true;
+        this.status = 0;
 
+        return this;
+    },
+
+    send: function () {
+
+        if (this.open) {
+            return this;
+        }
+
+        var x = this,
+            o = x.options,
+            xhr;
+
+        if (o.type === 'jsonp') {
+            return this.jsonp();
+        }
+
+        xhr = this.xhr = new XMLHttpRequest();
+
+        xhr.open(o.method, o.url, o.async, o.user, o.password);
+        xhr.onreadystatechange = function () {
+            x.stateChange();
+        };
+
+        if (o.user && 'withCredentials' in xhr) {
+            xhr.withCredentials = true;
+        }
+
+        Mk.each(this, o.headers, function (n, v) {
+            xhr.setRequestHeader(n, v);
+        });
+
+        if (o.type && o.type !== 'text') {
+            xhr.responseType = o.type;
+        }
+
+        x.open = true;
+        x.status = 0;
+
+        xhr.send(o.data);
+
+        if (o.async !== true) {
+            this.stateChange();
+        }
+        return this;
+    },
+
+    abort: function () {
+
+        this.open = false;
+        this.status = 0;
+
+        if (this.xhr) {
+            this.xhr.abort();
+            this.xhr.onreadystatechange = null;
+            this.xhr = null;
+            return this;
+        }
+
+        var x = this,
+            o = x.options,
+            s = doc.getElementById(o.scriptid),
+            id = o.jsonpid;
+
+        if (s) {
+            s.parentNode.removeChild(s);
+        }
+
+        root[id] = function () {
+            delete root[id];
+        };
+
+        root[id]();
+
+        return this;
+    },
+
+    stateChange: function () {
+
+        var xhr = this.xhr,
+            x = this,
+            o = x.options;
+
+        if (xhr.readyState !== 4) {
             return;
         }
 
-        d = (data(n, 'events') || {})[t] || [];
+        o.complete.call(x, xhr);
 
-        each(this, d, function (i, o) {
-            if (!s || s && o.ns === s) {
-                if (!f || f === o.original) {
-                    n.removeEventListener(t, o.handler);
-                    return -1;
-                }
+        x.status = xhr.status;
+        x.statusText = xhr.statusText;
+
+        if (x.status === 1223) {
+            x.status = 204;
+            x.statusText = 'No Content';
+        }
+
+        x.open = false;
+        x.response = xhr.response || null;
+
+        if (xhr.responseType === '' || xhr.responseType === 'text') {
+            x.response = xhr.responseText;
+        }
+
+        xhr.onreadystatechange = function () {};
+
+        if (x.status >= 200 && x.status < 300) {
+            o.success.call(x, x.response, xhr);
+        } else {
+            o.error.call(x, xhr);
+        }
+    }
+};
+
+
+Dom.delegate = function (p, n, x) {
+
+    var r = {s: false, t: p};
+
+    if (!x) {
+        r.s = true;
+    }
+    else {
+        new Dom(x, p).each(function (i, el) {
+
+            if (n === el || new Dom(n).parent(el).length) {
+                r.s = true;
+                r.t = el;
+                return false;
             }
         });
     }
+    return r;
+}
 
-    function on (n, t, d, h, o, x) {
+Dom.event = function (n, a, t, s, f, o, x) {
 
-        var p = t.split('.'),
-            e = p.shift();
+    var h, d;
 
-        event(n, true, e, p.join('.'), h, o, x);
-    }
+    if (a) {
 
-    function off (n, t, h) {
+        h = function (e) {
 
-        var p = t.split('.'),
-            e = p.shift();
+            var z = false,
+                w = Dom.delegate(this, e.target, x),
+                r;
 
-        event(n, false, e, p.join('.'), h);
-    }
-
-    function emit (n, t, d) {
-
-        var p = t.split('.'),
-            e = p.shift(),
-            ev = new Event(e);
-
-        ev.ns = p.join('.');
-        ev.data = d || [];
-
-        n.dispatchEvent(ev);
-    }
-
-    function dom (s, c) {
-        this.find(s, c);
-    }
-
-    dom.ajax = function () {
-        return new xhr(o);
-    };
-
-    dom.prototype = {
-
-        length: 0,
-
-        context: null,
-
-        constructor: dom,
-
-        each: function (fn) {
-            return each(this, this, fn);
-        },
-
-        find: function (s, c) {
-
-            s = s || doc;
-            c = c || this.length && this || [doc];
-
-            if (typeof c === 'string') {
-                c = new dom(c, doc);
-            } else if (c.nodeType) {
-                c = [c];
-            }
-
-            var n = s;
-
-            if (typeof s === 'string') {
-
-                if (tg.test(s)) {
-                    n = this.markup(s);
-                }
-                else {
-
-                    n = [];
-
-                    each(this, c, function (i, el) {
-                        n = n.concat(slice.call(el.querySelectorAll(s)));
-                    });
+            if (e.ns) {
+                if (e.ns === s && w.s) {
+                    r = f.apply(w.t, [e].concat(e.data));
+                    z = true;
                 }
             }
-
-            if (n && nt.test(n.nodeType)) {
-                n = [n];
+            else if (w.s) {
+                r = f.call(w.t, e);
+                z = true;
             }
 
-            if (arraylike(n)) {
-                n = slice.call(n);
+            if (z && o) {
+                Dom.event(n, false, t, s, f, o, x);
             }
+            return r;
+        };
 
-            splice.call(this, 0, this.length || 0);
-            push.apply(this, n);
+        d = Dom.data(n, 'events') || {};
 
-            this.context = c;
+        d[t] = d[t] || [];
 
-            return this;
-        },
+        d[t].push({
+            type: t,
+            ns: s,
+            original: f,
+            handler: h,
+            delegate: x
+        });
 
-        is: function (s) {
+        Dom.data(n, 'events', d);
 
-            var elems = new dom(s, this.context),
-                result = false;
+        n.addEventListener(t, h, false);
 
-            this.each(function (i, el) {
-                elems.each(function (x, _el) {
-                    if (el === _el) {
-                        result = true; return false;
-                    }
-                });
-                if (result) return false;
-            });
+        return;
+    }
 
-            return result;
-        },
+    d = (Dom.data(n, 'events') || {})[t] || [];
 
-        filter: function (s) {
+    Mk.each(this, d, function (i, o) {
+        if (!s || s && o.ns === s) {
+            if (!f || f === o.original) {
+                n.removeEventListener(t, o.handler);
+                return -1;
+            }
+        }
+    });
+}
 
-            var elems = new dom(s, this.context),
-                filtered = [];
+Dom.on = function (n, t, d, h, o, x) {
 
-            this.each(function (i, el) {
-                elems.each(function (x, _el) {
-                    if (el === _el) filtered.push(el);
-                });
-            });
-            return new dom(filtered, this.context);
-        },
+    var p = t.split('.'),
+        e = p.shift();
 
-        parent: function (s, c) {
+    Dom.event(n, true, e, p.join('.'), h, o, x);
+}
 
-            var p = [], ps;
+Dom.off = function (n, t, h) {
 
-            if (arguments.length) {
+    var p = t.split('.'),
+        e = p.shift();
 
-                ps = new dom(s, c);
+    Dom.event(n, false, e, p.join('.'), h);
+}
 
-                this.each(function (i, el) {
+Dom.emit = function (n, t, d) {
 
-                    while (el.parentNode) {
-                        ps.each(function (x, _el) {
+    var p = t.split('.'),
+        e = p.shift(),
+        ev = new Event(e);
 
-                            if (_el === el.parentNode) {
+    ev.ns = p.join('.');
+    ev.data = d || [];
 
-                                if (p.indexOf(_el) < 0) {
-                                    p.push(_el);
-                                }
-                                return false;
-                            }
-                        });
-                        el = el.parentNode;
-                    }
-                });
+    n.dispatchEvent(ev);
+}
+
+
+Dom.prototype = {
+
+    length: 0,
+
+    context: null,
+
+    constructor: Dom,
+
+    each: function (fn) {
+        return Mk.each(this, this, fn);
+    },
+
+    find: function (s, c) {
+
+        s = s || doc;
+        c = c || this.length && this || [doc];
+
+        if (Mk.type(c, 's')) {
+            c = new Dom(c, doc);
+        }
+        else if (c.nodeType) {
+            c = [c];
+        }
+
+        var n = s;
+
+        if (Mk.type(s, 's')) {
+
+            if (tg.test(s)) {
+                n = this.markup(s);
             }
             else {
-                this.each(function (i, el) {
-                    if (el.parentNode) p.push(el.parentNode);
+
+                n = [];
+
+                Mk.each(this, c, function (i, el) {
+                    n = n.concat(slice.call(el.querySelectorAll(s)));
                 });
             }
-            return new dom(p);
-        },
+        }
 
-        markup: function (s) {
+        if (n && nt.test(n.nodeType)) {
+            n = [n];
+        }
 
-            // if we support html5 templates (everybody but IE)
-            var c = doc.createElement('template');
+        if (Mk.type(n, 'al')) {
+            n = slice.call(n);
+        }
 
-            if (c.content) {
-                c.innerHTML = s;
-                return slice.call(c.content.childNodes);
-            }
+        splice.call(this, 0, this.length || 0);
+        push.apply(this, n);
 
-            // IE does this...
-            var t = tg.exec(s)[1] || null,
-                a = t && wrap.hasOwnProperty(t) && wrap[t] || wrap.defaultt,
-                i = 0;
+        this.context = c;
 
-            c = doc.createElement('div');
-            c.innerHTML = a[1] + s + a[2];
+        return this;
+    },
 
-            while (i < a[0]) {
-                c = c.firstChild;
-                i++;
-            }
+    is: function (s) {
 
-            return slice.call(c.childNodes);
-        },
+        var elems = new Dom(s, this.context),
+            result = false;
 
-        html: function (s) {
-
-            if (s === void+1) {
-                if (this.length) {
-                    return this[0].innerHTML;
+        this.each(function (i, el) {
+            elems.each(function (x, _el) {
+                if (el === _el) {
+                    result = true; return false;
                 }
-                return null;
-            }
-
-            return this.each(function (i, el) {
-                while (el.firstChild) {
-                    el.removeChild(el.firstChild);
-                }
-                each(this, this.markup(s), function (x, f) {
-                    el.appendChild(f);
-                });
             });
-        },
+            if (result) return false;
+        });
+        return result;
+    },
 
-        text: function (s) {
+    filter: function (s) {
 
-            if (s === void+1) {
-                if (this.length) {
-                    return this[0].textContent;
-                }
-                return null;
-            }
+        var elems = new Dom(s, this.context),
+            filtered = [];
 
-            return this.each(function (i, el) {
-                el.textContent = s;
+        this.each(function (i, el) {
+            elems.each(function (x, _el) {
+                if (el === _el) filtered.push(el);
             });
-        },
+        });
+        return new Dom(filtered, this.context);
+    },
 
-        nv: function (n, v, fn) {
+    parent: function (s, c) {
 
-            if (typeof n === 'object') {
-                for (var i in n) {
-                    fn.call(this, i, n[i]);
-                }
-                return this;
-            }
-            return fn.call(this, n, v);
-        },
+        var p = [], ps;
 
-        attr: function (n, v) {
-            return this.nv(n, v, function (_n, _v) {
+        if (arguments.length) {
 
-                if (_v === void+1) {
-                    return this.length && this[0].getAttribute(_n);
-                }
-                return this.each(function (i, el) {
-                    if (_v === null) {
-                        el.removeAttribute(_n);
-                        return;
-                    }
-                    el.setAttribute(_n, _v);
-                });
-            });
-        },
+            ps = new Dom(s, c);
 
-        prop: function (n, v) {
-            return this.nv(n, v, function (_n, _v) {
-                if (_v === void+1) {
-                    return this.length && this[0][_n] || null;
-                }
-                return this.each(function (i, el) {
-                    el[_n] = _v;
-                });
-            });
-        },
-
-        val: function (v) {
-
-            if (v === void+1 && this.length) {
-                return this[0].value;
-            }
-
-            return this.each(function(i, el) {
-                el.value = v;
-            })
-        },
-
-        data: function (n, v) {
-            return this.nv(n, v, function (_n, _v) {
-                if (_v === void+1) {
-                    return data(this[0], _n);
-                }
-                return this.each(function (i, el) {
-                    data(el, _n, _v);
-                });
-            });
-        },
-
-        css: function (n, v) {
-            return this.nv(n, v, function (_n, _v) {
-                if (_v === void+1 && this.length) {
-                    return getComputedStyle(this[0]).getPropertyValue(_v);
-                }
-                return this.each(function (i, el) {
-                    el.style[_n] = typeof _v === 'number' && (_v + 'px') || _v;
-                });
-            });
-        },
-
-        hasClass: function (v) {
-
-            var r = false;
             this.each(function (i, el) {
-                if (el.classList.contains(v)) {
-                    r = true; return false;
+
+                while (el.parentNode) {
+                    ps.each(function (x, _el) {
+
+                        if (_el === el.parentNode) {
+
+                            if (p.indexOf(_el) < 0) {
+                                p.push(_el);
+                            }
+                            return false;
+                        }
+                    });
+                    el = el.parentNode;
                 }
-            });
-            return r;
-        },
-
-        addClass: function (value) {
-
-            var values = value.split(' '), c;
-
-            return each(this, values, function (i, v) {
-                this.each(function (x, el) {
-                    el.classList.add(v);
-                });
-            });
-        },
-
-        removeClass: function (value) {
-
-            var values = value.split(' '), c, _v;
-
-            return each(this, values, function (i, v) {
-                this.each(function (x, el) {
-                    el.classList.remove(v);
-                });
-            });
-        },
-
-        appendTo: function (s, c) {
-
-            var elem = new dom(s, c)[0] || null;
-
-            if (elem) {
-                this.each(function (i, el) {
-                    elem.appendChild(el);
-                });
-            }
-            return this;
-        },
-
-        prependTo: function (s, c) {
-
-            var elem = new dom(s, c)[0] || null;
-
-            if (elem) {
-                this.each(function (i, el) {
-                    if (elem.firstChild) {
-                        elem.insertBefore(el, elem.firstChild);
-                        return;
-                    }
-                    elem.appendChild(el);
-                });
-            }
-            return this;
-        },
-
-        append: function (s, c) {
-
-            if (this.length) {
-
-                var elem = this[this.length - 1];
-
-                new dom(s, c).each(function (i, el) {
-                    elem.appendChild(el);
-                });
-            }
-            return this;
-        },
-
-        prepend: function (s, c) {
-
-            if (this.length) {
-
-                var elem = this[this.length - 1];
-
-                new dom(s, c).each(function (i, el) {
-                    if (elem.firstChild) {
-                        elem.insertBefore(el, elem.firstChild);
-                        return;
-                    }
-                    elem.appendChild(el);
-                });
-            }
-        },
-
-        remove: function (s) {
-
-            var o = this, e;
-
-            if (arguments.length) {
-                o = new dom(s, this);
-            }
-
-            o.each(function (i, el) {
-                remove(el);
-            });
-
-            return this;
-        },
-
-        on: function (t, d, h) {
-
-            if (!h) {
-                h = d;
-                d = null;
-            }
-
-            return this.each(function (i, el) {
-                on(el, t, '', h, false, d);
-            });
-        },
-
-        one: function (t, d, h) {
-
-            if (!h) {
-                h = d;
-                d = null;
-            }
-
-            return this.each(function (i, el) {
-                on(el, t, '', h, true, d);
-            });
-        },
-
-        off: function (t, h) {
-            return this.each(function (i, el) {
-                off(el, t, h);
-            });
-        },
-
-        emit: function (t, d) {
-            return this.each(function (i, el) {
-                emit(el, t, d);
             });
         }
-    };
+        else {
+            this.each(function (i, el) {
+                if (el.parentNode) p.push(el.parentNode);
+            });
+        }
+        return new Dom(p);
+    },
 
-    return dom;
+    markup: function (s) {
 
-})();
+        // if we support html5 templates (everybody but IE)
+        var c = doc.createElement('template');
+
+        if (c.content) {
+            c.innerHTML = s;
+            return slice.call(c.content.childNodes);
+        }
+
+        // IE does this...
+        var t = tg.exec(s)[1] || null,
+            a = t && wrap.hasOwnProperty(t) && wrap[t] || wrap.defaultt,
+            i = 0;
+
+        c = doc.createElement('div');
+        c.innerHTML = a[1] + s + a[2];
+
+        while (i < a[0]) {
+            c = c.firstChild;
+            i++;
+        }
+
+        return slice.call(c.childNodes);
+    },
+
+    html: function (s) {
+
+        if (s === undf) {
+            if (this.length) {
+                return this[0].innerHTML;
+            }
+            return null;
+        }
+
+        return this.each(function (i, el) {
+            while (el.firstChild) {
+                remove(el.firstChild);
+            }
+            Mk.each(this, this.markup(s), function (x, f) {
+                el.appendChild(f);
+            });
+        });
+    },
+
+    text: function (s) {
+
+        if (s === undf) {
+            if (this.length) {
+                return this[0].textContent;
+            }
+            return null;
+        }
+
+        return this.each(function (i, el) {
+            el.textContent = s;
+        });
+    },
+
+    nv: function (n, v, fn) {
+
+        if (typeof n === 'object') {
+            for (var i in n) {
+                fn.call(this, i, n[i]);
+            }
+            return this;
+        }
+        return fn.call(this, n, v);
+    },
+
+    attr: function (n, v) {
+        return this.nv(n, v, function (_n, _v) {
+
+            if (_v === undf) {
+                return this.length && this[0].getAttribute(_n);
+            }
+            return this.each(function (i, el) {
+                if (_v === null) {
+                    el.removeAttribute(_n);
+                    return;
+                }
+                el.setAttribute(_n, _v);
+            });
+        });
+    },
+
+    prop: function (n, v) {
+        return this.nv(n, v, function (_n, _v) {
+            if (_v === undf) {
+                return this.length && this[0][_n] || null;
+            }
+            return this.each(function (i, el) {
+                el[_n] = _v;
+            });
+        });
+    },
+
+    val: function (v) {
+
+        if (v === undf && this.length) {
+            return this[0].value;
+        }
+
+        return this.each(function(i, el) {
+            el.value = v;
+        });
+    },
+
+    data: function (n, v) {
+        return this.nv(n, v, function (_n, _v) {
+            if (_v === undf) {
+                return Dom.data(this[0], _n);
+            }
+            return this.each(function (i, el) {
+                Dom.data(el, _n, _v);
+            });
+        });
+    },
+
+    css: function (n, v) {
+        return this.nv(n, v, function (_n, _v) {
+            if (_v === undf && this.length) {
+                return getComputedStyle(this[0]).getPropertyValue(_v);
+            }
+            return this.each(function (i, el) {
+                el.style[_n] = Mk.type(_v, 'n') && (_v + 'px') || _v;
+            });
+        });
+    },
+
+    hasClass: function (v) {
+
+        var r = false;
+        this.each(function (i, el) {
+            if (el.classList.contains(v)) {
+                r = true;
+                return false;
+            }
+        });
+        return r;
+    },
+
+    addClass: function (value) {
+
+        var values = value.split(' '), c;
+
+        return Mk.each(this, values, function (i, v) {
+            this.each(function (x, el) {
+                el.classList.add(v);
+            });
+        });
+    },
+
+    removeClass: function (value) {
+
+        var values = value.split(' '), c, _v;
+
+        return Mk.each(this, values, function (i, v) {
+            this.each(function (x, el) {
+                el.classList.remove(v);
+            });
+        });
+    },
+
+    appendTo: function (s, c) {
+
+        var elem = new Dom(s, c)[0] || null;
+
+        if (elem) {
+            this.each(function (i, el) {
+                elem.appendChild(el);
+            });
+        }
+        return this;
+    },
+
+    prependTo: function (s, c) {
+
+        var elem = new Dom(s, c)[0] || null;
+
+        if (elem) {
+            this.each(function (i, el) {
+                if (elem.firstChild) {
+                    elem.insertBefore(el, elem.firstChild);
+                    return;
+                }
+                elem.appendChild(el);
+            });
+        }
+        return this;
+    },
+
+    append: function (s, c) {
+
+        if (this.length) {
+
+            var elem = this[this.length - 1];
+
+            new Dom(s, c).each(function (i, el) {
+                elem.appendChild(el);
+            });
+        }
+        return this;
+    },
+
+    prepend: function (s, c) {
+
+        if (this.length) {
+
+            var elem = this[this.length - 1];
+
+            new Dom(s, c).each(function (i, el) {
+                if (elem.firstChild) {
+                    elem.insertBefore(el, elem.firstChild);
+                    return;
+                }
+                elem.appendChild(el);
+            });
+        }
+        return this;
+    },
+
+    remove: function (s) {
+
+        var o = this, e;
+
+        if (arguments.length) {
+            o = new Dom(s, this);
+        }
+
+        o.each(function (i, el) {
+            remove(el);
+        });
+        return this;
+    },
+
+    on: function (t, d, h) {
+
+        if (!h) {
+            h = d;
+            d = null;
+        }
+
+        return this.each(function (i, el) {
+            Dom.on(el, t, '', h, false, d);
+        });
+    },
+
+    one: function (t, d, h) {
+
+        if (!h) {
+            h = d;
+            d = null;
+        }
+
+        return this.each(function (i, el) {
+            Dom.on(el, t, '', h, true, d);
+        });
+    },
+
+    off: function (t, h) {
+        return this.each(function (i, el) {
+            Dom.off(el, t, h);
+        });
+    },
+
+    emit: function (t, d) {
+        return this.each(function (i, el) {
+            Dom.emit(el, t, d);
+        });
+    }
+};
+
+
+Mk.$ = function (s, c) {
+    return new Dom(s, c);
+};

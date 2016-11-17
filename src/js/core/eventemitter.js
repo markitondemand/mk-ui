@@ -4,7 +4,7 @@
 // and JavaScript event UI
 // --------------------------------------------------
 
-var eventEmitter = {
+Mk.eventEmitter = {
 
     xname: /^(\w+)\.?/,
 
@@ -12,15 +12,15 @@ var eventEmitter = {
 
     _add: function ( bucket, name, handler, context, single ) {
 
-        var e = this.e( name );
+        var e = this.e(name);
 
-        if ( bucket.hasOwnProperty( e.name ) !== true ) {
-             bucket[ e.name ] = [];
+        if (bucket.hasOwnProperty(e.name) !== true) {
+             bucket[e.name] = [];
         }
 
-        bucket[ e.name ].push({
+        bucket[e.name].push({
             ns: e.ns || undefined,
-            handler: handler || function () {},
+            handler: handler || Mk.noop,
             context: context || null,
             single: single === true
         });
@@ -37,7 +37,7 @@ var eventEmitter = {
     args: function (args) {
 
         for( var i = 0, a = [], l = args.length;
-                i < l && a.push( args[ i ] );
+                i < l && a.push(args[ i ]);
                 i++) { }
 
         return a;
@@ -53,18 +53,20 @@ var eventEmitter = {
 
     off: function off (bucket, event, handler) {
 
-        var e = this.e(event), stack, item, ns;
+        var e = this.e(event),
+            i = 0, stack, item, ns, l;
 
-        if (bucket.hasOwnProperty(e.name)) {
+        if (hasOwn.call(bucket, e.name)) {
 
-            stack = bucket[ e.name ];
-            ns = e.ns || undefined;
+            stack = bucket[e.name];
+            ns = e.ns || undf;
+            l = stack.length;
 
-            for (var i = 0, l = stack.length; i < l; i++) {
+            for (; i < l; i++) {
 
-                item = stack[ i ];
+                item = stack[i];
 
-                if (item.ns === ns && (typeof handler === 'undefined' || handler === item.handler)) {
+                if (item.ns === ns && (Mk.type(handler, 'u') || handler === item.handler)) {
                     stack.splice(i, 1);
                     l = stack.length;
                     i--;
@@ -78,13 +80,15 @@ var eventEmitter = {
         var args = this.args(argz),
             event = args.shift(),
             e = this.e( event ),
-            stack, item;
+            i = 0,
+            stack, item, l;
 
-        if (bucket.hasOwnProperty(e.name)) {
+        if (hasOwn.call(bucket, e.name)) {
 
             stack = bucket[e.name];
+            l = stack.length;
 
-            for (var i = 0, l = stack.length; i < l; i++) {
+            for (; i < l; i++) {
 
                 item = stack[ i ];
 
@@ -93,10 +97,8 @@ var eventEmitter = {
                     item.handler.apply(item.context || root, args);
 
                     if (item.single) {
-
                         stack.splice(i, 1);
-                        l = stack.length;
-                        i--;
+                        l--; i--;
                     }
                 }
             }

@@ -3,48 +3,49 @@
 // simple device checking
 //
 
-var agent  = navigator.userAgent,
-    device = {
+var agent = navigator.userAgent;
 
-        agentexp: /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
+Mk.device = {
 
-        get is () {
-            return this.agentexp.test(agent)
-        },
+    agentexp: /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
 
-        get isAndroid () {
-            return this.id === 'android';
-        },
+    get is () {
+        return this.agentexp.test(agent)
+    },
 
-        get isWebos () {
-            return this.id === 'webos';
-        },
+    get isAndroid () {
+        return this.id === 'android';
+    },
 
-        get isiPhone () {
-            return this.id === 'iphone';
-        },
+    get isWebos () {
+        return this.id === 'webos';
+    },
 
-        get isiPad () {
-            return this.id === 'ipad';
-        },
+    get isiPhone () {
+        return this.id === 'iphone';
+    },
 
-        get isiPod () {
-            return this.id === 'ipod';
-        },
+    get isiPad () {
+        return this.id === 'ipad';
+    },
 
-        get isBlackberry () {
-            return this.id === 'blackberry';
-        },
+    get isiPod () {
+        return this.id === 'ipod';
+    },
 
-        get isIEMobile () {
-            return this.id === 'iemobile';
-        },
+    get isBlackberry () {
+        return this.id === 'blackberry';
+    },
 
-        get isOperaMini () {
-            return this.id === 'opera mini';
-        },
+    get isIEMobile () {
+        return this.id === 'iemobile';
+    },
 
-        get id () {
-            return ((this.agentexp.exec(agent) || [])[1] || '').toLowerCase();
-        }
+    get isOperaMini () {
+        return this.id === 'opera mini';
+    },
+
+    get id () {
+        return ((this.agentexp.exec(agent) || [])[1] || '').toLowerCase();
+    }
 };

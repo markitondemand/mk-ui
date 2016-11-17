@@ -6,22 +6,22 @@
 // a dynamic method allowing super object references.
 // -------------------------------------------------------------
 
-function property (obj, proto, member) {
+Mk.property = function (obj, proto, member) {
 
     var desc = Object.getOwnPropertyDescriptor(proto, member),
         prop, fn;
 
-    if (typeof desc.get !== 'undefined') {
+    if (!Mk.type(desc.get, 'u')) {
         return Object.defineProperty(obj, member, desc);
     }
 
     prop = proto[member];
 
-    if (!basicFunction(prop)) {
-        return obj[member] = copy(prop);
+    if (!Mk.type(prop, 'bf')) {
+        return obj[member] = Mk.copy(prop);
     }
 
-    fn = wrapFunction(prop, member);
+    fn = Mk.wrapFunction(prop, member);
 
     Object.defineProperty(obj, member, {
 
@@ -33,10 +33,9 @@ function property (obj, proto, member) {
 
             var v = value;
 
-            if (basicFunction(value)) {
+            if (MK.type(value, 'bf')) {
                 v = wrapFunction(value);
             }
-
             fn = v;
         }
     });
@@ -46,7 +45,7 @@ function property (obj, proto, member) {
 // wrap vanilla functions to allow super() cabability
 //
 
-function wrapFunction (fn, m) {
+Mk.wrapFunction = function (fn, m) {
 
     if (fn._id_) {
         return fn;
@@ -63,12 +62,11 @@ function wrapFunction (fn, m) {
         return r;
     };
 
-    func._id_ = uid();
+    func._id_ = Mk.uid();
 
     func.toString = function () {
         return fn.toString();
     };
-
     return func;
 }
 
@@ -78,7 +76,7 @@ function wrapFunction (fn, m) {
 // with nested functions (functions calling other functions calling super)
 //
 
-function pushsuper (m) {
+Mk.pushSuper = function (m) {
 
     var ch = this._chain_ = this._chain_ || [],
         st = this._stack_ = this._stack_ || [],
@@ -109,14 +107,13 @@ function pushsuper (m) {
 // to keep super() context in place
 //
 
-function popsuper (m) {
+Mk.popSuper = function (m) {
 
     var ch = this._chain_ = this._chain_ || [],
         st = this._stack_ = this._stack_ || [],
         i  = ch.lastIndexOf(m);
 
     if (i > -1) {
-
         ch.splice(i, 1);
         st.splice(i, 1);
     }

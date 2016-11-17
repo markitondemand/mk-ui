@@ -33,7 +33,7 @@ var _d = /{{([^{]+)}}/g;
 var _n = /{{([^}]+)}}(.*)({{\/\1}})/g;
 var _s = /[\r|\t|\n]+/g;
 
-function template (n, k, t, d) {
+Mk.template = function (n, k, t, d) {
 
     n = n || '';
     t = t || {};
@@ -41,72 +41,67 @@ function template (n, k, t, d) {
 
     d.$key = k;
 
-    var tmp = template.get(n, t);
+    var tmp = Mk.template.get(n, t);
 
     tmp = tmp.replace(_s, '');
 
     tmp = tmp.replace(_n, function (s, c, h) {
-        return template.statements(s, k, c, h, t, d);
+        return Mk.template.statements(s, k, c, h, t, d);
     });
 
     tmp = tmp.replace(_d, function (s, c) {
-        return template.inject(s, k, c, t, d)
+        return Mk.template.inject(s, k, c, t, d)
     });
-
     return tmp;
 }
 
-// find template
-
-template.get = function (n, t) {
+Mk.template.get = function (n, t) {
 
     var tmp = n;
 
     if (t && t.hasOwnProperty(n)) {
         tmp = t[n];
     }
-
     if (tmp instanceof Array) {
         tmp = tmp.join('');
     }
-
     return tmp;
 };
 
 // parse statements only (handlbars that open/close)
 
-template.statements = function (s, k, c, h, t, d) {
+Mk.template.statements = function (s, k, c, h, t, d) {
 
     var p = c.split(':'),
         x = p[ 0 ],
         a = p[ 1 ];
 
-    if (template.map.hasOwnProperty(x)) {
+    if (hasOwn.call(Mk.template.map, x)) {
         //if statements get special handling and passed the entire object
-        return template.map[ x ]( h, k, t, x == 'if' ? d : (d[ a ] || d), a );
+        return Mk.template.map[ x ]( h, k, t, x == 'if' ? d : (d[ a ] || d), a );
     }
     return '';
 };
 
 // parse injections (handlebars that are self closing)
 
-template.inject = function (s, k, c, t, d) {
+Mk.template.inject = function (s, k, c, t, d) {
 
     var p = c.split( ':' ),
         x = p[ 0 ],
         a = p[ 1 ];
 
-    if (a && template.map.hasOwnProperty(x)) {
-        return template.map[x](a, k, t, d, a);
+    if (a && hasOwn.call(Mk.template.map, x)) {
+        return Mk.template.map[x](a, k, t, d, a);
     }
 
-    if (d.hasOwnProperty(x) && (typeof d[x] !== 'undefined') && d[x] !== null) {
+    if (hasOwn.call(d, x) && (!Mk.type(d[x], 'u')) && d[x] !== null) {
         return d[x];
     }
     return '';
 };
 
-template.markup = {
+Mk.template.markup = {
 
     highlight: [
         '<span class="highlight">',
@@ -125,32 +120,28 @@ template.markup = {
 // allowed in templates
 //
 
-template.map = {
+Mk.template.map = {
 
     'loop': function (h, k, t, d, a) {
 
-
         var b = [], i, x, l, di, idx;
 
-        if (typeof d === 'number' || (x = parseInt(a, 10)) > -1) {
-
+        if (Mk.type(d, 'n') || (x = parseInt(a, 10)) > -1) {
             for (i = 0; i < (x || d); i++) {
                 d.$index = i;
-                b.push(template(h, k, t, d));
+                b.push(Mk.template(h, k, t, d));
             }
         }
         else if (d instanceof Array) {
-
             for(i = 0, l = d.length; i < l; i++) {
 
                 di = d[i];
 
-                if (typeof di !== 'object') {
+                if (typeof di != 'object') {
                     di = {key: '', value: d[i]};
                 }
-
                 di.$index = i;
-                b.push(template(h, k, t, di));
+                b.push(Mk.template(h, k, t, di));
             }
         }
         else {
@@ -158,7 +149,7 @@ template.map = {
 
                 idx = idx || 0;
 
-                b.push(template(h, k, t, {
+                b.push(Mk.template(h, k, t, {
                     key: i,
                     value: d[i],
                     $index: idx++
@@ -170,13 +161,13 @@ template.map = {
 
     'if': function (h, k, t, d, a) {
 
-        if (d.hasOwnProperty(a)) {
+        if (hasOwn.call(d, a)) {
 
             var dp = d[a];
 
-            if ((dp !== undefined && dp !== null && dp !== '' && dp !== false)
+            if ((dp !== void+1 && dp !== null && dp !== '' && dp !== false)
                 || (dp instanceof Array && dp.length > 0)) {
-                return template(h, k, t, d);
+                return Mk.template(h, k, t, d);
             }
         }
         return '';
@@ -188,17 +179,17 @@ template.map = {
             v  = d[h], w;
 
         if (hl) {
-            w = template.get('highlight', template.markup);
+            w = Mk.template.get('highlight', Mk.template.markup);
             v = v.replace(new RegExp('(' + hl + ')', 'gi'), w);
         }
         return v;
     },
 
     'scope': function (h, k, t, d, a) {
-        return template(h, k, t, d);
+        return Mk.template(h, k, t, d);
     },
 
     'template': function (h, k, t, d, a) {
-        return template(h, k, t, d);
+        return Mk.template(h, k, t, d);
     }
 };

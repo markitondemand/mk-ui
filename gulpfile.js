@@ -16,28 +16,49 @@ var gulp   = require('gulp'),
 			original: '.js',
 			minified: '.min.js'
 		},
+		'dom': {
+			files: [
+				'./src/js/core/dom/intro.js',
+				'./src/js/core/dom/data.js',
+				'./src/js/core/dom/remove.js',
+				'./src/js/core/dom/ajax.js',
+				'./src/js/core/dom/events.js',
+				'./src/js/core/dom/core.js',
+				'./src/js/core/dom/outro.js'
+			]
+		},
 		'core': {
 			files: [
 				'./src/js/core/intro.js',
-				'./src/js/core/helpers.js',
-				'./src/js/core/transitions.js',
+				'./src/js/core/uid.js',
+				'./src/js/core/type.js',
+				'./src/js/core/copy.js',
+				'./src/js/core/each.js',
 				'./src/js/core/property.js',
 				'./src/js/core/templates.js',
 				'./src/js/core/eventemitter.js',
+				'./src/js/core/transitions.js',
 				'./src/js/core/device.js',
 				'./src/js/core/dom.js',
-				'./src/js/core/definition.js',
+				'./src/js/core/statics.js',
 				'./src/js/core/prototype.js',
 				'./src/js/core/outro.js'
 			]
 		}
 	};
 
-gulp.task('concat', function () {
+gulp.task('build-core', function () {
 
 	gulp.src(paths.core.files)
 		.pipe(concat('core.js'))
 		.pipe(gulp.dest('./src/js'))
+});
+
+gulp.task('build-dom', function () {
+
+	gulp.src(paths.dom.files)
+		.pipe(concat('dom.js'))
+		.pipe(gulp.dest('./src/js/core'))
 });
 
 gulp.task('minify', function () {

@@ -6,30 +6,32 @@
 // transitions are enabled
 // --------------------------------------------------
 
-function transition () {
+Mk.transition = function () {
 
-    if (transition.enabled) {
+    var tr = Mk.transition;
 
-        if (transition.key) {
-            return transition.key;
+    if (tr.enabled) {
+
+        if (tr.key) {
+            return tr.key;
         }
 
         var el = document.createElement('xanimate'), t;
 
-        for (t in transition.keys) {
+        for (t in tr.keys) {
             if (typeof el.style[t] !== 'undefined') {
-                return transition.key = transition.keys[t];
+                return tr.key = tr.keys[t];
             }
         }
     }
     return null;
 }
 
-transition.enabled = false;
+Mk.transition.enabled = false;
 
-transition.key = null;
+Mk.transition.key = null;
 
-transition.keys = {
+Mk.transition.keys = {
     'transition': 'transitionend',
     'OTransition': 'oTransitionEnd',
     'MozTransition': 'transitionend',

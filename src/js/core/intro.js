@@ -39,3 +39,11 @@
 	}
 
 })( typeof window !== "undefined" ? window : this, function (root, $) {
+
+	var noop = function () {},
+		hasOwn = {}.hasOwnProperty,
+		undf = void+1;
+
+	function Mk () {}
+
+	Mk.noop = function () {};

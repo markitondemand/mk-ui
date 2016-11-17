@@ -40,11 +40,11 @@ Mk.prototype = {
     root: null,
 
     get _pushsuper_ () {
-        return Mk._pushsuper;
+        return Mk.pushSuper;
     },
 
     get _popsuper_ () {
-        return Mk._popsuper;
+        return Mk.popSuper;
     },
     /*
     <property:super>
@@ -67,7 +67,7 @@ Mk.prototype = {
     </property:super>
     */
     get keycode () {
-        return Mk._keycodes;
+        return Mk.keycodes;
     },
     /*
     <property:transitions>
@@ -75,7 +75,7 @@ Mk.prototype = {
     </property:transitions>
     */
     get transitions () {
-        return Mk._transition.enabled;
+        return Mk.transition.enabled;
     },
     /*
     <property:version>
@@ -99,7 +99,7 @@ Mk.prototype = {
     </property:device>
     */
     get device () {
-        return Mk._device;
+        return Mk.device;
     },
     /*
     <method:$>
@@ -116,7 +116,7 @@ Mk.prototype = {
     </method:$>
     */
     $: function (s, c) {
-        return new Mk._$( s, c );
+        return new Mk.$(s, c);
     },
     /*
     <method:uid>
@@ -125,7 +125,7 @@ Mk.prototype = {
     </method:uid>
     */
     uid: function () {
-        return Mk._uid();
+        return Mk.uid();
     },
     /*
     <method:copy>
@@ -138,7 +138,7 @@ Mk.prototype = {
     </method:copy>
     */
     copy: function (o) {
-        return Mk._copy( o );
+        return Mk.copy(o);
     },
     /*
     <method:template>
@@ -155,7 +155,7 @@ Mk.prototype = {
     </method:template>
     */
     template: function (n, d) {
-        return Mk._template(
+        return Mk.template(
             n, this.name, this.config.templates, d) ;
     },
     /*
@@ -173,7 +173,7 @@ Mk.prototype = {
     </method:format>
     */
     format: function (n, d) {
-        return Mk._template(
+        return Mk.template(
             n, this.name, this.config.formats, d);
     },
     /*
@@ -208,7 +208,7 @@ Mk.prototype = {
     </method:each>
     */
     each: function (who, fn) {
-        return Mk._each(this, who, fn);
+        return Mk.each(this, who, fn);
     },
     /*
     <method:node>
@@ -257,7 +257,7 @@ Mk.prototype = {
     transition: function (node, cb) {
 
         var $n = this.$(node),
-             t = Mk._transition(),
+             t = Mk.transition(),
              c = this;
 
         cb = cb || function () {};
@@ -294,7 +294,7 @@ Mk.prototype = {
     */
     clearTransitions: function (n) {
 
-        var t = Mk._transition();
+        var t = Mk.transition();
 
         if (t) {
             this.$(n).off(t);
@@ -349,9 +349,9 @@ Mk.prototype = {
         <desc>Binds a handler to an event type through the Event Emitter. Allows for namespaced events.</desc>
     </method:on>
     */
-    on: function ( event, handler ) {
+    on: function (event, handler) {
 
-        Mk._eventEmitter.on(
+        Mk.eventEmitter.on(
             this.events,
             event,
             handler,
@@ -373,9 +373,9 @@ Mk.prototype = {
         <desc>Binds a handler to an event type through the Event Emitter. Once fired, an event bound through one() will be removed. Allows for namespaced events.</desc>
     </method:one>
     */
-    one: function ( event, handler ) {
+    one: function (event, handler) {
 
-        Mk._eventEmitter.one(
+        Mk.eventEmitter.one(
             this.events,
             event,
             handler,
@@ -397,9 +397,9 @@ Mk.prototype = {
         <desc>Removes a handler (or all handlers) from an event type.</desc>
     </method:off>
     */
-    off: function ( event, handler ) {
+    off: function (event, handler) {
 
-        Mk._eventEmitter.off(
+        Mk.eventEmitter.off(
             this.events,
             event,
             handler
@@ -420,9 +420,9 @@ Mk.prototype = {
         <desc>Invokes handler(s) bound to event type.</desc>
     </method:emit>
     */
-    emit: function ( event /*, arguments */ ) {
+    emit: function (event /*, arguments */) {
 
-        Mk._eventEmitter.emit(
+        Mk.eventEmitter.emit(
             this.events, arguments);
         return this;
     },
@@ -440,11 +440,11 @@ Mk.prototype = {
         <desc>Internal, private, method used as a contructor. Useful when building your own custom components. Invoked internally only.</desc>
     </method:_init>
     */
-    _init: function ( r, o ) {
+    _init: function (r, o) {
 
         // define properties such as:
         // templates, formats, name, etc.
-        this._define( r, o );
+        this._define(r, o);
 
         //build markup or invoke logic
         this._build();
@@ -466,9 +466,9 @@ Mk.prototype = {
         <desc>A setup function called by _init. This initializes the root, events, config object, formats, templates, etc. Invoked internally only.</desc>
     </method:_define>
     */
-    _define: function ( r, o ) {
+    _define: function (r, o) {
 
-        this.root = this.$( r );
+        this.root = this.$(r);
 
         this.events = {};
 
@@ -477,11 +477,11 @@ Mk.prototype = {
             formats: {}
         };
 
-        this.each(this.formats, function ( n, v ) {
+        this.each(this.formats, function (n, v) {
             this.config.formats[ n ] = v;
         });
 
-        this.each(this.templates, function ( n, v ) {
+        this.each(this.templates, function (n, v) {
             this.config.templates[ n ] = v;
         });
 
