@@ -627,28 +627,6 @@
 			}
 		},
 
-		keyIsBehavior: function (w) {
-
-			var k = this.keycode;
-
-			switch (w) {
-
-				case k.space:
-				case k.tab:
-					return 0;
-
-				case k.enter:
-				case k.up:
-				case k.down:
-				case k.left:
-				case k.right:
-				case k.esc:
-					return 1;
-			}
-
-			return -1;
-		},
-
 		blur: function () {
 
 			if (this.disabled) {
