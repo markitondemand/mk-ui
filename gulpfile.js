@@ -40,6 +40,7 @@ var gulp   = require('gulp'),
 				'./src/js/core/transitions.js',
 				'./src/js/core/device.js',
 				'./src/js/core/dom.js',
+				'./src/js/core/keycodes.js',
 				'./src/js/core/statics.js',
 				'./src/js/core/prototype.js',
 				'./src/js/core/outro.js'

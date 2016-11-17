@@ -479,12 +479,10 @@
 				if (this.disabled) {
 					return;
 				}
-
 				inFocus = false;
 				thiss.blur();
 			})
 			.on('mousedown.mk', function (e) {
-
 				focusedByMouse = true;
 
 				if (inFocus) {
@@ -494,11 +492,15 @@
 			})
 			.on('keydown.mk', function (e) {
 				thiss._keydown(e);
-			})
-			.on('keypress.mk', function (e) {
-				e.preventDefault();
-				thiss.search(String.fromCharCode(e.which), true);
 			});
+			//.on('keypress.mk', function (e) {
+//console.info(e)
+				//if (thiss.keyIsBehavior(e.which) < 0) {
+					//console.info(e.which, thiss.keyIsBehavior(e.which));
+					//e.preventDefault();
+					//thiss.search(String.fromCharCode(e.which), true);
+				//}
+			//});
 		},
 
 		_bindListEvents: function () {
@@ -558,8 +560,18 @@
 					break;
 
 				case k.tab:
-					this._tab(e);
+					if (this.isOpen) {
+						this._tab(e);
+					}
 					break;
+
+				default:
+
+					w = String.fromCharCode(w);
+console.info(w)
+					if (w) {
+						this.search(w, true);
+					}
 			}
 		},
 
@@ -621,6 +633,28 @@
 
 				this.hide();
 			}
+		},
+
+		keyIsBehavior: function (w) {
+
+			var k = this.keycode;
+
+			switch (w) {
+
+				case k.space:
+				case k.tab:
+					return 0;
+
+				case k.enter:
+				case k.up:
+				case k.down:
+				case k.left:
+				case k.right:
+				case k.esc:
+					return 1;
+			}
+
+			return -1;
 		},
 
 		blur: function () {

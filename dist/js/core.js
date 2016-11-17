@@ -3,16 +3,16 @@
 		<src>dist/js/core.js</src>
 	</file:js>
 */
-(function ( root, factory ) {
+(function (root, factory) {
 	//
 	// AMD support
 	// ---------------------------------------------------
 	if ( typeof define === 'function' && define.amd ) {
 
-		define( [ 'jquery' ], function ( $ ) {
+		define( 'mk', [], function () {
 			// assign to root in case there are global non-amd scripts on the page,
 			// which use Mk
-			return (root.Mk = factory( root, $ ));
+			return (root.Mk = factory(root));
 		});
 	}
 	//
@@ -22,23 +22,23 @@
 
 		module.exports = root.document ?
 
-			factory( root, require( 'jquery' ) ) :
+			factory(root) :
 
-			function( w ) {
-				if ( !w.document ) {
+			function (w) {
+				if (!w.document) {
 					throw new Error( "Mk requires a window with a document" );
 				}
-				return factory( w, require( 'jquery' ) );
+				return factory(w);
 			};
 	}
 	//
 	// Everybody else
 	// -----------------------------------------------------
 	else {
-		root.Mk = factory( root, root.jQuery );
+		root.Mk = factory(root);
 	}
 
-})( typeof window !== "undefined" ? window : this, function (root, $) {
+})( typeof window !== "undefined" ? window : this, function (root) {
 
 	var noop = function () {},
 		hasOwn = {}.hasOwnProperty,
@@ -1651,6 +1651,14 @@ Dom.prototype = {
 
 Mk.$ = function (s, c) {
     return new Dom(s, c);
+};
+
+
+Mk.keycodes = {
+    backspace: 8, tab: 9, enter: 13, esc: 27, space: 32,
+    pageup: 33, pagedown: 34, end: 35, home: 36,
+    left: 37, up: 38, right: 39, down: 40, left: 37, right: 39,
+    comma: 188
 };
 
 
