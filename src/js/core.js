@@ -827,36 +827,219 @@ var dom = (function () {
     // jsonp
     // -----------------------------------
 
-    function jsonp (url, fn, cx) {
-
-        var id = 'JSONP' + uid(),
-            s = doc.createElement('script');
-
-        s.type = 'text/javascript';
-        s.language = 'javascript';
-        s.async = true;
-        s.src = url;
-
-        var cb = function (data) {
-            fn.call(cx, data);
-            delete window[id];
-        };
-
-        window[id] = cb;
-        doc.documentElement.firstChild.appendChild(s);
-
-        return {
-            abort: function () {
-                if (s && s.parentNode) {
-                    s.parentNode.removeChild(s);
-                }
-                window[id] = function () {
-                    delete window[id];
-                };
-                window[id]();
-            }
-        }
+    function xhr (o) {
+        this.init(o);
     }
+
+    xhr.prototype = {
+
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
+        },
+
+        xhr: null,
+
+        open: false,
+
+        options: null,
+
+        url: function (u) {
+
+            u = (u || location.href);//.replace(/^http[s]?\:\/\//, '');
+
+            var t = u.lastIndexOf('/');
+
+            if (t > -1 && (t = u.indexOf('#')) > -1) {
+                u = u.substr(0, t)
+            }
+            return u;
+        },
+
+        qs: function (o) {
+
+            o = o || '';
+
+            if (typeof o !== 'string') {
+
+                var d = [];
+
+                each(this, o, function (n, v) {
+                    d.push(n + '=' + encodeURIComponent(v));
+                });
+
+                return d.join('&');
+            }
+            return o;
+        },
+
+        init: function (o) {
+
+            o = copy(o || {});
+
+            o.url = this.url(o.url);
+            o.method = (o.method || 'GET').toUpperCase();
+            o.type = o.type || 'html';
+            o.headers = o.headers || {};
+            o.async = o.async || true;
+            o.encode = o.encode || true;
+            o.encoding = o.encoding || 'utf-8';
+            o.user = o.user || '';
+            o.password = o.password || '';
+
+            if (o.data && o.method === 'GET') {
+                o.url  = o.url.indexOf('?') > -1 && o.url || o.url + '?';
+                o.url += o.data;
+                o.data = null;
+            }
+
+            each(this, this.headers, function (n, v) {
+                if (o.headers.hasOwnProperty(n) !== true) {
+                    o.headers[n] = v;
+                }
+            });
+
+            if (o.encode && ['POST', 'PUT'].indexOf(o.type) > -1) {
+                o.headers['Content-type'] =
+                    'application/x-www-form-urlencoded' + o.encoding
+            }
+
+            this.options = o;
+
+            if (o.now !== false) {
+                this.send();
+            }
+            return this;
+        },
+
+        jsonp: function jsonp () {
+
+            var x = this,
+                o = this.options,
+                s = doc.createElement('script'),
+                id = o.jsonpid = 'JSONP' + uid().replace(/\-/g, '');
+
+            s.type = 'text/javascript';
+            s.language = 'javascript';
+            s.async = o.async;
+            s.src = o.url + '&callback=' + id;
+            s.id = o.scriptid = uid();
+
+            var cb = function (data) {
+
+                x.response = data;
+                x.status = 200;
+                o.success.call(x, data, x.status, x);
+                s.parentNode.removeChild(s);
+                delete root[id];
+            };
+
+            root[id] = cb;
+
+            doc.documentElement.firstChild.appendChild(s);
+
+            this.open = true;
+            this.status = 0;
+
+            return this;
+        },
+
+        send: function () {
+
+            if (this.open) {
+                return this;
+            }
+
+            if (this.options.type === 'jsonp') {
+                return this.jsonp();
+            }
+
+            var xhr = this.xhr = new XMLHttpRequest(),
+                o = this.options,
+                x = this;
+
+            xhr.open(o.method, o.url, o.async, o.user, o.password);
+            xhr.onreadystatechange = function () {
+                x.stateChange();
+            };
+
+            if (o.user && 'withCredentials' in xhr) {
+                xhr.withCredentials = true;
+            }
+
+            each(this, o.headers, function (n, v) {
+                xhr.setRequestHeader(n, v);
+            });
+
+            x.open = true;
+            x.status = 0;
+
+            xhr.send(o.data);
+
+            if (o.async !== true) {
+                this.stateChange();
+            }
+            return this;
+        },
+
+        abort: function () {
+
+            if (this.xhr) {
+                this.xhr.abort();
+                return;
+            }
+
+            var x = this,
+                o = x.options,
+                s = doc.getElementById(o.scriptid),
+                id = o.jsonpid;
+
+            if (s) { s.parentNode.removeChild(s); }
+
+            root[id] = function () {
+                delete root[id];
+            };
+            root[id]();
+        },
+
+        stateChange: function () {
+
+            var xhr = this.xhr,
+                x = this,
+                o = x.options;
+
+            if (xhr.readyState !== 4) {
+                return;
+            }
+
+            x.status = xhr.status;
+
+            if (x.status === 1223) {
+                x.status = 204;
+            }
+
+            x.open = false;
+            x.response = xhr.responseText || '';
+
+            if (o.type === 'json') {
+
+                try {
+                    x.response = JSON.parse(x.response);
+                }
+                catch(e) {
+                    x.response = {message: 'error parsing response'};
+                }
+            }
+
+            xhr.onreadystatechange = function () {};
+
+            var args = x.status >= 200 && x.status < 300
+                ? [x.response || '', x.status, xhr]
+                : [x.status];
+
+            x.options.success.apply(x, args);
+        }
+    };
 
     //
     // dom events
@@ -1305,6 +1488,10 @@ var dom = (function () {
             return this.each(function (i, el) {
                 emit(el, t, d);
             });
+        },
+
+        ajax: function (o) {
+            return new xhr(o)
         }
     };
     return dom;

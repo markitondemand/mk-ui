@@ -56,4 +56,12 @@ module.exports = function ( express, app ) {
       });
   });
 
+  app.get('/ajax', function (req, res) {
+      res.write(JSON.stringify({
+          "status": 200,
+          "message": "success"
+      }));
+      res.end();
+  });
+
 };
