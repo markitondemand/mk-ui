@@ -555,18 +555,18 @@ Mk.prototype = {
             value = config[name];
         }
 
-        if (typeof value === 'undefined' && type !== 'undefined') {
-            value = (elem || this.root).data(name);
+        if (value === undf && type !== 'undefined') {
+            value = this.$(elem || this.root).data(name);
         }
 
         t = typeof value;
 
         if (t !== type) {
 
-            switch(t) {
+            switch(type) {
 
                 case 'boolean':
-                    value = value === 'true' || 'false';
+                    value = value === 'true' || false;
                     break;
 
                 case 'number':
@@ -574,7 +574,7 @@ Mk.prototype = {
                     break;
 
                 case 'string':
-                    value = value.toString();
+                    value = value + '';
 
                 case 'undefined':
                     value = defaultt;
@@ -586,9 +586,7 @@ Mk.prototype = {
                     break;
             }
         }
-
         config[name] = value;
-
         return this;
     },
     /*

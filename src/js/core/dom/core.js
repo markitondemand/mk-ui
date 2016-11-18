@@ -155,7 +155,7 @@ Dom.prototype = {
 
         return this.each(function (i, el) {
             while (el.firstChild) {
-                remove(el.firstChild);
+                Dom.remove(el.firstChild);
             }
             Mk.each(this, this.markup(s), function (x, f) {
                 el.appendChild(f);
@@ -349,7 +349,7 @@ Dom.prototype = {
         }
 
         o.each(function (i, el) {
-            remove(el);
+            Dom.remove(el);
         });
         return this;
     },

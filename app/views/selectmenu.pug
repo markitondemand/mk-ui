@@ -98,13 +98,13 @@ html
 							p
 								| Selectmenu comes with the opt-in ability for a Clear All option (text can be changed through format options).
 								| To consume this behavior simply add a data-removable="true" to your setup select element. Clear all only works with multiselects, since single selects always have a default value.
-							div.mk-sm-root
+							div.mk-sm-root#removable
 								select.mk-sm(aria-label="Animals", multiple="true", data-removable="true")
 									optgroup(label="Animals")
-										option(value="1", class="icon") Lions
-										option(value="2", class="icon", selected="true") Tigers
-										option(value="3", class="icon") Bears
-										option(value="4", class="icon") Wolves
+										option(value="1") Lions
+										option(value="2", selected="true") Tigers
+										option(value="3") Bears
+										option(value="4") Wolves
 				div.col-sm-6
 					section.panel
 						header.panel-heading
@@ -153,17 +153,17 @@ html
 
 			Mk.transitions(true);
 
-			var selects = $('.mk-sm-root'),
+			var selects  = Mk.$('.mk-sm-root'),
 				mkSelect = Mk.get('Selectmenu'),
 				select;
 
-			selects.each(function () {
+			selects.each(function (i, el) {
 
-				select = new mkSelect(this /*, options */);
+				select = new mkSelect(el /*, options */);
 
 				select.on('change', function () {
 					console.log('values: ', this.value);
 				});
 
-				$(this).data('select', select);
+				Mk.$(el).data('select', select);
 			});

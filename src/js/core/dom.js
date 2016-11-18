@@ -120,7 +120,7 @@ Dom.data = function (n, k, vl) {
         // undefined
         if (v === undf) {
             v = c[k] || n.getAttribute('data-' + k) || null;
-            c[k] = v;
+            //c[k] = v;
         }
         // remove key
         else if (vl === null) {
@@ -149,15 +149,15 @@ Dom.remove = function (n) {
 
     Mk.each(this, n.childNodes, function (i, c) {
         if (c && c.nodeType === 1) {
-            remove(c);
+            Dom.remove(c);
         }
     });
 
-    var d = data(n, null);
+    var d = Dom.data(n, null);
 
     if (d && d.events) {
         Mk.each(this, d.events, function (t, v) {
-            off(n, t);
+            Dom.off(n, t);
         });
     }
     n.parentNode.removeChild(n);
@@ -686,7 +686,7 @@ Dom.prototype = {
 
         return this.each(function (i, el) {
             while (el.firstChild) {
-                remove(el.firstChild);
+                Dom.remove(el.firstChild);
             }
             Mk.each(this, this.markup(s), function (x, f) {
                 el.appendChild(f);
@@ -880,7 +880,7 @@ Dom.prototype = {
         }
 
         o.each(function (i, el) {
-            remove(el);
+            Dom.remove(el);
         });
         return this;
     },

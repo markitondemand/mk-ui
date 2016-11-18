@@ -9,15 +9,15 @@ Dom.remove = function (n) {
 
     Mk.each(this, n.childNodes, function (i, c) {
         if (c && c.nodeType === 1) {
-            remove(c);
+            Dom.remove(c);
         }
     });
 
-    var d = data(n, null);
+    var d = Dom.data(n, null);
 
     if (d && d.events) {
         Mk.each(this, d.events, function (t, v) {
-            off(n, t);
+            Dom.off(n, t);
         });
     }
     n.parentNode.removeChild(n);

@@ -1,5 +1,14 @@
 
-.restrict-height .mk-sm-list {
+.mk-sm-shadow.restrict-height .mk-sm-list {
     height: 200px;
     overflow: auto;
+}
+
+.mk-sm-option.icon:before {
+    background: #d7d7d7;
+    border-radius: 80%;
+    content: 'i';
+    display: inline-block;
+    padding: 0 8px;
+    margin-right: 5px;
 }

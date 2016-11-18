@@ -243,7 +243,7 @@ Mk.property = function (obj, proto, member) {
             var v = value;
 
             if (MK.type(value, 'bf')) {
-                v = wrapFunction(value);
+                v = Mk.wrapFunction(value);
             }
             fn = v;
         }
@@ -295,7 +295,7 @@ Mk.pushSuper = function (m) {
         f  = this[m];
 
     if (i > -1) {
-        s = st[i].super.prototype._super_ || null;
+        s = st[i].super && st[i].super.prototype && st[i].super.prototype._super_ || null;
         p = s && s.prototype || {};
     }
 
@@ -307,8 +307,10 @@ Mk.pushSuper = function (m) {
         p = s && s.prototype || {};
     }
 
-    st.push({method: m, super: s});
-    ch.push(m);
+    if (s) {
+        st.push({method: m, super: s});
+        ch.push(m);
+    }
 }
 
 //
@@ -846,7 +848,7 @@ Dom.data = function (n, k, vl) {
         // undefined
         if (v === undf) {
             v = c[k] || n.getAttribute('data-' + k) || null;
-            c[k] = v;
+            //c[k] = v;
         }
         // remove key
         else if (vl === null) {
@@ -875,15 +877,15 @@ Dom.remove = function (n) {
 
     Mk.each(this, n.childNodes, function (i, c) {
         if (c && c.nodeType === 1) {
-            remove(c);
+            Dom.remove(c);
         }
     });
 
-    var d = data(n, null);
+    var d = Dom.data(n, null);
 
     if (d && d.events) {
         Mk.each(this, d.events, function (t, v) {
-            off(n, t);
+            Dom.off(n, t);
         });
     }
     n.parentNode.removeChild(n);
@@ -1412,7 +1414,7 @@ Dom.prototype = {
 
         return this.each(function (i, el) {
             while (el.firstChild) {
-                remove(el.firstChild);
+                Dom.remove(el.firstChild);
             }
             Mk.each(this, this.markup(s), function (x, f) {
                 el.appendChild(f);
@@ -1606,7 +1608,7 @@ Dom.prototype = {
         }
 
         o.each(function (i, el) {
-            remove(el);
+            Dom.remove(el);
         });
         return this;
     },
@@ -2299,18 +2301,18 @@ Mk.prototype = {
             value = config[name];
         }
 
-        if (typeof value === 'undefined' && type !== 'undefined') {
-            value = (elem || this.root).data(name);
+        if (value === undf && type !== 'undefined') {
+            value = this.$(elem || this.root).data(name);
         }
 
         t = typeof value;
 
         if (t !== type) {
 
-            switch(t) {
+            switch(type) {
 
                 case 'boolean':
-                    value = value === 'true' || 'false';
+                    value = value === 'true' || false;
                     break;
 
                 case 'number':
@@ -2318,7 +2320,7 @@ Mk.prototype = {
                     break;
 
                 case 'string':
-                    value = value.toString();
+                    value = value + '';
 
                 case 'undefined':
                     value = defaultt;
@@ -2330,9 +2332,7 @@ Mk.prototype = {
                     break;
             }
         }
-
         config[name] = value;
-
         return this;
     },
     /*

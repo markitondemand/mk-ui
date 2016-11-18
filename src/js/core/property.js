@@ -34,7 +34,7 @@ Mk.property = function (obj, proto, member) {
             var v = value;
 
             if (MK.type(value, 'bf')) {
-                v = wrapFunction(value);
+                v = Mk.wrapFunction(value);
             }
             fn = v;
         }
@@ -86,7 +86,7 @@ Mk.pushSuper = function (m) {
         f  = this[m];
 
     if (i > -1) {
-        s = st[i].super.prototype._super_ || null;
+        s = st[i].super && st[i].super.prototype && st[i].super.prototype._super_ || null;
         p = s && s.prototype || {};
     }
 
@@ -98,8 +98,10 @@ Mk.pushSuper = function (m) {
         p = s && s.prototype || {};
     }
 
-    st.push({method: m, super: s});
-    ch.push(m);
+    if (s) {
+        st.push({method: m, super: s});
+        ch.push(m);
+    }
 }
 
 //

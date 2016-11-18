@@ -504,8 +504,12 @@
 				e.preventDefault();
 			})
 			.on('click.mk', '[role="option"]', function (e) {
+
 				e.preventDefault();
-				if (thiss.transitioning(thiss.list)) { return; }
+
+				if (thiss.list.hasClass('out')) {
+					return;
+				}
 				thiss.select( this.getAttribute('data-value') );
 			});
 		},
@@ -515,7 +519,7 @@
 			var thiss = this;
 			this.list.find('[role="option"]').on('mouseenter.mk', function (e) {
 
-				if (thiss.transitioning(thiss.list)) {
+				if (thiss.list.hasClass('out')) {
 					return;
 				}
 				thiss.activate(this);
@@ -571,10 +575,6 @@
 
 			e.preventDefault();
 
-			if (this.isHidden) {
-				return this.show();
-			}
-
 			var active = this.items.find('.active'),
 				value = active.attr('data-value');
 
@@ -584,8 +584,11 @@
 			else if (this.multiple) {
 				this.deselect(value);
 			}
+			else {
+				return this.show();
+			}
 
-			if (this.multiple !== true) {
+			if (!this.multiple) {
 				return this.hide();
 			}
 		},
@@ -807,15 +810,16 @@
 
 		getElementByLabel: function (label) {
 
+			label = label.toLowerCase();
+
 			var s = this.selector('label'),
-				r = new RegExp('^' + label, 'i'),
 				o = null, l;
 
 			this.each(this.listOptions, function (i, option) {
 
-				l = this.$(option).find(s).text();
+				l = (this.$(option).find(s).text() || '').toLowerCase();
 
-				if (r.test(l)) {
+				if (l.indexOf(label) > -1) {
 					o = option; return false;
 				}
 			});
@@ -1060,10 +1064,10 @@
 			var t = this.trigger,
 				l = this.list;
 
-			if (this.disabled !== true && this.isHidden) {
+			if (!this.disabled && this.isHidden) {
 
 				this.transition(l, function () {
-					l.addClass('in');
+					l.removeClass('in');
 				});
 
 				this.delay(function () {
@@ -1071,7 +1075,7 @@
 					this.activate();
 
 					t.attr('aria-expanded', 'true');
-					l.attr('aria-hidden', 'false');
+					l.addClass('in').attr('aria-hidden', 'false');
 
 					this.emit('show');
 				});
@@ -1094,13 +1098,13 @@
 			if (this.isOpen) {
 
 				this.transition(l, function () {
-					l.removeClass('in');
+					l.removeClass('out');
 				});
 
 				this.delay(function () {
 
+					l.addClass('out').attr('aria-hidden', 'true');
 					t.attr('aria-expanded', 'false');
-					l.attr('aria-hidden', 'true');
 
 					this.emit('hide');
 				});
@@ -1140,13 +1144,15 @@
 
 		activate: function (n, keyboard) {
 
-			var position = false;
+			var position = false,
+				lo = this.listOptions;
 
-			if (typeof n === 'undefined') {
+			if (n === void+1) {
 
+				n = lo[0];
 				position = true;
 
-				this.each(this.listOptions, function(i, l) {
+				this.each(lo, function(i, l) {
 					if (l.getAttribute('aria-selected') === 'true') {
 						n = l; return false;
 					}
@@ -1158,8 +1164,8 @@
 			if (node.length && node.attr('aria-disabled') !== 'true') {
 
 				this.input.attr('aria-activedescendant', node.attr('id'));
-				this.listOptions.removeClass('active');
 
+				lo.removeClass('active');
 				node.addClass('active');
 
 				if (position) {
@@ -1202,7 +1208,6 @@
 					el.option.selected = false;
 					el.item.attr('aria-selected', 'false');
 
-					this.input.val(this.label());
 					this._updateRemovableAlt();
 
 					if (silent !== true) {
@@ -1286,15 +1291,16 @@
 
 			el.option.selected = true;
 
-			if (multiple !== true) {
+			if (!multiple) {
 				this.listOptions.attr('aria-selected', 'false');
+				this.updateLabel();
 			}
 
 			el.item.attr('aria-selected', 'true');
 
 			this.input
-				.attr('aria-activedescendant', el.item.attr('id'))
-				.val(this.label());
+				.attr('aria-activedescendant', el.item.attr('id'));
+
 
 			this._updateRemovableAlt();
 
@@ -1389,7 +1395,9 @@
 				l = this.html('list', d.list);
 
 			this.items.remove();
-			this.list.append(l.find(this.selector('item')));
+
+			this.list.append(
+				l.find(this.selector('item')));
 
 			this._bindListItemEvents();
 
@@ -1399,7 +1407,7 @@
 				'removable', 'boolean', this.config, false, this.selectmenu);
 
 			if (this.config.removable
-				&& this.items.find(this.selector('removable')).length > 0) {
+				&& this.items.find(this.selector('removable')).length < 1) {
 				this._buildRemovable();
 			}
 

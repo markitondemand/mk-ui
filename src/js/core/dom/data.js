@@ -22,7 +22,7 @@ Dom.data = function (n, k, vl) {
         // undefined
         if (v === undf) {
             v = c[k] || n.getAttribute('data-' + k) || null;
-            c[k] = v;
+            //c[k] = v;
         }
         // remove key
         else if (vl === null) {
