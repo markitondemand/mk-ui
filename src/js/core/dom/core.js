@@ -34,7 +34,7 @@ Dom.prototype = {
 
                 n = [];
 
-                Mk.each(this, c, function (i, el) {
+                Mk.each(this, c, function (el) {
                     n = n.concat(slice.call(el.querySelectorAll(s)));
                 });
             }
@@ -61,8 +61,8 @@ Dom.prototype = {
         var elems = new Dom(s, this.context),
             result = false;
 
-        this.each(function (i, el) {
-            elems.each(function (x, _el) {
+        this.each(function (el) {
+            elems.each(function (_el) {
                 if (el === _el) {
                     result = true; return false;
                 }
@@ -77,8 +77,8 @@ Dom.prototype = {
         var elems = new Dom(s, this.context),
             filtered = [];
 
-        this.each(function (i, el) {
-            elems.each(function (x, _el) {
+        this.each(function (el) {
+            elems.each(function (_el) {
                 if (el === _el) filtered.push(el);
             });
         });
@@ -93,10 +93,10 @@ Dom.prototype = {
 
             ps = new Dom(s, c);
 
-            this.each(function (i, el) {
+            this.each(function (el) {
 
                 while (el.parentNode) {
-                    ps.each(function (x, _el) {
+                    ps.each(function (_el) {
 
                         if (_el === el.parentNode) {
 
@@ -111,7 +111,7 @@ Dom.prototype = {
             });
         }
         else {
-            this.each(function (i, el) {
+            this.each(function (el) {
                 if (el.parentNode) p.push(el.parentNode);
             });
         }
@@ -153,11 +153,11 @@ Dom.prototype = {
             return null;
         }
 
-        return this.each(function (i, el) {
+        return this.each(function (el) {
             while (el.firstChild) {
                 Dom.remove(el.firstChild);
             }
-            Mk.each(this, this.markup(s), function (x, f) {
+            Mk.each(this, this.markup(s), function (f) {
                 el.appendChild(f);
             });
         });
@@ -172,7 +172,7 @@ Dom.prototype = {
             return null;
         }
 
-        return this.each(function (i, el) {
+        return this.each(function (el) {
             el.textContent = s;
         });
     },
@@ -194,7 +194,7 @@ Dom.prototype = {
             if (_v === undf) {
                 return this.length && this[0].getAttribute(_n);
             }
-            return this.each(function (i, el) {
+            return this.each(function (el) {
                 if (_v === null) {
                     el.removeAttribute(_n);
                     return;
@@ -209,7 +209,7 @@ Dom.prototype = {
             if (_v === undf) {
                 return this.length && this[0][_n] || null;
             }
-            return this.each(function (i, el) {
+            return this.each(function (el) {
                 el[_n] = _v;
             });
         });
@@ -221,7 +221,7 @@ Dom.prototype = {
             return this[0].value;
         }
 
-        return this.each(function(i, el) {
+        return this.each(function(el) {
             el.value = v;
         });
     },
@@ -231,7 +231,7 @@ Dom.prototype = {
             if (_v === undf) {
                 return Dom.data(this[0], _n);
             }
-            return this.each(function (i, el) {
+            return this.each(function (el) {
                 Dom.data(el, _n, _v);
             });
         });
@@ -242,7 +242,7 @@ Dom.prototype = {
             if (_v === undf && this.length) {
                 return getComputedStyle(this[0]).getPropertyValue(_v);
             }
-            return this.each(function (i, el) {
+            return this.each(function (el) {
                 el.style[_n] = Mk.type(_v, 'n') && (_v + 'px') || _v;
             });
         });
@@ -251,7 +251,7 @@ Dom.prototype = {
     hasClass: function (v) {
 
         var r = false;
-        this.each(function (i, el) {
+        this.each(function (el) {
             if (el.classList.contains(v)) {
                 r = true;
                 return false;
@@ -264,8 +264,8 @@ Dom.prototype = {
 
         var values = value.split(' '), c;
 
-        return Mk.each(this, values, function (i, v) {
-            this.each(function (x, el) {
+        return Mk.each(this, values, function (v) {
+            this.each(function (el) {
                 el.classList.add(v);
             });
         });
@@ -275,8 +275,8 @@ Dom.prototype = {
 
         var values = value.split(' '), c, _v;
 
-        return Mk.each(this, values, function (i, v) {
-            this.each(function (x, el) {
+        return Mk.each(this, values, function (v) {
+            this.each(function (el) {
                 el.classList.remove(v);
             });
         });
@@ -287,7 +287,7 @@ Dom.prototype = {
         var elem = new Dom(s, c)[0] || null;
 
         if (elem) {
-            this.each(function (i, el) {
+            this.each(function (el) {
                 elem.appendChild(el);
             });
         }
@@ -299,7 +299,7 @@ Dom.prototype = {
         var elem = new Dom(s, c)[0] || null;
 
         if (elem) {
-            this.each(function (i, el) {
+            this.each(function (el) {
                 if (elem.firstChild) {
                     elem.insertBefore(el, elem.firstChild);
                     return;
@@ -316,7 +316,7 @@ Dom.prototype = {
 
             var elem = this[this.length - 1];
 
-            new Dom(s, c).each(function (i, el) {
+            new Dom(s, c).each(function (el) {
                 elem.appendChild(el);
             });
         }
@@ -329,7 +329,7 @@ Dom.prototype = {
 
             var elem = this[this.length - 1];
 
-            new Dom(s, c).each(function (i, el) {
+            new Dom(s, c).each(function (el) {
                 if (elem.firstChild) {
                     elem.insertBefore(el, elem.firstChild);
                     return;
@@ -348,7 +348,7 @@ Dom.prototype = {
             o = new Dom(s, this);
         }
 
-        o.each(function (i, el) {
+        o.each(function (el) {
             Dom.remove(el);
         });
         return this;
@@ -361,7 +361,7 @@ Dom.prototype = {
             d = null;
         }
 
-        return this.each(function (i, el) {
+        return this.each(function (el) {
             Dom.on(el, t, '', h, false, d);
         });
     },
@@ -373,19 +373,19 @@ Dom.prototype = {
             d = null;
         }
 
-        return this.each(function (i, el) {
+        return this.each(function (el) {
             Dom.on(el, t, '', h, true, d);
         });
     },
 
     off: function (t, h) {
-        return this.each(function (i, el) {
+        return this.each(function (el) {
             Dom.off(el, t, h);
         });
     },
 
     emit: function (t, d) {
-        return this.each(function (i, el) {
+        return this.each(function (el) {
             Dom.emit(el, t, d);
         });
     }

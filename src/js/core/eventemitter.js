@@ -10,19 +10,19 @@ Mk.eventEmitter = {
 
     xns: /^\w+(\.?.*)$/,
 
-    _add: function ( bucket, name, handler, context, single ) {
+    _add: function (b, n, h, c, s) {
 
-        var e = this.e(name);
+        var e = this.e(n);
 
-        if (bucket.hasOwnProperty(e.name) !== true) {
-             bucket[e.name] = [];
+        if (!hasOwn.call(b, e.name)) {
+             b[e.name] = [];
         }
 
-        bucket[e.name].push({
+        b[e.name].push({
             ns: e.ns || undefined,
-            handler: handler || Mk.noop,
-            context: context || null,
-            single: single === true
+            handler: h || noop,
+            context: c || null,
+            single:  s === true
         });
     },
 
@@ -43,61 +43,60 @@ Mk.eventEmitter = {
         return a;
     },
 
-    on: function on(bucket, event, handler, context) {
-        return this._add(bucket, event, handler, context, false);
+    on: function on(b, e, h, c) {
+        return this._add(b, e, h, c, false);
     },
 
-    one: function(bucket, event, handler, context) {
-        return this._add(bucket, event, handler, context, true);
+    one: function(b, e, h, c) {
+        return this._add(b, e, h, c, true);
     },
 
-    off: function off (bucket, event, handler) {
+    off: function off (b, ev, h) {
 
-        var e = this.e(event),
-            i = 0, stack, item, ns, l;
+        var e = this.e(ev),
+            i = 0, s, item, ns, l;
 
-        if (hasOwn.call(bucket, e.name)) {
+        if (hasOwn.call(b, e.name)) {
 
-            stack = bucket[e.name];
+            s = b[e.name];
             ns = e.ns || undf;
-            l = stack.length;
+            l = s.length;
 
             for (; i < l; i++) {
 
-                item = stack[i];
+                item = s[i];
 
-                if (item.ns === ns && (Mk.type(handler, 'u') || handler === item.handler)) {
-                    stack.splice(i, 1);
-                    l = stack.length;
+                if (item.ns === ns && (Mk.type(h, 'u') || h === item.handler)) {
+                    s.splice(i, 1);
+                    l--;
                     i--;
                 }
             }
         }
     },
 
-    emit: function emit (bucket, argz /*, arguments */) {
+    emit: function emit (b, argz /*, arguments */) {
 
         var args = this.args(argz),
-            event = args.shift(),
-            e = this.e( event ),
-            i = 0,
-            stack, item, l;
+            ev = args.shift(),
+            e = this.e(ev),
+            i = 0, s, item, l;
 
-        if (hasOwn.call(bucket, e.name)) {
+        if (hasOwn.call(b, e.name)) {
 
-            stack = bucket[e.name];
-            l = stack.length;
+            s = b[e.name];
+            l = s.length;
 
             for (; i < l; i++) {
 
-                item = stack[ i ];
+                item = s[ i ];
 
                 if (!e.ns || item.ns === e.ns) {
 
                     item.handler.apply(item.context || root, args);
 
                     if (item.single) {
-                        stack.splice(i, 1);
+                        s.splice(i, 1);
                         l--; i--;
                     }
                 }

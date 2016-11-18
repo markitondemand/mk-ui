@@ -1,37 +1,44 @@
 
 //
+// each
 // loop arraylike objects, primitives,
 // and object instances over a callback function
 //
 
-Mk.each = function (ctx, obj, fn) {
+Mk.each = function (c, o, f) {
 
     var i = 0, l, r;
 
-    if (Mk.type(obj, 'al')) {
+    if (Mk.type(o, 'al')) {
 
-        l = obj.length;
+        l = o.length;
 
         for (; i < l; i++) {
 
-            r = fn.call(ctx, i, obj[i]);
+            r = f.call(c, o[i], i);
 
-            if (r === false) break;
+            if (r === false) {
+                break;
+            }
 
             if (r === -1) {
-                obj.splice(i, 1);
+                [].splice.call(o, i, 1);
                 i--; l--;
             }
         }
     }
     else {
-        for (i in obj) {
-            r = fn.call(ctx, i, obj[i]);
+        for (i in o) {
 
-            if (r === false) { break; }
-            else if (r === -1) { delete obj[i]; }
+            r = f.call(c, o[i], i);
+
+            if (r === false) {
+                break;
+            }
+            if (r === -1) {
+                delete o[i];
+            }
         }
     }
-
-    return ctx;
+    return c;
 }

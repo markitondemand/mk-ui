@@ -317,7 +317,7 @@
 
 				var values = [];
 
-				this.each(this.options, function(i, o) {
+				this.each(this.options, function(o) {
 					if (o.selected) values.push(o.value);
 				});
 				return values;
@@ -775,7 +775,7 @@
 
 			var index = 0;
 
-			this.each(this.listOptions, function (i, o) {
+			this.each(this.listOptions, function (o, i) {
 
 				if (o === n) {
 					index = i;
@@ -802,7 +802,7 @@
 			var c = node.children || [],
 				v = [];
 
-			this.each(c, function (i, o) {
+			this.each(c, function (o) {
 				v.push(o.value);
 			});
 			return v.join('|||');
@@ -815,7 +815,7 @@
 			var s = this.selector('label'),
 				o = null, l;
 
-			this.each(this.listOptions, function (i, option) {
+			this.each(this.listOptions, function (option) {
 
 				l = (this.$(option).find(s).text() || '').toLowerCase();
 
@@ -844,7 +844,7 @@
 				elems = {},
 				item;
 
-			this.each(items, function (i, el) {
+			this.each(items, function (el) {
 
 				item = this.$(el);
 
@@ -874,7 +874,7 @@
 
 			var option;
 
-			this.each(this.options, function (i, o) {
+			this.each(this.options, function (o) {
 				if (o.value === v) {
 					option = o; return false;
 				}
@@ -944,7 +944,7 @@
 			}
 
 			var l = '';
-			this.each(this.options, function (i, o) {
+			this.each(this.options, function (o) {
 				if (o.selected) {
 					l = o.text; return false;
 				}
@@ -983,7 +983,7 @@
 			items = items || [];
 			level = level || 0;
 
-			this.each(nodes, function(i, node) {
+			this.each(nodes, function(node) {
 
 				var tag = node.tagName.toLowerCase(),
 					role = tag === 'option' && 'option' || this.multiple && 'option' || 'presentation';
@@ -1152,7 +1152,7 @@
 				n = lo[0];
 				position = true;
 
-				this.each(lo, function(i, l) {
+				this.each(lo, function(l) {
 					if (l.getAttribute('aria-selected') === 'true') {
 						n = l; return false;
 					}
@@ -1235,7 +1235,7 @@
 
 		deselectAll: function (silent) {
 
-			this.each(this.options, function (i, o) {
+			this.each(this.options, function (o) {
 				o.selected = false;
 			});
 
@@ -1320,7 +1320,7 @@
 			var values = (value || '').split('|||');
 			var tally  = 0;
 
-			this.each(values, function (i, v) {
+			this.each(values, function (v) {
 
 				var elems = this.getElementsByValue(v);
 
@@ -1333,7 +1333,7 @@
 			});
 
 			if (tally === values.length) {
-				this.each(values, function (i, v) {
+				this.each(values, function (v) {
 					this.deselect(v);
 				});
 			}

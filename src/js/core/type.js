@@ -29,6 +29,10 @@ Mk.typemap = {
         return o instanceof Array;
     },
 
+    x: function (o) {
+        return o === null;
+    },
+
     o: function (o) {
 
         if (!o || o.toString().toLowerCase() !== "[object object]" ) {

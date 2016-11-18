@@ -1,7 +1,7 @@
 
 Mk.copy = function (o) {
 
-    var i, l ,r;
+    var i, l, r;
 
     if (Mk.type(o, 'al')) {
 
@@ -21,6 +21,5 @@ Mk.copy = function (o) {
             l = true;
         }
     }
-
-    return r || o;
+    return l && r || o;
 }

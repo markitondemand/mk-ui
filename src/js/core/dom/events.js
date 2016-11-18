@@ -7,7 +7,7 @@ Dom.delegate = function (p, n, x) {
         r.s = true;
     }
     else {
-        new Dom(x, p).each(function (i, el) {
+        new Dom(x, p).each(function (el) {
 
             if (n === el || new Dom(n).parent(el).length) {
                 r.s = true;
@@ -69,7 +69,7 @@ Dom.event = function (n, a, t, s, f, o, x) {
 
     d = (Dom.data(n, 'events') || {})[t] || [];
 
-    Mk.each(this, d, function (i, o) {
+    Mk.each(this, d, function (o) {
         if (!s || s && o.ns === s) {
             if (!f || f === o.original) {
                 n.removeEventListener(t, o.handler);

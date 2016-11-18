@@ -116,7 +116,7 @@ Mk.prototype = {
     </method:$>
     */
     $: function (s, c) {
-        return new Mk.$(s, c);
+        return Mk.$(s, c);
     },
     /*
     <method:uid>
@@ -155,8 +155,7 @@ Mk.prototype = {
     </method:template>
     */
     template: function (n, d) {
-        return Mk.template(
-            n, this.name, this.config.templates, d) ;
+        return Mk.template(n, this.name, this.config.templates, d);
     },
     /*
     <method:format>
@@ -173,8 +172,7 @@ Mk.prototype = {
     </method:format>
     */
     format: function (n, d) {
-        return Mk.template(
-            n, this.name, this.config.formats, d);
+        return Mk.template(n, this.name, this.config.formats, d);
     },
     /*
     <method:html>
@@ -209,6 +207,40 @@ Mk.prototype = {
     */
     each: function (who, fn) {
         return Mk.each(this, who, fn);
+    },
+    /*
+    <method:map>
+        <invoke>.map(who, fn)</invoke>
+        <param:who>
+            <type>Mixed</type>
+            <desc>Object or Array-like object to iterate over.</desc>
+        </param:who>
+        <param:fn>
+            <type>Function</type>
+            <desc>Callback function run on each iteration.</desc>
+        </param:fn>
+        <desc>Loop objects and array-like objects and return a value on each iteraction to be 'mapped' to a new object (like Array's map). Return nothing, or undefined, to exclude adding anything for that iteration.</desc>
+    </method:map>
+    */
+    map: function (who, fn) {
+        return Mk.map(this, who, fn);
+    },
+    /*
+    <method:filter>
+        <invoke>.filter(who, fn)</invoke>
+        <param:who>
+            <type>Mixed</type>
+            <desc>Object or Array-like object to iterate over.</desc>
+        </param:who>
+        <param:fn>
+            <type>Function</type>
+            <desc>Callback function run on each iteration.</desc>
+        </param:fn>
+        <desc>Loop objects and array-like objects and return true or false to specify whether to filter the element out of the new return object. (like Array's filter).</desc>
+    </method:filter>
+    */
+    filter: function (who, fn) {
+        return Mk.filter(this, who, fn);
     },
     /*
     <method:node>
@@ -256,7 +288,7 @@ Mk.prototype = {
     */
     transition: function (node, cb) {
 
-        var $n = this.$(node),
+        var  n = this.$(node),
              t = Mk.transition(),
              c = this;
 
@@ -264,21 +296,21 @@ Mk.prototype = {
 
         if (t) {
 
-            $n.addClass('transition');
+            n.addClass('transition');
 
-            $n.one(t, function (e) {
-                $n.removeClass('transition');
-                cb.call(c, e, $n);
+            n.one(t, function (e) {
+                n.removeClass('transition');
+                cb.call(c, e, n);
             });
 
             return this;
         }
 
-        $n.removeClass('transition');
+        n.removeClass('transition');
 
-        return this.each($n, function (i, n) {
+        return this.each(n, function (_n) {
             setTimeout( function () {
-                cb.call(c, {}, c.$(n));
+                cb.call(c, null, c.$(_n));
             }, 1);
         });
     },
@@ -477,11 +509,11 @@ Mk.prototype = {
             formats: {}
         };
 
-        this.each(this.formats, function (n, v) {
+        this.each(this.formats, function (v, n) {
             this.config.formats[ n ] = v;
         });
 
-        this.each(this.templates, function (n, v) {
+        this.each(this.templates, function (v, n) {
             this.config.templates[ n ] = v;
         });
 
@@ -503,20 +535,22 @@ Mk.prototype = {
 
         o = o || {};
 
-        this.each(o, function (n, v) {
+        var c = this.config;
+
+        this.each(o, function (v, n) {
 
             var looped = false;
 
-            if (typeof v === 'object' && this.config.hasOwnProperty(n)) {
+            if (typeof v === 'object' && hasOwn.call(c, n)) {
 
-                this.each(v, function (k, vv) {
-                    this.config[n][k] = vv;
+                this.each(v, function (_v, k) {
+                    c[n][k] = _v;
                     looped = true;
                 });
             }
 
             if (looped === false) {
-                this.config[n] = v;
+                c[n] = v;
             }
         });
         return this;
@@ -551,7 +585,7 @@ Mk.prototype = {
 
         var value, t;
 
-        if (config.hasOwnProperty(name)) {
+        if (hasOwn.call(config, name)) {
             value = config[name];
         }
 

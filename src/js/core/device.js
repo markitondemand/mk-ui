@@ -3,14 +3,13 @@
 // simple device checking
 //
 
-var agent = navigator.userAgent;
+var agent = navigator.userAgent,
+    agentExp = /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i;
 
 Mk.device = {
 
-    agentexp: /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
-
     get is () {
-        return this.agentexp.test(agent)
+        return agentExp.test(agent);
     },
 
     get isAndroid () {
@@ -46,6 +45,6 @@ Mk.device = {
     },
 
     get id () {
-        return ((this.agentexp.exec(agent) || [])[1] || '').toLowerCase();
+        return ((agentExp.exec(agent) || [])[1] || '').toLowerCase();
     }
 };

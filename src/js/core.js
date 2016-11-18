@@ -4,21 +4,13 @@
 	</file:js>
 */
 (function (root, factory) {
-	//
-	// AMD support
-	// ---------------------------------------------------
-	if ( typeof define === 'function' && define.amd ) {
 
-		define( 'mk', [], function () {
-			// assign to root in case there are global non-amd scripts on the page,
-			// which use Mk
+	if ( typeof define === 'function' && define.amd ) {
+		define('mk', [], function () {
 			return (root.Mk = factory(root));
 		});
 	}
-	//
-	// CommonJS module support
-	// -----------------------------------------------------
-	else if ( typeof module === 'object' && module.exports ) {
+	else if (typeof module === 'object' && module.exports) {
 
 		module.exports = root.document ?
 
@@ -26,19 +18,16 @@
 
 			function (w) {
 				if (!w.document) {
-					throw new Error( "Mk requires a window with a document" );
+					throw new Error('Mk[ui] requires a window with a document');
 				}
 				return factory(w);
 			};
 	}
-	//
-	// Everybody else
-	// -----------------------------------------------------
 	else {
 		root.Mk = factory(root);
 	}
 
-})( typeof window !== "undefined" ? window : this, function (root) {
+})(typeof window !== 'undefined' && window || this, function (root) {
 
 	var noop = function () {},
 		hasOwn = {}.hasOwnProperty,
@@ -46,12 +35,14 @@
 
 	function Mk () {}
 
-	Mk.noop = function () {};
 
+Mk.uid = function () {
 
-Mk.uid = function uid () {
-    return 'xxxx-4xxx-yxxx'.replace( /[xy]/g, function(c) {
-        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3 | 0x8);
+    return 'xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
+
+        var r = Math.random() * 16 | 0,
+            v = c == 'x' && r || (r&0x3 | 0x8);
+
         return v.toString(16);
     });
 };
@@ -85,6 +76,10 @@ Mk.typemap = {
 
     a: function (o) {
         return o instanceof Array;
+    },
+
+    x: function (o) {
+        return o === null;
     },
 
     o: function (o) {
@@ -145,7 +140,7 @@ Mk.typemap = {
 
 Mk.copy = function (o) {
 
-    var i, l ,r;
+    var i, l, r;
 
     if (Mk.type(o, 'al')) {
 
@@ -165,47 +160,111 @@ Mk.copy = function (o) {
             l = true;
         }
     }
-
-    return r || o;
+    return l && r || o;
 }
 
 
 //
+// each
 // loop arraylike objects, primitives,
 // and object instances over a callback function
 //
 
-Mk.each = function (ctx, obj, fn) {
+Mk.each = function (c, o, f) {
 
     var i = 0, l, r;
 
-    if (Mk.type(obj, 'al')) {
+    if (Mk.type(o, 'al')) {
 
-        l = obj.length;
+        l = o.length;
 
         for (; i < l; i++) {
 
-            r = fn.call(ctx, i, obj[i]);
+            r = f.call(c, o[i], i);
 
-            if (r === false) break;
+            if (r === false) {
+                break;
+            }
 
             if (r === -1) {
-                obj.splice(i, 1);
+                [].splice.call(o, i, 1);
                 i--; l--;
             }
         }
     }
     else {
-        for (i in obj) {
-            r = fn.call(ctx, i, obj[i]);
+        for (i in o) {
 
-            if (r === false) { break; }
-            else if (r === -1) { delete obj[i]; }
+            r = f.call(c, o[i], i);
+
+            if (r === false) {
+                break;
+            }
+            if (r === -1) {
+                delete o[i];
+            }
+        }
+    }
+    return c;
+}
+
+
+Mk.map = function (c, o, f) {
+
+    var a, r, i;
+
+    if (Mk.type(o, 'al')) {
+
+        a = [];
+
+        Array.prototype.map.call(o, function (e, x, z) {
+
+            r = f.call(c, e, x, z);
+
+            if (r !== undf) {
+                a.push(r);
+            }
+        });
+    }
+    else {
+
+        a = {};
+
+        for (i in o) {
+
+            r = f.call(c, o[i], i, o);
+
+            if (r !== undf) {
+                a[i] = r;
+            }
         }
     }
 
-    return ctx;
-}
+    return a;
+};
+
+
+Mk.filter = function (c, o, f) {
+
+    if (Mk.type(o, 'al')) {
+        return Array.prototype.filter.call(o, function (e, i, a) {
+            f.call(c, e, i, a);
+        });
+    }
+
+    var n = {}, i, r;
+
+    for (i in o) {
+
+        r = f.call(c, o[i], i, o);
+
+        if (r === true) {
+            n[i] = o[i];
+        }
+    }
+
+    return n;
+};
 
 
 // property
@@ -373,17 +432,21 @@ Mk.template = function (n, k, t, d) {
 
     d.$key = k;
 
-    var tmp = Mk.template.get(n, t);
+    var me  = Mk.template,
+        tmp = me.get(n, t);
 
-    tmp = tmp.replace(_s, '');
+    tmp = tmp
 
-    tmp = tmp.replace(_n, function (s, c, h) {
-        return Mk.template.statements(s, k, c, h, t, d);
+    .replace(_s, '')
+
+    .replace(_n, function (s, c, h) {
+        return me.statements(s, k, c, h, t, d);
+    })
+
+    .replace(_d, function (s, c) {
+        return me.inject(s, k, c, t, d)
     });
 
-    tmp = tmp.replace(_d, function (s, c) {
-        return Mk.template.inject(s, k, c, t, d)
-    });
     return tmp;
 }
 
@@ -391,7 +454,7 @@ Mk.template.get = function (n, t) {
 
     var tmp = n;
 
-    if (t && t.hasOwnProperty(n)) {
+    if (t && hasOwn.call(t, n)) {
         tmp = t[n];
     }
     if (tmp instanceof Array) {
@@ -400,22 +463,17 @@ Mk.template.get = function (n, t) {
     return tmp;
 };
 
-// parse statements only (handlbars that open/close)
-
 Mk.template.statements = function (s, k, c, h, t, d) {
 
     var p = c.split(':'),
         x = p[ 0 ],
         a = p[ 1 ];
 
-    if (hasOwn.call(Mk.template.map, x)) {
-        //if statements get special handling and passed the entire object
+    if (hasOwn.call(this.map, x)) {
         return Mk.template.map[ x ]( h, k, t, x == 'if' ? d : (d[ a ] || d), a );
     }
     return '';
 };
-
-// parse injections (handlebars that are self closing)
 
 Mk.template.inject = function (s, k, c, t, d) {
 
@@ -423,11 +481,11 @@ Mk.template.inject = function (s, k, c, t, d) {
         x = p[ 0 ],
         a = p[ 1 ];
 
-    if (a && hasOwn.call(Mk.template.map, x)) {
+    if (a && hasOwn.call(this.map, x)) {
         return Mk.template.map[x](a, k, t, d, a);
     }
 
-    if (hasOwn.call(d, x) && (!Mk.type(d[x], 'u')) && d[x] !== null) {
+    if (hasOwn.call(d, x) && !Mk.type(d[x], 'u') && !Mk.type(d[x], 'x')) {
         return d[x];
     }
     return '';
@@ -538,19 +596,19 @@ Mk.eventEmitter = {
 
     xns: /^\w+(\.?.*)$/,
 
-    _add: function ( bucket, name, handler, context, single ) {
+    _add: function (b, n, h, c, s) {
 
-        var e = this.e(name);
+        var e = this.e(n);
 
-        if (bucket.hasOwnProperty(e.name) !== true) {
-             bucket[e.name] = [];
+        if (!hasOwn.call(b, e.name)) {
+             b[e.name] = [];
         }
 
-        bucket[e.name].push({
+        b[e.name].push({
             ns: e.ns || undefined,
-            handler: handler || Mk.noop,
-            context: context || null,
-            single: single === true
+            handler: h || noop,
+            context: c || null,
+            single:  s === true
         });
     },
 
@@ -571,61 +629,60 @@ Mk.eventEmitter = {
         return a;
     },
 
-    on: function on(bucket, event, handler, context) {
-        return this._add(bucket, event, handler, context, false);
+    on: function on(b, e, h, c) {
+        return this._add(b, e, h, c, false);
     },
 
-    one: function(bucket, event, handler, context) {
-        return this._add(bucket, event, handler, context, true);
+    one: function(b, e, h, c) {
+        return this._add(b, e, h, c, true);
     },
 
-    off: function off (bucket, event, handler) {
+    off: function off (b, ev, h) {
 
-        var e = this.e(event),
-            i = 0, stack, item, ns, l;
+        var e = this.e(ev),
+            i = 0, s, item, ns, l;
 
-        if (hasOwn.call(bucket, e.name)) {
+        if (hasOwn.call(b, e.name)) {
 
-            stack = bucket[e.name];
+            s = b[e.name];
             ns = e.ns || undf;
-            l = stack.length;
+            l = s.length;
 
             for (; i < l; i++) {
 
-                item = stack[i];
+                item = s[i];
 
-                if (item.ns === ns && (Mk.type(handler, 'u') || handler === item.handler)) {
-                    stack.splice(i, 1);
-                    l = stack.length;
+                if (item.ns === ns && (Mk.type(h, 'u') || h === item.handler)) {
+                    s.splice(i, 1);
+                    l--;
                     i--;
                 }
             }
         }
     },
 
-    emit: function emit (bucket, argz /*, arguments */) {
+    emit: function emit (b, argz /*, arguments */) {
 
         var args = this.args(argz),
-            event = args.shift(),
-            e = this.e( event ),
-            i = 0,
-            stack, item, l;
+            ev = args.shift(),
+            e = this.e(ev),
+            i = 0, s, item, l;
 
-        if (hasOwn.call(bucket, e.name)) {
+        if (hasOwn.call(b, e.name)) {
 
-            stack = bucket[e.name];
-            l = stack.length;
+            s = b[e.name];
+            l = s.length;
 
             for (; i < l; i++) {
 
-                item = stack[ i ];
+                item = s[ i ];
 
                 if (!e.ns || item.ns === e.ns) {
 
                     item.handler.apply(item.context || root, args);
 
                     if (item.single) {
-                        stack.splice(i, 1);
+                        s.splice(i, 1);
                         l--; i--;
                     }
                 }
@@ -679,14 +736,13 @@ Mk.transition.keys = {
 // simple device checking
 //
 
-var agent = navigator.userAgent;
+var agent = navigator.userAgent,
+    agentExp = /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i;
 
 Mk.device = {
 
-    agentexp: /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
-
     get is () {
-        return this.agentexp.test(agent)
+        return agentExp.test(agent);
     },
 
     get isAndroid () {
@@ -722,7 +778,7 @@ Mk.device = {
     },
 
     get id () {
-        return ((this.agentexp.exec(agent) || [])[1] || '').toLowerCase();
+        return ((agentExp.exec(agent) || [])[1] || '').toLowerCase();
     }
 };
 
@@ -875,7 +931,7 @@ Dom.remove = function (n) {
 
     var d;
 
-    Mk.each(this, n.childNodes, function (i, c) {
+    Mk.each(this, n.childNodes, function (c) {
         if (c && c.nodeType === 1) {
             Dom.remove(c);
         }
@@ -884,7 +940,7 @@ Dom.remove = function (n) {
     var d = Dom.data(n, null);
 
     if (d && d.events) {
-        Mk.each(this, d.events, function (t, v) {
+        Mk.each(this, d.events, function (v, t) {
             Dom.off(n, t);
         });
     }
@@ -933,7 +989,7 @@ Dom.xhr.prototype = {
 
             var d = [];
 
-            Mk.each(this, o, function (n, v) {
+            Mk.each(this, o, function (v, n) {
                 d.push(n + '=' + encodeURIComponent(v));
             });
             return d.join('&');
@@ -966,7 +1022,7 @@ Dom.xhr.prototype = {
             o.data = null;
         }
 
-        Mk.each(this, this.headers, function (n, v) {
+        Mk.each(this, this.headers, function (v, n) {
             if (hasOwn.call(o.headers, n) !== true) {
                 o.headers[n] = v;
             }
@@ -1062,7 +1118,7 @@ Dom.xhr.prototype = {
             xhr.withCredentials = true;
         }
 
-        Mk.each(this, o.headers, function (n, v) {
+        Mk.each(this, o.headers, function (v, n) {
             xhr.setRequestHeader(n, v);
         });
 
@@ -1157,7 +1213,7 @@ Dom.delegate = function (p, n, x) {
         r.s = true;
     }
     else {
-        new Dom(x, p).each(function (i, el) {
+        new Dom(x, p).each(function (el) {
 
             if (n === el || new Dom(n).parent(el).length) {
                 r.s = true;
@@ -1219,7 +1275,7 @@ Dom.event = function (n, a, t, s, f, o, x) {
 
     d = (Dom.data(n, 'events') || {})[t] || [];
 
-    Mk.each(this, d, function (i, o) {
+    Mk.each(this, d, function (o) {
         if (!s || s && o.ns === s) {
             if (!f || f === o.original) {
                 n.removeEventListener(t, o.handler);
@@ -1293,7 +1349,7 @@ Dom.prototype = {
 
                 n = [];
 
-                Mk.each(this, c, function (i, el) {
+                Mk.each(this, c, function (el) {
                     n = n.concat(slice.call(el.querySelectorAll(s)));
                 });
             }
@@ -1320,8 +1376,8 @@ Dom.prototype = {
         var elems = new Dom(s, this.context),
             result = false;
 
-        this.each(function (i, el) {
-            elems.each(function (x, _el) {
+        this.each(function (el) {
+            elems.each(function (_el) {
                 if (el === _el) {
                     result = true; return false;
                 }
@@ -1336,8 +1392,8 @@ Dom.prototype = {
         var elems = new Dom(s, this.context),
             filtered = [];
 
-        this.each(function (i, el) {
-            elems.each(function (x, _el) {
+        this.each(function (el) {
+            elems.each(function (_el) {
                 if (el === _el) filtered.push(el);
             });
         });
@@ -1352,10 +1408,10 @@ Dom.prototype = {
 
             ps = new Dom(s, c);
 
-            this.each(function (i, el) {
+            this.each(function (el) {
 
                 while (el.parentNode) {
-                    ps.each(function (x, _el) {
+                    ps.each(function (_el) {
 
                         if (_el === el.parentNode) {
 
@@ -1370,7 +1426,7 @@ Dom.prototype = {
             });
         }
         else {
-            this.each(function (i, el) {
+            this.each(function (el) {
                 if (el.parentNode) p.push(el.parentNode);
             });
         }
@@ -1412,11 +1468,11 @@ Dom.prototype = {
             return null;
         }
 
-        return this.each(function (i, el) {
+        return this.each(function (el) {
             while (el.firstChild) {
                 Dom.remove(el.firstChild);
             }
-            Mk.each(this, this.markup(s), function (x, f) {
+            Mk.each(this, this.markup(s), function (f) {
                 el.appendChild(f);
             });
         });
@@ -1431,7 +1487,7 @@ Dom.prototype = {
             return null;
         }
 
-        return this.each(function (i, el) {
+        return this.each(function (el) {
             el.textContent = s;
         });
     },
@@ -1453,7 +1509,7 @@ Dom.prototype = {
             if (_v === undf) {
                 return this.length && this[0].getAttribute(_n);
             }
-            return this.each(function (i, el) {
+            return this.each(function (el) {
                 if (_v === null) {
                     el.removeAttribute(_n);
                     return;
@@ -1468,7 +1524,7 @@ Dom.prototype = {
             if (_v === undf) {
                 return this.length && this[0][_n] || null;
             }
-            return this.each(function (i, el) {
+            return this.each(function (el) {
                 el[_n] = _v;
             });
         });
@@ -1480,7 +1536,7 @@ Dom.prototype = {
             return this[0].value;
         }
 
-        return this.each(function(i, el) {
+        return this.each(function(el) {
             el.value = v;
         });
     },
@@ -1490,7 +1546,7 @@ Dom.prototype = {
             if (_v === undf) {
                 return Dom.data(this[0], _n);
             }
-            return this.each(function (i, el) {
+            return this.each(function (el) {
                 Dom.data(el, _n, _v);
             });
         });
@@ -1501,7 +1557,7 @@ Dom.prototype = {
             if (_v === undf && this.length) {
                 return getComputedStyle(this[0]).getPropertyValue(_v);
             }
-            return this.each(function (i, el) {
+            return this.each(function (el) {
                 el.style[_n] = Mk.type(_v, 'n') && (_v + 'px') || _v;
             });
         });
@@ -1510,7 +1566,7 @@ Dom.prototype = {
     hasClass: function (v) {
 
         var r = false;
-        this.each(function (i, el) {
+        this.each(function (el) {
             if (el.classList.contains(v)) {
                 r = true;
                 return false;
@@ -1523,8 +1579,8 @@ Dom.prototype = {
 
         var values = value.split(' '), c;
 
-        return Mk.each(this, values, function (i, v) {
-            this.each(function (x, el) {
+        return Mk.each(this, values, function (v) {
+            this.each(function (el) {
                 el.classList.add(v);
             });
         });
@@ -1534,8 +1590,8 @@ Dom.prototype = {
 
         var values = value.split(' '), c, _v;
 
-        return Mk.each(this, values, function (i, v) {
-            this.each(function (x, el) {
+        return Mk.each(this, values, function (v) {
+            this.each(function (el) {
                 el.classList.remove(v);
             });
         });
@@ -1546,7 +1602,7 @@ Dom.prototype = {
         var elem = new Dom(s, c)[0] || null;
 
         if (elem) {
-            this.each(function (i, el) {
+            this.each(function (el) {
                 elem.appendChild(el);
             });
         }
@@ -1558,7 +1614,7 @@ Dom.prototype = {
         var elem = new Dom(s, c)[0] || null;
 
         if (elem) {
-            this.each(function (i, el) {
+            this.each(function (el) {
                 if (elem.firstChild) {
                     elem.insertBefore(el, elem.firstChild);
                     return;
@@ -1575,7 +1631,7 @@ Dom.prototype = {
 
             var elem = this[this.length - 1];
 
-            new Dom(s, c).each(function (i, el) {
+            new Dom(s, c).each(function (el) {
                 elem.appendChild(el);
             });
         }
@@ -1588,7 +1644,7 @@ Dom.prototype = {
 
             var elem = this[this.length - 1];
 
-            new Dom(s, c).each(function (i, el) {
+            new Dom(s, c).each(function (el) {
                 if (elem.firstChild) {
                     elem.insertBefore(el, elem.firstChild);
                     return;
@@ -1607,7 +1663,7 @@ Dom.prototype = {
             o = new Dom(s, this);
         }
 
-        o.each(function (i, el) {
+        o.each(function (el) {
             Dom.remove(el);
         });
         return this;
@@ -1620,7 +1676,7 @@ Dom.prototype = {
             d = null;
         }
 
-        return this.each(function (i, el) {
+        return this.each(function (el) {
             Dom.on(el, t, '', h, false, d);
         });
     },
@@ -1632,19 +1688,19 @@ Dom.prototype = {
             d = null;
         }
 
-        return this.each(function (i, el) {
+        return this.each(function (el) {
             Dom.on(el, t, '', h, true, d);
         });
     },
 
     off: function (t, h) {
-        return this.each(function (i, el) {
+        return this.each(function (el) {
             Dom.off(el, t, h);
         });
     },
 
     emit: function (t, d) {
-        return this.each(function (i, el) {
+        return this.each(function (el) {
             Dom.emit(el, t, d);
         });
     }
@@ -1862,7 +1918,7 @@ Mk.prototype = {
     </method:$>
     */
     $: function (s, c) {
-        return new Mk.$(s, c);
+        return Mk.$(s, c);
     },
     /*
     <method:uid>
@@ -1901,8 +1957,7 @@ Mk.prototype = {
     </method:template>
     */
     template: function (n, d) {
-        return Mk.template(
-            n, this.name, this.config.templates, d) ;
+        return Mk.template(n, this.name, this.config.templates, d);
     },
     /*
     <method:format>
@@ -1919,8 +1974,7 @@ Mk.prototype = {
     </method:format>
     */
     format: function (n, d) {
-        return Mk.template(
-            n, this.name, this.config.formats, d);
+        return Mk.template(n, this.name, this.config.formats, d);
     },
     /*
     <method:html>
@@ -1955,6 +2009,40 @@ Mk.prototype = {
     */
     each: function (who, fn) {
         return Mk.each(this, who, fn);
+    },
+    /*
+    <method:map>
+        <invoke>.map(who, fn)</invoke>
+        <param:who>
+            <type>Mixed</type>
+            <desc>Object or Array-like object to iterate over.</desc>
+        </param:who>
+        <param:fn>
+            <type>Function</type>
+            <desc>Callback function run on each iteration.</desc>
+        </param:fn>
+        <desc>Loop objects and array-like objects and return a value on each iteraction to be 'mapped' to a new object (like Array's map). Return nothing, or undefined, to exclude adding anything for that iteration.</desc>
+    </method:map>
+    */
+    map: function (who, fn) {
+        return Mk.map(this, who, fn);
+    },
+    /*
+    <method:filter>
+        <invoke>.filter(who, fn)</invoke>
+        <param:who>
+            <type>Mixed</type>
+            <desc>Object or Array-like object to iterate over.</desc>
+        </param:who>
+        <param:fn>
+            <type>Function</type>
+            <desc>Callback function run on each iteration.</desc>
+        </param:fn>
+        <desc>Loop objects and array-like objects and return true or false to specify whether to filter the element out of the new return object. (like Array's filter).</desc>
+    </method:filter>
+    */
+    filter: function (who, fn) {
+        return Mk.filter(this, who, fn);
     },
     /*
     <method:node>
@@ -2002,7 +2090,7 @@ Mk.prototype = {
     */
     transition: function (node, cb) {
 
-        var $n = this.$(node),
+        var  n = this.$(node),
              t = Mk.transition(),
              c = this;
 
@@ -2010,21 +2098,21 @@ Mk.prototype = {
 
         if (t) {
 
-            $n.addClass('transition');
+            n.addClass('transition');
 
-            $n.one(t, function (e) {
-                $n.removeClass('transition');
-                cb.call(c, e, $n);
+            n.one(t, function (e) {
+                n.removeClass('transition');
+                cb.call(c, e, n);
             });
 
             return this;
         }
 
-        $n.removeClass('transition');
+        n.removeClass('transition');
 
-        return this.each($n, function (i, n) {
+        return this.each(n, function (_n) {
             setTimeout( function () {
-                cb.call(c, {}, c.$(n));
+                cb.call(c, null, c.$(_n));
             }, 1);
         });
     },
@@ -2223,11 +2311,11 @@ Mk.prototype = {
             formats: {}
         };
 
-        this.each(this.formats, function (n, v) {
+        this.each(this.formats, function (v, n) {
             this.config.formats[ n ] = v;
         });
 
-        this.each(this.templates, function (n, v) {
+        this.each(this.templates, function (v, n) {
             this.config.templates[ n ] = v;
         });
 
@@ -2249,20 +2337,22 @@ Mk.prototype = {
 
         o = o || {};
 
-        this.each(o, function (n, v) {
+        var c = this.config;
+
+        this.each(o, function (v, n) {
 
             var looped = false;
 
-            if (typeof v === 'object' && this.config.hasOwnProperty(n)) {
+            if (typeof v === 'object' && hasOwn.call(c, n)) {
 
-                this.each(v, function (k, vv) {
-                    this.config[n][k] = vv;
+                this.each(v, function (_v, k) {
+                    c[n][k] = _v;
                     looped = true;
                 });
             }
 
             if (looped === false) {
-                this.config[n] = v;
+                c[n] = v;
             }
         });
         return this;
@@ -2297,7 +2387,7 @@ Mk.prototype = {
 
         var value, t;
 
-        if (config.hasOwnProperty(name)) {
+        if (hasOwn.call(config, name)) {
             value = config[name];
         }
 

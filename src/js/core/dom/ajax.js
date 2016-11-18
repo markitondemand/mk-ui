@@ -40,7 +40,7 @@ Dom.xhr.prototype = {
 
             var d = [];
 
-            Mk.each(this, o, function (n, v) {
+            Mk.each(this, o, function (v, n) {
                 d.push(n + '=' + encodeURIComponent(v));
             });
             return d.join('&');
@@ -73,7 +73,7 @@ Dom.xhr.prototype = {
             o.data = null;
         }
 
-        Mk.each(this, this.headers, function (n, v) {
+        Mk.each(this, this.headers, function (v, n) {
             if (hasOwn.call(o.headers, n) !== true) {
                 o.headers[n] = v;
             }
@@ -169,7 +169,7 @@ Dom.xhr.prototype = {
             xhr.withCredentials = true;
         }
 
-        Mk.each(this, o.headers, function (n, v) {
+        Mk.each(this, o.headers, function (v, n) {
             xhr.setRequestHeader(n, v);
         });
 

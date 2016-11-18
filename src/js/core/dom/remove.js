@@ -7,7 +7,7 @@ Dom.remove = function (n) {
 
     var d;
 
-    Mk.each(this, n.childNodes, function (i, c) {
+    Mk.each(this, n.childNodes, function (c) {
         if (c && c.nodeType === 1) {
             Dom.remove(c);
         }
@@ -16,7 +16,7 @@ Dom.remove = function (n) {
     var d = Dom.data(n, null);
 
     if (d && d.events) {
-        Mk.each(this, d.events, function (t, v) {
+        Mk.each(this, d.events, function (v, t) {
             Dom.off(n, t);
         });
     }

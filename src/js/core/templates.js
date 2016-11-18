@@ -41,17 +41,21 @@ Mk.template = function (n, k, t, d) {
 
     d.$key = k;
 
-    var tmp = Mk.template.get(n, t);
+    var me  = Mk.template,
+        tmp = me.get(n, t);
 
-    tmp = tmp.replace(_s, '');
+    tmp = tmp
 
-    tmp = tmp.replace(_n, function (s, c, h) {
-        return Mk.template.statements(s, k, c, h, t, d);
+    .replace(_s, '')
+
+    .replace(_n, function (s, c, h) {
+        return me.statements(s, k, c, h, t, d);
+    })
+
+    .replace(_d, function (s, c) {
+        return me.inject(s, k, c, t, d)
     });
 
-    tmp = tmp.replace(_d, function (s, c) {
-        return Mk.template.inject(s, k, c, t, d)
-    });
     return tmp;
 }
 
@@ -59,7 +63,7 @@ Mk.template.get = function (n, t) {
 
     var tmp = n;
 
-    if (t && t.hasOwnProperty(n)) {
+    if (t && hasOwn.call(t, n)) {
         tmp = t[n];
     }
     if (tmp instanceof Array) {
@@ -68,22 +72,17 @@ Mk.template.get = function (n, t) {
     return tmp;
 };
 
-// parse statements only (handlbars that open/close)
-
 Mk.template.statements = function (s, k, c, h, t, d) {
 
     var p = c.split(':'),
         x = p[ 0 ],
         a = p[ 1 ];
 
-    if (hasOwn.call(Mk.template.map, x)) {
-        //if statements get special handling and passed the entire object
+    if (hasOwn.call(this.map, x)) {
         return Mk.template.map[ x ]( h, k, t, x == 'if' ? d : (d[ a ] || d), a );
     }
     return '';
 };
-
-// parse injections (handlebars that are self closing)
 
 Mk.template.inject = function (s, k, c, t, d) {
 
@@ -91,11 +90,11 @@ Mk.template.inject = function (s, k, c, t, d) {
         x = p[ 0 ],
         a = p[ 1 ];
 
-    if (a && hasOwn.call(Mk.template.map, x)) {
+    if (a && hasOwn.call(this.map, x)) {
         return Mk.template.map[x](a, k, t, d, a);
     }
 
-    if (hasOwn.call(d, x) && (!Mk.type(d[x], 'u')) && d[x] !== null) {
+    if (hasOwn.call(d, x) && !Mk.type(d[x], 'u') && !Mk.type(d[x], 'x')) {
         return d[x];
     }
     return '';
