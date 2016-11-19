@@ -270,8 +270,8 @@ Mk.filter = function (c, o, f) {
 // property
 //
 // ES5 defineProperty, propertyDescriptor, etc. to allow getters,
-// setters, and hyjack vanilla functions to take advantage of super() -
-// a dynamic method allowing super object references.
+// setters, and hijack vanilla functions to take advantage of super() -
+// a dynamic method allowing recursive super object references.
 // -------------------------------------------------------------
 
 Mk.property = function (obj, proto, member) {
@@ -307,11 +307,7 @@ Mk.property = function (obj, proto, member) {
             fn = v;
         }
     });
-}
-
-//
-// wrap vanilla functions to allow super() cabability
-//
+};
 
 Mk.wrapFunction = function (fn, m) {
 
@@ -320,13 +316,9 @@ Mk.wrapFunction = function (fn, m) {
     }
 
     var func = function () {
-
-        this._pushsuper_(m);
-
+        this._pushSuper(m);
         var r = fn.apply(this, arguments);
-
-        this._popsuper_(m);
-
+        this._popSuper(m);
         return r;
     };
 
@@ -336,58 +328,17 @@ Mk.wrapFunction = function (fn, m) {
         return fn.toString();
     };
     return func;
-}
-
-//
-// keeps track of call stacks
-// which allows super() to be called properly
-// with nested functions (functions calling other functions calling super)
-//
+};
 
 Mk.pushSuper = function (m) {
-
-    var ch = this._chain_ = this._chain_ || [],
-        st = this._stack_ = this._stack_ || [],
-        i  = ch.lastIndexOf(m),
-        s  = this._super_,
-        p  = s && s.prototype || {},
-        f  = this[m];
-
-    if (i > -1) {
-        s = st[i].super && st[i].super.prototype && st[i].super.prototype._super_ || null;
-        p = s && s.prototype || {};
-    }
-
-    while (s !== null
-        && p.hasOwnProperty(m)
-        && p[m]._id_ === f._id_) {
-
-        s = p._super_ || null;
-        p = s && s.prototype || {};
-    }
-
-    if (s) {
-        st.push({method: m, super: s});
-        ch.push(m);
-    }
-}
-
-//
-// pop functions out of the call stack
-// to keep super() context in place
-//
+    this._chain_ = this._chain_ || [];
+    this._chain_.push(m);
+};
 
 Mk.popSuper = function (m) {
-
-    var ch = this._chain_ = this._chain_ || [],
-        st = this._stack_ = this._stack_ || [],
-        i  = ch.lastIndexOf(m);
-
-    if (i > -1) {
-        ch.splice(i, 1);
-        st.splice(i, 1);
-    }
-}
+    this._chain_.splice(
+        this._chain_.lastIndexOf(m), 1);
+};
 
 
 //
@@ -1796,6 +1747,7 @@ Mk.create = function (name, base, proto) {
 
     obj.prototype.constructor = obj;
     obj.prototype._super_ = base;
+    obj.prototype._chain_ = null;
 
     return this.define(name, obj);
 };
@@ -1841,11 +1793,11 @@ Mk.prototype = {
     */
     root: null,
 
-    get _pushsuper_ () {
+    get _pushSuper () {
         return Mk.pushSuper;
     },
 
-    get _popsuper_ () {
+    get _popSuper () {
         return Mk.popSuper;
     },
     /*
@@ -1855,13 +1807,22 @@ Mk.prototype = {
     */
     get super () {
 
-        var s = this._stack_[this._stack_.length - 1], m;
+        var p = this,
+            c = p._chain_,
+            m = c[c.length - 1],
+            d = c.reduce(function(a, b) {
+                if (b === m) a++;
+                return a;
+            }, 0);
 
-        if (s) {
-            m = s.super && s.super.prototype
-                && s.super.prototype[s.method];
+        while (d--) {
+            p = p._super_.prototype;
         }
-        return m;
+
+        if (p && hasOwn.call(p, m)) {
+            return p[m];
+        }
+        return null;
     },
     /*
     <property:keycode>

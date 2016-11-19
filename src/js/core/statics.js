@@ -75,6 +75,7 @@ Mk.create = function (name, base, proto) {
 
     obj.prototype.constructor = obj;
     obj.prototype._super_ = base;
+    obj.prototype._chain_ = null;
 
     return this.define(name, obj);
 };

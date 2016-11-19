@@ -39,11 +39,11 @@ Mk.prototype = {
     */
     root: null,
 
-    get _pushsuper_ () {
+    get _pushSuper () {
         return Mk.pushSuper;
     },
 
-    get _popsuper_ () {
+    get _popSuper () {
         return Mk.popSuper;
     },
     /*
@@ -53,13 +53,22 @@ Mk.prototype = {
     */
     get super () {
 
-        var s = this._stack_[this._stack_.length - 1], m;
+        var p = this,
+            c = p._chain_,
+            m = c[c.length - 1],
+            d = c.reduce(function(a, b) {
+                if (b === m) a++;
+                return a;
+            }, 0);
 
-        if (s) {
-            m = s.super && s.super.prototype
-                && s.super.prototype[s.method];
+        while (d--) {
+            p = p._super_.prototype;
         }
-        return m;
+
+        if (p && hasOwn.call(p, m)) {
+            return p[m];
+        }
+        return null;
     },
     /*
     <property:keycode>
