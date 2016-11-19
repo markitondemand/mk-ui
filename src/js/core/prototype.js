@@ -40,11 +40,11 @@ Mk.prototype = {
     root: null,
 
     get _pushSuper () {
-        return Mk.pushSuper;
+        return Mk.fn.pushSuper;
     },
 
     get _popSuper () {
-        return Mk.popSuper;
+        return Mk.fn.popSuper;
     },
     /*
     <property:super>
@@ -65,7 +65,7 @@ Mk.prototype = {
             p = p._super_.prototype;
         }
 
-        if (p && hasOwn.call(p, m)) {
+        if (p && prop.call(p, m)) {
             return p[m];
         }
         return null;
@@ -76,7 +76,7 @@ Mk.prototype = {
     </property:super>
     */
     get keycode () {
-        return Mk.keycodes;
+        return Mk.fn.keycodes;
     },
     /*
     <property:transitions>
@@ -84,7 +84,7 @@ Mk.prototype = {
     </property:transitions>
     */
     get transitions () {
-        return Mk.transition.enabled;
+        return Mk.fn.transition.enabled;
     },
     /*
     <property:version>
@@ -108,7 +108,7 @@ Mk.prototype = {
     </property:device>
     */
     get device () {
-        return Mk.device;
+        return Mk.fn.device;
     },
     /*
     <method:$>
@@ -134,20 +134,7 @@ Mk.prototype = {
     </method:uid>
     */
     uid: function () {
-        return Mk.uid();
-    },
-    /*
-    <method:copy>
-        <invoke>.copy(object)</invoke>
-        <param:object>
-            <type>Mixed</type>
-            <desc>Object (of any type) to copy.</desc>
-        </param:object>
-        <desc>Deep copy an object to remove pointers.</desc>
-    </method:copy>
-    */
-    copy: function (o) {
-        return Mk.copy(o);
+        return uid();
     },
     /*
     <method:template>
@@ -164,7 +151,7 @@ Mk.prototype = {
     </method:template>
     */
     template: function (n, d) {
-        return Mk.template(n, this.name, this.config.templates, d);
+        return Mk.fn.template(n, this.name, this.config.templates, d);
     },
     /*
     <method:format>
@@ -181,7 +168,7 @@ Mk.prototype = {
     </method:format>
     */
     format: function (n, d) {
-        return Mk.template(n, this.name, this.config.formats, d);
+        return Mk.fn.template(n, this.name, this.config.formats, d);
     },
     /*
     <method:html>
@@ -214,8 +201,25 @@ Mk.prototype = {
         <desc>Loops objects and array-like objects running a function on each iteration. Return false to break loop. Return -1 to splice/delete item from object.</desc>
     </method:each>
     */
-    each: function (who, fn) {
-        return Mk.each(this, who, fn);
+    each: function (o, f) {
+        return Mk.fn.each(this, o, f);
+    },
+    /*
+    <method:find>
+        <invoke>.find(who, fn)</invoke>
+        <param:who>
+            <type>Mixed</type>
+            <desc>Object or Array-like object to iterate over.</desc>
+        </param:who>
+        <param:fn>
+            <type>Function</type>
+            <desc>Callback function run on each iteration.</desc>
+        </param:fn>
+        <desc>Loops objects and array-like objects running a function on each iteration. The first value to be returned will stop loop and assign from callback.</desc>
+    </method:find>
+    */
+    find: function (o, f) {
+        return Mk.fn.find(this, o, f);
     },
     /*
     <method:map>
@@ -231,8 +235,8 @@ Mk.prototype = {
         <desc>Loop objects and array-like objects and return a value on each iteraction to be 'mapped' to a new object (like Array's map). Return nothing, or undefined, to exclude adding anything for that iteration.</desc>
     </method:map>
     */
-    map: function (who, fn) {
-        return Mk.map(this, who, fn);
+    map: function (o, f) {
+        return Mk.fn.map(this, o, f);
     },
     /*
     <method:filter>
@@ -248,8 +252,8 @@ Mk.prototype = {
         <desc>Loop objects and array-like objects and return true or false to specify whether to filter the element out of the new return object. (like Array's filter).</desc>
     </method:filter>
     */
-    filter: function (who, fn) {
-        return Mk.filter(this, who, fn);
+    filter: function (o, f) {
+        return Mk.fn.filter(this, o, f);
     },
     /*
     <method:node>
@@ -298,7 +302,7 @@ Mk.prototype = {
     transition: function (node, cb) {
 
         var  n = this.$(node),
-             t = Mk.transition(),
+             t = Mk.fn.transition(),
              c = this;
 
         cb = cb || function () {};
@@ -335,7 +339,7 @@ Mk.prototype = {
     */
     clearTransitions: function (n) {
 
-        var t = Mk.transition();
+        var t = Mk.fn.transition();
 
         if (t) {
             this.$(n).off(t);
@@ -390,14 +394,11 @@ Mk.prototype = {
         <desc>Binds a handler to an event type through the Event Emitter. Allows for namespaced events.</desc>
     </method:on>
     */
-    on: function (event, handler) {
+    on: function (e, h) {
 
-        Mk.eventEmitter.on(
-            this.events,
-            event,
-            handler,
-            this
-        );
+        Mk.fn.eventEmitter.on(
+            this.events, e, h, this);
+
         return this;
     },
     /*
@@ -414,14 +415,11 @@ Mk.prototype = {
         <desc>Binds a handler to an event type through the Event Emitter. Once fired, an event bound through one() will be removed. Allows for namespaced events.</desc>
     </method:one>
     */
-    one: function (event, handler) {
+    one: function (e, h) {
 
-        Mk.eventEmitter.one(
-            this.events,
-            event,
-            handler,
-            this
-        );
+        Mk.fn.eventEmitter.one(
+            this.events, e, h, this);
+
         return this;
     },
     /*
@@ -438,13 +436,9 @@ Mk.prototype = {
         <desc>Removes a handler (or all handlers) from an event type.</desc>
     </method:off>
     */
-    off: function (event, handler) {
+    off: function (e, h) {
 
-        Mk.eventEmitter.off(
-            this.events,
-            event,
-            handler
-        );
+        Mk.fn.eventEmitter.off(this.events, e, h);
         return this;
     },
     /*
@@ -461,10 +455,9 @@ Mk.prototype = {
         <desc>Invokes handler(s) bound to event type.</desc>
     </method:emit>
     */
-    emit: function (event /*, arguments */) {
+    emit: function (e /*, arguments */) {
 
-        Mk.eventEmitter.emit(
-            this.events, arguments);
+        Mk.fn.eventEmitter.emit(this.events, arguments);
         return this;
     },
     /*
@@ -548,17 +541,12 @@ Mk.prototype = {
 
         this.each(o, function (v, n) {
 
-            var looped = false;
-
-            if (typeof v === 'object' && hasOwn.call(c, n)) {
-
-                this.each(v, function (_v, k) {
-                    c[n][k] = _v;
-                    looped = true;
+            if (type(v, 'object|arraylike') && prop.call(c, n)) {
+                this.each(v, function (e, k) {
+                    c[n][k] = e;
                 });
             }
-
-            if (looped === false) {
+            else {
                 c[n] = v;
             }
         });
@@ -590,46 +578,48 @@ Mk.prototype = {
         <desc>Runs logic to find a configuration setting. It will first look to see if the value lives on config already. If not, it will check for the value on the node (or root if no node is specified). Lastly, it will type case the value based on the type specified. The final result will be set on the config object passed in.</desc>
     </method:_param>
     */
-    _param: function (name, type, config, defaultt, elem) {
+    _param: function (n, ty, o, d, el) {
 
-        var value, t;
+        var v, t;
 
-        if (hasOwn.call(config, name)) {
-            value = config[name];
+        if (prop.call(o, n)) {
+            v = o[n];
         }
 
-        if (value === undf && type !== 'undefined') {
-            value = this.$(elem || this.root).data(name);
+        if (v === undf && ty != 'undefined') {
+            v = this.$(el || this.root).data(n);
         }
 
-        t = typeof value;
+        t = typeof(v);
 
-        if (t !== type) {
+        if (t !== ty) {
 
-            switch(type) {
+            switch(ty) {
 
                 case 'boolean':
-                    value = value === 'true' || false;
+                    v = v === 'true' || false;
                     break;
 
                 case 'number':
-                    value = parseFloat(value, 10);
+                    v = parseFloat(v, 10);
                     break;
 
                 case 'string':
-                    value = value + '';
+                    v = v + '';
 
                 case 'undefined':
-                    value = defaultt;
+                    v = d;
                     break;
 
                 case 'object':
-                    value = value === null
-                        ? defaultt : value;
+                    v = v === null
+                        ? d : v;
                     break;
             }
         }
-        config[name] = value;
+
+        o[n] = v;
+
         return this;
     },
     /*

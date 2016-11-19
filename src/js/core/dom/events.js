@@ -69,7 +69,7 @@ Dom.event = function (n, a, t, s, f, o, x) {
 
     d = (Dom.data(n, 'events') || {})[t] || [];
 
-    Mk.each(this, d, function (o) {
+    Mk.fn.each(this, d, function (o) {
         if (!s || s && o.ns === s) {
             if (!f || f === o.original) {
                 n.removeEventListener(t, o.handler);

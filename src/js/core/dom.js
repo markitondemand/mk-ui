@@ -44,48 +44,29 @@
     ajax()
 */
 
-var
-doc = document,
-//
-// elem cache system
-// ------------------------------------
-cache = {},
-//
-// shorthand slice
-// ------------------------------------
-slice = [].slice,
-//
-// clearing out arraylike objects
-// ------------------------------------
-splice = [].splice,
-//
-// making objects arraylike
-// ------------------------------------
-push = [].push,
-//
-// tag/markup testing
-// ------------------------------------
-tg = /^\s*<([^>\s]+)/,
-//
-// nodeType testing
-// ------------------------------------
-nt = /1|9|11/,
-//
-// html creation wrappers
-// -------------------------------------
-wrap = {
-    option: [ 1, '<select multiple="multiple">', '</select>' ],
-    thead: [ 1, '<table>', '</table>' ],
-    col: [ 2, '<table><colgroup>', '</colgroup></table>' ],
-    tr: [ 2, '<table><tbody>', '</tbody></table>' ],
-    td: [ 3, '<table><tbody><tr>', '</tr></tbody></table>' ],
-    li: [1, '<ul>', '</ul>'],
-    dd: [1, '<dl>', '</dl>'],
-    defaultt: [ 0, "", "" ]
-};
+var cache = {},
+    //
+    // tag/markup testing
+    // ------------------------------------
+    tg = /^\s*<([^>\s]+)/,
+    //
+    // html creation wrappers
+    // -------------------------------------
+    wrap = {
+        option: [ 1, '<select multiple="multiple">', '</select>' ],
+        thead: [ 1, '<table>', '</table>' ],
+        col: [ 2, '<table><colgroup>', '</colgroup></table>' ],
+        tr: [ 2, '<table><tbody>', '</tbody></table>' ],
+        td: [ 3, '<table><tbody><tr>', '</tr></tbody></table>' ],
+        li: [1, '<ul>', '</ul>'],
+        dd: [1, '<dl>', '</dl>'],
+        defaultt: [ 0, "", "" ]
+    };
+
 //
 // element wrap duplicates
 // ----------------------------------------
+
 wrap.caption = wrap.thead;
 wrap.optgroup = wrap.option;
 wrap.tbody = wrap.thead;
@@ -105,7 +86,7 @@ Dom.data = function (n, k, vl) {
 
     if (n) {
 
-        var id = n._id = n._id || Mk.uid(),
+        var id = n._id = n._id || uid(),
             c  = cache[id] || {},
             v  = vl;
 
@@ -147,17 +128,17 @@ Dom.remove = function (n) {
 
     var d;
 
-    Mk.each(this, n.childNodes, function (c) {
+    Mk.fn.each(this, n.childNodes, function (c) {
         if (c && c.nodeType === 1) {
-            Dom.remove(c);
+            Mk.$.remove(c);
         }
     });
 
-    var d = Dom.data(n, null);
+    var d = Mk.$.data(n, null);
 
     if (d && d.events) {
-        Mk.each(this, d.events, function (v, t) {
-            Dom.off(n, t);
+        Mk.fn.each(this, d.events, function (v, t) {
+            Mk.$.off(n, t);
         });
     }
     n.parentNode.removeChild(n);
@@ -201,21 +182,17 @@ Dom.xhr.prototype = {
 
         o = o || '';
 
-        if (!Mk.type(o, 's')) {
-
-            var d = [];
-
-            Mk.each(this, o, function (v, n) {
-                d.push(n + '=' + encodeURIComponent(v));
-            });
-            return d.join('&');
+        if (!type(o, 'string')) {
+            return Mk.fn.map(this, o, function(v, n) {
+                return n + '=' + encodeURIComponent(v);
+            }).join('&');
         }
         return o;
     },
 
     init: function (o) {
 
-        o = Mk.copy(o || {});
+        o = o || {};
 
         o.url = this.url(o.url);
         o.data = this.qs(o.data);
@@ -227,6 +204,7 @@ Dom.xhr.prototype = {
         o.encoding = o.encoding || 'utf-8';
         o.user = o.user || '';
         o.password = o.password || '';
+
         // callbacks
         o.complete = o.complete || noop;
         o.success = o.success || noop;
@@ -238,8 +216,8 @@ Dom.xhr.prototype = {
             o.data = null;
         }
 
-        Mk.each(this, this.headers, function (v, n) {
-            if (hasOwn.call(o.headers, n) !== true) {
+        Mk.fn.each(this, this.headers, function (v, n) {
+            if (prop.call(o.headers, n) !== true) {
                 o.headers[n] = v;
             }
         });
@@ -267,14 +245,14 @@ Dom.xhr.prototype = {
             o = x.options,
             s = doc.createElement('script'),
 
-            id = o.jsonpid = 'MKUI' + Mk.uid().split('-').join(''),
+            id = o.jsonpid = 'MKUI' + uid().split('-').join(''),
             qs = 'callback=' + id;
 
         s.type = 'text/javascript';
         s.language = 'javascript';
         s.async = o.async;
         s.src = o.url + (o.url.indexOf('?') > -1 && '&' || '?') + qs;
-        s.id = o.scriptid = Mk.uid();
+        s.id = o.scriptid = uid();
 
         s.onerror = function () {
             o.error.call(x);
@@ -334,7 +312,7 @@ Dom.xhr.prototype = {
             xhr.withCredentials = true;
         }
 
-        Mk.each(this, o.headers, function (v, n) {
+        Mk.fn.each(this, o.headers, function (v, n) {
             xhr.setRequestHeader(n, v);
         });
 
@@ -491,7 +469,7 @@ Dom.event = function (n, a, t, s, f, o, x) {
 
     d = (Dom.data(n, 'events') || {})[t] || [];
 
-    Mk.each(this, d, function (o) {
+    Mk.fn.each(this, d, function (o) {
         if (!s || s && o.ns === s) {
             if (!f || f === o.original) {
                 n.removeEventListener(t, o.handler);
@@ -539,7 +517,7 @@ Dom.prototype = {
     constructor: Dom,
 
     each: function (fn) {
-        return Mk.each(this, this, fn);
+        return Mk.fn.each(this, this, fn);
     },
 
     find: function (s, c) {
@@ -547,7 +525,7 @@ Dom.prototype = {
         s = s || doc;
         c = c || this.length && this || [doc];
 
-        if (Mk.type(c, 's')) {
+        if (type(c, 'string')) {
             c = new Dom(c, doc);
         }
         else if (c.nodeType) {
@@ -556,7 +534,7 @@ Dom.prototype = {
 
         var n = s;
 
-        if (Mk.type(s, 's')) {
+        if (type(s, 'string')) {
 
             if (tg.test(s)) {
                 n = this.markup(s);
@@ -565,7 +543,7 @@ Dom.prototype = {
 
                 n = [];
 
-                Mk.each(this, c, function (el) {
+                Mk.fn.each(this, c, function (el) {
                     n = n.concat(slice.call(el.querySelectorAll(s)));
                 });
             }
@@ -575,7 +553,7 @@ Dom.prototype = {
             n = [n];
         }
 
-        if (Mk.type(n, 'al')) {
+        if (type(n, 'arraylike')) {
             n = slice.call(n);
         }
 
@@ -688,7 +666,7 @@ Dom.prototype = {
             while (el.firstChild) {
                 Dom.remove(el.firstChild);
             }
-            Mk.each(this, this.markup(s), function (f) {
+            Mk.fn.each(this, this.markup(s), function (f) {
                 el.appendChild(f);
             });
         });
@@ -774,7 +752,7 @@ Dom.prototype = {
                 return getComputedStyle(this[0]).getPropertyValue(_v);
             }
             return this.each(function (el) {
-                el.style[_n] = Mk.type(_v, 'n') && (_v + 'px') || _v;
+                el.style[_n] = type(_v, 'number') && (_v + 'px') || _v;
             });
         });
     },
@@ -795,7 +773,7 @@ Dom.prototype = {
 
         var values = value.split(' '), c;
 
-        return Mk.each(this, values, function (v) {
+        return Mk.fn.each(this, values, function (v) {
             this.each(function (el) {
                 el.classList.add(v);
             });
@@ -806,7 +784,7 @@ Dom.prototype = {
 
         var values = value.split(' '), c, _v;
 
-        return Mk.each(this, values, function (v) {
+        return Mk.fn.each(this, values, function (v) {
             this.each(function (el) {
                 el.classList.remove(v);
             });

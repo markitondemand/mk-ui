@@ -2,31 +2,27 @@
 Mk.define = function (n, o) {
 
     var a = Mk,
-        p = n.split( '.' ),
-        i = 0,
-        l = p.length - 1;
+        p = n.split( '.' );
 
-    for (; i < l; i++) {
-        if (hasOwn.call(a, p[i])) {
-            a[ p[ i ] ] = {};
+    for (var i = 0, l = p.length - 1; i < l; i++) {
+        if (prop.call(a, p[i])) {
+            a[p[i]] = {};
         }
-        a = a[ p[ i ] ];
+        a = a[p[i]];
     }
-    return a[ p[ p.length - 1 ] ] = o;
+    return a[p[p.length - 1]] = o;
 };
 
 Mk.get = function (n) {
 
     var o = null,
         m = Mk,
-        p = n.split('.'),
-        i = 0,
-        l = p.length;
+        p = n.split('.');
 
-    for (; i < l; i++) {
+    for (var i = 0, l = p.length; i < l; i++) {
 
-        if (hasOwn.call(m, p[i])) {
-            o = m[ p[ i ] ];
+        if (prop.call(m, p[i])) {
+            o = m[p[i]];
             m = o;
         }
         else {
@@ -38,12 +34,15 @@ Mk.get = function (n) {
 
 Mk.transitions = function (b) {
 
+    var t = Mk.fn.transition;
+
     if (b === true) {
-        Mk.transition.enabled = true;
+        t.enabled = true;
     } else if (b === false) {
-        Mk.transition.enabled = false;
+        t.enabled = false;
     }
-    return Mk.transition.enabled;
+
+    return t.enabled;
 };
 
 Mk.create = function (name, base, proto) {
@@ -64,12 +63,12 @@ Mk.create = function (name, base, proto) {
     obj.prototype = Object.create(base.prototype);
 
     for (member in proto) {
-        Mk.property(obj.prototype, proto, member);
+        Mk.fn.property(obj.prototype, proto, member);
     }
 
     if (base !== Mk) {
         for (statics in base) {
-            Mk.property(obj, base, statics);
+            Mk.fn.property(obj, base, statics);
         }
     }
 

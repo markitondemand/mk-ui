@@ -36,21 +36,17 @@ Dom.xhr.prototype = {
 
         o = o || '';
 
-        if (!Mk.type(o, 's')) {
-
-            var d = [];
-
-            Mk.each(this, o, function (v, n) {
-                d.push(n + '=' + encodeURIComponent(v));
-            });
-            return d.join('&');
+        if (!type(o, 'string')) {
+            return Mk.fn.map(this, o, function(v, n) {
+                return n + '=' + encodeURIComponent(v);
+            }).join('&');
         }
         return o;
     },
 
     init: function (o) {
 
-        o = Mk.copy(o || {});
+        o = o || {};
 
         o.url = this.url(o.url);
         o.data = this.qs(o.data);
@@ -62,6 +58,7 @@ Dom.xhr.prototype = {
         o.encoding = o.encoding || 'utf-8';
         o.user = o.user || '';
         o.password = o.password || '';
+
         // callbacks
         o.complete = o.complete || noop;
         o.success = o.success || noop;
@@ -73,8 +70,8 @@ Dom.xhr.prototype = {
             o.data = null;
         }
 
-        Mk.each(this, this.headers, function (v, n) {
-            if (hasOwn.call(o.headers, n) !== true) {
+        Mk.fn.each(this, this.headers, function (v, n) {
+            if (prop.call(o.headers, n) !== true) {
                 o.headers[n] = v;
             }
         });
@@ -102,14 +99,14 @@ Dom.xhr.prototype = {
             o = x.options,
             s = doc.createElement('script'),
 
-            id = o.jsonpid = 'MKUI' + Mk.uid().split('-').join(''),
+            id = o.jsonpid = 'MKUI' + uid().split('-').join(''),
             qs = 'callback=' + id;
 
         s.type = 'text/javascript';
         s.language = 'javascript';
         s.async = o.async;
         s.src = o.url + (o.url.indexOf('?') > -1 && '&' || '?') + qs;
-        s.id = o.scriptid = Mk.uid();
+        s.id = o.scriptid = uid();
 
         s.onerror = function () {
             o.error.call(x);
@@ -169,7 +166,7 @@ Dom.xhr.prototype = {
             xhr.withCredentials = true;
         }
 
-        Mk.each(this, o.headers, function (v, n) {
+        Mk.fn.each(this, o.headers, function (v, n) {
             xhr.setRequestHeader(n, v);
         });
 

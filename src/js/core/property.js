@@ -6,24 +6,24 @@
 // a dynamic method allowing recursive super object references.
 // -------------------------------------------------------------
 
-Mk.property = function (obj, proto, member) {
+Mk.fn.property = function (o, p, m) {
 
-    var desc = Object.getOwnPropertyDescriptor(proto, member),
+    var desc = gpd(p, m),
         prop, fn;
 
-    if (!Mk.type(desc.get, 'u')) {
-        return Object.defineProperty(obj, member, desc);
+    if (!type(desc.get, 'undefined') || !type(desc.set, 'undefined')) {
+        return dp(o, m, desc);
     }
 
-    prop = proto[member];
+    prop = p[m];
 
-    if (!Mk.type(prop, 'bf')) {
-        return obj[member] = Mk.copy(prop);
+    if (!type(prop, 'function')) {
+        return o[m] = prop;
     }
 
-    fn = Mk.wrapFunction(prop, member);
+    fn = Mk.fn.wrapFunction(prop, m);
 
-    Object.defineProperty(obj, member, {
+    dp(o, m, {
 
         get: function () {
             return fn;
@@ -33,15 +33,15 @@ Mk.property = function (obj, proto, member) {
 
             var v = value;
 
-            if (MK.type(value, 'bf')) {
-                v = Mk.wrapFunction(value);
+            if (type(value, 'function')) {
+                v = Mk.fn.wrapFunction(value, m);
             }
             fn = v;
         }
     });
 };
 
-Mk.wrapFunction = function (fn, m) {
+Mk.fn.wrapFunction = function (fn, m) {
 
     if (fn._id_) {
         return fn;
@@ -54,7 +54,7 @@ Mk.wrapFunction = function (fn, m) {
         return r;
     };
 
-    func._id_ = Mk.uid();
+    func._id_ = uid();
 
     func.toString = function () {
         return fn.toString();
@@ -62,12 +62,12 @@ Mk.wrapFunction = function (fn, m) {
     return func;
 };
 
-Mk.pushSuper = function (m) {
+Mk.fn.pushSuper = function (m) {
     this._chain_ = this._chain_ || [];
     this._chain_.push(m);
 };
 
-Mk.popSuper = function (m) {
+Mk.fn.popSuper = function (m) {
     this._chain_.splice(
         this._chain_.lastIndexOf(m), 1);
 };

@@ -1,89 +1,106 @@
 
-Mk.type = function (o, k) {
+function type (o, t) {
 
-    var m = Mk.typemap;
+    var ty = t.toLowerCase().split('|'),
+        l  = ty.length,
+        i  = 0,
+        r  = true;
 
-    return m.hasOwnProperty(k)
-        && m[k](o) || false;
-};
+    for (; i < l; i++) {
 
-Mk.typemap = {
+        switch (ty[i]) {
 
-    s: function (o) {
-        return typeof o == 'string';
-    },
+            case 'empty':
+                r = o === ''
+                    || o === null
+                    || o === void+1
+                    || o === false
+                    break;
 
-    u: function (o) {
-        return o === void+1;
-    },
+            case 'array':
+                r = o instanceof Array;
+                break;
 
-    f: function (o) {
-        return typeof o == 'function';
-    },
+            case 'null':
+                r = o === null;
+                break;
 
-    n: function (o) {
-        return typeof o == 'number';
-    },
+            case 'date':
+                r = o instanceof Date;
+                break;
 
-    a: function (o) {
-        return o instanceof Array;
-    },
+            case 'instance':
+                r = type.instance(o);
+                break;
 
-    x: function (o) {
-        return o === null;
-    },
+            case 'nodelist':
+                r = o instanceof NodeList;
+                break;
 
-    o: function (o) {
+            case 'node':
+                r = nt.test(o && o.nodeType || 0);
+                break;
 
-        if (!o || o.toString().toLowerCase() !== "[object object]" ) {
-            return false;
+            case 'window':
+                r = o === root;
+                break;
+
+            case 'arraylike':
+                r = type.arraylike(o);
+                break;
+
+            case 'class':
+                r = type.clazz(o);
+                break;
+
+            case 'function':
+                r = typeof(o) == 'function'
+                    && !type.clazz(o);
+                break;
+
+            default:
+                r = typeof(o) === ty[i];
+                break;
         }
 
-        var p = Object.getPrototypeOf(o),
-            c = p.hasOwnProperty('constructor') && p.constructor,
-            f = ({}).hasOwnProperty.toString,
-            s = f.call(Object);
-
-        if (!p) {
-            return true;
+        if (r) {
+            break;
         }
-
-        return this.f(c) && f.call(c) === s;
-    },
-
-    c: function (o) {
-
-        if (this.f(o)) {
-            return Object.keys(o).concat(
-                Object.keys(o.prototype)).length > 0;
-        }
-        return false;
-    },
-
-    nl: function (o) {
-        return o instanceof NodeList;
-    },
-
-    nd: function (o) {
-        return o && o.nodeType === 1 || false;
-    },
-
-    al: function (o) {
-
-        if (this.f(o) || this.s(o) || o === root) {
-            return false;
-        }
-
-        var l = !!o && this.n(o.length)
-            && 'length' in o && o.length;
-
-        return this.a(o)
-            || this.nl(o)
-            || l === 0
-            || this.n(l) && l > 0 && (l - 1) in o;
-    },
-
-    bf: function (o) {
-        return this.f(o) && !this.c(o);
     }
+
+    return r;
 };
+
+type.arraylike = function (o) {
+
+    if (type(o, 'function|string|window')) {
+        return false;
+    }
+
+    var n = typeof(o.length) == 'number',
+        l = !!o && n && 'length' in o && o.length;
+
+    return type(o, 'array|nodelist')
+        || l === 0 || n && l > 0 && (l - 1) in o;
+};
+
+type.instance = function (o) {
+
+    var p = Object.getPrototypeOf(o),
+        c = p.hasOwnProperty('constructor') && p.constructor,
+        f = ({}).hasOwnProperty.toString,
+        s = f.call(Object);
+
+    if (!p) {
+        return true;
+    }
+
+    return (typeof(c) == 'function' && f.call(c) === s) !== true;
+};
+
+type.clazz = function (o) {
+    return typeof(o) == 'function'
+        && Object.keys(o).concat(Object.keys(o.prototype)).length > 0;
+};
+
+Mk.type = type;

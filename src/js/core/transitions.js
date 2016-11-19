@@ -6,9 +6,9 @@
 // transitions are enabled
 // --------------------------------------------------
 
-Mk.transition = function () {
+Mk.fn.transition = function () {
 
-    var tr = Mk.transition;
+    var tr = Mk.fn.transition;
 
     if (tr.enabled) {
 
@@ -27,11 +27,11 @@ Mk.transition = function () {
     return null;
 }
 
-Mk.transition.enabled = false;
+Mk.fn.transition.enabled = false;
 
-Mk.transition.key = null;
+Mk.fn.transition.key = null;
 
-Mk.transition.keys = {
+Mk.fn.transition.keys = {
     'transition': 'transitionend',
     'OTransition': 'oTransitionEnd',
     'MozTransition': 'transitionend',

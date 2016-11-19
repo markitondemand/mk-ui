@@ -1,10 +1,5 @@
 
-// eventEmitter
-// used for behavior hooks into components
-// and JavaScript event UI
-// --------------------------------------------------
-
-Mk.eventEmitter = {
+Mk.fn.eventEmitter = {
 
     xname: /^(\w+)\.?/,
 
@@ -14,7 +9,7 @@ Mk.eventEmitter = {
 
         var e = this.e(n);
 
-        if (!hasOwn.call(b, e.name)) {
+        if (!prop.call(b, e.name)) {
              b[e.name] = [];
         }
 
@@ -56,7 +51,7 @@ Mk.eventEmitter = {
         var e = this.e(ev),
             i = 0, s, item, ns, l;
 
-        if (hasOwn.call(b, e.name)) {
+        if (prop.call(b, e.name)) {
 
             s = b[e.name];
             ns = e.ns || undf;
@@ -82,7 +77,7 @@ Mk.eventEmitter = {
             e = this.e(ev),
             i = 0, s, item, l;
 
-        if (hasOwn.call(b, e.name)) {
+        if (prop.call(b, e.name)) {
 
             s = b[e.name];
             l = s.length;

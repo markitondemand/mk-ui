@@ -44,48 +44,29 @@
     ajax()
 */
 
-var
-doc = document,
-//
-// elem cache system
-// ------------------------------------
-cache = {},
-//
-// shorthand slice
-// ------------------------------------
-slice = [].slice,
-//
-// clearing out arraylike objects
-// ------------------------------------
-splice = [].splice,
-//
-// making objects arraylike
-// ------------------------------------
-push = [].push,
-//
-// tag/markup testing
-// ------------------------------------
-tg = /^\s*<([^>\s]+)/,
-//
-// nodeType testing
-// ------------------------------------
-nt = /1|9|11/,
-//
-// html creation wrappers
-// -------------------------------------
-wrap = {
-    option: [ 1, '<select multiple="multiple">', '</select>' ],
-    thead: [ 1, '<table>', '</table>' ],
-    col: [ 2, '<table><colgroup>', '</colgroup></table>' ],
-    tr: [ 2, '<table><tbody>', '</tbody></table>' ],
-    td: [ 3, '<table><tbody><tr>', '</tr></tbody></table>' ],
-    li: [1, '<ul>', '</ul>'],
-    dd: [1, '<dl>', '</dl>'],
-    defaultt: [ 0, "", "" ]
-};
+var cache = {},
+    //
+    // tag/markup testing
+    // ------------------------------------
+    tg = /^\s*<([^>\s]+)/,
+    //
+    // html creation wrappers
+    // -------------------------------------
+    wrap = {
+        option: [ 1, '<select multiple="multiple">', '</select>' ],
+        thead: [ 1, '<table>', '</table>' ],
+        col: [ 2, '<table><colgroup>', '</colgroup></table>' ],
+        tr: [ 2, '<table><tbody>', '</tbody></table>' ],
+        td: [ 3, '<table><tbody><tr>', '</tr></tbody></table>' ],
+        li: [1, '<ul>', '</ul>'],
+        dd: [1, '<dl>', '</dl>'],
+        defaultt: [ 0, "", "" ]
+    };
+
 //
 // element wrap duplicates
 // ----------------------------------------
+
 wrap.caption = wrap.thead;
 wrap.optgroup = wrap.option;
 wrap.tbody = wrap.thead;

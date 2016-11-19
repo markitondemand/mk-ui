@@ -8,7 +8,7 @@ Dom.prototype = {
     constructor: Dom,
 
     each: function (fn) {
-        return Mk.each(this, this, fn);
+        return Mk.fn.each(this, this, fn);
     },
 
     find: function (s, c) {
@@ -16,7 +16,7 @@ Dom.prototype = {
         s = s || doc;
         c = c || this.length && this || [doc];
 
-        if (Mk.type(c, 's')) {
+        if (type(c, 'string')) {
             c = new Dom(c, doc);
         }
         else if (c.nodeType) {
@@ -25,7 +25,7 @@ Dom.prototype = {
 
         var n = s;
 
-        if (Mk.type(s, 's')) {
+        if (type(s, 'string')) {
 
             if (tg.test(s)) {
                 n = this.markup(s);
@@ -34,7 +34,7 @@ Dom.prototype = {
 
                 n = [];
 
-                Mk.each(this, c, function (el) {
+                Mk.fn.each(this, c, function (el) {
                     n = n.concat(slice.call(el.querySelectorAll(s)));
                 });
             }
@@ -44,7 +44,7 @@ Dom.prototype = {
             n = [n];
         }
 
-        if (Mk.type(n, 'al')) {
+        if (type(n, 'arraylike')) {
             n = slice.call(n);
         }
 
@@ -157,7 +157,7 @@ Dom.prototype = {
             while (el.firstChild) {
                 Dom.remove(el.firstChild);
             }
-            Mk.each(this, this.markup(s), function (f) {
+            Mk.fn.each(this, this.markup(s), function (f) {
                 el.appendChild(f);
             });
         });
@@ -243,7 +243,7 @@ Dom.prototype = {
                 return getComputedStyle(this[0]).getPropertyValue(_v);
             }
             return this.each(function (el) {
-                el.style[_n] = Mk.type(_v, 'n') && (_v + 'px') || _v;
+                el.style[_n] = type(_v, 'number') && (_v + 'px') || _v;
             });
         });
     },
@@ -264,7 +264,7 @@ Dom.prototype = {
 
         var values = value.split(' '), c;
 
-        return Mk.each(this, values, function (v) {
+        return Mk.fn.each(this, values, function (v) {
             this.each(function (el) {
                 el.classList.add(v);
             });
@@ -275,7 +275,7 @@ Dom.prototype = {
 
         var values = value.split(' '), c, _v;
 
-        return Mk.each(this, values, function (v) {
+        return Mk.fn.each(this, values, function (v) {
             this.each(function (el) {
                 el.classList.remove(v);
             });

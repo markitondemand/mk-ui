@@ -7,7 +7,7 @@ Dom.data = function (n, k, vl) {
 
     if (n) {
 
-        var id = n._id = n._id || Mk.uid(),
+        var id = n._id = n._id || uid(),
             c  = cache[id] || {},
             v  = vl;
 
