@@ -75,30 +75,22 @@
 */
 
 (function ( root, factory ) {
-	//
-	// AMD support
-	// ---------------------------------------------------
+
 	if ( typeof define === 'function' && define.amd ) {
 
-		define( [ 'mk' ], function ( mk ) {
+		define([ 'mk' ], function (mk) {
 			return factory( root, mk );
 		});
 	}
-	//
-	// CommonJS module support
-	// -----------------------------------------------------
-	else if ( typeof module === 'object' && module.exports ) {
+	else if (typeof module === 'object' && module.exports) {
 
-		module.exports = factory( root, require( 'mk' ));
+		module.exports = factory(root, require('mk'));
 	}
-	//
-	// Everybody else
-	// -----------------------------------------------------
 	else {
-		return factory( root, root.Mk );
+		return factory(root, root.Mk);
 	}
 
-})( typeof window !== "undefined" ? window : this, function ( root, mk ) {
+})(typeof window !== "undefined" && window || this, function (root, mk) {
 
 	mk.create( 'Selectmenu', {
 
@@ -314,26 +306,18 @@
 		get value () {
 
 			if (this.multiple) {
-
-				var values = [];
-
-				this.each(this.options, function(o) {
-					if (o.selected) values.push(o.value);
+				return this.map(this.options, function (o) {
+					if (o.selected) return o.value;
 				});
-				return values;
 			}
 			return this.element.value;
 		},
 
 		_verifyTag: function (n) {
 
-			var node = this.node('', n);
-
-			if (node.length < 1 ||
-				node[0].tagName.toLowerCase() !== 'select') {
+			if (!this.node('', n).is('select')) {
 				throw new Error(':: Mk.Selectmenu - root must have a <select> node ::');
 			}
-
 			return true;
 		},
 
@@ -348,32 +332,17 @@
 
 			o = o || {};
 
-			var label = this.selectmenu.attr('aria-label')
-				|| this.formats.label;
+			var sm = this.selectmenu,
+				label = sm.attr('aria-label') || this.formats.label;
 
-			this._param('label', 'string', o, label, this.selectmenu);
+			this._param('label', 'string', o, label, sm);
 
 			if (this.multiple) {
-				this._param('removable', 'boolean', o, false, this.selectmenu);
+				this._param('removable', 'boolean', o, false, sm);
 				this._param('removableId', 'string', o, this.uid());
 			}
 
 			this.super(o);
-		},
-
-		_label: function () {
-
-			var id = this.element.id,
-				label = this.$('label[for="'+ id +'"]');
-
-			if (label.length) {
-				label.attr('for', this.input.attr('id'));
-			}
-
-			else {
-				this.input.attr('aria-label',
-					this.selectmenu.attr('aria-label'));
-			}
 		},
 
 		_build: function () {
@@ -391,17 +360,24 @@
 			}
 
 			var l = this.list,
-				o = l.find('[aria-selected="true"]');
+				o = l.find('[aria-selected="true"]'),
+				s = this.selectmenu,
+				i = this.input,
+				label = this.$('label[for="'+ this.element.id +'"]');
 
 			this.trigger.attr({
 				'aria-controls': l.attr('id') || '',
 				'aria-activedescendant': o.attr('id') || ''
 			});
 
-			this.input.attr('id', this.uid());
-			this.selectmenu.attr('aria-hidden', 'true');
+			i.attr('id', this.uid());
+			s.attr('aria-hidden', 'true');
 
-			this._label();
+			if (label.length) {
+				label.attr('for', i.attr('id'));
+			} else {
+				i.attr('aria-label', this.config.label);
+			}
 		},
 
 		_buildRemovable: function () {
@@ -730,7 +706,7 @@
 
 		search: function (key, add) {
 
-			if (this.disabled !== true && key) {
+			if (this.enabled && key) {
 
 				if (this._timer) {
 					clearTimeout(this._timer);
@@ -798,14 +774,9 @@
 		*/
 
 		getOptgroupValue: function (node) {
-
-			var c = node.children || [],
-				v = [];
-
-			this.each(c, function (o) {
-				v.push(o.value);
-			});
-			return v.join('|||');
+			return this.map(node.childNodes || [], function (o) {
+				return o.value;
+			}).join('|||');
 		},
 
 		getElementByLabel: function (label) {
@@ -820,7 +791,8 @@
 				l = (this.$(option).find(s).text() || '').toLowerCase();
 
 				if (l.indexOf(label) > -1) {
-					o = option; return false;
+					o = option;
+					return false;
 				}
 			});
 
@@ -1064,7 +1036,7 @@
 			var t = this.trigger,
 				l = this.list;
 
-			if (!this.disabled && this.isHidden) {
+			if (this.enabled && this.isHidden) {
 
 				this.transition(l, function () {
 					l.removeClass('in');
