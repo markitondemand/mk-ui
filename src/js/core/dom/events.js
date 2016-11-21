@@ -1,5 +1,5 @@
 
-Dom.delegate = function (p, n, x) {
+$.delegate = function (p, n, x) {
 
     var r = {s: false, t: p};
 
@@ -7,9 +7,9 @@ Dom.delegate = function (p, n, x) {
         r.s = true;
     }
     else {
-        new Dom(x, p).each(function (el) {
+        new $(x, p).each(function (el) {
 
-            if (n === el || new Dom(n).parent(el).length) {
+            if (n === el || new $(n).parent(el).length) {
                 r.s = true;
                 r.t = el;
                 return false;
@@ -19,7 +19,7 @@ Dom.delegate = function (p, n, x) {
     return r;
 }
 
-Dom.event = function (n, a, t, s, f, o, x) {
+$.event = function (n, a, t, s, f, o, x) {
 
     var h, d;
 
@@ -28,7 +28,7 @@ Dom.event = function (n, a, t, s, f, o, x) {
         h = function (e) {
 
             var z = false,
-                w = Dom.delegate(this, e.target, x),
+                w = $.delegate(this, e.target, x),
                 r;
 
             if (e.ns) {
@@ -43,12 +43,12 @@ Dom.event = function (n, a, t, s, f, o, x) {
             }
 
             if (z && o) {
-                Dom.event(n, false, t, s, f, o, x);
+                $.event(n, false, t, s, f, o, x);
             }
             return r;
         };
 
-        d = Dom.data(n, 'events') || {};
+        d = $.data(n, 'events') || {};
 
         d[t] = d[t] || [];
 
@@ -60,14 +60,14 @@ Dom.event = function (n, a, t, s, f, o, x) {
             delegate: x
         });
 
-        Dom.data(n, 'events', d);
+        $.data(n, 'events', d);
 
         n.addEventListener(t, h, false);
 
         return;
     }
 
-    d = (Dom.data(n, 'events') || {})[t] || [];
+    d = ($.data(n, 'events') || {})[t] || [];
 
     Mk.fn.each(this, d, function (o) {
         if (!s || s && o.ns === s) {
@@ -79,23 +79,23 @@ Dom.event = function (n, a, t, s, f, o, x) {
     });
 }
 
-Dom.on = function (n, t, d, h, o, x) {
+$.on = function (n, t, d, h, o, x) {
 
     var p = t.split('.'),
         e = p.shift();
 
-    Dom.event(n, true, e, p.join('.'), h, o, x);
+    $.event(n, true, e, p.join('.'), h, o, x);
 }
 
-Dom.off = function (n, t, h) {
+$.off = function (n, t, h) {
 
     var p = t.split('.'),
         e = p.shift();
 
-    Dom.event(n, false, e, p.join('.'), h);
+    $.event(n, false, e, p.join('.'), h);
 }
 
-Dom.emit = function (n, t, d) {
+$.emit = function (n, t, d) {
 
     var p = t.split('.'),
         e = p.shift(),

@@ -30,16 +30,10 @@ var gulp   = require('gulp'),
 		'core': {
 			files: [
 				'./src/js/core/intro.js',
-				'./src/js/core/variables.js',
+				'./src/js/core/fn.js',
 				'./src/js/core/type.js',
-				'./src/js/core/iterators.js',
-				'./src/js/core/property.js',
-				'./src/js/core/templates.js',
-				'./src/js/core/eventemitter.js',
 				'./src/js/core/transitions.js',
-				'./src/js/core/device.js',
-				'./src/js/core/dom.js',
-				'./src/js/core/keycodes.js',
+				'./src/js/core/templates.js',
 				'./src/js/core/statics.js',
 				'./src/js/core/prototype.js',
 				'./src/js/core/outro.js'

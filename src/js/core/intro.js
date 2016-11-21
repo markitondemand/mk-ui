@@ -5,7 +5,7 @@
 */
 (function (root, factory) {
 
-	if ( typeof define === 'function' && define.amd ) {
+	if (typeof define === 'function' && define.amd) {
 		define([], function () {
 			return (root.Mk = factory(root));
 		});
@@ -30,3 +30,11 @@
 })(typeof window !== 'undefined' && window || this, function (root) {
 
 'use strict';
+
+var prop = ({}).hasOwnProperty;
+
+function Mk () {}
+
+Mk.$ = function (s, c) {
+	return root.jQuery(s, c);
+};

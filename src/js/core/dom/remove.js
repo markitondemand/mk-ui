@@ -3,7 +3,7 @@
 // removes elements, events, and data from memory
 //
 
-Dom.remove = function (n) {
+$.remove = function (n) {
 
     var d;
 

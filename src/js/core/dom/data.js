@@ -3,24 +3,24 @@
 // data - store/retrieve data and data attributes
 // ----------------------------------------
 
-Dom.data = function (n, k, vl) {
+$.data = function (n, k, vl) {
 
     if (n) {
 
-        var id = n._id = n._id || uid(),
-            c  = cache[id] || {},
+        var id = n._id = n._id || Mk.fn.uid(),
+            c  = Mk.$.cache[id] || {},
             v  = vl;
 
         // remove entire entry
         if (k === null) {
 
             n._id = null;
-            delete cache[id];
+            delete Mk.$.cache[id];
             return c;
         }
 
         // undefined
-        if (v === undf) {
+        if (v == void+1) {
             v = c[k] || n.getAttribute('data-' + k) || null;
             //c[k] = v;
         }
@@ -34,7 +34,7 @@ Dom.data = function (n, k, vl) {
             c[k] = v;
         }
 
-        cache[id] = c;
+        Mk.$.cache[id] = c;
 
         return v;
     }

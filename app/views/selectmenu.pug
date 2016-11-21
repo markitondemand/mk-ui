@@ -148,10 +148,10 @@ html
 			include ./shared/events
 			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/dist/js/selectmenu.js")
+		script(type="text/javascript", src="/src/js/selectmenu.js")
 		script.
 
-			Mk.transitions(true);
+			Mk.transitions.enable();
 
 			var selects  = Mk.$('.mk-sm-root'),
 				mkSelect = Mk.get('Selectmenu'),
@@ -159,11 +159,11 @@ html
 
 			selects.each(function (el) {
 
-				select = new mkSelect(el /*, options */);
+				select = new mkSelect(this /*, options */);
 
 				select.on('change', function () {
 					console.log('values: ', this.value);
 				});
 
-				Mk.$(el).data('select', select);
+				Mk.$(this).data('select', select);
 			});

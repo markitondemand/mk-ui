@@ -1,13 +1,13 @@
 
-Dom.ajax = function (o) {
+$.ajax = function (o) {
     return new this.xhr(o);
 }
 
-Dom.xhr = function (o) {
+$.xhr = function (o) {
     this.init(o);
 }
 
-Dom.xhr.prototype = {
+$.xhr.prototype = {
 
     headers: {
         'X-Requested-With': 'XMLHttpRequest',
@@ -36,7 +36,7 @@ Dom.xhr.prototype = {
 
         o = o || '';
 
-        if (!type(o, 'string')) {
+        if (!Mk.type(o, 'string')) {
             return Mk.fn.map(this, o, function(v, n) {
                 return n + '=' + encodeURIComponent(v);
             }).join('&');
@@ -99,14 +99,14 @@ Dom.xhr.prototype = {
             o = x.options,
             s = doc.createElement('script'),
 
-            id = o.jsonpid = 'MKUI' + uid().split('-').join(''),
+            id = o.jsonpid = 'MKUI' + Mk.fn.uid().split('-').join(''),
             qs = 'callback=' + id;
 
         s.type = 'text/javascript';
         s.language = 'javascript';
         s.async = o.async;
         s.src = o.url + (o.url.indexOf('?') > -1 && '&' || '?') + qs;
-        s.id = o.scriptid = uid();
+        s.id = o.scriptid = Mk.fn.uid();
 
         s.onerror = function () {
             o.error.call(x);
@@ -151,7 +151,7 @@ Dom.xhr.prototype = {
             o = x.options,
             xhr;
 
-        if (o.type === 'jsonp') {
+        if (o.type == 'jsonp') {
             return this.jsonp();
         }
 
@@ -170,7 +170,7 @@ Dom.xhr.prototype = {
             xhr.setRequestHeader(n, v);
         });
 
-        if (o.type && o.type !== 'text') {
+        if (o.type && o.type != 'text') {
             xhr.responseType = o.type;
         }
 

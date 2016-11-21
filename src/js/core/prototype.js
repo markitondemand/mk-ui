@@ -54,7 +54,7 @@ Mk.prototype = {
     get super () {
 
         var p = this,
-            c = p._chain_,
+            c = p._chain_ || [],
             m = c[c.length - 1],
             d = c.reduce(function(a, b) {
                 if (b === m) a++;
@@ -84,7 +84,7 @@ Mk.prototype = {
     </property:transitions>
     */
     get transitions () {
-        return Mk.fn.transition.enabled;
+        return Mk.transitions.enabled;
     },
     /*
     <property:version>
@@ -134,7 +134,7 @@ Mk.prototype = {
     </method:uid>
     */
     uid: function () {
-        return uid();
+        return Mk.fn.uid();
     },
     /*
     <method:template>
@@ -151,7 +151,7 @@ Mk.prototype = {
     </method:template>
     */
     template: function (n, d) {
-        return Mk.fn.template(n, this.name, this.config.templates, d);
+        return Mk.template(n, this.name, this.config.templates, d);
     },
     /*
     <method:format>
@@ -168,7 +168,7 @@ Mk.prototype = {
     </method:format>
     */
     format: function (n, d) {
-        return Mk.fn.template(n, this.name, this.config.formats, d);
+        return Mk.template(n, this.name, this.config.formats, d);
     },
     /*
     <method:html>
@@ -302,7 +302,7 @@ Mk.prototype = {
     transition: function (node, cb) {
 
         var  n = this.$(node),
-             t = Mk.fn.transition(),
+             t = Mk.transitions.key,
              c = this;
 
         cb = cb || function () {};
@@ -339,7 +339,7 @@ Mk.prototype = {
     */
     clearTransitions: function (n) {
 
-        var t = Mk.fn.transition();
+        var t = Mk.transitions.key;
 
         if (t) {
             this.$(n).off(t);
@@ -549,7 +549,7 @@ Mk.prototype = {
 
         this.each(o, function (v, n) {
 
-            if (type(v, 'object|arraylike') && prop.call(c, n)) {
+            if (Mk.type(v, 'object|arraylike') && prop.call(c, n)) {
                 this.each(v, function (e, k) {
                     c[n][k] = e;
                 });
@@ -594,7 +594,7 @@ Mk.prototype = {
             v = o[n];
         }
 
-        if (v === undf && ty != 'undefined') {
+        if (v === void+1 && ty != 'undefined') {
             v = this.$(el || this.root).data(n);
         }
 

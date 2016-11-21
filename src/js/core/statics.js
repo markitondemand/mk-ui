@@ -20,7 +20,6 @@ Mk.get = function (n) {
         p = n.split('.');
 
     for (var i = 0, l = p.length; i < l; i++) {
-
         if (prop.call(m, p[i])) {
             o = m[p[i]];
             m = o;
@@ -32,49 +31,39 @@ Mk.get = function (n) {
     return o;
 };
 
-Mk.transitions = function (b) {
-
-    var t = Mk.fn.transition;
-
-    if (b === true) {
-        t.enabled = true;
-    } else if (b === false) {
-        t.enabled = false;
-    }
-
-    return t.enabled;
-};
-
 Mk.create = function (name, base, proto) {
 
     name = name || '';
 
     proto = proto || base || {};
 
-    base = typeof base === 'function'
+    base = typeof base == 'function'
         && base.prototype instanceof Mk
         && base || Mk;
 
-    var member, statics, obj = function () {
-        this._init.apply(this, arguments);
-        return this;
-    };
+    var o, m, s,
+        obj = function () {
+            this._init.apply(this, arguments);
+            return this;
+        };
 
-    obj.prototype = Object.create(base.prototype);
+    o = obj.prototype = Object.create(base.prototype);
 
-    for (member in proto) {
-        Mk.fn.property(obj.prototype, proto, member);
+    for (m in proto) {
+        Mk.fn.property(o, proto, m);
     }
 
     if (base !== Mk) {
-        for (statics in base) {
-            Mk.fn.property(obj, base, statics);
+
+        for (s in base) {
+
+            Mk.fn.property(obj, base, s);
         }
     }
 
-    obj.prototype.constructor = obj;
-    obj.prototype._super_ = base;
-    obj.prototype._chain_ = null;
+    o.constructor = obj;
+    o._super_ = base;
+    o._chain_ = null;
 
     return this.define(name, obj);
 };

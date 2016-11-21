@@ -5,7 +5,7 @@
 */
 (function (root, factory) {
 
-	if ( typeof define === 'function' && define.amd ) {
+	if (typeof define === 'function' && define.amd) {
 		define([], function () {
 			return (root.Mk = factory(root));
 		});
@@ -31,38 +31,27 @@
 
 'use strict';
 
+var prop = ({}).hasOwnProperty;
 
-var noop = function () { },
+function Mk () {}
 
-    prop = {}.hasOwnProperty,
+Mk.$ = function (s, c) {
+	return root.jQuery(s, c);
+};
 
-    dp = Object.defineProperty,
 
-    gpd = Object.getOwnPropertyDescriptor,
+Mk.fn = {
 
-    slice = [].slice,
+    noop: function () {},
 
-    push = [].push,
+    keycodes: {
+        backspace: 8, tab: 9, enter: 13, esc: 27, space: 32,
+        pageup: 33, pagedown: 34, end: 35, home: 36,
+        left: 37, up: 38, right: 39, down: 40, left: 37, right: 39,
+        comma: 188
+    },
 
-    splice = [].splice,
-
-    undf = void+1,
-
-    doc = document,
-
-    ua = navigator.userAgent,
-
-    uax = /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
-
-    nt = /1|9|11/,
-
-    _d = /{{([^{]+)}}/g,
-
-    _n = /{{([^}]+)}}(.*)({{\/\1}})/g,
-
-    _s = /[\r|\t|\n]+/g,
-
-    uid = function () {
+    uid: function () {
 
         return 'xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
 
@@ -71,546 +60,413 @@ var noop = function () { },
 
             return v.toString(16);
         });
-    };
+    },
 
-    function Mk () {}
+    property: function (o, p, m) {
 
-    Mk.fn = {};
+        var d = Object.getOwnPropertyDescriptor(p, m),
+            v = (d.get !== void+1 || d.set !== void+1) && d || {value: p[m]}, f;
 
+        if (Mk.type(v.value, 'function')) {
+
+            f = Mk.fn.wrapFunction(p[m], m);
+            v = {
+                get: function () {
+                    return f;
+                },
+                set: function (value) {
+
+                    if (Mk.type(value, 'function')) {
+                        f = Mk.fn.wrapFunction(value, m);
+                        return;
+                    }
+                    f = value;
+                }
+            };
+        }
+        Object.defineProperty(o, m, v);
+    },
+
+    wrapFunction: function (f, m) {
+
+        if (f._id_) {
+            return f;
+        }
+
+        var w = function () {
+            this._pushSuper(m);
+            var r = f.apply(this, arguments);
+            this._popSuper(m);
+            return r;
+        };
+
+        w._id_ = Mk.fn.uid();
+
+        w.toString = function () {
+            return f.toString();
+        };
+
+        return w;
+    },
+
+    pushSuper: function (m) {
+        this._chain_ = this._chain_ || [];
+        this._chain_.push(m);
+    },
+
+    popSuper: function (m) {
+        this._chain_.splice(
+            this._chain_.lastIndexOf(m), 1);
+    },
+
+    each: function (c, o, f) {
+
+        var i = 0, l, r;
+
+        if (Mk.type(o, 'arraylike')) {
+
+            l = o.length;
+
+            for (; i < l; i++) {
+
+                r = f.call(c, o[i], i, o);
+
+                if (r === false) {
+                    break;
+                }
+
+                if (r === -1) {
+                    [].splice.call(o, i, 1);
+                    i--; l--;
+                }
+            }
+        }
+        else {
+
+            for (i in o) {
+
+                r = f.call(c, o[i], i, o);
+
+                if (r === false) {
+                    break;
+                }
+                if (r === -1) {
+                    delete o[i];
+                }
+            }
+        }
+        return c;
+    },
+
+    find: function (c, o, f) {
+
+        var v;
+
+        Mk.fn.each(c, o, function (e, i, oo) {
+
+            v = f.call(this, e, i, oo);
+
+            if (v !== void+1) {
+                return false;
+            }
+        });
+        return v;
+    },
+
+    map: function (c, o, f) {
+
+        var a, r, i;
+
+        if (Mk.type(o, 'arraylike')) {
+
+            a = [];
+
+            Array.prototype.map.call(o, function (e, x, z) {
+
+                r = f.call(c, e, x, z);
+
+                if (r !== void+1) {
+                    a.push(r);
+                }
+            });
+        }
+        else {
+
+            a = {};
+
+            for (i in o) {
+
+                r = f.call(c, o[i], i, o);
+
+                if (r !== void+1) {
+                    a[i] = r;
+                }
+            }
+        }
+        return a;
+    },
+
+    filter: function (c, o, f) {
+
+        if (Mk.type(o, 'arraylike')) {
+            return Array.prototype.filter.call(o, function (x, y, z) {
+                f.call(c, x, y, z);
+            });
+        }
+
+        var n = {}, i;
+
+        for (i in o) {
+
+            if (f.call(c, o[i], i, o) !== false) {
+                n[i] = o[i];
+            }
+        }
+        return n;
+    },
+
+    eventEmitter: {
+
+        _add: function (b, n, h, c, s) {
+
+            var e = this.e(n);
+
+            if (!prop.call(b, e.name)) {
+                 b[e.name] = [];
+            }
+
+            b[e.name].push({
+                ns: e.ns || undefined,
+                handler: h || noop,
+                context: c || null,
+                single:  s === true
+            });
+        },
+
+        e: function (e) {
+
+            return {
+                name: /^(\w+)\.?/.exec( e )[ 1 ] || '',
+                ns: ( /^\w+(\.?.*)$/.exec( e ) || [] )[ 1 ] || undefined
+            };
+        },
+
+        args: function (args) {
+
+            for( var i = 0, a = [], l = args.length;
+                    i < l && a.push(args[ i ]);
+                    i++) { }
+
+            return a;
+        },
+
+        on: function on(b, e, h, c) {
+            return this._add(b, e, h, c, false);
+        },
+
+        one: function(b, e, h, c) {
+            return this._add(b, e, h, c, true);
+        },
+
+        off: function off (b, ev, h) {
+
+            var e = this.e(ev),
+                i = 0, s, item, ns, l;
+
+            if (prop.call(b, e.name)) {
+
+                s = b[e.name];
+                ns = e.ns || void+1;
+                l = s.length;
+
+                for (; i < l; i++) {
+
+                    item = s[i];
+
+                    if (item.ns === ns && (Mk.type(h, 'u') || h === item.handler)) {
+                        s.splice(i, 1);
+                        l--;
+                        i--;
+                    }
+                }
+            }
+        },
+
+        emit: function emit (b, argz /*, arguments */) {
+
+            var args = this.args(argz),
+                ev = args.shift(),
+                e = this.e(ev),
+                i = 0, s, item, l;
+
+            if (prop.call(b, e.name)) {
+
+                s = b[e.name];
+                l = s.length;
+
+                for (; i < l; i++) {
+
+                    item = s[ i ];
+
+                    if (!e.ns || item.ns === e.ns) {
+
+                        item.handler.apply(item.context || root, args);
+
+                        if (item.single) {
+                            s.splice(i, 1);
+                            l--; i--;
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+    device: {
+
+        exp: /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
+
+        get is () {
+            return this.exp.test(navigator.userAgent);
+        },
+
+        get key () {
+
+            var ua = navigator.userAgent,
+                m  = (this.exp.exec(ua) || [])[1] || '';
+
+            return m.toLowerCase();
+        }
+    }
+};
+
+
+/*
+    Mk.type
+    More complex typing
+    Pass in a type or multiple types (pipe delimited)
+    returns boolean
+
+    types:
+        string
+        number
+        object
+        boolean
+        function
+        undefined
+        null
+        empty
+        array
+        arraylike
+        class
+        instance
+        node
+        nodelist
+        window
+        date
+*/
 
 Mk.type = function (o, t) {
 
     var c = t.toLowerCase().split('|'),
         r = false;
 
-    for (var i = 0, l = c.length;
-        i < l && (r = Mk.type.is(c[i])) !== true;
-        i++) {}
+    for (var i = 0, l = c.length; i < l; i++) {
 
+        if (Mk.fn.type.is(o, c[i])) {
+            return true;
+        }
+    }
     return r;
 };
 
-Mk.type.is = function (o, t) {
+Mk.fn.type = {
 
-    var r = typeof o == t;
+    is: function (o, t) {
 
-    switch (t) {
+        var r = typeof o == t;
 
-        case 'empty':
-            r = o === ''
-                || o === null
-                || o === void+1
-                || o === false;
+        switch (t) {
 
-        case 'array':
-            r = o instanceof Array;
+            case 'empty':
+                r = o === ''
+                    || o === null
+                    || o === void+1
+                    || o === false;
+                    break;
 
-        case 'null':
-            r = o === null;
-
-        case 'date':
-            r = o instanceof Date;
-
-        case 'instance':
-            r = Mk.type.instance(o);
-
-        case 'nodelist':
-            r = o instanceof NodeList;
-
-        case 'node':
-            r = /1|9|11/.test(o && o.nodeType || 0);
-
-        case 'window':
-            r = o === window;
-
-        case 'arraylike':
-            r = this.arraylike(o);
-
-        case 'class':
-            r = this.clazz(o);
-
-        case 'function':
-            r = typeof o == 'function' && !this.clazz(o);
-    }
-
-    return r;
-};
-
-Mk.type.arraylike = function (o) {
-
-    if (Mk.type(o, 'function|string|window')) {
-        return false;
-    }
-
-    var n = !!o && typeof o.length == 'number',
-        l = n && 'length' in o && o.length;
-
-    return type(o, 'array|nodelist')
-        || l === 0 || n && l > 0 && (l - 1) in o;
-};
-
-Mk.type.instance = function (o) {
-
-    var p = Object.getPrototypeOf(o),
-        c = p && p.hasOwnProperty('constructor') && p.constructor,
-        f = ({}).hasOwnProperty.toString;
-
-    return (typeof c == 'function' && f.call(c) === f.call(Object)) !== true;
-};
-
-Mk.type.clazz = function (o) {
-
-    return typeof o == 'function'
-        && Object.keys(o).concat(
-            Object.keys(o.prototype)).length > 0;
-};
-
-
-function each (c, o, f) {
-
-    var i = 0, l, r;
-
-    if (type(o, 'arraylike')) {
-
-        l = o.length;
-
-        for (; i < l; i++) {
-
-            r = f.call(c, o[i], i);
-
-            if (r === false) {
+            case 'array':
+                r = o instanceof Array;
                 break;
-            }
 
-            if (r === -1) {
-                [].splice.call(o, i, 1);
-                i--; l--;
-            }
-        }
-    }
-    else {
-        for (i in o) {
-
-            r = f.call(c, o[i], i);
-
-            if (r === false) {
+            case 'null':
+                r = o === null;
                 break;
-            }
-            if (r === -1) {
-                delete o[i];
-            }
+
+            case 'date':
+                r = o instanceof Date;
+                break;
+
+            case 'instance':
+                r = this.instance(o);
+                break;
+
+            case 'nodelist':
+                r = o instanceof NodeList;
+                break;
+
+            case 'node':
+                r = /1|9|11/.test(o && o.nodeType || 0);
+                break;
+
+            case 'window':
+                r = o === window;
+                break;
+
+            case 'arraylike':
+                r = this.arraylike(o);
+                break;
+
+            case 'class':
+                r = this.clazz(o);
+                break;
+
+            case 'function':
+                r = typeof o == 'function'
+                    && !this.clazz(o);
+
+                break;
         }
-    }
-    return c;
-};
+        return r;
+    },
 
-function find (c, o, f) {
+    arraylike: function (o) {
 
-    var v;
-    each(c, o, function (e, i) {
-
-        v = f.call(this, e, i);
-
-        if (v !== undf) {
+        if (Mk.type(o, 'function|string|window')) {
             return false;
         }
-    });
-    return v;
-};
 
-function map (c, o, f) {
+        var n = !!o && typeof o.length == 'number',
+            l = n && 'length' in o && o.length;
 
-    var a, r, i;
-
-    if (type(o, 'arraylike')) {
-
-        a = [];
-
-        Array.prototype.map.call(o, function (e, x, z) {
-
-            r = f.call(c, e, x, z);
-
-            if (r !== undf) {
-                a.push(r);
-            }
-        });
-    }
-    else {
-
-        a = {};
-
-        for (i in o) {
-
-            r = f.call(c, o[i], i, o);
-
-            if (r !== undf) {
-                a[i] = r;
-            }
-        }
-    }
-    return a;
-};
-
-function filter (c, o, f) {
-
-    if (type(o, 'arraylike')) {
-        return Array.prototype.filter.call(o, function (e, i, a) {
-            f.call(c, e, i, a);
-        });
-    }
-
-    var n = {}, i, r;
-
-    for (i in o) {
-
-        r = f.call(c, o[i], i, o);
-
-        if (r === true) {
-            n[i] = o[i];
-        }
-    }
-    return n;
-};
-
-Mk.fn.filter = filter;
-Mk.fn.each = each;
-Mk.fn.find = find;
-Mk.fn.map = map;
-
-
-// property
-//
-// ES5 defineProperty, propertyDescriptor, etc. to allow getters,
-// setters, and hijack vanilla functions to take advantage of super() -
-// a dynamic method allowing recursive super object references.
-// -------------------------------------------------------------
-
-Mk.fn.property = function (o, p, m) {
-
-    var desc = gpd(p, m),
-        prop, fn;
-
-    if (!type(desc.get, 'undefined') || !type(desc.set, 'undefined')) {
-        return dp(o, m, desc);
-    }
-
-    prop = p[m];
-
-    if (!type(prop, 'function')) {
-        return o[m] = prop;
-    }
-
-    fn = Mk.fn.wrapFunction(prop, m);
-
-    dp(o, m, {
-
-        get: function () {
-            return fn;
-        },
-
-        set: function (value) {
-
-            var v = value;
-
-            if (type(value, 'function')) {
-                v = Mk.fn.wrapFunction(value, m);
-            }
-            fn = v;
-        }
-    });
-};
-
-Mk.fn.wrapFunction = function (fn, m) {
-
-    if (fn._id_) {
-        return fn;
-    }
-
-    var func = function () {
-        this._pushSuper(m);
-        var r = fn.apply(this, arguments);
-        this._popSuper(m);
-        return r;
-    };
-
-    func._id_ = uid();
-
-    func.toString = function () {
-        return fn.toString();
-    };
-    return func;
-};
-
-Mk.fn.pushSuper = function (m) {
-    this._chain_ = this._chain_ || [];
-    this._chain_.push(m);
-};
-
-Mk.fn.popSuper = function (m) {
-    this._chain_.splice(
-        this._chain_.lastIndexOf(m), 1);
-};
-
-
-Mk.fn.template = function (n, k, t, d) {
-
-    n = n || '';
-    t = t || {};
-    d = d || {};
-
-    d.$key = k;
-
-    var me  = Mk.fn.template,
-        tmp = me.get(n, t);
-
-    tmp = tmp
-
-    .replace(_s, '')
-
-    .replace(_n, function (s, c, h) {
-        return me.statements(s, k, c, h, t, d);
-    })
-
-    .replace(_d, function (s, c) {
-        return me.inject(s, k, c, t, d)
-    });
-
-    return tmp;
-}
-
-Mk.fn.template.get = function (n, t) {
-
-    var tmp = n;
-
-    if (t && prop.call(t, n)) {
-        tmp = t[n];
-    }
-    if (tmp instanceof Array) {
-        tmp = tmp.join('');
-    }
-    return tmp;
-};
-
-Mk.fn.template.statements = function (s, k, c, h, t, d) {
-
-    var p = c.split(':'),
-        x = p[ 0 ],
-        a = p[ 1 ];
-
-    if (prop.call(this.map, x)) {
-        return this.map[ x ]( h, k, t, x == 'if' ? d : (d[ a ] || d), a );
-    }
-    return '';
-};
-
-Mk.fn.template.inject = function (s, k, c, t, d) {
-
-    var p = c.split( ':' ),
-        x = p[ 0 ],
-        a = p[ 1 ];
-
-    if (a && prop.call(this.map, x)) {
-        return this.map[x](a, k, t, d, a);
-    }
-
-    if (prop.call(d, x) && !type(d[x], 'undefined|null')) {
-        return d[x];
-    }
-    return '';
-};
-
-Mk.fn.template.markup = {
-
-    highlight: [
-        '<span class="highlight">',
-            '$1',
-        '</span>'
-    ],
-
-    error: [
-        '<span class="error">',
-            '{{template}} not found',
-        '</span>'
-    ]
-};
-
-Mk.fn.template.map = {
-
-    'loop': function (h, k, t, d, a) {
-
-        var b = [], i, x, l, di, idx;
-
-        if (type(d, 'number') || (x = parseInt(a, 10)) > -1) {
-
-            for (i = 0; i < (x || d); i++) {
-
-                d.$index = i;
-                b.push(Mk.fn.template(h, k, t, d));
-            }
-        }
-        else if (d instanceof Array) {
-
-            for(i = 0, l = d.length; i < l; i++) {
-
-                di = d[i];
-
-                if (!type(di, 'object')) {
-                    di = {key: '', value: d[i]};
-                }
-
-                di.$index = i;
-                b.push(Mk.fn.template(h, k, t, di));
-            }
-        }
-        else {
-            for (i in d) {
-
-                idx = idx || 0;
-
-                b.push(Mk.fn.template(h, k, t, {
-                    key: i,
-                    value: d[i],
-                    $index: idx++
-                }));
-            }
-        }
-        return b.join('');
+        return Mk.type(o, 'array|nodelist')
+            || l === 0 || n && l > 0 && (l - 1) in o;
     },
 
-    'if': function (h, k, t, d, a) {
+    instance: function (o) {
 
-        if (prop.call(d, a)) {
+        var p = Object.getPrototypeOf(o),
+            c = p && p.hasOwnProperty('constructor') && p.constructor,
+            f = ({}).hasOwnProperty.toString;
 
-            var dp = d[a];
-
-            if ((!type(dp, 'empty'))
-                || (dp instanceof Array && dp.length > 0)) {
-                return Mk.fn.template(h, k, t, d);
-            }
-        }
-        return '';
+        return (typeof c == 'function' && f.call(c) === f.call(Object)) !== true;
     },
 
-    'highlight': function (h, k, t, d, a) {
+    clazz: function (o) {
 
-        var hl = d.highlight || '',
-            v  = d[h], w;
-
-        if (hl) {
-            w = Mk.fn.template.get('highlight', Mk.fn.template.markup);
-            v = v.replace(new RegExp('(' + hl + ')', 'gi'), w);
-        }
-        return v;
-    },
-
-    'scope': function (h, k, t, d, a) {
-        return Mk.fn.template(h, k, t, d);
-    },
-
-    'template': function (h, k, t, d, a) {
-        return Mk.fn.template(h, k, t, d);
-    }
-};
-
-
-Mk.fn.eventEmitter = {
-
-    xname: /^(\w+)\.?/,
-
-    xns: /^\w+(\.?.*)$/,
-
-    _add: function (b, n, h, c, s) {
-
-        var e = this.e(n);
-
-        if (!prop.call(b, e.name)) {
-             b[e.name] = [];
-        }
-
-        b[e.name].push({
-            ns: e.ns || undefined,
-            handler: h || noop,
-            context: c || null,
-            single:  s === true
-        });
-    },
-
-    e: function (e) {
-
-        return {
-            name: this.xname.exec( e )[ 1 ] || '',
-            ns: ( this.xns.exec( e ) || [] )[ 1 ] || undefined
-        };
-    },
-
-    args: function (args) {
-
-        for( var i = 0, a = [], l = args.length;
-                i < l && a.push(args[ i ]);
-                i++) { }
-
-        return a;
-    },
-
-    on: function on(b, e, h, c) {
-        return this._add(b, e, h, c, false);
-    },
-
-    one: function(b, e, h, c) {
-        return this._add(b, e, h, c, true);
-    },
-
-    off: function off (b, ev, h) {
-
-        var e = this.e(ev),
-            i = 0, s, item, ns, l;
-
-        if (prop.call(b, e.name)) {
-
-            s = b[e.name];
-            ns = e.ns || undf;
-            l = s.length;
-
-            for (; i < l; i++) {
-
-                item = s[i];
-
-                if (item.ns === ns && (Mk.type(h, 'u') || h === item.handler)) {
-                    s.splice(i, 1);
-                    l--;
-                    i--;
-                }
-            }
-        }
-    },
-
-    emit: function emit (b, argz /*, arguments */) {
-
-        var args = this.args(argz),
-            ev = args.shift(),
-            e = this.e(ev),
-            i = 0, s, item, l;
-
-        if (prop.call(b, e.name)) {
-
-            s = b[e.name];
-            l = s.length;
-
-            for (; i < l; i++) {
-
-                item = s[ i ];
-
-                if (!e.ns || item.ns === e.ns) {
-
-                    item.handler.apply(item.context || root, args);
-
-                    if (item.single) {
-                        s.splice(i, 1);
-                        l--; i--;
-                    }
-                }
-            }
-        }
+        return typeof o == 'function'
+            && Object.keys(o).concat(
+                Object.keys(o.prototype)).length > 0;
     }
 };
 
@@ -622,963 +478,209 @@ Mk.fn.eventEmitter = {
 // transitions are enabled
 // --------------------------------------------------
 
-Mk.fn.transition = function () {
+Mk.transitions = {
 
-    var tr = Mk.fn.transition;
+    _enabled: false,
 
-    if (tr.enabled) {
+    _key: null,
 
-        if (tr.key) {
-            return tr.key;
-        }
+    _keys: {
+        'transition': 'transitionend',
+        'OTransition': 'oTransitionEnd',
+        'MozTransition': 'transitionend',
+        'WebkitTransition': 'webkitTransitionEnd'
+    },
 
-        var el = document.createElement('xanimate'), t;
+    get enabled () {
+        return this._enabled;
+    },
 
-        for (t in tr.keys) {
-            if (typeof el.style[t] !== 'undefined') {
-                return tr.key = tr.keys[t];
+    get disabled () {
+        return this._enabled !== true;
+    },
+
+    get key () {
+
+        if (this.enabled) {
+
+            if (this._key) {
+                return this._key;
             }
-        }
-    }
-    return null;
-}
 
-Mk.fn.transition.enabled = false;
+            var keys = this._keys,
+                el = document.createElement('xanimate'), t;
 
-Mk.fn.transition.key = null;
-
-Mk.fn.transition.keys = {
-    'transition': 'transitionend',
-    'OTransition': 'oTransitionEnd',
-    'MozTransition': 'transitionend',
-    'WebkitTransition': 'webkitTransitionEnd'
-};
-
-
-Mk.fn.device = {
-
-    get is () {
-        return uax.test(ua);
-    },
-
-    get id () {
-        return ((uax.exec(ua) || [])[1] || '').toLowerCase();
-    }
-};
-
-
-/*
-    Super light-weight DOM library
-    We've chosen to leave jQuery out of the default build
-    and use a very light weight roll of common DOM functionality.
-    You can always replace this implementation with jQuery or any other
-    by:
-
-    1. using AMD, define a module called MkDOM as a dependency of Core.
-    2. Vanilla JavaScript, just set window.MkDOM to a different library.
-
-    The Core.$ will be overridden with the new library you've specified.
-    Make sure method names for the below are the SAME or current components will break
-    on referencing non existent members.
-
-    Members:
-
-    length
-
-    is()
-    val()
-    each()
-    find()
-    filter()
-    parent() (also does closest)
-    hasClass()
-    addClass()
-    removeClass()
-    attr()
-    prop()
-    data()
-    html()
-    text()
-    markup()
-    appendTo()
-    prependTo()
-    append()
-    prepend()
-    remove()
-    on()
-    one()
-    off()
-    emit()
-    ajax()
-*/
-
-var cache = {},
-    //
-    // tag/markup testing
-    // ------------------------------------
-    tg = /^\s*<([^>\s]+)/,
-    //
-    // html creation wrappers
-    // -------------------------------------
-    wrap = {
-        option: [ 1, '<select multiple="multiple">', '</select>' ],
-        thead: [ 1, '<table>', '</table>' ],
-        col: [ 2, '<table><colgroup>', '</colgroup></table>' ],
-        tr: [ 2, '<table><tbody>', '</tbody></table>' ],
-        td: [ 3, '<table><tbody><tr>', '</tr></tbody></table>' ],
-        li: [1, '<ul>', '</ul>'],
-        dd: [1, '<dl>', '</dl>'],
-        defaultt: [ 0, "", "" ]
-    };
-
-//
-// element wrap duplicates
-// ----------------------------------------
-
-wrap.caption = wrap.thead;
-wrap.optgroup = wrap.option;
-wrap.tbody = wrap.thead;
-wrap.tfoot = wrap.thead;
-wrap.dt = wrap.dd;
-
-function Dom (s, c) {
-    return this.find(s, c);
-}
-
-
-//
-// data - store/retrieve data and data attributes
-// ----------------------------------------
-
-Dom.data = function (n, k, vl) {
-
-    if (n) {
-
-        var id = n._id = n._id || uid(),
-            c  = cache[id] || {},
-            v  = vl;
-
-        // remove entire entry
-        if (k === null) {
-
-            n._id = null;
-            delete cache[id];
-            return c;
-        }
-
-        // undefined
-        if (v === undf) {
-            v = c[k] || n.getAttribute('data-' + k) || null;
-            //c[k] = v;
-        }
-        // remove key
-        else if (vl === null) {
-            v = c[k];
-            delete c[k];
-        }
-        // set key
-        else {
-            c[k] = v;
-        }
-
-        cache[id] = c;
-
-        return v;
-    }
-}
-
-
-//
-// removes elements, events, and data from memory
-//
-
-Dom.remove = function (n) {
-
-    var d;
-
-    Mk.fn.each(this, n.childNodes, function (c) {
-        if (c && c.nodeType === 1) {
-            Mk.$.remove(c);
-        }
-    });
-
-    var d = Mk.$.data(n, null);
-
-    if (d && d.events) {
-        Mk.fn.each(this, d.events, function (v, t) {
-            Mk.$.off(n, t);
-        });
-    }
-    n.parentNode.removeChild(n);
-}
-
-
-Dom.ajax = function (o) {
-    return new this.xhr(o);
-}
-
-Dom.xhr = function (o) {
-    this.init(o);
-}
-
-Dom.xhr.prototype = {
-
-    headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
-    },
-
-    xhr: null,
-
-    open: false,
-
-    options: null,
-
-    url: function (u) {
-
-        u = (u || location.href);
-
-        var t = u.lastIndexOf('/');
-
-        if (t > -1 && (t = u.indexOf('#')) > -1) {
-            u = u.substr(0, t)
-        }
-        return u;
-    },
-
-    qs: function (o) {
-
-        o = o || '';
-
-        if (!type(o, 'string')) {
-            return Mk.fn.map(this, o, function(v, n) {
-                return n + '=' + encodeURIComponent(v);
-            }).join('&');
-        }
-        return o;
-    },
-
-    init: function (o) {
-
-        o = o || {};
-
-        o.url = this.url(o.url);
-        o.data = this.qs(o.data);
-        o.method = (o.method || 'GET').toUpperCase();
-        o.type = o.type || 'text';
-        o.headers = o.headers || {};
-        o.async = o.async || true;
-        o.encode = o.encode || true;
-        o.encoding = o.encoding || 'utf-8';
-        o.user = o.user || '';
-        o.password = o.password || '';
-
-        // callbacks
-        o.complete = o.complete || noop;
-        o.success = o.success || noop;
-        o.error = o.error || noop;
-
-        if (o.data && o.method === 'GET') {
-            o.url  = o.url.indexOf('?') > -1 && o.url || o.url + '?';
-            o.url += o.data;
-            o.data = null;
-        }
-
-        Mk.fn.each(this, this.headers, function (v, n) {
-            if (prop.call(o.headers, n) !== true) {
-                o.headers[n] = v;
-            }
-        });
-
-        if (o.encode && ['POST', 'PUT'].indexOf(o.type) > -1) {
-            o.headers['Content-type'] =
-                'application/x-www-form-urlencoded' + o.encoding
-        }
-
-        this.options = o;
-
-        if (o.now !== false) {
-            this.send();
-        }
-        return this;
-    },
-
-    jsonp: function jsonp () {
-
-        if (this.open) {
-            return this;
-        }
-
-        var x = this,
-            o = x.options,
-            s = doc.createElement('script'),
-
-            id = o.jsonpid = 'MKUI' + uid().split('-').join(''),
-            qs = 'callback=' + id;
-
-        s.type = 'text/javascript';
-        s.language = 'javascript';
-        s.async = o.async;
-        s.src = o.url + (o.url.indexOf('?') > -1 && '&' || '?') + qs;
-        s.id = o.scriptid = uid();
-
-        s.onerror = function () {
-            o.error.call(x);
-        };
-
-        s.onload = function () {
-            o.complete.call(x);
-        };
-
-        var cb = function (data) {
-
-            x.response = data;
-            x.status = 200;
-
-            s.onload  = null;
-            s.onerror = null;
-            s.parentNode.removeChild(s);
-
-            o.success.call(x, data);
-
-            delete root[id];
-        };
-
-        root[id] = cb;
-
-        doc.documentElement
-            .firstChild.appendChild(s);
-
-        this.open = true;
-        this.status = 0;
-
-        return this;
-    },
-
-    send: function () {
-
-        if (this.open) {
-            return this;
-        }
-
-        var x = this,
-            o = x.options,
-            xhr;
-
-        if (o.type === 'jsonp') {
-            return this.jsonp();
-        }
-
-        xhr = this.xhr = new XMLHttpRequest();
-
-        xhr.open(o.method, o.url, o.async, o.user, o.password);
-        xhr.onreadystatechange = function () {
-            x.stateChange();
-        };
-
-        if (o.user && 'withCredentials' in xhr) {
-            xhr.withCredentials = true;
-        }
-
-        Mk.fn.each(this, o.headers, function (v, n) {
-            xhr.setRequestHeader(n, v);
-        });
-
-        if (o.type && o.type !== 'text') {
-            xhr.responseType = o.type;
-        }
-
-        x.open = true;
-        x.status = 0;
-
-        xhr.send(o.data);
-
-        if (o.async !== true) {
-            this.stateChange();
-        }
-        return this;
-    },
-
-    abort: function () {
-
-        this.open = false;
-        this.status = 0;
-
-        if (this.xhr) {
-            this.xhr.abort();
-            this.xhr.onreadystatechange = null;
-            this.xhr = null;
-            return this;
-        }
-
-        var x = this,
-            o = x.options,
-            s = doc.getElementById(o.scriptid),
-            id = o.jsonpid;
-
-        if (s) {
-            s.parentNode.removeChild(s);
-        }
-
-        root[id] = function () {
-            delete root[id];
-        };
-
-        root[id]();
-
-        return this;
-    },
-
-    stateChange: function () {
-
-        var xhr = this.xhr,
-            x = this,
-            o = x.options;
-
-        if (xhr.readyState !== 4) {
-            return;
-        }
-
-        o.complete.call(x, xhr);
-
-        x.status = xhr.status;
-        x.statusText = xhr.statusText;
-
-        if (x.status === 1223) {
-            x.status = 204;
-            x.statusText = 'No Content';
-        }
-
-        x.open = false;
-        x.response = xhr.response || null;
-
-        if (xhr.responseType === '' || xhr.responseType === 'text') {
-            x.response = xhr.responseText;
-        }
-
-        xhr.onreadystatechange = function () {};
-
-        if (x.status >= 200 && x.status < 300) {
-            o.success.call(x, x.response, xhr);
-        } else {
-            o.error.call(x, xhr);
-        }
-    }
-};
-
-
-Dom.delegate = function (p, n, x) {
-
-    var r = {s: false, t: p};
-
-    if (!x) {
-        r.s = true;
-    }
-    else {
-        new Dom(x, p).each(function (el) {
-
-            if (n === el || new Dom(n).parent(el).length) {
-                r.s = true;
-                r.t = el;
-                return false;
-            }
-        });
-    }
-    return r;
-}
-
-Dom.event = function (n, a, t, s, f, o, x) {
-
-    var h, d;
-
-    if (a) {
-
-        h = function (e) {
-
-            var z = false,
-                w = Dom.delegate(this, e.target, x),
-                r;
-
-            if (e.ns) {
-                if (e.ns === s && w.s) {
-                    r = f.apply(w.t, [e].concat(e.data));
-                    z = true;
+            for (t in keys) {
+                if (!Mk.type(el.style[t], 'undefined')) {
+                    return this._key = keys[t];
                 }
             }
-            else if (w.s) {
-                r = f.call(w.t, e);
-                z = true;
-            }
-
-            if (z && o) {
-                Dom.event(n, false, t, s, f, o, x);
-            }
-            return r;
-        };
-
-        d = Dom.data(n, 'events') || {};
-
-        d[t] = d[t] || [];
-
-        d[t].push({
-            type: t,
-            ns: s,
-            original: f,
-            handler: h,
-            delegate: x
-        });
-
-        Dom.data(n, 'events', d);
-
-        n.addEventListener(t, h, false);
-
-        return;
-    }
-
-    d = (Dom.data(n, 'events') || {})[t] || [];
-
-    Mk.fn.each(this, d, function (o) {
-        if (!s || s && o.ns === s) {
-            if (!f || f === o.original) {
-                n.removeEventListener(t, o.handler);
-                return -1;
-            }
         }
-    });
-}
-
-Dom.on = function (n, t, d, h, o, x) {
-
-    var p = t.split('.'),
-        e = p.shift();
-
-    Dom.event(n, true, e, p.join('.'), h, o, x);
-}
-
-Dom.off = function (n, t, h) {
-
-    var p = t.split('.'),
-        e = p.shift();
-
-    Dom.event(n, false, e, p.join('.'), h);
-}
-
-Dom.emit = function (n, t, d) {
-
-    var p = t.split('.'),
-        e = p.shift(),
-        ev = new Event(e);
-
-    ev.ns = p.join('.');
-    ev.data = d || [];
-
-    n.dispatchEvent(ev);
-}
-
-
-Dom.prototype = {
-
-    length: 0,
-
-    context: null,
-
-    constructor: Dom,
-
-    each: function (fn) {
-        return Mk.fn.each(this, this, fn);
+        return void+1;
     },
 
-    find: function (s, c) {
+    enable: function () {
+        return this._enabled = true;
+    },
 
-        s = s || doc;
-        c = c || this.length && this || [doc];
+    disable: function () {
+        return this._enabled = false;
+    }
+};
 
-        if (type(c, 'string')) {
-            c = new Dom(c, doc);
+
+Mk.template = function (n, k, t, d) {
+    return Mk.fn.template.parse(n, k, t, d);
+}
+
+Mk.fn.template = {
+
+    markup: {
+        highlight: '<span class="highlight">$1</span>',
+        error: '<span class="error">{{template}} not found</span>'
+    },
+
+    parse: function (n, k, t, d) {
+
+        n = n || '';
+        t = t || {};
+        d = d || {};
+
+        d.$key = k;
+
+        var tmp = this;
+
+        return tmp
+        .get(n, t)
+        .replace(/[\r|\t|\n]+/g, '')
+        .replace(/{{([^}]+)}}(.*)({{\/\1}})/g, function (s, c, h) {
+            return tmp.statements(s, k, c, h, t, d);
+        })
+        .replace(/{{([^{]+)}}/g, function (s, c) {
+            return tmp.inject(s, k, c, t, d)
+        });
+    },
+
+    get: function (n, t) {
+
+        var tmp = n;
+
+        if (t && prop.call(t, n)) {
+            tmp = t[n];
         }
-        else if (c.nodeType) {
-            c = [c];
+
+        if (tmp instanceof Array) {
+            tmp = tmp.join('');
+        }
+        return tmp;
+    },
+
+    statements: function (s, k, c, h, t, d) {
+
+        var p = c.split(':'),
+            x = p[ 0 ],
+            a = p[ 1 ];
+
+        if (prop.call(this.map, x)) {
+            return this.map[ x ]( h, k, t, x == 'if' ? d : (d[ a ] || d), a );
+        }
+        return '';
+    },
+
+    inject: function (s, k, c, t, d) {
+
+        var p = c.split( ':' ),
+            x = p[ 0 ],
+            a = p[ 1 ];
+
+        if (a && prop.call(this.map, x)) {
+            return this.map[x](a, k, t, d, a);
         }
 
-        var n = s;
+        if (prop.call(d, x) && !Mk.type(d[x], 'undefined|null')) {
+            return d[x];
+        }
+        return '';
+    },
 
-        if (type(s, 'string')) {
+    map: {
 
-            if (tg.test(s)) {
-                n = this.markup(s);
+        'loop': function (h, k, t, d, a) {
+
+            var b = [], i, x, l, di, idx;
+
+            if (Mk.type(d, 'number') || (x = parseInt(a, 10)) > -1) {
+
+                for (i = 0; i < (x || d); i++) {
+
+                    d.$index = i;
+                    b.push(Mk.template(h, k, t, d));
+                }
+            }
+            else if (d instanceof Array) {
+
+                for(i = 0, l = d.length; i < l; i++) {
+
+                    di = d[i];
+
+                    if (!Mk.type(di, 'object')) {
+                        di = {key: '', value: d[i]};
+                    }
+
+                    di.$index = i;
+                    b.push(Mk.template(h, k, t, di));
+                }
             }
             else {
+                for (i in d) {
 
-                n = [];
+                    idx = idx || 0;
 
-                Mk.fn.each(this, c, function (el) {
-                    n = n.concat(slice.call(el.querySelectorAll(s)));
-                });
-            }
-        }
-
-        if (n && nt.test(n.nodeType)) {
-            n = [n];
-        }
-
-        if (type(n, 'arraylike')) {
-            n = slice.call(n);
-        }
-
-        splice.call(this, 0, this.length || 0);
-        push.apply(this, n);
-
-        this.context = c;
-
-        return this;
-    },
-
-    is: function (s) {
-
-        var elems = new Dom(s, this.context),
-            result = false;
-
-        this.each(function (el) {
-            elems.each(function (_el) {
-                if (el === _el) {
-                    result = true; return false;
+                    b.push(Mk.template(h, k, t, {
+                        key: i,
+                        value: d[i],
+                        $index: idx++
+                    }));
                 }
-            });
-            if (result) return false;
-        });
-        return result;
-    },
+            }
+            return b.join('');
+        },
 
-    filter: function (s) {
+        'if': function (h, k, t, d, a) {
 
-        var elems = new Dom(s, this.context),
-            filtered = [];
+            if (prop.call(d, a)) {
 
-        this.each(function (el) {
-            elems.each(function (_el) {
-                if (el === _el) filtered.push(el);
-            });
-        });
-        return new Dom(filtered, this.context);
-    },
+                var dp = d[a];
 
-    parent: function (s, c) {
-
-        var p = [], ps;
-
-        if (arguments.length) {
-
-            ps = new Dom(s, c);
-
-            this.each(function (el) {
-
-                while (el.parentNode) {
-                    ps.each(function (_el) {
-
-                        if (_el === el.parentNode) {
-
-                            if (p.indexOf(_el) < 0) {
-                                p.push(_el);
-                            }
-                            return false;
-                        }
-                    });
-                    el = el.parentNode;
+                if ((!Mk.type(dp, 'empty'))
+                    || (dp instanceof Array && dp.length > 0)) {
+                    return Mk.template(h, k, t, d);
                 }
-            });
-        }
-        else {
-            this.each(function (el) {
-                if (el.parentNode) p.push(el.parentNode);
-            });
-        }
-        return new Dom(p);
-    },
-
-    markup: function (s) {
-
-        // if we support html5 templates (everybody but IE)
-        var c = doc.createElement('template');
-
-        if (c.content) {
-            c.innerHTML = s;
-            return slice.call(c.content.childNodes);
-        }
-
-        // IE does this...
-        var t = tg.exec(s)[1] || null,
-            a = t && wrap.hasOwnProperty(t) && wrap[t] || wrap.defaultt,
-            i = 0;
-
-        c = doc.createElement('div');
-        c.innerHTML = a[1] + s + a[2];
-
-        while (i < a[0]) {
-            c = c.firstChild;
-            i++;
-        }
-
-        return slice.call(c.childNodes);
-    },
-
-    html: function (s) {
-
-        if (s === undf) {
-            if (this.length) {
-                return this[0].innerHTML;
             }
-            return null;
-        }
+            return '';
+        },
 
-        return this.each(function (el) {
-            while (el.firstChild) {
-                Dom.remove(el.firstChild);
+        'highlight': function (h, k, t, d, a) {
+
+            var tp = Mk.template,
+                hl = d.highlight || '',
+                v  = d[h], w;
+
+            if (hl) {
+                w = tp.get('highlight', tp.markup);
+                v = v.replace(new RegExp('(' + hl + ')', 'gi'), w);
             }
-            Mk.fn.each(this, this.markup(s), function (f) {
-                el.appendChild(f);
-            });
-        });
-    },
+            return v;
+        },
 
-    text: function (s) {
+        'scope': function (h, k, t, d, a) {
+            return Mk.template(h, k, t, d);
+        },
 
-        if (s === undf) {
-            if (this.length) {
-                return this[0].textContent;
-            }
-            return null;
+        'template': function (h, k, t, d, a) {
+            return Mk.template(h, k, t, d);
         }
-
-        return this.each(function (el) {
-            el.textContent = s;
-        });
-    },
-
-    nv: function (n, v, fn) {
-
-        if (typeof n === 'object') {
-            for (var i in n) {
-                fn.call(this, i, n[i]);
-            }
-            return this;
-        }
-        return fn.call(this, n, v);
-    },
-
-    attr: function (n, v) {
-        return this.nv(n, v, function (_n, _v) {
-
-            if (_v === undf) {
-                return this.length && this[0].getAttribute(_n);
-            }
-            return this.each(function (el) {
-                if (_v === null) {
-                    el.removeAttribute(_n);
-                    return;
-                }
-                el.setAttribute(_n, _v);
-            });
-        });
-    },
-
-    prop: function (n, v) {
-        return this.nv(n, v, function (_n, _v) {
-            if (_v === undf) {
-                return this.length && this[0][_n] || null;
-            }
-            return this.each(function (el) {
-                el[_n] = _v;
-            });
-        });
-    },
-
-    val: function (v) {
-
-        if (v === undf && this.length) {
-            return this[0].value;
-        }
-
-        return this.each(function(el) {
-            el.value = v;
-        });
-    },
-
-    data: function (n, v) {
-        return this.nv(n, v, function (_n, _v) {
-            if (_v === undf) {
-                return Dom.data(this[0], _n);
-            }
-            return this.each(function (el) {
-                Dom.data(el, _n, _v);
-            });
-        });
-    },
-
-    css: function (n, v) {
-        return this.nv(n, v, function (_n, _v) {
-            if (_v === undf && this.length) {
-                return getComputedStyle(this[0]).getPropertyValue(_v);
-            }
-            return this.each(function (el) {
-                el.style[_n] = type(_v, 'number') && (_v + 'px') || _v;
-            });
-        });
-    },
-
-    hasClass: function (v) {
-
-        var r = false;
-        this.each(function (el) {
-            if (el.classList.contains(v)) {
-                r = true;
-                return false;
-            }
-        });
-        return r;
-    },
-
-    addClass: function (value) {
-
-        var values = value.split(' '), c;
-
-        return Mk.fn.each(this, values, function (v) {
-            this.each(function (el) {
-                el.classList.add(v);
-            });
-        });
-    },
-
-    removeClass: function (value) {
-
-        var values = value.split(' '), c, _v;
-
-        return Mk.fn.each(this, values, function (v) {
-            this.each(function (el) {
-                el.classList.remove(v);
-            });
-        });
-    },
-
-    appendTo: function (s, c) {
-
-        var elem = new Dom(s, c)[0] || null;
-
-        if (elem) {
-            this.each(function (el) {
-                elem.appendChild(el);
-            });
-        }
-        return this;
-    },
-
-    prependTo: function (s, c) {
-
-        var elem = new Dom(s, c)[0] || null;
-
-        if (elem) {
-            this.each(function (el) {
-                if (elem.firstChild) {
-                    elem.insertBefore(el, elem.firstChild);
-                    return;
-                }
-                elem.appendChild(el);
-            });
-        }
-        return this;
-    },
-
-    append: function (s, c) {
-
-        if (this.length) {
-
-            var elem = this[this.length - 1];
-
-            new Dom(s, c).each(function (el) {
-                elem.appendChild(el);
-            });
-        }
-        return this;
-    },
-
-    prepend: function (s, c) {
-
-        if (this.length) {
-
-            var elem = this[this.length - 1];
-
-            new Dom(s, c).each(function (el) {
-                if (elem.firstChild) {
-                    elem.insertBefore(el, elem.firstChild);
-                    return;
-                }
-                elem.appendChild(el);
-            });
-        }
-        return this;
-    },
-
-    remove: function (s) {
-
-        var o = this, e;
-
-        if (arguments.length) {
-            o = new Dom(s, this);
-        }
-
-        o.each(function (el) {
-            Dom.remove(el);
-        });
-        return this;
-    },
-
-    on: function (t, d, h) {
-
-        if (!h) {
-            h = d;
-            d = null;
-        }
-
-        return this.each(function (el) {
-            Dom.on(el, t, '', h, false, d);
-        });
-    },
-
-    one: function (t, d, h) {
-
-        if (!h) {
-            h = d;
-            d = null;
-        }
-
-        return this.each(function (el) {
-            Dom.on(el, t, '', h, true, d);
-        });
-    },
-
-    off: function (t, h) {
-        return this.each(function (el) {
-            Dom.off(el, t, h);
-        });
-    },
-
-    emit: function (t, d) {
-        return this.each(function (el) {
-            Dom.emit(el, t, d);
-        });
     }
-};
-
-
-Mk.$ = function (s, c) {
-    return new Dom(s, c);
-};
-
-
-Mk.fn.keycodes = {
-    backspace: 8, tab: 9, enter: 13, esc: 27, space: 32,
-    pageup: 33, pagedown: 34, end: 35, home: 36,
-    left: 37, up: 38, right: 39, down: 40, left: 37, right: 39,
-    comma: 188
 };
 
 
@@ -1603,7 +705,6 @@ Mk.get = function (n) {
         p = n.split('.');
 
     for (var i = 0, l = p.length; i < l; i++) {
-
         if (prop.call(m, p[i])) {
             o = m[p[i]];
             m = o;
@@ -1615,49 +716,39 @@ Mk.get = function (n) {
     return o;
 };
 
-Mk.transitions = function (b) {
-
-    var t = Mk.fn.transition;
-
-    if (b === true) {
-        t.enabled = true;
-    } else if (b === false) {
-        t.enabled = false;
-    }
-
-    return t.enabled;
-};
-
 Mk.create = function (name, base, proto) {
 
     name = name || '';
 
     proto = proto || base || {};
 
-    base = typeof base === 'function'
+    base = typeof base == 'function'
         && base.prototype instanceof Mk
         && base || Mk;
 
-    var member, statics, obj = function () {
-        this._init.apply(this, arguments);
-        return this;
-    };
+    var o, m, s,
+        obj = function () {
+            this._init.apply(this, arguments);
+            return this;
+        };
 
-    obj.prototype = Object.create(base.prototype);
+    o = obj.prototype = Object.create(base.prototype);
 
-    for (member in proto) {
-        Mk.fn.property(obj.prototype, proto, member);
+    for (m in proto) {
+        Mk.fn.property(o, proto, m);
     }
 
     if (base !== Mk) {
-        for (statics in base) {
-            Mk.fn.property(obj, base, statics);
+
+        for (s in base) {
+
+            Mk.fn.property(obj, base, s);
         }
     }
 
-    obj.prototype.constructor = obj;
-    obj.prototype._super_ = base;
-    obj.prototype._chain_ = null;
+    o.constructor = obj;
+    o._super_ = base;
+    o._chain_ = null;
 
     return this.define(name, obj);
 };
@@ -1718,7 +809,7 @@ Mk.prototype = {
     get super () {
 
         var p = this,
-            c = p._chain_,
+            c = p._chain_ || [],
             m = c[c.length - 1],
             d = c.reduce(function(a, b) {
                 if (b === m) a++;
@@ -1748,7 +839,7 @@ Mk.prototype = {
     </property:transitions>
     */
     get transitions () {
-        return Mk.fn.transition.enabled;
+        return Mk.transitions.enabled;
     },
     /*
     <property:version>
@@ -1798,7 +889,7 @@ Mk.prototype = {
     </method:uid>
     */
     uid: function () {
-        return uid();
+        return Mk.fn.uid();
     },
     /*
     <method:template>
@@ -1815,7 +906,7 @@ Mk.prototype = {
     </method:template>
     */
     template: function (n, d) {
-        return Mk.fn.template(n, this.name, this.config.templates, d);
+        return Mk.template(n, this.name, this.config.templates, d);
     },
     /*
     <method:format>
@@ -1832,7 +923,7 @@ Mk.prototype = {
     </method:format>
     */
     format: function (n, d) {
-        return Mk.fn.template(n, this.name, this.config.formats, d);
+        return Mk.template(n, this.name, this.config.formats, d);
     },
     /*
     <method:html>
@@ -1966,7 +1057,7 @@ Mk.prototype = {
     transition: function (node, cb) {
 
         var  n = this.$(node),
-             t = Mk.fn.transition(),
+             t = Mk.transitions.key,
              c = this;
 
         cb = cb || function () {};
@@ -2003,7 +1094,7 @@ Mk.prototype = {
     */
     clearTransitions: function (n) {
 
-        var t = Mk.fn.transition();
+        var t = Mk.transitions.key;
 
         if (t) {
             this.$(n).off(t);
@@ -2213,7 +1304,7 @@ Mk.prototype = {
 
         this.each(o, function (v, n) {
 
-            if (type(v, 'object|arraylike') && prop.call(c, n)) {
+            if (Mk.type(v, 'object|arraylike') && prop.call(c, n)) {
                 this.each(v, function (e, k) {
                     c[n][k] = e;
                 });
@@ -2258,7 +1349,7 @@ Mk.prototype = {
             v = o[n];
         }
 
-        if (v === undf && ty != 'undefined') {
+        if (v === void+1 && ty != 'undefined') {
             v = this.$(el || this.root).data(n);
         }
 

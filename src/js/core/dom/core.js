@@ -1,11 +1,11 @@
 
-Dom.prototype = {
+$.prototype = {
 
     length: 0,
 
     context: null,
 
-    constructor: Dom,
+    constructor: $,
 
     each: function (fn) {
         return Mk.fn.each(this, this, fn);
@@ -13,21 +13,23 @@ Dom.prototype = {
 
     find: function (s, c) {
 
-        s = s || doc;
-        c = c || this.length && this || [doc];
+        var d = document, n
 
-        if (type(c, 'string')) {
-            c = new Dom(c, doc);
+        s = s || d;
+        c = c || this.length && this || [d];
+
+        if (Mk.type(c, 'string')) {
+            c = new $(c, d);
         }
         else if (c.nodeType) {
             c = [c];
         }
 
-        var n = s;
+        n = s;
 
-        if (type(s, 'string')) {
+        if (Mk.type(s, 'string')) {
 
-            if (tg.test(s)) {
+            if (/^\s*<([^>\s]+)/.test(s)) {
                 n = this.markup(s);
             }
             else {
@@ -35,21 +37,22 @@ Dom.prototype = {
                 n = [];
 
                 Mk.fn.each(this, c, function (el) {
-                    n = n.concat(slice.call(el.querySelectorAll(s)));
+                    console.info(arguments)
+                    n = n.concat([].slice.call(el.querySelectorAll(s)));
                 });
             }
         }
 
-        if (n && nt.test(n.nodeType)) {
+        if (n && /1|9|11/.test(n.nodeType)) {
             n = [n];
         }
 
-        if (type(n, 'arraylike')) {
-            n = slice.call(n);
+        if (Mk.type(n, 'arraylike')) {
+            n = [].slice.call(n);
         }
 
-        splice.call(this, 0, this.length || 0);
-        push.apply(this, n);
+        [].splice.call(this, 0, this.length || 0);
+        [].push.apply(this, n);
 
         this.context = c;
 
@@ -58,7 +61,7 @@ Dom.prototype = {
 
     is: function (s) {
 
-        var elems = new Dom(s, this.context),
+        var elems = new $(s, this.context),
             result = false;
 
         this.each(function (el) {
@@ -74,7 +77,7 @@ Dom.prototype = {
 
     filter: function (s) {
 
-        var elems = new Dom(s, this.context),
+        var elems = new $(s, this.context),
             filtered = [];
 
         this.each(function (el) {
@@ -82,7 +85,7 @@ Dom.prototype = {
                 if (el === _el) filtered.push(el);
             });
         });
-        return new Dom(filtered, this.context);
+        return new $(filtered, this.context);
     },
 
     parent: function (s, c) {
@@ -91,7 +94,7 @@ Dom.prototype = {
 
         if (arguments.length) {
 
-            ps = new Dom(s, c);
+            ps = new $(s, c);
 
             this.each(function (el) {
 
@@ -115,13 +118,14 @@ Dom.prototype = {
                 if (el.parentNode) p.push(el.parentNode);
             });
         }
-        return new Dom(p);
+        return new $(p);
     },
 
     markup: function (s) {
 
         // if we support html5 templates (everybody but IE)
-        var c = doc.createElement('template');
+        var d = document,
+            c = d.createElement('template');
 
         if (c.content) {
             c.innerHTML = s;
@@ -129,11 +133,11 @@ Dom.prototype = {
         }
 
         // IE does this...
-        var t = tg.exec(s)[1] || null,
-            a = t && wrap.hasOwnProperty(t) && wrap[t] || wrap.defaultt,
+        var t = /^\s*<([^>\s]+)/.exec(s)[1] || null,
+            a = t && $.wrap.hasOwnProperty(t) && $.wrap[t] || $.wrap.defaultt,
             i = 0;
 
-        c = doc.createElement('div');
+        c = d.createElement('div');
         c.innerHTML = a[1] + s + a[2];
 
         while (i < a[0]) {
@@ -141,12 +145,12 @@ Dom.prototype = {
             i++;
         }
 
-        return slice.call(c.childNodes);
+        return [].slice.call(c.childNodes);
     },
 
     html: function (s) {
 
-        if (s === undf) {
+        if (s === void+1) {
             if (this.length) {
                 return this[0].innerHTML;
             }
@@ -155,7 +159,7 @@ Dom.prototype = {
 
         return this.each(function (el) {
             while (el.firstChild) {
-                Dom.remove(el.firstChild);
+                $.remove(el.firstChild);
             }
             Mk.fn.each(this, this.markup(s), function (f) {
                 el.appendChild(f);
@@ -165,7 +169,7 @@ Dom.prototype = {
 
     text: function (s) {
 
-        if (s === undf) {
+        if (s === void+1) {
             if (this.length) {
                 return this[0].textContent;
             }
@@ -191,7 +195,7 @@ Dom.prototype = {
     attr: function (n, v) {
         return this.nv(n, v, function (_n, _v) {
 
-            if (_v === undf) {
+            if (_v === void+1) {
                 return this.length && this[0].getAttribute(_n);
             }
             return this.each(function (el) {
@@ -206,7 +210,7 @@ Dom.prototype = {
 
     prop: function (n, v) {
         return this.nv(n, v, function (_n, _v) {
-            if (_v === undf) {
+            if (_v === void+1) {
                 return this.length && this[0][_n] || null;
             }
             return this.each(function (el) {
@@ -217,7 +221,7 @@ Dom.prototype = {
 
     val: function (v) {
 
-        if (v === undf && this.length) {
+        if (v === void+1 && this.length) {
             return this[0].value;
         }
 
@@ -228,22 +232,22 @@ Dom.prototype = {
 
     data: function (n, v) {
         return this.nv(n, v, function (_n, _v) {
-            if (_v === undf) {
-                return Dom.data(this[0], _n);
+            if (_v === void+1) {
+                return $.data(this[0], _n);
             }
             return this.each(function (el) {
-                Dom.data(el, _n, _v);
+                $.data(el, _n, _v);
             });
         });
     },
 
     css: function (n, v) {
         return this.nv(n, v, function (_n, _v) {
-            if (_v === undf && this.length) {
+            if (_v === void+1 && this.length) {
                 return getComputedStyle(this[0]).getPropertyValue(_v);
             }
             return this.each(function (el) {
-                el.style[_n] = type(_v, 'number') && (_v + 'px') || _v;
+                el.style[_n] = Mk.type(_v, 'number') && (_v + 'px') || _v;
             });
         });
     },
@@ -284,7 +288,7 @@ Dom.prototype = {
 
     appendTo: function (s, c) {
 
-        var elem = new Dom(s, c)[0] || null;
+        var elem = new $(s, c)[0] || null;
 
         if (elem) {
             this.each(function (el) {
@@ -296,7 +300,7 @@ Dom.prototype = {
 
     prependTo: function (s, c) {
 
-        var elem = new Dom(s, c)[0] || null;
+        var elem = new $(s, c)[0] || null;
 
         if (elem) {
             this.each(function (el) {
@@ -316,7 +320,7 @@ Dom.prototype = {
 
             var elem = this[this.length - 1];
 
-            new Dom(s, c).each(function (el) {
+            new $(s, c).each(function (el) {
                 elem.appendChild(el);
             });
         }
@@ -329,7 +333,7 @@ Dom.prototype = {
 
             var elem = this[this.length - 1];
 
-            new Dom(s, c).each(function (el) {
+            new $(s, c).each(function (el) {
                 if (elem.firstChild) {
                     elem.insertBefore(el, elem.firstChild);
                     return;
@@ -345,11 +349,11 @@ Dom.prototype = {
         var o = this, e;
 
         if (arguments.length) {
-            o = new Dom(s, this);
+            o = new $(s, this);
         }
 
         o.each(function (el) {
-            Dom.remove(el);
+            $.remove(el);
         });
         return this;
     },
@@ -362,7 +366,7 @@ Dom.prototype = {
         }
 
         return this.each(function (el) {
-            Dom.on(el, t, '', h, false, d);
+            $.on(el, t, '', h, false, d);
         });
     },
 
@@ -374,19 +378,19 @@ Dom.prototype = {
         }
 
         return this.each(function (el) {
-            Dom.on(el, t, '', h, true, d);
+            $.on(el, t, '', h, true, d);
         });
     },
 
     off: function (t, h) {
         return this.each(function (el) {
-            Dom.off(el, t, h);
+            $.off(el, t, h);
         });
     },
 
     emit: function (t, d) {
         return this.each(function (el) {
-            Dom.emit(el, t, d);
+            $.emit(el, t, d);
         });
     }
 };

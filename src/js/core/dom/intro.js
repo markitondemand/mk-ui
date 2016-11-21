@@ -1,4 +1,3 @@
-
 /*
     Super light-weight DOM library
     We've chosen to leave jQuery out of the default build
@@ -44,35 +43,25 @@
     ajax()
 */
 
-var cache = {},
-    //
-    // tag/markup testing
-    // ------------------------------------
-    tg = /^\s*<([^>\s]+)/,
-    //
-    // html creation wrappers
-    // -------------------------------------
-    wrap = {
-        option: [ 1, '<select multiple="multiple">', '</select>' ],
-        thead: [ 1, '<table>', '</table>' ],
-        col: [ 2, '<table><colgroup>', '</colgroup></table>' ],
-        tr: [ 2, '<table><tbody>', '</tbody></table>' ],
-        td: [ 3, '<table><tbody><tr>', '</tr></tbody></table>' ],
-        li: [1, '<ul>', '</ul>'],
-        dd: [1, '<dl>', '</dl>'],
-        defaultt: [ 0, "", "" ]
-    };
-
-//
-// element wrap duplicates
-// ----------------------------------------
-
-wrap.caption = wrap.thead;
-wrap.optgroup = wrap.option;
-wrap.tbody = wrap.thead;
-wrap.tfoot = wrap.thead;
-wrap.dt = wrap.dd;
-
-function Dom (s, c) {
+function $(s, c) {
     return this.find(s, c);
 }
+
+$.cache = {};
+
+$.wrap = {
+    option: [ 1, '<select multiple="multiple">', '</select>' ],
+    thead: [ 1, '<table>', '</table>' ],
+    col: [ 2, '<table><colgroup>', '</colgroup></table>' ],
+    tr: [ 2, '<table><tbody>', '</tbody></table>' ],
+    td: [ 3, '<table><tbody><tr>', '</tr></tbody></table>' ],
+    li: [1, '<ul>', '</ul>'],
+    dd: [1, '<dl>', '</dl>'],
+    defaultt: [ 0, "", "" ]
+};
+
+$.wrap.caption   = $.wrap.thead;
+$.wrap.optgroup  = $.wrap.option;
+$.wrap.tbody     = $.wrap.thead;
+$.wrap.tfoot     = $.wrap.thead;
+$.wrap.dt        = $.wrap.dd;

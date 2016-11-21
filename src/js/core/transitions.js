@@ -6,34 +6,52 @@
 // transitions are enabled
 // --------------------------------------------------
 
-Mk.fn.transition = function () {
+Mk.transitions = {
 
-    var tr = Mk.fn.transition;
+    _enabled: false,
 
-    if (tr.enabled) {
+    _key: null,
 
-        if (tr.key) {
-            return tr.key;
-        }
+    _keys: {
+        'transition': 'transitionend',
+        'OTransition': 'oTransitionEnd',
+        'MozTransition': 'transitionend',
+        'WebkitTransition': 'webkitTransitionEnd'
+    },
 
-        var el = document.createElement('xanimate'), t;
+    get enabled () {
+        return this._enabled;
+    },
 
-        for (t in tr.keys) {
-            if (typeof el.style[t] !== 'undefined') {
-                return tr.key = tr.keys[t];
+    get disabled () {
+        return this._enabled !== true;
+    },
+
+    get key () {
+
+        if (this.enabled) {
+
+            if (this._key) {
+                return this._key;
+            }
+
+            var keys = this._keys,
+                el = document.createElement('xanimate'), t;
+
+            for (t in keys) {
+                if (!Mk.type(el.style[t], 'undefined')) {
+                    return this._key = keys[t];
+                }
             }
         }
+        return void+1;
+    },
+
+    enable: function () {
+        return this._enabled = true;
+    },
+
+    disable: function () {
+        return this._enabled = false;
     }
-    return null;
-}
-
-Mk.fn.transition.enabled = false;
-
-Mk.fn.transition.key = null;
-
-Mk.fn.transition.keys = {
-    'transition': 'transitionend',
-    'OTransition': 'oTransitionEnd',
-    'MozTransition': 'transitionend',
-    'WebkitTransition': 'webkitTransitionEnd'
 };

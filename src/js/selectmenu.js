@@ -1038,10 +1038,6 @@
 
 			if (this.enabled && this.isHidden) {
 
-				this.transition(l, function () {
-					l.removeClass('in');
-				});
-
 				this.delay(function () {
 
 					this.activate();
@@ -1050,6 +1046,10 @@
 					l.addClass('in').attr('aria-hidden', 'false');
 
 					this.emit('show');
+				});
+
+				this.transition(l, function () {
+					l.removeClass('in');
 				});
 			}
 			return this;
@@ -1069,16 +1069,16 @@
 
 			if (this.isOpen) {
 
-				this.transition(l, function () {
-					l.removeClass('out');
-				});
-
 				this.delay(function () {
 
 					l.addClass('out').attr('aria-hidden', 'true');
 					t.attr('aria-expanded', 'false');
 
 					this.emit('hide');
+				});
+
+				this.transition(l, function () {
+					l.removeClass('out');
 				});
 			}
 			return this;
