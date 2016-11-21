@@ -375,10 +375,18 @@ Mk.prototype = {
     */
     delay: function (fn, ms) {
 
-        var c = this;
-        return setTimeout(function () {
+        var c = this, t;
+
+        t = setTimeout(function () {
+
             fn.call(c);
+
+            clearTimeout(t);
+            t = null;
+
         }, ms || 1);
+
+        return t;
     },
     /*
     <method:on>

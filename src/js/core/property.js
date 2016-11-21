@@ -1,65 +1,51 @@
 
-// property
-//
-// ES5 defineProperty, propertyDescriptor, etc. to allow getters,
-// setters, and hijack vanilla functions to take advantage of super() -
-// a dynamic method allowing recursive super object references.
-// -------------------------------------------------------------
-
 Mk.fn.property = function (o, p, m) {
 
-    var desc = gpd(p, m),
-        prop, fn;
+    var d = Object.getOwnPropertyDescriptor(p, m),
+        v = d.get !== void+1 && d.set !== void+1 && d || p[m],
+        f;
 
-    if (!type(desc.get, 'undefined') || !type(desc.set, 'undefined')) {
-        return dp(o, m, desc);
-    }
+    if (Mk.type(v, 'function')) {
 
-    prop = p[m];
+        f = Mk.fn.wrapFunction(v, m);
+        v  = {
+            get: function () {
+                return f;
+            },
+            set: function (value) {
 
-    if (!type(prop, 'function')) {
-        return o[m] = prop;
-    }
-
-    fn = Mk.fn.wrapFunction(prop, m);
-
-    dp(o, m, {
-
-        get: function () {
-            return fn;
-        },
-
-        set: function (value) {
-
-            var v = value;
-
-            if (type(value, 'function')) {
-                v = Mk.fn.wrapFunction(value, m);
+                if (Mk.type(value, 'function')) {
+                    f = Mk.fn.wrapFunction(value, m);
+                    return;
+                }
+                f = value;
             }
-            fn = v;
-        }
-    });
+        };
+    }
+
+    Object.defineProperty(o, m, v);
 };
 
-Mk.fn.wrapFunction = function (fn, m) {
+Mk.fn.wrapFunction = function (f, m) {
 
-    if (fn._id_) {
-        return fn;
+    if (f._id_) {
+        return f;
     }
 
-    var func = function () {
+    var w = function () {
         this._pushSuper(m);
-        var r = fn.apply(this, arguments);
+        var r = f.apply(this, arguments);
         this._popSuper(m);
         return r;
     };
 
-    func._id_ = uid();
+    w._id_ = Mk.fn.uid();
 
-    func.toString = function () {
-        return fn.toString();
+    w.toString = function () {
+        return f.toString();
     };
-    return func;
+
+    return w;
 };
 
 Mk.fn.pushSuper = function (m) {

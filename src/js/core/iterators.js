@@ -1,15 +1,15 @@
 
-function each (c, o, f) {
+Mk.fn.each = function (c, o, f) {
 
     var i = 0, l, r;
 
-    if (type(o, 'arraylike')) {
+    if (Mk.type.is(o, 'arraylike')) {
 
         l = o.length;
 
         for (; i < l; i++) {
 
-            r = f.call(c, o[i], i);
+            r = f.call(c, o[i], i, o);
 
             if (r === false) {
                 break;
@@ -24,7 +24,7 @@ function each (c, o, f) {
     else {
         for (i in o) {
 
-            r = f.call(c, o[i], i);
+            r = f.call(c, o[i], i, o);
 
             if (r === false) {
                 break;
@@ -37,25 +37,26 @@ function each (c, o, f) {
     return c;
 };
 
-function find (c, o, f) {
+Mk.fn.find = function (c, o, f) {
 
     var v;
-    each(c, o, function (e, i) {
 
-        v = f.call(this, e, i);
+    Mk.fn.each(c, o, function (e, i, oo) {
 
-        if (v !== undf) {
+        v = f.call(this, e, i, oo);
+
+        if (v !== void+1) {
             return false;
         }
     });
     return v;
 };
 
-function map (c, o, f) {
+Mk.fn.map = function (c, o, f) {
 
     var a, r, i;
 
-    if (type(o, 'arraylike')) {
+    if (Mk.type.is(o, 'arraylike')) {
 
         a = [];
 
@@ -63,7 +64,7 @@ function map (c, o, f) {
 
             r = f.call(c, e, x, z);
 
-            if (r !== undf) {
+            if (r !== void+1) {
                 a.push(r);
             }
         });
@@ -76,7 +77,7 @@ function map (c, o, f) {
 
             r = f.call(c, o[i], i, o);
 
-            if (r !== undf) {
+            if (r !== void+1) {
                 a[i] = r;
             }
         }
@@ -84,28 +85,21 @@ function map (c, o, f) {
     return a;
 };
 
-function filter (c, o, f) {
+Mk.fn.filter = function (c, o, f) {
 
-    if (type(o, 'arraylike')) {
-        return Array.prototype.filter.call(o, function (e, i, a) {
-            f.call(c, e, i, a);
+    if (Mk.type.is(o, 'arraylike')) {
+        return Array.prototype.filter.call(o, function (x, y, z) {
+            f.call(c, x, y, z);
         });
     }
 
-    var n = {}, i, r;
+    var n = {}, i;
 
     for (i in o) {
 
-        r = f.call(c, o[i], i, o);
-
-        if (r === true) {
+        if (f.call(c, o[i], i, o) !== false) {
             n[i] = o[i];
         }
     }
     return n;
 };
-
-Mk.fn.filter = filter;
-Mk.fn.each = each;
-Mk.fn.find = find;
-Mk.fn.map = map;
