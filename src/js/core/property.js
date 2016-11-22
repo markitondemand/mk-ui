@@ -84,7 +84,7 @@ Mk.fn.wrapFunction = function (func, name) {
         return result;
     };
 
-    wrap._id_ = Mk._uid();
+    wrap._id_ = Mk.fn.uid();
 
     wrap.toString = function () {
         return func.toString();

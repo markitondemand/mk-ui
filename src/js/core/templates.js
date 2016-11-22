@@ -1,154 +1,180 @@
 
-Mk.template = function (n, k, t, d) {
-    return Mk.fn.template.parse(n, k, t, d);
-}
-
 Mk.fn.template = {
+
+    xWhitespace: /[\r|\t|\n]+/g,
+
+    xStatements: /{{([^}]+)}}(.*)({{\/\1}})/g,
+
+    xInjections: /{{([^{]+)}}/g,
 
     markup: {
         highlight: '<span class="highlight">$1</span>',
         error: '<span class="error">{{template}} not found</span>'
     },
 
-    parse: function (n, k, t, d) {
+    parse: function (name, key, templates, data) {
 
-        n = n || '';
-        t = t || {};
-        d = d || {};
+        name = name || '';
 
-        d.$key = k;
+        data = data || {};
+        data.$key = key;
 
-        var tmp = this;
+        templates = templates || {};
 
-        return tmp
-        .get(n, t)
-        .replace(/[\r|\t|\n]+/g, '')
-        .replace(/{{([^}]+)}}(.*)({{\/\1}})/g, function (s, c, h) {
-            return tmp.statements(s, k, c, h, t, d);
+        var me = this;
+
+        return me.get(name, templates)
+
+        .replace(me.xWhitespace, '')
+
+        .replace(me.xStatements, function (str, code, content) {
+            return me.statements(str, key, code, content, templates, data);
         })
-        .replace(/{{([^{]+)}}/g, function (s, c) {
-            return tmp.inject(s, k, c, t, d)
+
+        .replace(me.xInjections, function (str, code) {
+            return me.inject(str, key, code, templates, data);
         });
     },
 
-    get: function (n, t) {
+    get: function (name, template) {
 
-        var tmp = n;
+        var tmp = name;
 
-        if (t && prop.call(t, n)) {
-            tmp = t[n];
+        if (template && prop.call(template, name)) {
+            tmp = template[name];
         }
 
         if (tmp instanceof Array) {
             tmp = tmp.join('');
         }
+
         return tmp;
     },
 
-    statements: function (s, k, c, h, t, d) {
+    statements: function (str, key, code, content, templates, data) {
 
-        var p = c.split(':'),
-            x = p[ 0 ],
-            a = p[ 1 ];
+        var parts = code.split(':'),
+            map = parts[0],
+            point = parts[1];
 
-        if (prop.call(this.map, x)) {
-            return this.map[ x ]( h, k, t, x == 'if' ? d : (d[ a ] || d), a );
+        if (prop.call(this.map, map)) {
+            return this.map[ map ](
+                content,
+                key,
+                templates,
+                map == 'if' ? data : (data[ point ] || data),
+                point);
         }
+
         return '';
     },
 
-    inject: function (s, k, c, t, d) {
+    inject: function (str, key, code, templates, data) {
 
-        var p = c.split( ':' ),
-            x = p[ 0 ],
-            a = p[ 1 ];
+        var parts = code.split( ':' ),
+            map = parts[ 0 ],
+            point = parts[ 1 ];
 
-        if (a && prop.call(this.map, x)) {
-            return this.map[x](a, k, t, d, a);
+        if (point && prop.call(this.map, map)) {
+            return this.map[map](
+                point,
+                key,
+                templates,
+                data,
+                point);
         }
 
-        if (prop.call(d, x) && !Mk.type(d[x], 'undefined|null')) {
-            return d[x];
+        if (prop.call(data, map)
+            && !Mk.type(data[map], 'undefined|null')) {
+            return data[map];
         }
+
         return '';
     },
 
     map: {
 
-        'loop': function (h, k, t, d, a) {
+        'loop': function (name, key, templates, data, point) {
 
-            var b = [], i, x, l, di, idx;
+            var tmp = Mk.fn.template,
+                buffer = [], i = 0,
+                l, dp, x;
 
-            if (Mk.type(d, 'number') || (x = parseInt(a, 10)) > -1) {
+            if (Mk.type(data, 'arraylike')) {
 
-                for (i = 0; i < (x || d); i++) {
+                l = data.length;
 
-                    d.$index = i;
-                    b.push(Mk.template(h, k, t, d));
-                }
-            }
-            else if (d instanceof Array) {
+                for(; i < l; i++) {
 
-                for(i = 0, l = d.length; i < l; i++) {
+                    dp = data[i];
 
-                    di = d[i];
-
-                    if (!Mk.type(di, 'object')) {
-                        di = {key: '', value: d[i]};
+                    if (!Mk.type(dp, 'object')) {
+                        dp = {key: '', value: dp};
                     }
 
-                    di.$index = i;
-                    b.push(Mk.template(h, k, t, di));
+                    dp.$index = i;
+
+                    buffer.push(
+                        tmp.parse(name, key, templates, dp));
                 }
             }
+
             else {
-                for (i in d) {
 
-                    idx = idx || 0;
+                x = 0;
 
-                    b.push(Mk.template(h, k, t, {
-                        key: i,
-                        value: d[i],
-                        $index: idx++
-                    }));
+                for (l in data) {
+
+                    buffer.push(
+                        tmp.parse(
+                        name,
+                        key,
+                        templates, {
+                            key: l,
+                            value: data[i],
+                            $index: x++
+                        }
+                    ));
                 }
             }
-            return b.join('');
+
+            return buffer.join('');
         },
 
-        'if': function (h, k, t, d, a) {
+        'if': function (name, key, templates, data, point) {
 
-            if (prop.call(d, a)) {
+            if (prop.call(data, point)) {
 
-                var dp = d[a];
+                var dp = data[point];
 
                 if ((!Mk.type(dp, 'empty'))
                     || (dp instanceof Array && dp.length > 0)) {
-                    return Mk.template(h, k, t, d);
+                    return Mk.fn.template.parse(name, key, templates, data);
                 }
             }
             return '';
         },
 
-        'highlight': function (h, k, t, d, a) {
+        'highlight': function (name, key, templates, data, point) {
 
-            var tp = Mk.template,
-                hl = d.highlight || '',
-                v  = d[h], w;
+            var tmp = Mk.fn.template,
+                str = data[point],
+                hlt = data.highlight || '',
+                htm;
 
-            if (hl) {
-                w = tp.get('highlight', tp.markup);
-                v = v.replace(new RegExp('(' + hl + ')', 'gi'), w);
+            if (hlt) {
+                htm = tp.get('highlight', tp.markup);
+                str = str.replace(new RegExp('(' + hlt + ')', 'gi'), htm);
             }
-            return v;
+            return str;
         },
 
-        'scope': function (h, k, t, d, a) {
-            return Mk.template(h, k, t, d);
+        'scope': function (name, key, templates, data) {
+            return Mk.fn.template.parse(name, key, templates, data);
         },
 
-        'template': function (h, k, t, d, a) {
-            return Mk.template(h, k, t, d);
+        'template': function (name, key, templates, data) {
+            return Mk.fn.template.parse(name, key, templates, data);
         }
     }
 };

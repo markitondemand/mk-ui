@@ -7,7 +7,7 @@ $.data = function (n, k, vl) {
 
     if (n) {
 
-        var id = n._id = n._id || Mk._uid(),
+        var id = n._id = n._id || Mk.fn.uid(),
             c  = Mk.$.cache[id] || {},
             v  = vl;
 

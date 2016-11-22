@@ -1,5 +1,5 @@
 
-Mk._uid = function () {
+Mk.fn.uid = function () {
 
     return 'xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
 

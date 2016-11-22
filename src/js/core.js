@@ -5,12 +5,12 @@
 */
 (function (root, factory) {
 
-	if (typeof define === 'function' && define.amd) {
+	if (typeof define === "function" && define.amd) {
 		define([], function () {
 			return (root.Mk = factory(root));
 		});
 	}
-	else if (typeof module === 'object' && module.exports) {
+	else if (typeof module === "object" && module.exports) {
 
 		module.exports = root.document ?
 
@@ -18,7 +18,7 @@
 
 			function (w) {
 				if (!w.document) {
-					throw new Error('Mk[ui] requires a window with a document');
+					throw new Error("Mk[ui] requires a window with a document");
 				}
 				return factory(w);
 			};
@@ -27,7 +27,7 @@
 		root.Mk = factory(root);
 	}
 
-})(typeof window !== 'undefined' && window || this, function (root) {
+})(typeof window !== "undefined" && window || this, function (root) {
 
 "use strict";
 
@@ -37,130 +37,14 @@ var noop = function () {};
 
 var Mk = function () {};
 
+Mk.fn = {};
+
 Mk.$ = function (s, c) {
 	return root.jQuery(s, c);
 };
 
 
-Mk.fn = {
-    
-    eventEmitter: {
-
-        _add: function (b, n, h, c, s) {
-
-            var e = this.e(n);
-
-            if (!prop.call(b, e.name)) {
-                 b[e.name] = [];
-            }
-
-            b[e.name].push({
-                ns: e.ns || undefined,
-                handler: h || noop,
-                context: c || null,
-                single:  s === true
-            });
-        },
-
-        e: function (e) {
-
-            return {
-                name: /^(\w+)\.?/.exec( e )[ 1 ] || '',
-                ns: ( /^\w+(\.?.*)$/.exec( e ) || [] )[ 1 ] || undefined
-            };
-        },
-
-        args: function (args) {
-
-            for( var i = 0, a = [], l = args.length;
-                    i < l && a.push(args[ i ]);
-                    i++) { }
-
-            return a;
-        },
-
-        on: function on(b, e, h, c) {
-            return this._add(b, e, h, c, false);
-        },
-
-        one: function(b, e, h, c) {
-            return this._add(b, e, h, c, true);
-        },
-
-        off: function off (b, ev, h) {
-
-            var e = this.e(ev),
-                i = 0, s, item, ns, l;
-
-            if (prop.call(b, e.name)) {
-
-                s = b[e.name];
-                ns = e.ns || void+1;
-                l = s.length;
-
-                for (; i < l; i++) {
-
-                    item = s[i];
-
-                    if (item.ns === ns && (Mk.type(h, 'undefined') || h === item.handler)) {
-                        s.splice(i, 1);
-                        l--;
-                        i--;
-                    }
-                }
-            }
-        },
-
-        emit: function emit (b, argz /*, arguments */) {
-
-            var args = this.args(argz),
-                ev = args.shift(),
-                e = this.e(ev),
-                i = 0, s, item, l;
-
-            if (prop.call(b, e.name)) {
-
-                s = b[e.name];
-                l = s.length;
-
-                for (; i < l; i++) {
-
-                    item = s[ i ];
-
-                    if (!e.ns || item.ns === e.ns) {
-
-                        item.handler.apply(item.context || root, args);
-
-                        if (item.single) {
-                            s.splice(i, 1);
-                            l--; i--;
-                        }
-                    }
-                }
-            }
-        }
-    },
-
-    device: {
-
-        exp: /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
-
-        get is () {
-            return this.exp.test(navigator.userAgent);
-        },
-
-        get key () {
-
-            var ua = navigator.userAgent,
-                m  = (this.exp.exec(ua) || [])[1] || '';
-
-            return m.toLowerCase();
-        }
-    }
-};
-
-
-Mk._uid = function () {
+Mk.fn.uid = function () {
 
     return 'xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
 
@@ -490,7 +374,7 @@ Mk.fn.wrapFunction = function (func, name) {
         return result;
     };
 
-    wrap._id_ = Mk._uid();
+    wrap._id_ = Mk.fn.uid();
 
     wrap.toString = function () {
         return func.toString();
@@ -507,6 +391,104 @@ Mk.fn.pushSuper = function (name) {
 Mk.fn.popSuper = function (name) {
     this._chain_.splice(
         this._chain_.lastIndexOf(name), 1);
+};
+
+Mk.fn.eventEmitter = {
+
+    add: function (obj) {
+
+        var bucket = obj.bucket,
+            event = this.event(obj.type);
+
+        obj.namespace = event.ns;
+        obj.type = event.type;
+
+        if (!prop.call(bucket, event.type)) {
+             bucket[event.type] = [];
+        }
+
+        bucket[event.type].push(obj);
+    },
+
+    event: function (type) {
+
+        return {
+            type: /^(\w+)\.?/.exec(type)[1] || '',
+            namespace: (/^\w+(\.?.*)$/.exec(type) || [])[1] || undefined
+        };
+    },
+
+    args: function (args) {
+
+        return Mk.fn.map(this, args, function (o) {
+            return o;
+        });
+    },
+
+    on: function on(obj) {
+        return this.add(obj);
+    },
+
+    one: function(obj) {
+        obj.single = true;
+        return this.add(obj);
+    },
+
+    off: function off (obj, b, ev, h) {
+
+        var bucket = obj.bucket,
+            handler = obj.handler,
+            event = this.event(obj.type);
+
+        if (prop.call(bucket, event.type)) {
+
+            var handlers = bucket[event.type],
+                noHandler = Mk.type(handler, 'undefined'),
+                namespace = event.namespace,
+                count = handlers.length,
+                i = 0, item;
+
+            for (; i < count; i++) {
+
+                item = handlers[i];
+
+                if (item.namespace === namespace && (noHandler || handler === item.handler)) {
+                    handlers.splice(i, 1);
+                    count--; i--;
+                }
+            }
+        }
+    },
+
+    emit: function emit (bucket, argz /* arguments */) {
+
+        var args = this.args(argz),
+            type = args.shift(),
+            event = this.event(type);
+
+        if (prop.call(bucket, event.type)) {
+
+            var namespace = event.namespace,
+                handlers = bucket[event.type],
+                count = handlers.length,
+                i = 0, item;
+
+            for (; i < count; i++) {
+
+                item = handlers[i];
+
+                if (!namespace || item.namespace === namespace) {
+
+                    item.handler.apply(item.context || root, args);
+
+                    if (item.single) {
+                        handlers.splice(i, 1);
+                        count--; i--;
+                    }
+                }
+            }
+        }
+    }
 };
 
 
@@ -568,156 +550,182 @@ Mk.transitions = {
 };
 
 
-Mk.template = function (n, k, t, d) {
-    return Mk.fn.template.parse(n, k, t, d);
-}
-
 Mk.fn.template = {
+
+    xWhitespace: /[\r|\t|\n]+/g,
+
+    xStatements: /{{([^}]+)}}(.*)({{\/\1}})/g,
+
+    xInjections: /{{([^{]+)}}/g,
 
     markup: {
         highlight: '<span class="highlight">$1</span>',
         error: '<span class="error">{{template}} not found</span>'
     },
 
-    parse: function (n, k, t, d) {
+    parse: function (name, key, templates, data) {
 
-        n = n || '';
-        t = t || {};
-        d = d || {};
+        name = name || '';
 
-        d.$key = k;
+        data = data || {};
+        data.$key = key;
 
-        var tmp = this;
+        templates = templates || {};
 
-        return tmp
-        .get(n, t)
-        .replace(/[\r|\t|\n]+/g, '')
-        .replace(/{{([^}]+)}}(.*)({{\/\1}})/g, function (s, c, h) {
-            return tmp.statements(s, k, c, h, t, d);
+        var me = this;
+
+        return me.get(name, templates)
+
+        .replace(me.xWhitespace, '')
+
+        .replace(me.xStatements, function (str, code, content) {
+            return me.statements(str, key, code, content, templates, data);
         })
-        .replace(/{{([^{]+)}}/g, function (s, c) {
-            return tmp.inject(s, k, c, t, d)
+
+        .replace(me.xInjections, function (str, code) {
+            return me.inject(str, key, code, templates, data);
         });
     },
 
-    get: function (n, t) {
+    get: function (name, template) {
 
-        var tmp = n;
+        var tmp = name;
 
-        if (t && prop.call(t, n)) {
-            tmp = t[n];
+        if (template && prop.call(template, name)) {
+            tmp = template[name];
         }
 
         if (tmp instanceof Array) {
             tmp = tmp.join('');
         }
+
         return tmp;
     },
 
-    statements: function (s, k, c, h, t, d) {
+    statements: function (str, key, code, content, templates, data) {
 
-        var p = c.split(':'),
-            x = p[ 0 ],
-            a = p[ 1 ];
+        var parts = code.split(':'),
+            map = parts[0],
+            point = parts[1];
 
-        if (prop.call(this.map, x)) {
-            return this.map[ x ]( h, k, t, x == 'if' ? d : (d[ a ] || d), a );
+        if (prop.call(this.map, map)) {
+            return this.map[ map ](
+                content,
+                key,
+                templates,
+                map == 'if' ? data : (data[ point ] || data),
+                point);
         }
+
         return '';
     },
 
-    inject: function (s, k, c, t, d) {
+    inject: function (str, key, code, templates, data) {
 
-        var p = c.split( ':' ),
-            x = p[ 0 ],
-            a = p[ 1 ];
+        var parts = code.split( ':' ),
+            map = parts[ 0 ],
+            point = parts[ 1 ];
 
-        if (a && prop.call(this.map, x)) {
-            return this.map[x](a, k, t, d, a);
+        if (point && prop.call(this.map, map)) {
+            return this.map[map](
+                point,
+                key,
+                templates,
+                data,
+                point);
         }
 
-        if (prop.call(d, x) && !Mk.type(d[x], 'undefined|null')) {
-            return d[x];
+        if (prop.call(data, map)
+            && !Mk.type(data[map], 'undefined|null')) {
+            return data[map];
         }
+
         return '';
     },
 
     map: {
 
-        'loop': function (h, k, t, d, a) {
+        'loop': function (name, key, templates, data, point) {
 
-            var b = [], i, x, l, di, idx;
+            var tmp = Mk.fn.template,
+                buffer = [], i = 0,
+                l, dp, x;
 
-            if (Mk.type(d, 'number') || (x = parseInt(a, 10)) > -1) {
+            if (Mk.type(data, 'arraylike')) {
 
-                for (i = 0; i < (x || d); i++) {
+                l = data.length;
 
-                    d.$index = i;
-                    b.push(Mk.template(h, k, t, d));
-                }
-            }
-            else if (d instanceof Array) {
+                for(; i < l; i++) {
 
-                for(i = 0, l = d.length; i < l; i++) {
+                    dp = data[i];
 
-                    di = d[i];
-
-                    if (!Mk.type(di, 'object')) {
-                        di = {key: '', value: d[i]};
+                    if (!Mk.type(dp, 'object')) {
+                        dp = {key: '', value: dp};
                     }
 
-                    di.$index = i;
-                    b.push(Mk.template(h, k, t, di));
+                    dp.$index = i;
+
+                    buffer.push(
+                        tmp.parse(name, key, templates, dp));
                 }
             }
+
             else {
-                for (i in d) {
 
-                    idx = idx || 0;
+                x = 0;
 
-                    b.push(Mk.template(h, k, t, {
-                        key: i,
-                        value: d[i],
-                        $index: idx++
-                    }));
+                for (l in data) {
+
+                    buffer.push(
+                        tmp.parse(
+                        name,
+                        key,
+                        templates, {
+                            key: l,
+                            value: data[i],
+                            $index: x++
+                        }
+                    ));
                 }
             }
-            return b.join('');
+
+            return buffer.join('');
         },
 
-        'if': function (h, k, t, d, a) {
+        'if': function (name, key, templates, data, point) {
 
-            if (prop.call(d, a)) {
+            if (prop.call(data, point)) {
 
-                var dp = d[a];
+                var dp = data[point];
 
                 if ((!Mk.type(dp, 'empty'))
                     || (dp instanceof Array && dp.length > 0)) {
-                    return Mk.template(h, k, t, d);
+                    return Mk.fn.template.parse(name, key, templates, data);
                 }
             }
             return '';
         },
 
-        'highlight': function (h, k, t, d, a) {
+        'highlight': function (name, key, templates, data, point) {
 
-            var tp = Mk.template,
-                hl = d.highlight || '',
-                v  = d[h], w;
+            var tmp = Mk.fn.template,
+                str = data[point],
+                hlt = data.highlight || '',
+                htm;
 
-            if (hl) {
-                w = tp.get('highlight', tp.markup);
-                v = v.replace(new RegExp('(' + hl + ')', 'gi'), w);
+            if (hlt) {
+                htm = tp.get('highlight', tp.markup);
+                str = str.replace(new RegExp('(' + hlt + ')', 'gi'), htm);
             }
-            return v;
+            return str;
         },
 
-        'scope': function (h, k, t, d, a) {
-            return Mk.template(h, k, t, d);
+        'scope': function (name, key, templates, data) {
+            return Mk.fn.template.parse(name, key, templates, data);
         },
 
-        'template': function (h, k, t, d, a) {
-            return Mk.template(h, k, t, d);
+        'template': function (name, key, templates, data) {
+            return Mk.fn.template.parse(name, key, templates, data);
         }
     }
 };
@@ -942,7 +950,7 @@ Mk.prototype = {
     </method:uid>
     */
     uid: function () {
-        return Mk._uid();
+        return Mk.fn.uid();
     },
     /*
     <method:template>
@@ -959,7 +967,7 @@ Mk.prototype = {
     </method:template>
     */
     template: function (n, d) {
-        return Mk.template(n, this.name, this.config.templates, d);
+        return Mk.fn.template.parse(n, this.name, this.config.templates, d);
     },
     /*
     <method:format>
@@ -976,7 +984,7 @@ Mk.prototype = {
     </method:format>
     */
     format: function (n, d) {
-        return Mk.template(n, this.name, this.config.formats, d);
+        return Mk.fn.template.parse(n, this.name, this.config.formats, d);
     },
     /*
     <method:html>
@@ -1113,12 +1121,9 @@ Mk.prototype = {
              t = Mk.transitions.key,
              c = this;
 
-        cb = cb || function () {};
-
         if (t) {
 
             n.addClass('transition');
-
             n.one(t, function (e) {
                 n.removeClass('transition');
                 cb.call(c, e, n);
@@ -1129,9 +1134,9 @@ Mk.prototype = {
 
         n.removeClass('transition');
 
-        return this.each(n, function (_n) {
-            setTimeout( function () {
-                cb.call(c, null, c.$(_n));
+        return this.each(n, function (el) {
+            this.delay(function () {
+                cb.call(this, null, this.$(el));
             }, 1);
         });
     },
@@ -1145,12 +1150,12 @@ Mk.prototype = {
         <desc>Clear transition handlers on node.</desc>
     </method:clearTransitions>
     */
-    clearTransitions: function (n) {
+    clearTransitions: function (node) {
 
         var t = Mk.transitions.key;
 
         if (t) {
-            this.$(n).off(t);
+            this.$(node).off(t);
         }
         return this;
     },
@@ -1164,8 +1169,8 @@ Mk.prototype = {
         <desc>Returns true if element is currently transitioning. False for anything else.</desc>
     </method:clearTransitions>
     */
-    transitioning: function (n) {
-        return this.$(n).hasClass('transition');
+    transitioning: function (node) {
+        return this.$(node).hasClass('transition');
     },
     /*
     <method:delay>
@@ -1210,10 +1215,14 @@ Mk.prototype = {
         <desc>Binds a handler to an event type through the Event Emitter. Allows for namespaced events.</desc>
     </method:on>
     */
-    on: function (e, h) {
+    on: function (type, handler) {
 
-        Mk.fn.eventEmitter.on(
-            this.events, e, h, this);
+        Mk.fn.eventEmitter.on({
+            bucket: this.events,
+            type: type,
+            handler: handler,
+            context: this
+        });
 
         return this;
     },
@@ -1231,10 +1240,14 @@ Mk.prototype = {
         <desc>Binds a handler to an event type through the Event Emitter. Once fired, an event bound through one() will be removed. Allows for namespaced events.</desc>
     </method:one>
     */
-    one: function (e, h) {
+    one: function (type, handler) {
 
-        Mk.fn.eventEmitter.one(
-            this.events, e, h, this);
+        Mk.fn.eventEmitter.one({
+            bucket: this.events,
+            type: type,
+            handler: handler,
+            context: this
+        });
 
         return this;
     },
@@ -1252,9 +1265,14 @@ Mk.prototype = {
         <desc>Removes a handler (or all handlers) from an event type.</desc>
     </method:off>
     */
-    off: function (e, h) {
+    off: function (type, handler) {
 
-        Mk.fn.eventEmitter.off(this.events, e, h);
+        Mk.fn.eventEmitter.off({
+            bucket: this.events,
+            type: type,
+            handler: handler
+        });
+
         return this;
     },
     /*
@@ -1271,7 +1289,7 @@ Mk.prototype = {
         <desc>Invokes handler(s) bound to event type.</desc>
     </method:emit>
     */
-    emit: function (e /*, arguments */) {
+    emit: function (type /*, arguments */) {
 
         Mk.fn.eventEmitter.emit(this.events, arguments);
         return this;

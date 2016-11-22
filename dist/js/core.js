@@ -5,12 +5,12 @@
 */
 (function (root, factory) {
 
-	if (typeof define === 'function' && define.amd) {
+	if (typeof define === "function" && define.amd) {
 		define([], function () {
 			return (root.Mk = factory(root));
 		});
 	}
-	else if (typeof module === 'object' && module.exports) {
+	else if (typeof module === "object" && module.exports) {
 
 		module.exports = root.document ?
 
@@ -18,7 +18,7 @@
 
 			function (w) {
 				if (!w.document) {
-					throw new Error('Mk[ui] requires a window with a document');
+					throw new Error("Mk[ui] requires a window with a document");
 				}
 				return factory(w);
 			};
@@ -27,446 +27,467 @@
 		root.Mk = factory(root);
 	}
 
-})(typeof window !== 'undefined' && window || this, function (root) {
+})(typeof window !== "undefined" && window || this, function (root) {
 
-'use strict';
+"use strict";
 
 var prop = ({}).hasOwnProperty;
 
-function Mk () {}
+var noop = function () {};
+
+var Mk = function () {};
+
+Mk.fn = {};
 
 Mk.$ = function (s, c) {
 	return root.jQuery(s, c);
 };
 
 
-Mk.fn = {
+Mk.fn.uid = function () {
 
-    noop: function () {},
+    return 'xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
 
-    keycodes: {
-        backspace: 8, tab: 9, enter: 13, esc: 27, space: 32,
-        pageup: 33, pagedown: 34, end: 35, home: 36,
-        left: 37, up: 38, right: 39, down: 40, left: 37, right: 39,
-        comma: 188
-    },
+        var r = Math.random() * 16 | 0,
+            v = c == 'x' && r || (r&0x3 | 0x8);
 
-    uid: function () {
-
-        return 'xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
-
-            var r = Math.random() * 16 | 0,
-                v = c == 'x' && r || (r&0x3 | 0x8);
-
-            return v.toString(16);
-        });
-    },
-
-    property: function (o, p, m) {
-
-        var d = Object.getOwnPropertyDescriptor(p, m),
-            v = (d.get !== void+1 || d.set !== void+1) && d || {value: p[m]}, f;
-
-        if (Mk.type(v.value, 'function')) {
-
-            f = Mk.fn.wrapFunction(p[m], m);
-            v = {
-                get: function () {
-                    return f;
-                },
-                set: function (value) {
-
-                    if (Mk.type(value, 'function')) {
-                        f = Mk.fn.wrapFunction(value, m);
-                        return;
-                    }
-                    f = value;
-                }
-            };
-        }
-        Object.defineProperty(o, m, v);
-    },
-
-    wrapFunction: function (f, m) {
-
-        if (f._id_) {
-            return f;
-        }
-
-        var w = function () {
-            this._pushSuper(m);
-            var r = f.apply(this, arguments);
-            this._popSuper(m);
-            return r;
-        };
-
-        w._id_ = Mk._uid();
-
-        w.toString = function () {
-            return f.toString();
-        };
-
-        return w;
-    },
-
-    pushSuper: function (m) {
-        this._chain_ = this._chain_ || [];
-        this._chain_.push(m);
-    },
-
-    popSuper: function (m) {
-        this._chain_.splice(
-            this._chain_.lastIndexOf(m), 1);
-    },
-
-    each: function (c, o, f) {
-
-        var i = 0, l, r;
-
-        if (Mk.type(o, 'arraylike')) {
-
-            l = o.length;
-
-            for (; i < l; i++) {
-
-                r = f.call(c, o[i], i, o);
-
-                if (r === false) {
-                    break;
-                }
-
-                if (r === -1) {
-                    [].splice.call(o, i, 1);
-                    i--; l--;
-                }
-            }
-        }
-        else {
-
-            for (i in o) {
-
-                r = f.call(c, o[i], i, o);
-
-                if (r === false) {
-                    break;
-                }
-                if (r === -1) {
-                    delete o[i];
-                }
-            }
-        }
-        return c;
-    },
-
-    find: function (c, o, f) {
-
-        var v;
-
-        Mk.fn.each(c, o, function (e, i, oo) {
-
-            v = f.call(this, e, i, oo);
-
-            if (v !== void+1) {
-                return false;
-            }
-        });
-        return v;
-    },
-
-    map: function (c, o, f) {
-
-        var a, r, i;
-
-        if (Mk.type(o, 'arraylike')) {
-
-            a = [];
-
-            Array.prototype.map.call(o, function (e, x, z) {
-
-                r = f.call(c, e, x, z);
-
-                if (r !== void+1) {
-                    a.push(r);
-                }
-            });
-        }
-        else {
-
-            a = {};
-
-            for (i in o) {
-
-                r = f.call(c, o[i], i, o);
-
-                if (r !== void+1) {
-                    a[i] = r;
-                }
-            }
-        }
-        return a;
-    },
-
-    filter: function (c, o, f) {
-
-        if (Mk.type(o, 'arraylike')) {
-            return Array.prototype.filter.call(o, function (x, y, z) {
-                f.call(c, x, y, z);
-            });
-        }
-
-        var n = {}, i;
-
-        for (i in o) {
-
-            if (f.call(c, o[i], i, o) !== false) {
-                n[i] = o[i];
-            }
-        }
-        return n;
-    },
-
-    eventEmitter: {
-
-        _add: function (b, n, h, c, s) {
-
-            var e = this.e(n);
-
-            if (!prop.call(b, e.name)) {
-                 b[e.name] = [];
-            }
-
-            b[e.name].push({
-                ns: e.ns || undefined,
-                handler: h || noop,
-                context: c || null,
-                single:  s === true
-            });
-        },
-
-        e: function (e) {
-
-            return {
-                name: /^(\w+)\.?/.exec( e )[ 1 ] || '',
-                ns: ( /^\w+(\.?.*)$/.exec( e ) || [] )[ 1 ] || undefined
-            };
-        },
-
-        args: function (args) {
-
-            for( var i = 0, a = [], l = args.length;
-                    i < l && a.push(args[ i ]);
-                    i++) { }
-
-            return a;
-        },
-
-        on: function on(b, e, h, c) {
-            return this._add(b, e, h, c, false);
-        },
-
-        one: function(b, e, h, c) {
-            return this._add(b, e, h, c, true);
-        },
-
-        off: function off (b, ev, h) {
-
-            var e = this.e(ev),
-                i = 0, s, item, ns, l;
-
-            if (prop.call(b, e.name)) {
-
-                s = b[e.name];
-                ns = e.ns || void+1;
-                l = s.length;
-
-                for (; i < l; i++) {
-
-                    item = s[i];
-
-                    if (item.ns === ns && (Mk.type(h, 'u') || h === item.handler)) {
-                        s.splice(i, 1);
-                        l--;
-                        i--;
-                    }
-                }
-            }
-        },
-
-        emit: function emit (b, argz /*, arguments */) {
-
-            var args = this.args(argz),
-                ev = args.shift(),
-                e = this.e(ev),
-                i = 0, s, item, l;
-
-            if (prop.call(b, e.name)) {
-
-                s = b[e.name];
-                l = s.length;
-
-                for (; i < l; i++) {
-
-                    item = s[ i ];
-
-                    if (!e.ns || item.ns === e.ns) {
-
-                        item.handler.apply(item.context || root, args);
-
-                        if (item.single) {
-                            s.splice(i, 1);
-                            l--; i--;
-                        }
-                    }
-                }
-            }
-        }
-    },
-
-    device: {
-
-        exp: /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
-
-        get is () {
-            return this.exp.test(navigator.userAgent);
-        },
-
-        get key () {
-
-            var ua = navigator.userAgent,
-                m  = (this.exp.exec(ua) || [])[1] || '';
-
-            return m.toLowerCase();
-        }
-    }
+        return v.toString(16);
+    });
 };
 
 
-/*
-    Mk.type
-    More complex typing
-    Pass in a type or multiple types (pipe delimited)
-    returns boolean
+Mk.type = function (obj, type) {
 
-    types:
-        string
-        number
-        object
-        boolean
-        function
-        undefined
-        null
-        empty
-        array
-        arraylike
-        class
-        instance
-        node
-        nodelist
-        window
-        date
-*/
+    var types = type.toLowerCase().split("|"),
+        count = types.length,
+        table = Mk.fn.typemap,
+        i = 0, fn, ty;
 
-Mk.type = function (o, t) {
+    for (; i < count; i++) {
 
-    var c = t.toLowerCase().split('|'),
-        r = false;
+        ty = types[i];
+        fn = prop.call(table, ty) ? table[ty] : table.defaultt;
 
-    for (var i = 0, l = c.length; i < l; i++) {
-
-        if (Mk.fn.type.is(o, c[i])) {
+        if (fn(obj, ty)) {
             return true;
         }
     }
-    return r;
+    return false;
 };
 
-Mk.fn.type = {
+Mk.fn.typemap = {
 
-    is: function (o, t) {
-
-        var r = typeof o == t;
-
-        switch (t) {
-
-            case 'empty':
-                r = o === ''
-                    || o === null
-                    || o === void+1
-                    || o === false;
-                    break;
-
-            case 'array':
-                r = o instanceof Array;
-                break;
-
-            case 'null':
-                r = o === null;
-                break;
-
-            case 'date':
-                r = o instanceof Date;
-                break;
-
-            case 'instance':
-                r = this.instance(o);
-                break;
-
-            case 'nodelist':
-                r = o instanceof NodeList;
-                break;
-
-            case 'node':
-                r = /1|9|11/.test(o && o.nodeType || 0);
-                break;
-
-            case 'window':
-                r = o === window;
-                break;
-
-            case 'arraylike':
-                r = this.arraylike(o);
-                break;
-
-            case 'class':
-                r = this.clazz(o);
-                break;
-
-            case 'function':
-                r = typeof o == 'function'
-                    && !this.clazz(o);
-
-                break;
-        }
-        return r;
+    "index": function (o, i) {
+        return o.indexOf(i) > -1;
     },
 
-    arraylike: function (o) {
+    "array": function (o) {
+        return o instanceof Array;
+    },
 
-        if (Mk.type(o, 'function|string|window')) {
+    "empty": function (o) {
+        return o === "" || o === null
+            || o === void+1 || o === false;
+    },
+
+    "null": function (o) {
+        return o === null;
+    },
+
+    "date": function (o) {
+        return o instanceof Date || o === Date;
+    },
+
+    "nodelist": function (o) {
+        return o instanceof NodeList;
+    },
+
+    "node": function (o) {
+        return /1|9|11/.test(o && o.nodeType || 0);
+    },
+
+    "window": function (o) {
+        return o && o === o.window;
+    },
+
+    "function": function (o) {
+        return typeof o === "function"
+            && !Mk.fn.typemap.classlike(o);
+    },
+
+    "arraylike": function (o) {
+
+        if (Mk.type(o, "function|string|window")) {
             return false;
         }
 
-        var n = !!o && typeof o.length == 'number',
-            l = n && 'length' in o && o.length;
+        var n = !!o && typeof o.length === "number",
+            l = n && "length" in o && o.length;
 
-        return Mk.type(o, 'array|nodelist')
+        return Mk.type(o, "array|nodelist")
             || l === 0 || n && l > 0 && (l - 1) in o;
     },
 
-    instance: function (o) {
+    "instance": function (o) {
 
         var p = Object.getPrototypeOf(o),
-            c = p && p.hasOwnProperty('constructor') && p.constructor,
+            c = p && p.hasOwnProperty("constructor") && p.constructor,
             f = ({}).hasOwnProperty.toString;
 
-        return (typeof c == 'function' && f.call(c) === f.call(Object)) !== true;
+        return (typeof c === "function" && f.call(c) === f.call(Object)) !== true;
     },
 
-    clazz: function (o) {
+    "descriptor": function (o) {
 
-        return typeof o == 'function'
-            && Object.keys(o).concat(
-                Object.keys(o.prototype)).length > 0;
+        var index = Mk.fn.typemap.index,
+            keys  = Object.keys(o) || [];
+
+        if (index(keys, "enumerable") && index(keys, "configurable")) {
+
+            if (index(keys, "value")) {
+                return index(keys, "writable");
+            }
+
+            if (index(keys, "get")) {
+                return index(keys, "set");
+            }
+        }
+        return false;
+    },
+
+    "classlike": function (o) {
+        return typeof o === "function"
+            && Object.keys(o.prototype).length > 0;
+    },
+
+    "object": function (o) {
+        return !!o && typeof o === "object" && !(o instanceof Array);
+    },
+
+    "defaultt": function (o, t) {
+        return typeof o === t;
+    }
+};
+
+
+Mk.fn.each = function (context, obj, callback) {
+
+    var i = 0, count, result;
+
+    if (Mk.type(obj, 'arraylike')) {
+
+        count = obj.length;
+
+        for (; i < count; i++) {
+
+            result = callback.call(context, obj[i], i, obj);
+
+            if (result === false) {
+                break;
+            }
+
+            if (result === -1) {
+                [].splice.call(obj, i, 1);
+                i--; count--;
+            }
+        }
+    }
+
+    else {
+
+        for (i in obj) {
+
+            result = callback.call(context, obj[i], i, obj);
+
+            if (result === false) {
+                break;
+            }
+
+            if (result === -1) {
+                delete o[i];
+            }
+        }
+    }
+
+    return context;
+};
+
+Mk.fn.find = function (context, obj, callback) {
+
+    var result;
+
+    Mk.fn.each(context, obj, function (o, i, orig) {
+
+        result = callback.call(this, o, i, orig);
+
+        if (result !== void+1) {
+            return false;
+        }
+    });
+
+    return result;
+};
+
+Mk.fn.map = function (context, obj, callback) {
+
+    var map, result, i;
+
+    if (Mk.type(obj, 'arraylike')) {
+
+        map = [];
+
+        Array.prototype.map.call(obj, function (o, x, orig) {
+
+            result = callback.call(context, o, x, orig);
+
+            if (result !== void+1) {
+                map.push(result);
+            }
+        });
+    }
+    else {
+
+        map = {};
+
+        for (i in o) {
+
+            result = callback.call(context, obj[i], i, obj);
+
+            if (result !== void+1) {
+                map[i] = result;
+            }
+        }
+    }
+
+    return map;
+};
+
+Mk.fn.filter = function (context, obj, callback) {
+
+    if (Mk.type(obj, 'arraylike')) {
+        return Array.prototype.filter.call(obj, function (o, i, orig) {
+            return callback.call(context, o, i, orig);
+        });
+    }
+
+    var result = {}, i;
+
+    for (i in obj) {
+        if (callback.call(context, obj[i], i, obj) !== false) {
+            result[i] = obj[i];
+        }
+    }
+    return result;
+};
+
+
+Mk.fn.keycodes = {
+    backspace: 8, tab: 9, enter: 13, esc: 27, space: 32,
+    pageup: 33, pagedown: 34, end: 35, home: 36,
+    left: 37, up: 38, right: 39, down: 40, left: 37, right: 39,
+    comma: 188
+};
+
+
+Mk.extend = function (to, from, name) {
+
+    var prop;
+
+    if (Mk.type(name, 'undefined')) {
+
+        for (prop in from) {
+            Mk.extend(to, from, prop);
+        }
+    }
+    else {
+
+        prop = Object.getOwnPropertyDescriptor(from, name);
+
+        // cannot access getters/setters with obj[prop] notation or an exception
+        // will be thrown due to accessors on the prototype but not in actual context.
+        // so for getters and setters we must do this.
+        if (prop && (prop.get !== void+1 || prop.set !== void+1)) {
+            Object.defineProperty(to, name, prop);
+        }
+        else {
+            // everybody else goes here.
+            // In this case, the descriptor has a 'value' property.
+            // The value can be writable, and configurable or not, if it is not,
+            // we want to leave the value alone. If it is, we want to pull out the raw value and reset it.
+            Mk.property(to, name, prop.writable ? prop.value : prop);
+        }
+    }
+    return this;
+};
+
+Mk.property = function (obj, name, value) {
+
+    var prop = value,
+        func;
+
+    if (Mk.type(value, 'function')) {
+
+        func = Mk.fn.wrapFunction(value, name);
+
+        prop = {
+            enumerable: true,
+            configurable: true,
+            get: function () {
+                return func;
+            },
+            set: function (newvalue) {
+
+                if (Mk.type(newvalue, 'function')) {
+                    func = Mk.fn.wrapFunction(newvalue, name);
+                    return;
+                }
+                func = newvalue;
+            }
+        };
+    }
+
+    if (!Mk.type(prop, 'descriptor')) {
+        prop = {
+            value: value,
+            writable: true,
+            configurable: true,
+            enumerable: true,
+        };
+    }
+
+    Object.defineProperty(obj, name, prop);
+
+    return this;
+};
+
+Mk.fn.wrapFunction = function (func, name) {
+
+    if (func._id_) {
+        return func;
+    }
+
+    var wrap = function () {
+
+        this._pushSuper(name);
+        var result = func.apply(this, arguments);
+        this._popSuper(name);
+        return result;
+    };
+
+    wrap._id_ = Mk.fn.uid();
+
+    wrap.toString = function () {
+        return func.toString();
+    };
+
+    return wrap;
+};
+
+Mk.fn.pushSuper = function (name) {
+    this._chain_ = this._chain_ || [];
+    this._chain_.push(name);
+};
+
+Mk.fn.popSuper = function (name) {
+    this._chain_.splice(
+        this._chain_.lastIndexOf(name), 1);
+};
+
+Mk.fn.eventEmitter = {
+
+    add: function (obj) {
+
+        var bucket = obj.bucket,
+            event = this.event(obj.type);
+
+        obj.namespace = event.ns;
+        obj.type = event.type;
+
+        if (!prop.call(bucket, event.type)) {
+             bucket[event.type] = [];
+        }
+
+        bucket[event.type].push(obj);
+    },
+
+    event: function (type) {
+
+        return {
+            type: /^(\w+)\.?/.exec(type)[1] || '',
+            namespace: (/^\w+(\.?.*)$/.exec(type) || [])[1] || undefined
+        };
+    },
+
+    args: function (args) {
+
+        return Mk.fn.map(this, args, function (o) {
+            return o;
+        });
+    },
+
+    on: function on(obj) {
+        return this.add(obj);
+    },
+
+    one: function(obj) {
+        obj.single = true;
+        return this.add(obj);
+    },
+
+    off: function off (obj, b, ev, h) {
+
+        var bucket = obj.bucket,
+            handler = obj.handler,
+            event = this.event(obj.type);
+
+        if (prop.call(bucket, event.type)) {
+
+            var handlers = bucket[event.type],
+                noHandler = Mk.type(handler, 'undefined'),
+                namespace = event.namespace,
+                count = handlers.length,
+                i = 0, item;
+
+            for (; i < count; i++) {
+
+                item = handlers[i];
+
+                if (item.namespace === namespace && (noHandler || handler === item.handler)) {
+                    handlers.splice(i, 1);
+                    count--; i--;
+                }
+            }
+        }
+    },
+
+    emit: function emit (bucket, argz /* arguments */) {
+
+        var args = this.args(argz),
+            type = args.shift(),
+            event = this.event(type);
+
+        if (prop.call(bucket, event.type)) {
+
+            var namespace = event.namespace,
+                handlers = bucket[event.type],
+                count = handlers.length,
+                i = 0, item;
+
+            for (; i < count; i++) {
+
+                item = handlers[i];
+
+                if (!namespace || item.namespace === namespace) {
+
+                    item.handler.apply(item.context || root, args);
+
+                    if (item.single) {
+                        handlers.splice(i, 1);
+                        count--; i--;
+                    }
+                }
+            }
+        }
     }
 };
 
@@ -529,191 +550,221 @@ Mk.transitions = {
 };
 
 
-Mk.template = function (n, k, t, d) {
-    return Mk.fn.template.parse(n, k, t, d);
-}
-
 Mk.fn.template = {
+
+    xWhitespace: /[\r|\t|\n]+/g,
+
+    xStatements: /{{([^}]+)}}(.*)({{\/\1}})/g,
+
+    xInjections: /{{([^{]+)}}/g,
 
     markup: {
         highlight: '<span class="highlight">$1</span>',
         error: '<span class="error">{{template}} not found</span>'
     },
 
-    parse: function (n, k, t, d) {
+    parse: function (name, key, templates, data) {
 
-        n = n || '';
-        t = t || {};
-        d = d || {};
+        name = name || '';
 
-        d.$key = k;
+        data = data || {};
+        data.$key = key;
 
-        var tmp = this;
+        templates = templates || {};
 
-        return tmp
-        .get(n, t)
-        .replace(/[\r|\t|\n]+/g, '')
-        .replace(/{{([^}]+)}}(.*)({{\/\1}})/g, function (s, c, h) {
-            return tmp.statements(s, k, c, h, t, d);
+        var me = this;
+
+        return me.get(name, templates)
+
+        .replace(me.xWhitespace, '')
+
+        .replace(me.xStatements, function (str, code, content) {
+            return me.statements(str, key, code, content, templates, data);
         })
-        .replace(/{{([^{]+)}}/g, function (s, c) {
-            return tmp.inject(s, k, c, t, d)
+
+        .replace(me.xInjections, function (str, code) {
+            return me.inject(str, key, code, templates, data);
         });
     },
 
-    get: function (n, t) {
+    get: function (name, template) {
 
-        var tmp = n;
+        var tmp = name;
 
-        if (t && prop.call(t, n)) {
-            tmp = t[n];
+        if (template && prop.call(template, name)) {
+            tmp = template[name];
         }
 
         if (tmp instanceof Array) {
             tmp = tmp.join('');
         }
+
         return tmp;
     },
 
-    statements: function (s, k, c, h, t, d) {
+    statements: function (str, key, code, content, templates, data) {
 
-        var p = c.split(':'),
-            x = p[ 0 ],
-            a = p[ 1 ];
+        var parts = code.split(':'),
+            map = parts[0],
+            point = parts[1];
 
-        if (prop.call(this.map, x)) {
-            return this.map[ x ]( h, k, t, x == 'if' ? d : (d[ a ] || d), a );
+        if (prop.call(this.map, map)) {
+            return this.map[ map ](
+                content,
+                key,
+                templates,
+                map == 'if' ? data : (data[ point ] || data),
+                point);
         }
+
         return '';
     },
 
-    inject: function (s, k, c, t, d) {
+    inject: function (str, key, code, templates, data) {
 
-        var p = c.split( ':' ),
-            x = p[ 0 ],
-            a = p[ 1 ];
+        var parts = code.split( ':' ),
+            map = parts[ 0 ],
+            point = parts[ 1 ];
 
-        if (a && prop.call(this.map, x)) {
-            return this.map[x](a, k, t, d, a);
+        if (point && prop.call(this.map, map)) {
+            return this.map[map](
+                point,
+                key,
+                templates,
+                data,
+                point);
         }
 
-        if (prop.call(d, x) && !Mk.type(d[x], 'undefined|null')) {
-            return d[x];
+        if (prop.call(data, map)
+            && !Mk.type(data[map], 'undefined|null')) {
+            return data[map];
         }
+
         return '';
     },
 
     map: {
 
-        'loop': function (h, k, t, d, a) {
+        'loop': function (name, key, templates, data, point) {
 
-            var b = [], i, x, l, di, idx;
+            var tmp = Mk.fn.template,
+                buffer = [], i = 0,
+                l, dp, x;
 
-            if (Mk.type(d, 'number') || (x = parseInt(a, 10)) > -1) {
+            if (Mk.type(data, 'arraylike')) {
 
-                for (i = 0; i < (x || d); i++) {
+                l = data.length;
 
-                    d.$index = i;
-                    b.push(Mk.template(h, k, t, d));
-                }
-            }
-            else if (d instanceof Array) {
+                for(; i < l; i++) {
 
-                for(i = 0, l = d.length; i < l; i++) {
+                    dp = data[i];
 
-                    di = d[i];
-
-                    if (!Mk.type(di, 'object')) {
-                        di = {key: '', value: d[i]};
+                    if (!Mk.type(dp, 'object')) {
+                        dp = {key: '', value: dp};
                     }
 
-                    di.$index = i;
-                    b.push(Mk.template(h, k, t, di));
+                    dp.$index = i;
+
+                    buffer.push(
+                        tmp.parse(name, key, templates, dp));
                 }
             }
+
             else {
-                for (i in d) {
 
-                    idx = idx || 0;
+                x = 0;
 
-                    b.push(Mk.template(h, k, t, {
-                        key: i,
-                        value: d[i],
-                        $index: idx++
-                    }));
+                for (l in data) {
+
+                    buffer.push(
+                        tmp.parse(
+                        name,
+                        key,
+                        templates, {
+                            key: l,
+                            value: data[i],
+                            $index: x++
+                        }
+                    ));
                 }
             }
-            return b.join('');
+
+            return buffer.join('');
         },
 
-        'if': function (h, k, t, d, a) {
+        'if': function (name, key, templates, data, point) {
 
-            if (prop.call(d, a)) {
+            if (prop.call(data, point)) {
 
-                var dp = d[a];
+                var dp = data[point];
 
                 if ((!Mk.type(dp, 'empty'))
                     || (dp instanceof Array && dp.length > 0)) {
-                    return Mk.template(h, k, t, d);
+                    return Mk.fn.template.parse(name, key, templates, data);
                 }
             }
             return '';
         },
 
-        'highlight': function (h, k, t, d, a) {
+        'highlight': function (name, key, templates, data, point) {
 
-            var tp = Mk.template,
-                hl = d.highlight || '',
-                v  = d[h], w;
+            var tmp = Mk.fn.template,
+                str = data[point],
+                hlt = data.highlight || '',
+                htm;
 
-            if (hl) {
-                w = tp.get('highlight', tp.markup);
-                v = v.replace(new RegExp('(' + hl + ')', 'gi'), w);
+            if (hlt) {
+                htm = tp.get('highlight', tp.markup);
+                str = str.replace(new RegExp('(' + hlt + ')', 'gi'), htm);
             }
-            return v;
+            return str;
         },
 
-        'scope': function (h, k, t, d, a) {
-            return Mk.template(h, k, t, d);
+        'scope': function (name, key, templates, data) {
+            return Mk.fn.template.parse(name, key, templates, data);
         },
 
-        'template': function (h, k, t, d, a) {
-            return Mk.template(h, k, t, d);
+        'template': function (name, key, templates, data) {
+            return Mk.fn.template.parse(name, key, templates, data);
         }
     }
 };
 
 
-Mk.define = function (n, o) {
+Mk.define = function (namespace, obj) {
 
-    var a = Mk,
-        p = n.split( '.' );
+    var base = Mk,
+        parts = namespace.split( '.' ),
+        count = parts.length - 1,
+        i = 0;
 
-    for (var i = 0, l = p.length - 1; i < l; i++) {
-        if (prop.call(a, p[i])) {
-            a[p[i]] = {};
+    for (; i < count; i++) {
+        if (!prop.call(base, parts[i])) {
+            base[parts[i]] = {};
         }
-        a = a[p[i]];
+        base = base[parts[i]];
     }
-    return a[p[p.length - 1]] = o;
+    return base[parts[count]] = obj;
 };
 
-Mk.get = function (n) {
+Mk.get = function (namespace) {
 
-    var o = null,
-        m = Mk,
-        p = n.split('.');
+    var parts = namespace.split('.'),
+        count = parts.length,
+        base = Mk,
+        obj = null,
+        i = 0;
 
-    for (var i = 0, l = p.length; i < l; i++) {
-        if (prop.call(m, p[i])) {
-            o = m[p[i]];
-            m = o;
+    for (; i < count; i++) {
+        if (prop.call(base, parts[i])) {
+            obj = base[parts[i]];
+            base = obj;
         }
         else {
-            o = null;
+            obj = null;
         }
     }
-    return o;
+    return obj;
 };
 
 Mk.create = function (name, base, proto) {
@@ -722,33 +773,25 @@ Mk.create = function (name, base, proto) {
 
     proto = proto || base || {};
 
-    base = typeof base == 'function'
+    base = typeof base === 'function'
         && base.prototype instanceof Mk
         && base || Mk;
 
-    var o, m, s,
-        obj = function () {
-            this._init.apply(this, arguments);
-            return this;
-        };
+    var obj = function () {
+        this._init.apply(this, arguments);
+        return this;
+    };
 
-    o = obj.prototype = Object.create(base.prototype);
+    obj.prototype = Object.create(base.prototype);
 
-    for (m in proto) {
-        Mk.fn.property(o, proto, m);
-    }
+    Mk.extend(obj.prototype, proto);
 
-    if (base !== Mk) {
+    //TODO: add static members
 
-        for (s in base) {
+    obj.prototype.constructor = obj;
 
-            Mk.fn.property(obj, base, s);
-        }
-    }
-
-    o.constructor = obj;
-    o._super_ = base;
-    o._chain_ = null;
+    obj.prototype._super_ = base;
+    obj.prototype._chain_ = null;
 
     return this.define(name, obj);
 };
@@ -793,6 +836,12 @@ Mk.prototype = {
     </property:root>
     */
     root: null,
+    /*
+    <property:deviceExp>
+        <desc>Expression used to check the user agent for device patterns.</desc>
+    </property:deviceExp>
+    */
+    deviceExp: /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
 
     get _pushSuper () {
         return Mk.fn.pushSuper;
@@ -863,7 +912,19 @@ Mk.prototype = {
     </property:device>
     */
     get device () {
-        return Mk.fn.device;
+        return this.deviceExp.test(navigator.userAgent);
+    },
+    /*
+    <property:devicekey>
+        <desc>Key pulled from user agent for general device name checking (iphone, android, ipad, etc).</desc>
+    </property:devicekey>
+    */
+    get devicekey () {
+
+        var ua = navigator.userAgent,
+            match = (this.deviceExp.exec(ua) || [])[1] || '';
+
+        return match.toLowerCase();
     },
     /*
     <method:$>
@@ -889,7 +950,7 @@ Mk.prototype = {
     </method:uid>
     */
     uid: function () {
-        return Mk._uid();
+        return Mk.fn.uid();
     },
     /*
     <method:template>
@@ -906,7 +967,7 @@ Mk.prototype = {
     </method:template>
     */
     template: function (n, d) {
-        return Mk.template(n, this.name, this.config.templates, d);
+        return Mk.fn.template.parse(n, this.name, this.config.templates, d);
     },
     /*
     <method:format>
@@ -923,7 +984,7 @@ Mk.prototype = {
     </method:format>
     */
     format: function (n, d) {
-        return Mk.template(n, this.name, this.config.formats, d);
+        return Mk.fn.template.parse(n, this.name, this.config.formats, d);
     },
     /*
     <method:html>
@@ -1060,12 +1121,9 @@ Mk.prototype = {
              t = Mk.transitions.key,
              c = this;
 
-        cb = cb || function () {};
-
         if (t) {
 
             n.addClass('transition');
-
             n.one(t, function (e) {
                 n.removeClass('transition');
                 cb.call(c, e, n);
@@ -1076,9 +1134,9 @@ Mk.prototype = {
 
         n.removeClass('transition');
 
-        return this.each(n, function (_n) {
-            setTimeout( function () {
-                cb.call(c, null, c.$(_n));
+        return this.each(n, function (el) {
+            this.delay(function () {
+                cb.call(this, null, this.$(el));
             }, 1);
         });
     },
@@ -1092,12 +1150,12 @@ Mk.prototype = {
         <desc>Clear transition handlers on node.</desc>
     </method:clearTransitions>
     */
-    clearTransitions: function (n) {
+    clearTransitions: function (node) {
 
         var t = Mk.transitions.key;
 
         if (t) {
-            this.$(n).off(t);
+            this.$(node).off(t);
         }
         return this;
     },
@@ -1111,8 +1169,8 @@ Mk.prototype = {
         <desc>Returns true if element is currently transitioning. False for anything else.</desc>
     </method:clearTransitions>
     */
-    transitioning: function (n) {
-        return this.$(n).hasClass('transition');
+    transitioning: function (node) {
+        return this.$(node).hasClass('transition');
     },
     /*
     <method:delay>
@@ -1157,10 +1215,14 @@ Mk.prototype = {
         <desc>Binds a handler to an event type through the Event Emitter. Allows for namespaced events.</desc>
     </method:on>
     */
-    on: function (e, h) {
+    on: function (type, handler) {
 
-        Mk.fn.eventEmitter.on(
-            this.events, e, h, this);
+        Mk.fn.eventEmitter.on({
+            bucket: this.events,
+            type: type,
+            handler: handler,
+            context: this
+        });
 
         return this;
     },
@@ -1178,10 +1240,14 @@ Mk.prototype = {
         <desc>Binds a handler to an event type through the Event Emitter. Once fired, an event bound through one() will be removed. Allows for namespaced events.</desc>
     </method:one>
     */
-    one: function (e, h) {
+    one: function (type, handler) {
 
-        Mk.fn.eventEmitter.one(
-            this.events, e, h, this);
+        Mk.fn.eventEmitter.one({
+            bucket: this.events,
+            type: type,
+            handler: handler,
+            context: this
+        });
 
         return this;
     },
@@ -1199,9 +1265,14 @@ Mk.prototype = {
         <desc>Removes a handler (or all handlers) from an event type.</desc>
     </method:off>
     */
-    off: function (e, h) {
+    off: function (type, handler) {
 
-        Mk.fn.eventEmitter.off(this.events, e, h);
+        Mk.fn.eventEmitter.off({
+            bucket: this.events,
+            type: type,
+            handler: handler
+        });
+
         return this;
     },
     /*
@@ -1218,7 +1289,7 @@ Mk.prototype = {
         <desc>Invokes handler(s) bound to event type.</desc>
     </method:emit>
     */
-    emit: function (e /*, arguments */) {
+    emit: function (type /*, arguments */) {
 
         Mk.fn.eventEmitter.emit(this.events, arguments);
         return this;

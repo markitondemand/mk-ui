@@ -152,7 +152,7 @@ Mk.prototype = {
     </method:uid>
     */
     uid: function () {
-        return Mk._uid();
+        return Mk.fn.uid();
     },
     /*
     <method:template>
@@ -169,7 +169,7 @@ Mk.prototype = {
     </method:template>
     */
     template: function (n, d) {
-        return Mk.template(n, this.name, this.config.templates, d);
+        return Mk.fn.template.parse(n, this.name, this.config.templates, d);
     },
     /*
     <method:format>
@@ -186,7 +186,7 @@ Mk.prototype = {
     </method:format>
     */
     format: function (n, d) {
-        return Mk.template(n, this.name, this.config.formats, d);
+        return Mk.fn.template.parse(n, this.name, this.config.formats, d);
     },
     /*
     <method:html>
@@ -323,12 +323,9 @@ Mk.prototype = {
              t = Mk.transitions.key,
              c = this;
 
-        cb = cb || function () {};
-
         if (t) {
 
             n.addClass('transition');
-
             n.one(t, function (e) {
                 n.removeClass('transition');
                 cb.call(c, e, n);
@@ -339,9 +336,9 @@ Mk.prototype = {
 
         n.removeClass('transition');
 
-        return this.each(n, function (_n) {
-            setTimeout( function () {
-                cb.call(c, null, c.$(_n));
+        return this.each(n, function (el) {
+            this.delay(function () {
+                cb.call(this, null, this.$(el));
             }, 1);
         });
     },
@@ -355,12 +352,12 @@ Mk.prototype = {
         <desc>Clear transition handlers on node.</desc>
     </method:clearTransitions>
     */
-    clearTransitions: function (n) {
+    clearTransitions: function (node) {
 
         var t = Mk.transitions.key;
 
         if (t) {
-            this.$(n).off(t);
+            this.$(node).off(t);
         }
         return this;
     },
@@ -374,8 +371,8 @@ Mk.prototype = {
         <desc>Returns true if element is currently transitioning. False for anything else.</desc>
     </method:clearTransitions>
     */
-    transitioning: function (n) {
-        return this.$(n).hasClass('transition');
+    transitioning: function (node) {
+        return this.$(node).hasClass('transition');
     },
     /*
     <method:delay>
@@ -420,10 +417,14 @@ Mk.prototype = {
         <desc>Binds a handler to an event type through the Event Emitter. Allows for namespaced events.</desc>
     </method:on>
     */
-    on: function (e, h) {
+    on: function (type, handler) {
 
-        Mk.fn.eventEmitter.on(
-            this.events, e, h, this);
+        Mk.fn.eventEmitter.on({
+            bucket: this.events,
+            type: type,
+            handler: handler,
+            context: this
+        });
 
         return this;
     },
@@ -441,10 +442,14 @@ Mk.prototype = {
         <desc>Binds a handler to an event type through the Event Emitter. Once fired, an event bound through one() will be removed. Allows for namespaced events.</desc>
     </method:one>
     */
-    one: function (e, h) {
+    one: function (type, handler) {
 
-        Mk.fn.eventEmitter.one(
-            this.events, e, h, this);
+        Mk.fn.eventEmitter.one({
+            bucket: this.events,
+            type: type,
+            handler: handler,
+            context: this
+        });
 
         return this;
     },
@@ -462,9 +467,14 @@ Mk.prototype = {
         <desc>Removes a handler (or all handlers) from an event type.</desc>
     </method:off>
     */
-    off: function (e, h) {
+    off: function (type, handler) {
 
-        Mk.fn.eventEmitter.off(this.events, e, h);
+        Mk.fn.eventEmitter.off({
+            bucket: this.events,
+            type: type,
+            handler: handler
+        });
+
         return this;
     },
     /*
@@ -481,7 +491,7 @@ Mk.prototype = {
         <desc>Invokes handler(s) bound to event type.</desc>
     </method:emit>
     */
-    emit: function (e /*, arguments */) {
+    emit: function (type /*, arguments */) {
 
         Mk.fn.eventEmitter.emit(this.events, arguments);
         return this;
