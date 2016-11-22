@@ -75,7 +75,7 @@ $.data = function (n, k, vl) {
 
     if (n) {
 
-        var id = n._id = n._id || Mk.fn.uid(),
+        var id = n._id = n._id || Mk._uid(),
             c  = Mk.$.cache[id] || {},
             v  = vl;
 
@@ -234,14 +234,14 @@ $.xhr.prototype = {
             o = x.options,
             s = doc.createElement('script'),
 
-            id = o.jsonpid = 'MKUI' + Mk.fn.uid().split('-').join(''),
+            id = o.jsonpid = 'MKUI' + Mk._uid().split('-').join(''),
             qs = 'callback=' + id;
 
         s.type = 'text/javascript';
         s.language = 'javascript';
         s.async = o.async;
         s.src = o.url + (o.url.indexOf('?') > -1 && '&' || '?') + qs;
-        s.id = o.scriptid = Mk.fn.uid();
+        s.id = o.scriptid = Mk._uid();
 
         s.onerror = function () {
             o.error.call(x);

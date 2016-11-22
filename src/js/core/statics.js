@@ -1,34 +1,38 @@
 
-Mk.define = function (n, o) {
+Mk.define = function (namespace, obj) {
 
-    var a = Mk,
-        p = n.split( '.' );
+    var base = Mk,
+        parts = namespace.split( '.' ),
+        count = parts.length - 1,
+        i = 0;
 
-    for (var i = 0, l = p.length - 1; i < l; i++) {
-        if (prop.call(a, p[i])) {
-            a[p[i]] = {};
+    for (; i < count; i++) {
+        if (!prop.call(base, parts[i])) {
+            base[parts[i]] = {};
         }
-        a = a[p[i]];
+        base = base[parts[i]];
     }
-    return a[p[p.length - 1]] = o;
+    return base[parts[count]] = obj;
 };
 
-Mk.get = function (n) {
+Mk.get = function (namespace) {
 
-    var o = null,
-        m = Mk,
-        p = n.split('.');
+    var parts = namespace.split('.'),
+        count = parts.length,
+        base = Mk,
+        obj = null,
+        i = 0;
 
-    for (var i = 0, l = p.length; i < l; i++) {
-        if (prop.call(m, p[i])) {
-            o = m[p[i]];
-            m = o;
+    for (; i < count; i++) {
+        if (prop.call(base, parts[i])) {
+            obj = base[parts[i]];
+            base = obj;
         }
         else {
-            o = null;
+            obj = null;
         }
     }
-    return o;
+    return obj;
 };
 
 Mk.create = function (name, base, proto) {
@@ -37,33 +41,25 @@ Mk.create = function (name, base, proto) {
 
     proto = proto || base || {};
 
-    base = typeof base == 'function'
+    base = typeof base === 'function'
         && base.prototype instanceof Mk
         && base || Mk;
 
-    var o, m, s,
-        obj = function () {
-            this._init.apply(this, arguments);
-            return this;
-        };
+    var obj = function () {
+        this._init.apply(this, arguments);
+        return this;
+    };
 
-    o = obj.prototype = Object.create(base.prototype);
+    obj.prototype = Object.create(base.prototype);
 
-    for (m in proto) {
-        Mk.fn.property(o, proto, m);
-    }
+    Mk.extend(obj.prototype, proto);
 
-    if (base !== Mk) {
+    //TODO: add static members
 
-        for (s in base) {
+    obj.prototype.constructor = obj;
 
-            Mk.fn.property(obj, base, s);
-        }
-    }
-
-    o.constructor = obj;
-    o._super_ = base;
-    o._chain_ = null;
+    obj.prototype._super_ = base;
+    obj.prototype._chain_ = null;
 
     return this.define(name, obj);
 };

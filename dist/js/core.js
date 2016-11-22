@@ -100,7 +100,7 @@ Mk.fn = {
             return r;
         };
 
-        w._id_ = Mk.fn.uid();
+        w._id_ = Mk._uid();
 
         w.toString = function () {
             return f.toString();
@@ -889,7 +889,7 @@ Mk.prototype = {
     </method:uid>
     */
     uid: function () {
-        return Mk.fn.uid();
+        return Mk._uid();
     },
     /*
     <method:template>

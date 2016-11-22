@@ -29,11 +29,13 @@
 
 })(typeof window !== 'undefined' && window || this, function (root) {
 
-'use strict';
+"use strict";
 
 var prop = ({}).hasOwnProperty;
 
-function Mk () {}
+var noop = function () {};
+
+var Mk = function () {};
 
 Mk.$ = function (s, c) {
 	return root.jQuery(s, c);

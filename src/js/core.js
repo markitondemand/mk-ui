@@ -29,11 +29,13 @@
 
 })(typeof window !== 'undefined' && window || this, function (root) {
 
-'use strict';
+"use strict";
 
 var prop = ({}).hasOwnProperty;
 
-function Mk () {}
+var noop = function () {};
+
+var Mk = function () {};
 
 Mk.$ = function (s, c) {
 	return root.jQuery(s, c);
@@ -41,190 +43,7 @@ Mk.$ = function (s, c) {
 
 
 Mk.fn = {
-
-    noop: function () {},
-
-    keycodes: {
-        backspace: 8, tab: 9, enter: 13, esc: 27, space: 32,
-        pageup: 33, pagedown: 34, end: 35, home: 36,
-        left: 37, up: 38, right: 39, down: 40, left: 37, right: 39,
-        comma: 188
-    },
-
-    uid: function () {
-
-        return 'xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
-
-            var r = Math.random() * 16 | 0,
-                v = c == 'x' && r || (r&0x3 | 0x8);
-
-            return v.toString(16);
-        });
-    },
-
-    property: function (o, p, m) {
-
-        var d = Object.getOwnPropertyDescriptor(p, m),
-            v = (d.get !== void+1 || d.set !== void+1) && d || {value: p[m]}, f;
-
-        if (Mk.type(v.value, 'function')) {
-
-            f = Mk.fn.wrapFunction(p[m], m);
-            v = {
-                get: function () {
-                    return f;
-                },
-                set: function (value) {
-
-                    if (Mk.type(value, 'function')) {
-                        f = Mk.fn.wrapFunction(value, m);
-                        return;
-                    }
-                    f = value;
-                }
-            };
-        }
-        Object.defineProperty(o, m, v);
-    },
-
-    wrapFunction: function (f, m) {
-
-        if (f._id_) {
-            return f;
-        }
-
-        var w = function () {
-            this._pushSuper(m);
-            var r = f.apply(this, arguments);
-            this._popSuper(m);
-            return r;
-        };
-
-        w._id_ = Mk.fn.uid();
-
-        w.toString = function () {
-            return f.toString();
-        };
-
-        return w;
-    },
-
-    pushSuper: function (m) {
-        this._chain_ = this._chain_ || [];
-        this._chain_.push(m);
-    },
-
-    popSuper: function (m) {
-        this._chain_.splice(
-            this._chain_.lastIndexOf(m), 1);
-    },
-
-    each: function (c, o, f) {
-
-        var i = 0, l, r;
-
-        if (Mk.type(o, 'arraylike')) {
-
-            l = o.length;
-
-            for (; i < l; i++) {
-
-                r = f.call(c, o[i], i, o);
-
-                if (r === false) {
-                    break;
-                }
-
-                if (r === -1) {
-                    [].splice.call(o, i, 1);
-                    i--; l--;
-                }
-            }
-        }
-        else {
-
-            for (i in o) {
-
-                r = f.call(c, o[i], i, o);
-
-                if (r === false) {
-                    break;
-                }
-                if (r === -1) {
-                    delete o[i];
-                }
-            }
-        }
-        return c;
-    },
-
-    find: function (c, o, f) {
-
-        var v;
-
-        Mk.fn.each(c, o, function (e, i, oo) {
-
-            v = f.call(this, e, i, oo);
-
-            if (v !== void+1) {
-                return false;
-            }
-        });
-        return v;
-    },
-
-    map: function (c, o, f) {
-
-        var a, r, i;
-
-        if (Mk.type(o, 'arraylike')) {
-
-            a = [];
-
-            Array.prototype.map.call(o, function (e, x, z) {
-
-                r = f.call(c, e, x, z);
-
-                if (r !== void+1) {
-                    a.push(r);
-                }
-            });
-        }
-        else {
-
-            a = {};
-
-            for (i in o) {
-
-                r = f.call(c, o[i], i, o);
-
-                if (r !== void+1) {
-                    a[i] = r;
-                }
-            }
-        }
-        return a;
-    },
-
-    filter: function (c, o, f) {
-
-        if (Mk.type(o, 'arraylike')) {
-            return Array.prototype.filter.call(o, function (x, y, z) {
-                f.call(c, x, y, z);
-            });
-        }
-
-        var n = {}, i;
-
-        for (i in o) {
-
-            if (f.call(c, o[i], i, o) !== false) {
-                n[i] = o[i];
-            }
-        }
-        return n;
-    },
-
+    
     eventEmitter: {
 
         _add: function (b, n, h, c, s) {
@@ -283,7 +102,7 @@ Mk.fn = {
 
                     item = s[i];
 
-                    if (item.ns === ns && (Mk.type(h, 'u') || h === item.handler)) {
+                    if (item.ns === ns && (Mk.type(h, 'undefined') || h === item.handler)) {
                         s.splice(i, 1);
                         l--;
                         i--;
@@ -341,133 +160,353 @@ Mk.fn = {
 };
 
 
-/*
-    Mk.type
-    More complex typing
-    Pass in a type or multiple types (pipe delimited)
-    returns boolean
+Mk._uid = function () {
 
-    types:
-        string
-        number
-        object
-        boolean
-        function
-        undefined
-        null
-        empty
-        array
-        arraylike
-        class
-        instance
-        node
-        nodelist
-        window
-        date
-*/
+    return 'xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
 
-Mk.type = function (o, t) {
+        var r = Math.random() * 16 | 0,
+            v = c == 'x' && r || (r&0x3 | 0x8);
 
-    var c = t.toLowerCase().split('|'),
-        r = false;
+        return v.toString(16);
+    });
+};
 
-    for (var i = 0, l = c.length; i < l; i++) {
 
-        if (Mk.fn.type.is(o, c[i])) {
+Mk.type = function (obj, type) {
+
+    var types = type.toLowerCase().split("|"),
+        count = types.length,
+        table = Mk.fn.typemap,
+        i = 0, fn, ty;
+
+    for (; i < count; i++) {
+
+        ty = types[i];
+        fn = prop.call(table, ty) ? table[ty] : table.defaultt;
+
+        if (fn(obj, ty)) {
             return true;
         }
     }
-    return r;
+    return false;
 };
 
-Mk.fn.type = {
+Mk.fn.typemap = {
 
-    is: function (o, t) {
-
-        var r = typeof o == t;
-
-        switch (t) {
-
-            case 'empty':
-                r = o === ''
-                    || o === null
-                    || o === void+1
-                    || o === false;
-                    break;
-
-            case 'array':
-                r = o instanceof Array;
-                break;
-
-            case 'null':
-                r = o === null;
-                break;
-
-            case 'date':
-                r = o instanceof Date;
-                break;
-
-            case 'instance':
-                r = this.instance(o);
-                break;
-
-            case 'nodelist':
-                r = o instanceof NodeList;
-                break;
-
-            case 'node':
-                r = /1|9|11/.test(o && o.nodeType || 0);
-                break;
-
-            case 'window':
-                r = o === window;
-                break;
-
-            case 'arraylike':
-                r = this.arraylike(o);
-                break;
-
-            case 'class':
-                r = this.clazz(o);
-                break;
-
-            case 'function':
-                r = typeof o == 'function'
-                    && !this.clazz(o);
-
-                break;
-        }
-        return r;
+    "index": function (o, i) {
+        return o.indexOf(i) > -1;
     },
 
-    arraylike: function (o) {
+    "array": function (o) {
+        return o instanceof Array;
+    },
 
-        if (Mk.type(o, 'function|string|window')) {
+    "empty": function (o) {
+        return o === "" || o === null
+            || o === void+1 || o === false;
+    },
+
+    "null": function (o) {
+        return o === null;
+    },
+
+    "date": function (o) {
+        return o instanceof Date || o === Date;
+    },
+
+    "nodelist": function (o) {
+        return o instanceof NodeList;
+    },
+
+    "node": function (o) {
+        return /1|9|11/.test(o && o.nodeType || 0);
+    },
+
+    "window": function (o) {
+        return o && o === o.window;
+    },
+
+    "function": function (o) {
+        return typeof o === "function"
+            && !Mk.fn.typemap.classlike(o);
+    },
+
+    "arraylike": function (o) {
+
+        if (Mk.type(o, "function|string|window")) {
             return false;
         }
 
-        var n = !!o && typeof o.length == 'number',
-            l = n && 'length' in o && o.length;
+        var n = !!o && typeof o.length === "number",
+            l = n && "length" in o && o.length;
 
-        return Mk.type(o, 'array|nodelist')
+        return Mk.type(o, "array|nodelist")
             || l === 0 || n && l > 0 && (l - 1) in o;
     },
 
-    instance: function (o) {
+    "instance": function (o) {
 
         var p = Object.getPrototypeOf(o),
-            c = p && p.hasOwnProperty('constructor') && p.constructor,
+            c = p && p.hasOwnProperty("constructor") && p.constructor,
             f = ({}).hasOwnProperty.toString;
 
-        return (typeof c == 'function' && f.call(c) === f.call(Object)) !== true;
+        return (typeof c === "function" && f.call(c) === f.call(Object)) !== true;
     },
 
-    clazz: function (o) {
+    "descriptor": function (o) {
 
-        return typeof o == 'function'
-            && Object.keys(o).concat(
-                Object.keys(o.prototype)).length > 0;
+        var index = Mk.fn.typemap.index,
+            keys  = Object.keys(o) || [];
+
+        if (index(keys, "enumerable") && index(keys, "configurable")) {
+
+            if (index(keys, "value")) {
+                return index(keys, "writable");
+            }
+
+            if (index(keys, "get")) {
+                return index(keys, "set");
+            }
+        }
+        return false;
+    },
+
+    "classlike": function (o) {
+        return typeof o === "function"
+            && Object.keys(o.prototype).length > 0;
+    },
+
+    "object": function (o) {
+        return !!o && typeof o === "object" && !(o instanceof Array);
+    },
+
+    "defaultt": function (o, t) {
+        return typeof o === t;
     }
+};
+
+
+Mk.fn.each = function (context, obj, callback) {
+
+    var i = 0, count, result;
+
+    if (Mk.type(obj, 'arraylike')) {
+
+        count = obj.length;
+
+        for (; i < count; i++) {
+
+            result = callback.call(context, obj[i], i, obj);
+
+            if (result === false) {
+                break;
+            }
+
+            if (result === -1) {
+                [].splice.call(obj, i, 1);
+                i--; count--;
+            }
+        }
+    }
+
+    else {
+
+        for (i in obj) {
+
+            result = callback.call(context, obj[i], i, obj);
+
+            if (result === false) {
+                break;
+            }
+
+            if (result === -1) {
+                delete o[i];
+            }
+        }
+    }
+
+    return context;
+};
+
+Mk.fn.find = function (context, obj, callback) {
+
+    var result;
+
+    Mk.fn.each(context, obj, function (o, i, orig) {
+
+        result = callback.call(this, o, i, orig);
+
+        if (result !== void+1) {
+            return false;
+        }
+    });
+
+    return result;
+};
+
+Mk.fn.map = function (context, obj, callback) {
+
+    var map, result, i;
+
+    if (Mk.type(obj, 'arraylike')) {
+
+        map = [];
+
+        Array.prototype.map.call(obj, function (o, x, orig) {
+
+            result = callback.call(context, o, x, orig);
+
+            if (result !== void+1) {
+                map.push(result);
+            }
+        });
+    }
+    else {
+
+        map = {};
+
+        for (i in o) {
+
+            result = callback.call(context, obj[i], i, obj);
+
+            if (result !== void+1) {
+                map[i] = result;
+            }
+        }
+    }
+
+    return map;
+};
+
+Mk.fn.filter = function (context, obj, callback) {
+
+    if (Mk.type(obj, 'arraylike')) {
+        return Array.prototype.filter.call(obj, function (o, i, orig) {
+            return callback.call(context, o, i, orig);
+        });
+    }
+
+    var result = {}, i;
+
+    for (i in obj) {
+        if (callback.call(context, obj[i], i, obj) !== false) {
+            result[i] = obj[i];
+        }
+    }
+    return result;
+};
+
+
+Mk.fn.keycodes = {
+    backspace: 8, tab: 9, enter: 13, esc: 27, space: 32,
+    pageup: 33, pagedown: 34, end: 35, home: 36,
+    left: 37, up: 38, right: 39, down: 40, left: 37, right: 39,
+    comma: 188
+};
+
+
+Mk.extend = function (to, from, name) {
+
+    var prop;
+
+    if (Mk.type(name, 'undefined')) {
+
+        for (prop in from) {
+            Mk.extend(to, from, prop);
+        }
+    }
+    else {
+
+        prop = Object.getOwnPropertyDescriptor(from, name);
+
+        // cannot access getters/setters with obj[prop] notation or an exception
+        // will be thrown due to accessors on the prototype but not in actual context.
+        // so for getters and setters we must do this.
+        if (prop && (prop.get !== void+1 || prop.set !== void+1)) {
+            Object.defineProperty(to, name, prop);
+        }
+        else {
+            // everybody else goes here.
+            // In this case, the descriptor has a 'value' property.
+            // The value can be writable, and configurable or not, if it is not,
+            // we want to leave the value alone. If it is, we want to pull out the raw value and reset it.
+            Mk.property(to, name, prop.writable ? prop.value : prop);
+        }
+    }
+    return this;
+};
+
+Mk.property = function (obj, name, value) {
+
+    var prop = value,
+        func;
+
+    if (Mk.type(value, 'function')) {
+
+        func = Mk.fn.wrapFunction(value, name);
+
+        prop = {
+            enumerable: true,
+            configurable: true,
+            get: function () {
+                return func;
+            },
+            set: function (newvalue) {
+
+                if (Mk.type(newvalue, 'function')) {
+                    func = Mk.fn.wrapFunction(newvalue, name);
+                    return;
+                }
+                func = newvalue;
+            }
+        };
+    }
+
+    if (!Mk.type(prop, 'descriptor')) {
+        prop = {
+            value: value,
+            writable: true,
+            configurable: true,
+            enumerable: true,
+        };
+    }
+
+    Object.defineProperty(obj, name, prop);
+
+    return this;
+};
+
+Mk.fn.wrapFunction = function (func, name) {
+
+    if (func._id_) {
+        return func;
+    }
+
+    var wrap = function () {
+
+        this._pushSuper(name);
+        var result = func.apply(this, arguments);
+        this._popSuper(name);
+        return result;
+    };
+
+    wrap._id_ = Mk._uid();
+
+    wrap.toString = function () {
+        return func.toString();
+    };
+
+    return wrap;
+};
+
+Mk.fn.pushSuper = function (name) {
+    this._chain_ = this._chain_ || [];
+    this._chain_.push(name);
+};
+
+Mk.fn.popSuper = function (name) {
+    this._chain_.splice(
+        this._chain_.lastIndexOf(name), 1);
 };
 
 
@@ -684,36 +723,40 @@ Mk.fn.template = {
 };
 
 
-Mk.define = function (n, o) {
+Mk.define = function (namespace, obj) {
 
-    var a = Mk,
-        p = n.split( '.' );
+    var base = Mk,
+        parts = namespace.split( '.' ),
+        count = parts.length - 1,
+        i = 0;
 
-    for (var i = 0, l = p.length - 1; i < l; i++) {
-        if (prop.call(a, p[i])) {
-            a[p[i]] = {};
+    for (; i < count; i++) {
+        if (!prop.call(base, parts[i])) {
+            base[parts[i]] = {};
         }
-        a = a[p[i]];
+        base = base[parts[i]];
     }
-    return a[p[p.length - 1]] = o;
+    return base[parts[count]] = obj;
 };
 
-Mk.get = function (n) {
+Mk.get = function (namespace) {
 
-    var o = null,
-        m = Mk,
-        p = n.split('.');
+    var parts = namespace.split('.'),
+        count = parts.length,
+        base = Mk,
+        obj = null,
+        i = 0;
 
-    for (var i = 0, l = p.length; i < l; i++) {
-        if (prop.call(m, p[i])) {
-            o = m[p[i]];
-            m = o;
+    for (; i < count; i++) {
+        if (prop.call(base, parts[i])) {
+            obj = base[parts[i]];
+            base = obj;
         }
         else {
-            o = null;
+            obj = null;
         }
     }
-    return o;
+    return obj;
 };
 
 Mk.create = function (name, base, proto) {
@@ -722,33 +765,25 @@ Mk.create = function (name, base, proto) {
 
     proto = proto || base || {};
 
-    base = typeof base == 'function'
+    base = typeof base === 'function'
         && base.prototype instanceof Mk
         && base || Mk;
 
-    var o, m, s,
-        obj = function () {
-            this._init.apply(this, arguments);
-            return this;
-        };
+    var obj = function () {
+        this._init.apply(this, arguments);
+        return this;
+    };
 
-    o = obj.prototype = Object.create(base.prototype);
+    obj.prototype = Object.create(base.prototype);
 
-    for (m in proto) {
-        Mk.fn.property(o, proto, m);
-    }
+    Mk.extend(obj.prototype, proto);
 
-    if (base !== Mk) {
+    //TODO: add static members
 
-        for (s in base) {
+    obj.prototype.constructor = obj;
 
-            Mk.fn.property(obj, base, s);
-        }
-    }
-
-    o.constructor = obj;
-    o._super_ = base;
-    o._chain_ = null;
+    obj.prototype._super_ = base;
+    obj.prototype._chain_ = null;
 
     return this.define(name, obj);
 };
@@ -793,6 +828,12 @@ Mk.prototype = {
     </property:root>
     */
     root: null,
+    /*
+    <property:deviceExp>
+        <desc>Expression used to check the user agent for device patterns.</desc>
+    </property:deviceExp>
+    */
+    deviceExp: /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
 
     get _pushSuper () {
         return Mk.fn.pushSuper;
@@ -863,7 +904,19 @@ Mk.prototype = {
     </property:device>
     */
     get device () {
-        return Mk.fn.device;
+        return this.deviceExp.test(navigator.userAgent);
+    },
+    /*
+    <property:devicekey>
+        <desc>Key pulled from user agent for general device name checking (iphone, android, ipad, etc).</desc>
+    </property:devicekey>
+    */
+    get devicekey () {
+
+        var ua = navigator.userAgent,
+            match = (this.deviceExp.exec(ua) || [])[1] || '';
+
+        return match.toLowerCase();
     },
     /*
     <method:$>
@@ -889,7 +942,7 @@ Mk.prototype = {
     </method:uid>
     */
     uid: function () {
-        return Mk.fn.uid();
+        return Mk._uid();
     },
     /*
     <method:template>

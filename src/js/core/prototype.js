@@ -38,6 +38,12 @@ Mk.prototype = {
     </property:root>
     */
     root: null,
+    /*
+    <property:deviceExp>
+        <desc>Expression used to check the user agent for device patterns.</desc>
+    </property:deviceExp>
+    */
+    deviceExp: /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
 
     get _pushSuper () {
         return Mk.fn.pushSuper;
@@ -108,7 +114,19 @@ Mk.prototype = {
     </property:device>
     */
     get device () {
-        return Mk.fn.device;
+        return this.deviceExp.test(navigator.userAgent);
+    },
+    /*
+    <property:devicekey>
+        <desc>Key pulled from user agent for general device name checking (iphone, android, ipad, etc).</desc>
+    </property:devicekey>
+    */
+    get devicekey () {
+
+        var ua = navigator.userAgent,
+            match = (this.deviceExp.exec(ua) || [])[1] || '';
+
+        return match.toLowerCase();
     },
     /*
     <method:$>
@@ -134,7 +152,7 @@ Mk.prototype = {
     </method:uid>
     */
     uid: function () {
-        return Mk.fn.uid();
+        return Mk._uid();
     },
     /*
     <method:template>

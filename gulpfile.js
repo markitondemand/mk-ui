@@ -31,7 +31,13 @@ var gulp   = require('gulp'),
 			files: [
 				'./src/js/core/intro.js',
 				'./src/js/core/fn.js',
+
+				'./src/js/core/uid.js',
 				'./src/js/core/type.js',
+				'./src/js/core/iterators.js',
+				'./src/js/core/keycodes.js',
+				'./src/js/core/property.js',
+
 				'./src/js/core/transitions.js',
 				'./src/js/core/templates.js',
 				'./src/js/core/statics.js',
