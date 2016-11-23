@@ -344,12 +344,12 @@ $.prototype = {
         return this;
     },
 
-    remove: function (s) {
+    remove: function (selector) {
 
         var o = this, e;
 
-        if (arguments.length) {
-            o = new $(s, this);
+        if (selector) {
+            o = new $(selector, this);
         }
 
         o.each(function (el) {
@@ -358,39 +358,30 @@ $.prototype = {
         return this;
     },
 
-    on: function (t, d, h) {
+    on: function (type, delegate, handler, single) {
 
-        if (!h) {
-            h = d;
-            d = null;
+        if (!handler) {
+            handler = delegate;
+            delegate = null;
         }
-
         return this.each(function (el) {
-            $.on(el, t, '', h, false, d);
+            $.events.on(el, type, delegate, handler, single);
         });
     },
 
-    one: function (t, d, h) {
+    one: function (type, delegate, handler) {
+        return this.on(type, delegate, handler, true);
+    },
 
-        if (!h) {
-            h = d;
-            d = null;
-        }
-
+    off: function (type, handler) {
         return this.each(function (el) {
-            $.on(el, t, '', h, true, d);
+            $.events.off(el, type, handler);
         });
     },
 
-    off: function (t, h) {
+    emit: function (type, data) {
         return this.each(function (el) {
-            $.off(el, t, h);
-        });
-    },
-
-    emit: function (t, d) {
-        return this.each(function (el) {
-            $.emit(el, t, d);
+            $.events.emit(el, type, data);
         });
     }
 };

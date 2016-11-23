@@ -47,90 +47,112 @@ function $(s, c) {
     return this.find(s, c);
 }
 
-$.cache = {};
+$._cache = {};
 
-$.wrap = {
-    option: [ 1, '<select multiple="multiple">', '</select>' ],
-    thead: [ 1, '<table>', '</table>' ],
-    col: [ 2, '<table><colgroup>', '</colgroup></table>' ],
-    tr: [ 2, '<table><tbody>', '</tbody></table>' ],
-    td: [ 3, '<table><tbody><tr>', '</tr></tbody></table>' ],
+$._wraps = {
+    option: [1, '<select multiple="multiple">', '</select>'],
+    thead: [1, '<table>', '</table>'],
+    col: [2, '<table><colgroup>', '</colgroup></table>'],
+    tr: [2, '<table><tbody>', '</tbody></table>'],
+    td: [3, '<table><tbody><tr>', '</tr></tbody></table>'],
     li: [1, '<ul>', '</ul>'],
     dd: [1, '<dl>', '</dl>'],
-    defaultt: [ 0, "", "" ]
+    defaultt: [ 0, "", ""]
 };
 
-$.wrap.caption   = $.wrap.thead;
-$.wrap.optgroup  = $.wrap.option;
-$.wrap.tbody     = $.wrap.thead;
-$.wrap.tfoot     = $.wrap.thead;
-$.wrap.dt        = $.wrap.dd;
+$._wraps.optgroup  = $._wraps.option;
+$._wraps.caption   = $._wraps.thead;
+$._wraps.tbody     = $._wraps.thead;
+$._wraps.tfoot     = $._wraps.thead;
+$._wraps.dt        = $._wraps.dd;
 
 
-//
-// data - store/retrieve data and data attributes
-// ----------------------------------------
+$.data = function (node, key, value) {
 
-$.data = function (n, k, vl) {
+    // get/create a unique id for our node
+    // for memory leaks, we only assign a string to the node,
+    // the object is kept entirely seperate
+    var id = node._id_ || Mk.fn.uid(),
+        // default out the value.
+        val = value,
+        // pull the cache object or create a new empty primitive
+        cache = $._cache[id] || {};
 
-    if (n) {
+    // if the key is explicitly null, we want to remove the entire cache entry.
+    // remove the node id, and delete the cache. Finally, return it to
+    // the user for future use.
 
-        var id = n._id = n._id || Mk.fn.uid(),
-            c  = Mk.$.cache[id] || {},
-            v  = vl;
+    if (key === null) {
+        node._id_ = null;
+        delete $._cache[id];
 
-        // remove entire entry
-        if (k === null) {
-
-            n._id = null;
-            delete Mk.$.cache[id];
-            return c;
-        }
-
-        // undefined
-        if (v == void+1) {
-            v = c[k] || n.getAttribute('data-' + k) || null;
-            //c[k] = v;
-        }
-        // remove key
-        else if (vl === null) {
-            v = c[k];
-            delete c[k];
-        }
-        // set key
-        else {
-            c[k] = v;
-        }
-
-        Mk.$.cache[id] = c;
-
-        return v;
+        return cache;
     }
+
+    // if the value is explicitly null we want to remove that entry.
+    // assign the entry to val then delete it from the larger cache entry.
+
+    if (val === null) {
+        val = cache[key];
+        delete cache[key];
+
+        return val;
+    }
+
+    // if value is undefined, we want to pull from cache
+    // or if node is a legit DOM node, pull from a data attribute.
+    // we are not going to cache data attributes here because they may change.
+
+    if (val === void+1) {
+
+        val = cache[key];
+
+        if (val === void+1 && /1|9|11/.test(node.nodeType)) {
+            val = node.getAttribute('data-' + key) || null;
+        }
+    }
+
+    // finally, we're just going to set the cache entry to
+    // our value. Nothing crazy to see here.
+
+    else {
+        cache[key] = val;
+    }
+
+    // reassign the id incase this is the first entry
+    node._id_ = id;
+    // reassign the cache in case this is the first entry
+    $._cache[id] = cache;
+
+    return val;
 }
 
 
-//
-// removes elements, events, and data from memory
-//
+$.remove = function (node) {
 
-$.remove = function (n) {
-
-    var d;
-
-    Mk.fn.each(this, n.childNodes, function (c) {
-        if (c && c.nodeType === 1) {
-            Mk.$.remove(c);
-        }
-    });
-
-    var d = Mk.$.data(n, null);
-
-    if (d && d.events) {
-        Mk.fn.each(this, d.events, function (v, t) {
-            Mk.$.off(n, t);
+    // we are only dealing with node types of 1
+    // 9 and 11 get ignored, even though they are nodes.
+    if (node && node.nodeType === 1) {
+        // recursively look children and call remove
+        // we do this because of the following steps
+        Mk.fn.each(this, node.childNodes, function (child) {
+            $.remove(child);
         });
+
+        // pull the data entry and remove it from cache
+        // frees up memory
+        var data = $.data(node, null);
+
+        // loop events associated with the node and remove all listeners
+        // frees up memory
+        if (data && data.events) {
+            Mk.fn.each(this, data.events, function (obj, type) {
+                $.off(node, type);
+            });
+        }
+        // finally, remove the element
+        node.parentNode.removeChild(node);
     }
-    n.parentNode.removeChild(n);
 }
 
 
@@ -388,113 +410,166 @@ $.xhr.prototype = {
 };
 
 
-$.delegate = function (p, n, x) {
+$.events = {
 
-    var r = {s: false, t: p};
+    delegate: function (parent, node, selector) {
 
-    if (!x) {
-        r.s = true;
-    }
-    else {
-        new $(x, p).each(function (el) {
-
-            if (n === el || new $(n).parent(el).length) {
-                r.s = true;
-                r.t = el;
-                return false;
-            }
-        });
-    }
-    return r;
-}
-
-$.event = function (n, a, t, s, f, o, x) {
-
-    var h, d;
-
-    if (a) {
-
-        h = function (e) {
-
-            var z = false,
-                w = $.delegate(this, e.target, x),
-                r;
-
-            if (e.ns) {
-                if (e.ns === s && w.s) {
-                    r = f.apply(w.t, [e].concat(e.data));
-                    z = true;
-                }
-            }
-            else if (w.s) {
-                r = f.call(w.t, e);
-                z = true;
-            }
-
-            if (z && o) {
-                $.event(n, false, t, s, f, o, x);
-            }
-            return r;
+        var result = {
+            // are we allowed to invoke the handler with
+            // these perticular parameters??
+            allowed: false,
+            // default target will be the parent node, which
+            // is really just the element with the bound event
+            target: parent
         };
 
-        d = $.data(n, 'events') || {};
+        // if we have no delegate selector,
+        // allow the event to be invoked with the original node
+        // being the target element.
+        if (!selector) {
+            result.allowed = true;
+        }
+        else {
+            // we're dealing with a delegate
+            // find the selector elements in the target parent,
+            // loop them, and look for exact matches.
+            // if found, set the new target and allow the event to invoke
+            new $(selector, parent).each(function (el) {
 
-        d[t] = d[t] || [];
+                if (node === el || new $(node).parent(el).length) {
+                    result.allowed = true;
+                    result.target = el;
+                    return false;
+                }
+            });
+        }
+        return result;
+    },
 
-        d[t].push({
-            type: t,
-            ns: s,
-            original: f,
-            handler: h,
-            delegate: x
+    on: function (node, type, delegate, handler, single) {
+
+        var parts = type.split('.');
+
+        this.add({
+            node: node,
+            type: parts.shift(),
+            namespace: parts.join('.'),
+            handler: handler,
+            single: single || false,
+            delegate: delegate
+        });
+    },
+
+    off: function (node, type, handler) {
+
+        var parts = type.split('.');
+
+        this.remove({
+            node: node,
+            type: parts.shift(),
+            namespace: parts.join('.'),
+            handler: handler
+        });
+    },
+
+    emit: function (node, type, data) {
+
+        var parts = type.split('.'),
+            event = new Event(parts.shift());
+
+        event.namespace = parts.join('.');
+        event.data = data || [];
+
+        node.dispatchEvent(event);
+    },
+
+    find: function (node, type, id) {
+
+        var events = $.data(node, 'events') || {},
+            handlers = events[type] || [];
+
+        return Mk.fn.find(this, handlers, function (handler) {
+            if (handler.id === id) return handler;
+        });
+    },
+
+    add: function (obj) {
+
+        var
+        id = Mk.fn.uid(),
+        node = obj.node,
+        type = obj.type,
+        events = $.data(node, 'events') || {},
+
+        handler = function (e) {
+
+            var event = $.events.find(this, e.type, id),
+                trigger = $.events.delegate(this, e.target, event.delegate),
+                invoked = false,
+                result;
+
+            if (e.namespace) {
+                if (e.namespace === event.namespace && trigger.allowed) {
+                    result = event.original.apply(trigger.target, [e].concat(e.data));
+                    invoked = true;
+                }
+            }
+            else if (trigger.allowed) {
+                result = event.original.apply(trigger.target, [e].concat(e.data));
+                invoked = true;
+            }
+
+            if (invoked && event.single) {
+
+                $.events.remove({
+                    node: this,
+                    add: false,
+                    type: event.type,
+                    handler: event.original,
+                    namespace: event.namespace
+                });
+            }
+
+            return result;
+        };
+
+        events[type] = events[type] || [];
+        events[type].push({
+            type: type,
+            namespace: obj.namespace,
+            original: obj.handler,
+            delegate: obj.delegate,
+            handler: handler,
+            single: obj.single,
+            id: id
         });
 
-        $.data(n, 'events', d);
+        $.data(node, 'events', events);
 
-        n.addEventListener(t, h, false);
+        node.addEventListener(type, handler, false);
+    },
 
-        return;
-    }
+    remove: function (obj) {
 
-    d = ($.data(n, 'events') || {})[t] || [];
+        var node = obj.node,
+            type = obj.type,
+            func = obj.handler,
+            ns = obj.namespace,
 
-    Mk.fn.each(this, d, function (o) {
-        if (!s || s && o.ns === s) {
-            if (!f || f === o.original) {
-                n.removeEventListener(t, o.handler);
-                return -1;
+            events = $.data(node, 'events') || {},
+            handlers = events[type] || [];
+
+        Mk.fn.each(this, handlers, function (handler) {
+
+            if (!ns || handler.namespace === ns) {
+                if (!func || func === handler.original) {
+                    node.removeEventListener(type, handler.handler);
+                    return -1;
+                }
             }
-        }
-    });
-}
-
-$.on = function (n, t, d, h, o, x) {
-
-    var p = t.split('.'),
-        e = p.shift();
-
-    $.event(n, true, e, p.join('.'), h, o, x);
-}
-
-$.off = function (n, t, h) {
-
-    var p = t.split('.'),
-        e = p.shift();
-
-    $.event(n, false, e, p.join('.'), h);
-}
-
-$.emit = function (n, t, d) {
-
-    var p = t.split('.'),
-        e = p.shift(),
-        ev = new Event(e);
-
-    ev.ns = p.join('.');
-    ev.data = d || [];
-
-    n.dispatchEvent(ev);
-}
+        });
+    }
+};
 
 
 $.prototype = {
@@ -842,12 +917,12 @@ $.prototype = {
         return this;
     },
 
-    remove: function (s) {
+    remove: function (selector) {
 
         var o = this, e;
 
-        if (arguments.length) {
-            o = new $(s, this);
+        if (selector) {
+            o = new $(selector, this);
         }
 
         o.each(function (el) {
@@ -856,44 +931,35 @@ $.prototype = {
         return this;
     },
 
-    on: function (t, d, h) {
+    on: function (type, delegate, handler, single) {
 
-        if (!h) {
-            h = d;
-            d = null;
+        if (!handler) {
+            handler = delegate;
+            delegate = null;
         }
-
         return this.each(function (el) {
-            $.on(el, t, '', h, false, d);
+            $.events.on(el, type, delegate, handler, single);
         });
     },
 
-    one: function (t, d, h) {
+    one: function (type, delegate, handler) {
+        return this.on(type, delegate, handler, true);
+    },
 
-        if (!h) {
-            h = d;
-            d = null;
-        }
-
+    off: function (type, handler) {
         return this.each(function (el) {
-            $.on(el, t, '', h, true, d);
+            $.events.off(el, type, handler);
         });
     },
 
-    off: function (t, h) {
+    emit: function (type, data) {
         return this.each(function (el) {
-            $.off(el, t, h);
-        });
-    },
-
-    emit: function (t, d) {
-        return this.each(function (el) {
-            $.emit(el, t, d);
+            $.events.emit(el, type, data);
         });
     }
 };
 
 
-Mk.$ = function (s, c) {
-    return new $(s, c);
+Mk.Dom = function (selector, context) {
+    return new $(selector, context);
 };

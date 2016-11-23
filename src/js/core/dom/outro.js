@@ -1,4 +1,4 @@
 
-Mk.$ = function (s, c) {
-    return new $(s, c);
+Mk.Dom = function (selector, context) {
+    return new $(selector, context);
 };

@@ -47,21 +47,21 @@ function $(s, c) {
     return this.find(s, c);
 }
 
-$.cache = {};
+$._cache = {};
 
-$.wrap = {
-    option: [ 1, '<select multiple="multiple">', '</select>' ],
-    thead: [ 1, '<table>', '</table>' ],
-    col: [ 2, '<table><colgroup>', '</colgroup></table>' ],
-    tr: [ 2, '<table><tbody>', '</tbody></table>' ],
-    td: [ 3, '<table><tbody><tr>', '</tr></tbody></table>' ],
+$._wraps = {
+    option: [1, '<select multiple="multiple">', '</select>'],
+    thead: [1, '<table>', '</table>'],
+    col: [2, '<table><colgroup>', '</colgroup></table>'],
+    tr: [2, '<table><tbody>', '</tbody></table>'],
+    td: [3, '<table><tbody><tr>', '</tr></tbody></table>'],
     li: [1, '<ul>', '</ul>'],
     dd: [1, '<dl>', '</dl>'],
-    defaultt: [ 0, "", "" ]
+    defaultt: [ 0, "", ""]
 };
 
-$.wrap.caption   = $.wrap.thead;
-$.wrap.optgroup  = $.wrap.option;
-$.wrap.tbody     = $.wrap.thead;
-$.wrap.tfoot     = $.wrap.thead;
-$.wrap.dt        = $.wrap.dd;
+$._wraps.optgroup  = $._wraps.option;
+$._wraps.caption   = $._wraps.thead;
+$._wraps.tbody     = $._wraps.thead;
+$._wraps.tfoot     = $._wraps.thead;
+$._wraps.dt        = $._wraps.dd;
