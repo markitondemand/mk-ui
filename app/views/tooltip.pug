@@ -136,7 +136,6 @@ html
 											| Submit
 
 
-
 			div#example-3.mk-tt-modal
 				h4
 					| Tooltip Title
@@ -146,14 +145,14 @@ html
 			include ./shared/events
 			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/dist/js/tooltip.min.js")
+		script(type="text/javascript", src="/src/js/tooltip.js")
 		script.
 
-			Mk.transitions(true);
+			Mk.transitions.enable();
 
 			var tooltip = new Mk.Tooltip('.container'),
-				btn = $('#position-toggler button');
+				btn = Mk.$('#position-toggler button');
 
-			$('#tools').on('click', 'button', function () {
-				btn.attr('data-position', $(this).attr('data-position'));
+			Mk.$('#tools').on('click', 'button', function () {
+				btn.attr('data-position', Mk.$(this).attr('data-position'));
 			});

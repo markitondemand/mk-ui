@@ -18,6 +18,10 @@ $.prototype = {
         s = s || d;
         c = c || this.length && this || [d];
 
+        if (c === this) {
+            return new $(s, c);
+        }
+
         if (Mk.type(c, 'string')) {
             c = new $(c, d);
         }
@@ -37,7 +41,6 @@ $.prototype = {
                 n = [];
 
                 Mk.fn.each(this, c, function (el) {
-                    console.info(arguments)
                     n = n.concat([].slice.call(el.querySelectorAll(s)));
                 });
             }
@@ -121,6 +124,10 @@ $.prototype = {
         return new $(p);
     },
 
+    closest: function (selector, context) {
+        return this.parent(selector, context);
+    },
+
     markup: function (s) {
 
         // if we support html5 templates (everybody but IE)
@@ -129,7 +136,7 @@ $.prototype = {
 
         if (c.content) {
             c.innerHTML = s;
-            return slice.call(c.content.childNodes);
+            return [].slice.call(c.content.childNodes);
         }
 
         // IE does this...

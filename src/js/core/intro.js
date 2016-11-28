@@ -6,28 +6,28 @@
 (function (root, factory) {
 
 	if (typeof define === "function" && define.amd) {
-		define([], function () {
-			return (root.Mk = factory(root));
+		define(['jquery'], function (jq) {
+			return (root.Mk = factory(root, jq));
 		});
 	}
 	else if (typeof module === "object" && module.exports) {
 
 		module.exports = root.document ?
 
-			factory(root) :
+			factory(root, require('jquery')) :
 
 			function (w) {
 				if (!w.document) {
 					throw new Error("Mk[ui] requires a window with a document");
 				}
-				return factory(w);
+				return factory(w, require('jquery'));
 			};
 	}
 	else {
-		root.Mk = factory(root);
+		root.Mk = factory(root, window.jQuery);
 	}
 
-})(typeof window !== "undefined" && window || this, function (root) {
+})(typeof window !== "undefined" && window || this, function (root, dom) {
 
 "use strict";
 
@@ -39,6 +39,4 @@ var Mk = function () {};
 
 Mk.fn = {};
 
-Mk.$ = function (s, c) {
-	return root.jQuery(s, c);
-};
+Mk.$ = dom;

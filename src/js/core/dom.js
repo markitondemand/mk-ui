@@ -446,6 +446,10 @@ $.events = {
         return result;
     },
 
+    // on
+    // set an event handler onto an element.
+    // supports delegates and namespaces.
+
     on: function (node, type, delegate, handler, single) {
 
         var parts = type.split('.');
@@ -460,6 +464,10 @@ $.events = {
         });
     },
 
+    // off
+    // remove a handler or batch of handlers from an element.
+    // supports namespaces.
+
     off: function (node, type, handler) {
 
         var parts = type.split('.');
@@ -472,6 +480,10 @@ $.events = {
         });
     },
 
+    // emit
+    // trigger an event on an element.
+    // supports namespaces
+
     emit: function (node, type, data) {
 
         var parts = type.split('.'),
@@ -483,6 +495,9 @@ $.events = {
         node.dispatchEvent(event);
     },
 
+    // find a perticular event stored in the cache
+    // object for element events ($.data).
+
     find: function (node, type, id) {
 
         var events = $.data(node, 'events') || {},
@@ -492,6 +507,12 @@ $.events = {
             if (handler.id === id) return handler;
         });
     },
+
+    // add
+    // internal event for binding listeners
+    // creates a new handler which will accept delegates
+    // namespaces and single (one) bindings.
+    // currently the only pointer is 'id' which is a string (yay)
 
     add: function (obj) {
 
@@ -549,6 +570,11 @@ $.events = {
         node.addEventListener(type, handler, false);
     },
 
+    // remove
+    // internal method for removing event listeners or an
+    // entire batch of events based on type. Can also remove events
+    // based on type + namespace.
+
     remove: function (obj) {
 
         var node = obj.node,
@@ -591,6 +617,10 @@ $.prototype = {
         s = s || d;
         c = c || this.length && this || [d];
 
+        if (c === this) {
+            return new $(s, c);
+        }
+
         if (Mk.type(c, 'string')) {
             c = new $(c, d);
         }
@@ -610,7 +640,6 @@ $.prototype = {
                 n = [];
 
                 Mk.fn.each(this, c, function (el) {
-                    console.info(arguments)
                     n = n.concat([].slice.call(el.querySelectorAll(s)));
                 });
             }
@@ -694,6 +723,10 @@ $.prototype = {
         return new $(p);
     },
 
+    closest: function (selector, context) {
+        return this.parent(selector, context);
+    },
+
     markup: function (s) {
 
         // if we support html5 templates (everybody but IE)
@@ -702,7 +735,7 @@ $.prototype = {
 
         if (c.content) {
             c.innerHTML = s;
-            return slice.call(c.content.childNodes);
+            return [].slice.call(c.content.childNodes);
         }
 
         // IE does this...
@@ -960,6 +993,6 @@ $.prototype = {
 };
 
 
-Mk.Dom = function (selector, context) {
+Mk.$ = function (selector, context) {
     return new $(selector, context);
 };

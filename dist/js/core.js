@@ -6,28 +6,28 @@
 (function (root, factory) {
 
 	if (typeof define === "function" && define.amd) {
-		define([], function () {
-			return (root.Mk = factory(root));
+		define(['jquery'], function (jq) {
+			return (root.Mk = factory(root, jq));
 		});
 	}
 	else if (typeof module === "object" && module.exports) {
 
 		module.exports = root.document ?
 
-			factory(root) :
+			factory(root, require('jquery')) :
 
 			function (w) {
 				if (!w.document) {
 					throw new Error("Mk[ui] requires a window with a document");
 				}
-				return factory(w);
+				return factory(w, require('jquery'));
 			};
 	}
 	else {
-		root.Mk = factory(root);
+		root.Mk = factory(root, window.jQuery);
 	}
 
-})(typeof window !== "undefined" && window || this, function (root) {
+})(typeof window !== "undefined" && window || this, function (root, dom) {
 
 "use strict";
 
@@ -39,9 +39,7 @@ var Mk = function () {};
 
 Mk.fn = {};
 
-Mk.$ = function (s, c) {
-	return root.jQuery(s, c);
-};
+Mk.$ = dom;
 
 
 Mk.fn.uid = function () {
@@ -281,14 +279,6 @@ Mk.fn.filter = function (context, obj, callback) {
 };
 
 
-Mk.fn.keycodes = {
-    backspace: 8, tab: 9, enter: 13, esc: 27, space: 32,
-    pageup: 33, pagedown: 34, end: 35, home: 36,
-    left: 37, up: 38, right: 39, down: 40, left: 37, right: 39,
-    comma: 188
-};
-
-
 Mk.extend = function (to, from, name) {
 
     var prop;
@@ -391,162 +381,6 @@ Mk.fn.pushSuper = function (name) {
 Mk.fn.popSuper = function (name) {
     this._chain_.splice(
         this._chain_.lastIndexOf(name), 1);
-};
-
-Mk.fn.eventEmitter = {
-
-    add: function (obj) {
-
-        var bucket = obj.bucket,
-            event = this.event(obj.type);
-
-        obj.namespace = event.ns;
-        obj.type = event.type;
-
-        if (!prop.call(bucket, event.type)) {
-             bucket[event.type] = [];
-        }
-
-        bucket[event.type].push(obj);
-    },
-
-    event: function (type) {
-
-        return {
-            type: /^(\w+)\.?/.exec(type)[1] || '',
-            namespace: (/^\w+(\.?.*)$/.exec(type) || [])[1] || undefined
-        };
-    },
-
-    args: function (args) {
-
-        return Mk.fn.map(this, args, function (o) {
-            return o;
-        });
-    },
-
-    on: function on(obj) {
-        return this.add(obj);
-    },
-
-    one: function(obj) {
-        obj.single = true;
-        return this.add(obj);
-    },
-
-    off: function off (obj, b, ev, h) {
-
-        var bucket = obj.bucket,
-            handler = obj.handler,
-            event = this.event(obj.type);
-
-        if (prop.call(bucket, event.type)) {
-
-            var handlers = bucket[event.type],
-                noHandler = Mk.type(handler, 'undefined'),
-                namespace = event.namespace,
-                count = handlers.length,
-                i = 0, item;
-
-            for (; i < count; i++) {
-
-                item = handlers[i];
-
-                if (item.namespace === namespace && (noHandler || handler === item.handler)) {
-                    handlers.splice(i, 1);
-                    count--; i--;
-                }
-            }
-        }
-    },
-
-    emit: function emit (bucket, argz /* arguments */) {
-
-        var args = this.args(argz),
-            type = args.shift(),
-            event = this.event(type);
-
-        if (prop.call(bucket, event.type)) {
-
-            var namespace = event.namespace,
-                handlers = bucket[event.type],
-                count = handlers.length,
-                i = 0, item;
-
-            for (; i < count; i++) {
-
-                item = handlers[i];
-
-                if (!namespace || item.namespace === namespace) {
-
-                    item.handler.apply(item.context || root, args);
-
-                    if (item.single) {
-                        handlers.splice(i, 1);
-                        count--; i--;
-                    }
-                }
-            }
-        }
-    }
-};
-
-
-//
-// transition
-//
-// Give us our browser transition key if
-// transitions are enabled
-// --------------------------------------------------
-
-Mk.transitions = {
-
-    _enabled: false,
-
-    _key: null,
-
-    _keys: {
-        'transition': 'transitionend',
-        'OTransition': 'oTransitionEnd',
-        'MozTransition': 'transitionend',
-        'WebkitTransition': 'webkitTransitionEnd'
-    },
-
-    get enabled () {
-        return this._enabled;
-    },
-
-    get disabled () {
-        return this._enabled !== true;
-    },
-
-    get key () {
-
-        if (this.enabled) {
-
-            if (this._key) {
-                return this._key;
-            }
-
-            var keys = this._keys,
-                el = document.createElement('xanimate'), t;
-
-            for (t in keys) {
-                if (!Mk.type(el.style[t], 'undefined')) {
-                    return this._key = keys[t];
-                }
-            }
-        }
-        return void+1;
-    },
-
-    enable: function () {
-        return this._enabled = true;
-    },
-
-    disable: function () {
-        return this._enabled = false;
-    }
 };
 
 
@@ -728,6 +562,170 @@ Mk.fn.template = {
             return Mk.fn.template.parse(name, key, templates, data);
         }
     }
+};
+
+Mk.fn.eventEmitter = {
+
+    add: function (obj) {
+
+        var bucket = obj.bucket,
+            event = this.event(obj.type);
+
+        obj.namespace = event.ns;
+        obj.type = event.type;
+
+        if (!prop.call(bucket, event.type)) {
+             bucket[event.type] = [];
+        }
+
+        bucket[event.type].push(obj);
+    },
+
+    event: function (type) {
+
+        return {
+            type: /^(\w+)\.?/.exec(type)[1] || '',
+            namespace: (/^\w+(\.?.*)$/.exec(type) || [])[1] || undefined
+        };
+    },
+
+    args: function (args) {
+
+        return Mk.fn.map(this, args, function (o) {
+            return o;
+        });
+    },
+
+    on: function on(obj) {
+        return this.add(obj);
+    },
+
+    one: function(obj) {
+        obj.single = true;
+        return this.add(obj);
+    },
+
+    off: function off (obj, b, ev, h) {
+
+        var bucket = obj.bucket,
+            handler = obj.handler,
+            event = this.event(obj.type);
+
+        if (prop.call(bucket, event.type)) {
+
+            var handlers = bucket[event.type],
+                noHandler = Mk.type(handler, 'undefined'),
+                namespace = event.namespace,
+                count = handlers.length,
+                i = 0, item;
+
+            for (; i < count; i++) {
+
+                item = handlers[i];
+
+                if (item.namespace === namespace && (noHandler || handler === item.handler)) {
+                    handlers.splice(i, 1);
+                    count--; i--;
+                }
+            }
+        }
+    },
+
+    emit: function emit (bucket, argz /* arguments */) {
+
+        var args = this.args(argz),
+            type = args.shift(),
+            event = this.event(type);
+
+        if (prop.call(bucket, event.type)) {
+
+            var namespace = event.namespace,
+                handlers = bucket[event.type],
+                count = handlers.length,
+                i = 0, item;
+
+            for (; i < count; i++) {
+
+                item = handlers[i];
+
+                if (!namespace || item.namespace === namespace) {
+
+                    item.handler.apply(item.context || root, args);
+
+                    if (item.single) {
+                        handlers.splice(i, 1);
+                        count--; i--;
+                    }
+                }
+            }
+        }
+    }
+};
+
+
+//
+// transition
+//
+// Give us our browser transition key if
+// transitions are enabled
+// --------------------------------------------------
+
+Mk.transitions = {
+
+    _enabled: false,
+
+    _key: null,
+
+    _keys: {
+        'transition': 'transitionend',
+        'OTransition': 'oTransitionEnd',
+        'MozTransition': 'transitionend',
+        'WebkitTransition': 'webkitTransitionEnd'
+    },
+
+    get enabled () {
+        return this._enabled;
+    },
+
+    get disabled () {
+        return this._enabled !== true;
+    },
+
+    get key () {
+
+        if (this.enabled) {
+
+            if (this._key) {
+                return this._key;
+            }
+
+            var keys = this._keys,
+                el = document.createElement('xanimate'), t;
+
+            for (t in keys) {
+                if (!Mk.type(el.style[t], 'undefined')) {
+                    return this._key = keys[t];
+                }
+            }
+        }
+        return void+1;
+    },
+
+    enable: function () {
+        return this._enabled = true;
+    },
+
+    disable: function () {
+        return this._enabled = false;
+    }
+};
+
+
+Mk.fn.keycodes = {
+    backspace: 8, tab: 9, enter: 13, esc: 27, space: 32,
+    pageup: 33, pagedown: 34, end: 35, home: 36,
+    left: 37, up: 38, right: 39, down: 40, left: 37, right: 39,
+    comma: 188
 };
 
 

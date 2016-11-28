@@ -59,30 +59,22 @@
 */
 
 (function ( root, factory ) {
-	//
-	// AMD support
-	// ---------------------------------------------------
+
 	if ( typeof define === 'function' && define.amd ) {
 
 		define( ['mk'], function ( mk ) {
 			return factory( root, mk );
 		});
 	}
-	//
-	// CommonJS module support
-	// -----------------------------------------------------
 	else if ( typeof module === 'object' && module.exports ) {
 
 		module.exports = factory( root, require('mk'));
 	}
-	//
-	// Everybody else
-	// -----------------------------------------------------
 	else {
 		return factory( root, root.Mk );
 	}
 
-})( typeof window !== "undefined" ? window : this, function ( root, mk ) {
+})(typeof window !== "undefined" && window || this, function (root, mk) {
 
 	var map = {
 
@@ -218,11 +210,11 @@
 				e.preventDefault();
 				thiss._click(this);
 			})
-			.on('mouseenter.mk, focus.mk', tt, function (e) {
+			.on('mouseover.mk, focus.mk', tt, function (e) {
 				e.preventDefault();
 				thiss._over(this, e.type !== 'mouseenter');
 			})
-			.on('mouseleave.mk, blur.mk', tt, function (e) {
+			.on('mouseout.mk, blur.mk', tt, function (e) {
 				e.preventDefault();
 				thiss._out(this, e.type !== 'mouseleave');
 			})
@@ -641,7 +633,7 @@
 			var t  = this.$(trigger),
 				id = t.attr('aria-describedby') || '', m;
 
-			if (id === '') {
+			if (!id) {
 
 				this.link(trigger);
 
