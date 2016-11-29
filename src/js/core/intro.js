@@ -39,4 +39,4 @@ var Mk = function () {};
 
 Mk.fn = {};
 
-//Mk.$ = dom;
+Mk.$ = dom;

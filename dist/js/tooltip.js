@@ -215,17 +215,25 @@
 				md = this.selector('modal');
 
 			this.root
-			.on('mousedown.mk', tt, function (e) {
+			.on('click.mk', tt, function (e) {
 				e.preventDefault();
 				thiss._click(this);
 			})
-			.on('mouseover.mk, focus.mk', tt, function (e) {
+			.on('mouseover.mk', tt, function (e) {
 				e.preventDefault();
-				thiss._over(this, e.type !== 'mouseenter');
+				thiss._over(this, false);
 			})
-			.on('mouseout.mk, blur.mk', tt, function (e) {
+			.on('focus.mk', tt, function (e) {
 				e.preventDefault();
-				thiss._out(this, e.type !== 'mouseleave');
+				thiss._over(this, true);
+			})
+			.on('mouseout.mk', tt, function (e) {
+				e.preventDefault();
+				thiss._out(this, false);
+			})
+			.on('blur.mk', tt, function (e) {
+				e.preventDefault();
+				thiss._out(this, true);
 			})
 			.on('keyup.mk', tt, function (e) {
 				thiss._keyup(e, this);
@@ -417,7 +425,7 @@
 					// relative, absolute, or fixed container we have a little extra work to do.
 					if (tOffset.parent && mOffset.parent === tOffset.parent) {
 
-						rp = this._relative(tOffset, left, top);
+						rp = this._relative(tOffset, left, 0);
 
 						left = rp.left;
 						top  = rp.top + tOffset.top - mOffset.height;
@@ -630,6 +638,17 @@
 				obj.width  = node.offsetWidth;
 				obj.height = node.offsetHeight;
 
+				var test = node;
+
+				while ((test = test.parentNode) && test.tagName !== 'BODY') {
+					if (test.scrollTop) {
+						obj.top -= test.scrollTop;
+					}
+					if (test.scrollLeft) {
+						obj.left -= test.scrollLeft;
+					}
+				}
+
 				while (node = node.offsetParent) {
 
 					css = getComputedStyle(node);
@@ -807,7 +826,7 @@
 					this.position(m, tip);
 
 					if (this.isFocusable(m)) {
-						this.focus(t, m);
+						this.focus(tip, m);
 					}
 					this.emit('show', t, m);
 				});

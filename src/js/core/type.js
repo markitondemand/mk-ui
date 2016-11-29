@@ -83,7 +83,7 @@ Mk.fn.typemap = {
     "descriptor": function (o) {
 
         var index = Mk.fn.typemap.index,
-            keys  = Object.keys(o) || [];
+            keys  = typeof o === "object" && Object.keys(o || {}) || [];
 
         if (index(keys, "enumerable") && index(keys, "configurable")) {
 
