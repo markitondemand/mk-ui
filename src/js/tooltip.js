@@ -488,7 +488,6 @@
 					}
 				});
 			}
-
 			return focusable;
 		},
 
@@ -593,7 +592,6 @@
 						parseFloat(css.getPropertyValue('border-' + n + '-width'), 10)
 				});
 			}
-
 			return box;
 		},
 
