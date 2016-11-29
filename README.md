@@ -2,7 +2,7 @@
 
 A Flexible UI Build on Accessibility.
 
-*Notice: The only component currently available is Selectmenu.*
+*Notice: The only component currently available are Selectmenu and Tooltip.*
 
 #### Install
 
@@ -14,10 +14,14 @@ npm install mk-ui
 
 #### Documentation
 
-Clone or Fork this repository for the most up to date documentation. Once the you have the app running, simply go to localhost:5280 for documentation. Currently, the only documentation page available is /selectmenu.
+Clone or Fork this repository for the most up to date documentation. Once the you have the app running, simply go to localhost:5280 for documentation.
 
-```
-git clone https://github.com/micha3ldavid/mk-ui.git mk-ui
+```bash
+git clone https://github.com/markitondemand/mk-ui.git mk-ui
+
+cd mk-ui
+
 npm install
+
 node index.js
 ```

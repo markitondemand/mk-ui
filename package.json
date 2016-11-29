@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/micha3ldavid/mk-ui"
+    "url": "https://github.com/markitondemand/mk-ui"
   },
   "keywords": [
     "javascript",
@@ -27,12 +27,12 @@
     "accessibility",
     "user-interface"
   ],
-  "author": "Michael Juliano",
+  "author": "Michael Juliano with Markit Digital",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/micha3ldavid/mk-ui/issues"
+    "url": "https://github.com/markitondemand/mk-ui/issues"
   },
-  "homepage": "https://github.com/micha3ldavid/mk-ui",
+  "homepage": "https://github.com/markitondemand/mk-ui",
   "files": [
     "dist/js/*.js",
     "dist/css/*.css",
