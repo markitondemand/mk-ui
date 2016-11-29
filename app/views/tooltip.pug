@@ -135,6 +135,54 @@ html
 										button.btn
 											| Submit
 
+			div.row
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Scroll-Y Container
+						div.panel-body
+							p
+								| We support nested scrolling containers (Y).
+								| This example has the tooltip triggers inside a container of overflow-y,
+								| while the modal sits outside the container (not necessary, you may put the tooltips inside the container as well).
+								| We've also only created one modal, which all ten tooltips share.
+							div(style="overflow-y: scroll; height: 200px")
+								each val in new Array(10)
+									div(style="margin: 10px")
+										button.btn.btn-primary.mk-tt(aria-describedby="example-5")
+											| Tooltip
+						div.mk-tt-modal(id="example-5")
+							h4
+								| Tooltip Title
+							p
+								| Tooltip Content.
+
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Scroll-X Container
+						div.panel-body
+							p
+								| We support nested scrolling containers (x).
+								| This example has the tooltip triggers inside a container of overflow-x,
+								| while the modal sits outside the container (not necessary, you may put the tooltips inside the container as well).
+								| We've also only created one modal, which all ten tooltips share.
+							div(style="overflow-x: scroll;")
+								div(style="width: 2000px")
+									each val in new Array(10)
+										div(style="margin: 10px; float: left")
+											button.btn.btn-primary.mk-tt(aria-describedby="example-6")
+												| Tooltip
+						div.mk-tt-modal(id="example-6")
+							h4
+								| Tooltip Title
+							p
+								| Tooltip Content.
+
+
+
 
 			div#example-3.mk-tt-modal
 				h4

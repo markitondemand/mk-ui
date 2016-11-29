@@ -417,7 +417,7 @@
 					// relative, absolute, or fixed container we have a little extra work to do.
 					if (tOffset.parent && mOffset.parent === tOffset.parent) {
 
-						rp = this._relative(tOffset, left, top);
+						rp = this._relative(tOffset, left, 0);
 
 						left = rp.left;
 						top  = rp.top + tOffset.top - mOffset.height;
