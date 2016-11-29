@@ -357,7 +357,7 @@ Mk.prototype = {
         var t = Mk.transitions.key;
 
         if (t) {
-            this.$(node).off(t);
+            this.$(node).off(t).removeClass('transition');
         }
         return this;
     },

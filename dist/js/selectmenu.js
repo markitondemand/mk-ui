@@ -615,15 +615,6 @@
 			var t = this.trigger;
 				t.removeClass('focus');
 
-			if (this.isHidden) {
-
-				var o = this.items.find('.active');
-
-				if (o.length && o.attr('aria-selected') !== 'true') {
-					this.select(o.attr('data-value'));
-				}
-			}
-
 			return this.updateLabel().hide();
 		},
 

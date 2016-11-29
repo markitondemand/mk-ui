@@ -150,7 +150,8 @@ html
 
 			Mk.transitions.enable();
 
-			var tooltip = new Mk.Tooltip('.container'),
+			var mkTooltip = Mk.get('Tooltip'),
+				tooltip = new mkTooltip('.container'),
 				btn = Mk.$('#position-toggler button');
 
 			Mk.$('#tools').on('click', 'button', function () {

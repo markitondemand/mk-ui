@@ -153,13 +153,13 @@ html
 
 			Mk.transitions.enable();
 
-			var selects  = Mk.$('.mk-sm-root'),
+			var selects = Mk.$('.mk-sm-root'),
 				mkSelect = Mk.get('Selectmenu'),
 				select;
 
-			selects.each(function () {
+			selects.each(function (el) {
 
-				select = new mkSelect(this /*, options */);
+				select = new mkSelect(el);
 
 				select.on('change', function () {
 					console.log('values: ', this.value);

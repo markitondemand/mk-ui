@@ -33,7 +33,7 @@
 		</example>
 	</event:hide>
 	<event:connect>
-		<desc>Fired when a connection is being made between a trigger and it's modal.</desc>
+		<desc>Fired when a connection is being made between a tip and it's modal.</desc>
 		<example>
 			instance.on('connect', function (tip, modal) {
 				console.info('Connection being made for:', tip, modal);
@@ -76,7 +76,7 @@
 
 	/*
 		map
-		big ol map for positioning elements next to their triggers.
+		big ol map for positioning elements next to their tips.
 		The map accounts for each of 12 possible positions. You can also
 		add to the map by passing in new values via Tooltip contstruction (config object).
 	*/
@@ -219,11 +219,11 @@
 				e.preventDefault();
 				thiss._click(this);
 			})
-			.on('mouseenter.mk, focus.mk', tt, function (e) {
+			.on('mouseover.mk, focus.mk', tt, function (e) {
 				e.preventDefault();
 				thiss._over(this, e.type !== 'mouseenter');
 			})
-			.on('mouseleave.mk, blur.mk', tt, function (e) {
+			.on('mouseout.mk, blur.mk', tt, function (e) {
 				e.preventDefault();
 				thiss._out(this, e.type !== 'mouseleave');
 			})
@@ -238,7 +238,7 @@
 			});
 		},
 
-		// when mousedown is triggered
+		// when mousedown is tiped
 		// on the document element
 		//
 		_down: function (e) {
@@ -257,92 +257,92 @@
 		//
 		// handler for the escape key
 		//
-		_keyup: function (e, trigger) {
+		_keyup: function (e, tip) {
 
 			if (e.which === this.keycode.esc) {
-				this._unlock(trigger).hide(trigger);
+				this._unlock(tip).hide(tip);
 			}
 		},
 		//
-		// when mousedown is trigered on a trigger
+		// when mousedown is trigered on a tip
 		// we use mousedown instead of click for speed
 		//
-		_click: function (trigger) {
+		_click: function (tip) {
 
-			var t = this.$(trigger);
+			var t = this.$(tip);
 
 			if (t.data('action') === 'click') {
-				this.toggle(trigger);
+				this.toggle(tip);
 			}
 		},
 		//
-		// mouseenter/mouseover a trigger element
-		// triggers with a data-toggle of click will be ignored
+		// mouseenter/mouseover a tip element
+		// tips with a data-toggle of click will be ignored
 		//
-		_over: function (trigger, keyboard) {
+		_over: function (tip, keyboard) {
 
-			var t = this.$(trigger);
+			var t = this.$(tip);
 
 			if (t.data('action') !== 'click') {
 
-				this.show(trigger);
+				this.show(tip);
 
 				if (keyboard === true
-					&& this.isFocusable(this.modal(trigger))) {
+					&& this.isFocusable(this.modal(tip))) {
 
-					this._lock(trigger);
+					this._lock(tip);
 				}
 			}
 		},
 		//
-		// mouseleave/mouseout of a trigger element
-		// trigger elements with a data-toggle of click will be ignored
+		// mouseleave/mouseout of a tip element
+		// tip elements with a data-toggle of click will be ignored
 		//
-		_out: function (trigger, keyboard) {
+		_out: function (tip, keyboard) {
 
-			var t = this.$(trigger);
+			var t = this.$(tip);
 
 			if (t.data('action') !== 'click') {
 
 				if (keyboard !== true
-					&& this.isFocusable(this.modal(trigger))) {
+					&& this.isFocusable(this.modal(tip))) {
 
-					this._unlock(trigger);
+					this._unlock(tip);
 				}
-				this.hide(trigger);
+				this.hide(tip);
 			}
 		},
 		//
 		// inernal locking function. For *internal* use only.
 		// Use lock() for external usage.
 		//
-		_lock: function (trigger) {
+		_lock: function (tip) {
 
-			this.$(trigger).addClass('-locked');
+			this.$(tip).addClass('-locked');
 			return this;
 		},
 		//
 		// inernal locking function. For *internal* use only.
 		// Use lock() for external usage.
 		//
-		_unlock: function (trigger) {
+		_unlock: function (tip) {
 
-			this.$(trigger).removeClass('-locked');
+			this.$(tip).removeClass('-locked');
 			return this;
 		},
 		//
 		// check if a triger is locked.
 		// returns boolean.
 		//
-		_locked: function (trigger) {
-			return this.$(trigger).hasClass('-locked');
+		_locked: function (tip) {
+			return this.$(tip).hasClass('-locked');
 		},
 		//
-		// check if a trigger is unlocked.
+		// check if a tip is unlocked.
 		// returns boolean.
 		//
-		_unlocked: function (trigger) {
-			return this.$(trigger).hasClass('-locked') !== true;
+		_unlocked: function (tip) {
+			return this.$(tip).hasClass('-locked') !== true;
 		},
 		//
 		// Get relative offset all the way up
@@ -352,14 +352,14 @@
 
 			var r = {left: x, top: y}, p;
 
-			if (o.relativeParent) {
+			if (o.parent) {
 
-				p = this.offset(o.relativeParent);
+				p = this.offset(o.parent);
 
 				r.left = x + p.left;
 				r.top  = y + p.top;
 
-				if (p.relativeParent) {
+				if (p.parent) {
 					return this._relative(p, r.left, r.top);
 				}
 			}
@@ -367,13 +367,13 @@
 		},
 		//
 		// if relative parents are not the same
-		// then the tooltip and trigger do not share a common parent of measurement,
+		// then the tooltip and tip do not share a common parent of measurement,
 		// so we must go out and find the parents to calculate the offsets.
 		//
 		_adjust: function (mOffset, tOffset) {
 
 			if (!tOffset.ajusted
-				&& mOffset.relativeParent !== tOffset.relativeParent) {
+				&& mOffset.parent !== tOffset.parent) {
 
 				var tNewOffset = this._relative(tOffset, tOffset.left, tOffset.top);
 
@@ -404,7 +404,7 @@
 
 				if (fn) {
 					// try adjusting any offsets. for instance, if our
-					// tooltip and trigger do not live in the same relative parent.
+					// tooltip and tip do not live in the same relative parent.
 					this._adjust(mOffset, tOffset);
 
 					var coords = fn(mOffset, tOffset),
@@ -415,12 +415,12 @@
 
 					// if we're dealing with elements positioned in a
 					// relative, absolute, or fixed container we have a little extra work to do.
-					if (tOffset.relativeParent && mOffset.relativeParent === tOffset.relativeParent) {
+					if (tOffset.parent && mOffset.parent === tOffset.parent) {
 
 						rp = this._relative(tOffset, left, top);
 
 						left = rp.left;
-						top  = (rp.top + tOffset.top) - mOffset.height;
+						top  = rp.top + tOffset.top - mOffset.height;
 					}
 
 					// basically if left < 0
@@ -446,9 +446,6 @@
 						key2 = key2.replace(/bottom/, 'top');
 					}
 
-					// finally, if we had to make any adjustments,
-					// we want to rerun through the positioning function and try again.
-
 					if (key2 !== key) {
 						return this._position(
 							key2, mOffset, tOffset, frame, ++attempt);
@@ -459,6 +456,7 @@
 					return coords;
 				}
 			}
+
 			return null;
 		},
 
@@ -488,28 +486,32 @@
 					}
 				});
 			}
+
 			return focusable;
 		},
 
 		/*
 			<method:link>
-				<invoke>.link(trigger)</invoke>
-				<param:trigger>
+				<invoke>.link(tip)</invoke>
+				<param:tip>
 					<type>Node</type>
-					<desc>Trigger element (.mk-tt)</desc>
-				</param:trigger>
-				<desc>Links a trigger element to a modal element.</desc>
+					<desc>tip element (.mk-tt)</desc>
+				</param:tip>
+				<desc>Links a tip element to a modal element.</desc>
 			</method:link>
 		*/
 
-		link: function (trigger) {
+		link: function (tip) {
 
-			var t = this.$(trigger),
+			var t = this.$(tip),
 				m = this.$('#' + t.attr('aria-describedby')),
 				h;
 
+			// if we don't have a modal
 			if (m.length < 1) {
 
+				// check to see if we have an aria-label
+				// if we do, we're going to create the tooltip from it
 				var id = this.uid(),
 					htm = t.attr('aria-label');
 
@@ -518,7 +520,9 @@
 					t.attr('aria-label', '');
 				}
 				else {
-
+					// if we don't have a label, we're going to
+					// look for a child/sibling element with an mk-tt-modal class
+					// to link the two elements together
 					m = t.find(this.selector('modal'));
 
 					if (m.length < 1) {
@@ -527,30 +531,38 @@
 
 					id = m.attr('id') || id;
 				}
-
+				// set the id so we don't have to run through this code again
 				m.attr('id', id);
 			}
 
+			// check to see if aria-hidden attribute exists on the modal
 			h = m.attr('aria-hidden');
 
+			// if aria hidden has not been set ever, set it
 			if (!h) {
 				m.attr('aria-hidden', 'true');
 			}
 
 			return this.connect(t, m);
 		},
+		//
+		// connects the tip with the modal
+		// sets the proper role, aria-describedby and aria-labelledby
+		// adds transition classes if enabled
+		//
+		connect: function (tip, modal) {
 
-		connect: function (trigger, modal) {
-
-			var t = this.$(trigger),
+			var t = this.$(tip),
 				m = this.$(modal),
 				i = t.attr('id'),
 				r = 'tooltip';
 
+			// if we've previously been connected, leave
 			if (m.data(this.name + '-connected')) {
 				return this;
 			}
-
+			// if the modal has focusable (tabbable) content,
+			// change the role to dialog (tooltip is default)
 			if (this.isFocusable(modal)) {
 
 				r = 'dialog';
@@ -566,6 +578,7 @@
 			m.attr('role', r);
 			t.attr('aria-describedby', m.attr('id'));
 
+			// if transitions are enabled, set animation class hooks
 			if (this.transitions) {
 				m.addClass('transitions');
 			}
@@ -576,7 +589,10 @@
 
 			return this;
 		},
-
+		//
+		// get boxmodel values directly from css
+		// adds margin and borders together for accurate measurements
+		//
 		box: function (n) {
 
 			var node = this.$(n)[0],
@@ -592,9 +608,14 @@
 						parseFloat(css.getPropertyValue('border-' + n + '-width'), 10)
 				});
 			}
+
 			return box;
 		},
-
+		//
+		// get all offset data for an element
+		// pulls top, left, height, width recursively.
+		// also provides a parent and box properties
+		//
 		offset: function (n, box) {
 
 			var node = this.$(n)[0],
@@ -613,18 +634,26 @@
 
 					css = getComputedStyle(node);
 
+					// if a parent is relative, absolute, or fixed positioning
+					// add their left and top values to our offset measurements
 					if (reg.test(css.getPropertyValue('position')) !== true) {
 						obj.left += node.offsetLeft;
 						obj.top  += node.offsetTop;
 					}
+					// else provide a relative parent to measure off of
 					else {
-						obj.relativeParent = node;
+						obj.parent = node;
 					}
 				}
 			}
 			return obj;
 		},
-
+		//
+		// get the dimentions of the frame we are working with
+		// The frame is our containing element with scroll (overflow).
+		// usually this is just the body, but it could also be a div with
+		// a scrolling overflow.
+		//
 		frame: function (n) {
 
 			var node = this.$(n)[0];
@@ -649,25 +678,25 @@
 
 		/*
 			<method:position>
-				<invoke>.position(modal, trigger)</invoke>
+				<invoke>.position(modal, tip)</invoke>
 				<param:modal>
 					<type>Node</type>
 					<desc>Modal element (.mk-tt-modal)</desc>
 				</param:modal>
-				<param:trigger>
+				<param:tip>
 					<type>Node</type>
-					<desc>Trigger element (.mk-tt)</desc>
-				</param:trigger>
-				<desc>Positions a modal next to a trigger.</desc>
+					<desc>tip element (.mk-tt)</desc>
+				</param:tip>
+				<desc>Positions a modal next to a tip.</desc>
 			</method:position>
 		*/
 
-		position: function (modal, trigger) {
+		position: function (modal, tip) {
 
-			var t = this.$(trigger),
+			var t = this.$(tip),
 				p = t.attr('data-position') || this.config.position,
 				coords = this._position(p,
-					this.offset(modal, true), this.offset(trigger), this.frame(modal));
+					this.offset(modal, true), this.offset(tip), this.frame(modal));
 
 			if (coords) {
 
@@ -691,23 +720,23 @@
 
 		/*
 			<method:modal>
-				<invoke>.modal(trigger)</invoke>
-				<param:trigger>
+				<invoke>.modal(tip)</invoke>
+				<param:tip>
 					<type>Node</type>
-					<desc>Trigger element (.mk-tt)</desc>
-				</param:trigger>
-				<desc>Finds the modal associated with the trigger.</desc>
+					<desc>tip element (.mk-tt)</desc>
+				</param:tip>
+				<desc>Finds the modal associated with the tip.</desc>
 			</method:modal>
 		*/
 
-		modal: function (trigger) {
+		modal: function (tip) {
 
-			var t  = this.$(trigger),
+			var t  = this.$(tip),
 				id = t.attr('aria-describedby') || '', m;
 
 			if (!id) {
 
-				this.link(trigger);
+				this.link(tip);
 
 				id = t.attr('aria-describedby') || '';
 			}
@@ -722,8 +751,13 @@
 
 			return m;
 		},
-
-		focus: function (trigger, modal) {
+		//
+		// appends a focusable element to the modal
+		// if the modal has content. This allows us to 'trap'
+		// focus between the modal and tip until escape is pressed
+		// or focus is taken away by mouse events
+		//
+		focus: function (tip, modal) {
 
 			var m = this.$(modal),
 				k = m.find(this.selector('kill'));
@@ -733,7 +767,7 @@
 				k = this.html('kill');
 
 				k.on('focus.mk', function () {
-					trigger.focus();
+					tip.focus();
 				});
 
 				m.append(k);
@@ -744,24 +778,24 @@
 
 		/*
 			<method:show>
-				<invoke>.show(trigger)</invoke>
-				<param:trigger>
+				<invoke>.show(tip)</invoke>
+				<param:tip>
 					<type>Node</type>
-					<desc>Trigger element (.mk-tt)</desc>
-				</param:trigger>
-				<desc>Shows the modal associated with the trigger.</desc>
+					<desc>tip element (.mk-tt)</desc>
+				</param:tip>
+				<desc>Shows the modal associated with the tip.</desc>
 			</method:show>
 		*/
 
-		show: function (trigger) {
+		show: function (tip) {
 
-			var t = this.$(trigger), m;
+			var t = this.$(tip), m;
 
 			if (this._unlocked(t) && this.unlocked(t)) {
 
 				this.hideAll();
 
-				m = this.modal(trigger);
+				m = this.modal(tip);
 
 				this.delay(function () {
 
@@ -770,7 +804,7 @@
 
 					m.attr('aria-hidden', 'false');
 
-					this.position(m, trigger);
+					this.position(m, tip);
 
 					if (this.isFocusable(m)) {
 						this.focus(t, m);
@@ -787,28 +821,28 @@
 
 		/*
 			<method:hide>
-				<invoke>.hide(trigger[, immediate])</invoke>
-				<param:trigger>
+				<invoke>.hide(tip[, immediate])</invoke>
+				<param:tip>
 					<type>Node</type>
-					<desc>Trigger element (.mk-tt)</desc>
-				</param:trigger>
+					<desc>Tip element (.mk-tt)</desc>
+				</param:tip>
 				<param:immediate>
 					<type>Boolean</type>
 					<desc>Forces hide without a delay or animation.</desc>
 				</param:immediate>
-				<desc>Hides the modal associated with the trigger.</desc>
+				<desc>Hides the modal associated with the tip.</desc>
 			</method:hide>
 		*/
 
-		hide: function (trigger, immediate) {
+		hide: function (tip, immediate) {
 
-			var t = this.$(trigger),
+			var t = this.$(tip),
 				a = t.attr('data-action'),
 				m, d;
 
 			if (this._unlocked(t) && this.unlocked(t)) {
 
-				m = this.modal(trigger);
+				m = this.modal(tip);
 
 				d = immediate !== true
 					&& a !== 'click'
@@ -859,70 +893,70 @@
 
 		/*
 			<method:toggle>
-				<invoke>.toggle(trigger)</invoke>
-				<param:trigger>
+				<invoke>.toggle(tip)</invoke>
+				<param:tip>
 					<type>Node</type>
-					<desc>Trigger element (.mk-tt)</desc>
-				</param:trigger>
+					<desc>tip element (.mk-tt)</desc>
+				</param:tip>
 				<desc>Toggles between show() and hide().</desc>
 			</method:toggle>
 		*/
 
-		toggle: function (trigger) {
+		toggle: function (tip) {
 
-			var m = this.modal(trigger),
+			var m = this.modal(tip),
 				isOpen = m.attr('aria-hidden') === 'false';
 
 			if (isOpen) {
-				return this.hide(trigger);
+				return this.hide(tip);
 			}
-			return this.show(trigger);
+			return this.show(tip);
 		},
 
 		/*
 			<method:isOpen>
-				<invoke>.isOpen(trigger)</invoke>
-				<param:trigger>
+				<invoke>.isOpen(tip)</invoke>
+				<param:tip>
 					<type>Node</type>
-					<desc>Trigger element (.mk-tt)</desc>
-				</param:trigger>
+					<desc>tip element (.mk-tt)</desc>
+				</param:tip>
 				<desc>Returns boolean value for if the modal is open or not.</desc>
 			</method:isOpen>
 		*/
 
-		isOpen: function (trigger) {
-			return this.modal(trigger).attr('aria-hidden') !== 'true';
+		isOpen: function (tip) {
+			return this.modal(tip).attr('aria-hidden') !== 'true';
 		},
 
 		/*
 			<method:isHidden>
-				<invoke>.isHidden(trigger)</invoke>
-				<param:trigger>
+				<invoke>.isHidden(tip)</invoke>
+				<param:tip>
 					<type>Node</type>
-					<desc>Trigger element (.mk-tt)</desc>
-				</param:trigger>
+					<desc>tip element (.mk-tt)</desc>
+				</param:tip>
 				<desc>Returns boolean value for if the modal is hidden or not.</desc>
 			</method:isHidden>
 		*/
 
-		isHidden: function (trigger) {
-			return this.modal(trigger).attr('aria-hidden') !== 'false';
+		isHidden: function (tip) {
+			return this.modal(tip).attr('aria-hidden') !== 'false';
 		},
 
 		/*
 			<method:lock>
-				<invoke>.lock(trigger)</invoke>
-				<param:trigger>
+				<invoke>.lock(tip)</invoke>
+				<param:tip>
 					<type>Node</type>
-					<desc>Trigger element (.mk-tt)</desc>
-				</param:trigger>
+					<desc>tip element (.mk-tt)</desc>
+				</param:tip>
 				<desc>Lock the modal. This diables show() and hide().</desc>
 			</method:lock>
 		*/
 
-		lock: function (trigger) {
+		lock: function (tip) {
 
-			var t = this.$(trigger);
+			var t = this.$(tip);
 
 			if (t.hasClass(this.name) && !t.hasClass('locked')) {
 				t.addClass('locked');
@@ -933,18 +967,18 @@
 
 		/*
 			<method:unlock>
-				<invoke>.unlock(trigger)</invoke>
-				<param:trigger>
+				<invoke>.unlock(tip)</invoke>
+				<param:tip>
 					<type>Node</type>
-					<desc>Trigger element (.mk-tt)</desc>
-				</param:trigger>
+					<desc>tip element (.mk-tt)</desc>
+				</param:tip>
 				<desc>Unlock the modal. This enables show() and hide().</desc>
 			</method:unlock>
 		*/
 
-		unlock: function (trigger) {
+		unlock: function (tip) {
 
-			var t = this.$(trigger);
+			var t = this.$(tip);
 
 			if (t.hasClass(this.name) && t.hasClass('locked')) {
 				t.removeClass('locked');
@@ -955,32 +989,32 @@
 
 		/*
 			<method:locked>
-				<invoke>.locked(trigger)</invoke>
-				<param:trigger>
+				<invoke>.locked(tip)</invoke>
+				<param:tip>
 					<type>Node</type>
-					<desc>Trigger element (.mk-tt)</desc>
-				</param:trigger>
+					<desc>tip element (.mk-tt)</desc>
+				</param:tip>
 				<desc>Returns boolean value for if the modal is locked or not.</desc>
 			</method:locked>
 		*/
 
-		locked: function (trigger) {
-			return this.$(trigger).hasClass('locked');
+		locked: function (tip) {
+			return this.$(tip).hasClass('locked');
 		},
 
 		/*
 			<method:unlocked>
-				<invoke>.unlocked(trigger)</invoke>
-				<param:trigger>
+				<invoke>.unlocked(tip)</invoke>
+				<param:tip>
 					<type>Node</type>
-					<desc>Trigger element (.mk-tt)</desc>
-				</param:trigger>
+					<desc>tip element (.mk-tt)</desc>
+				</param:tip>
 				<desc>Returns boolean value for if the modal is unlocked or not.</desc>
 			</method:unlocked>
 		*/
 
-		unlocked: function (trigger) {
-			return this.$(trigger).hasClass('locked') !== true;
+		unlocked: function (tip) {
+			return this.$(tip).hasClass('locked') !== true;
 		}
 	});
 
