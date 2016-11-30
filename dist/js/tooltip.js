@@ -219,7 +219,7 @@
 				e.preventDefault();
 				thiss._click(this);
 			})
-			.on('mouseover.mk', tt, function (e) {
+			.on('mouseenter.mk', tt, function (e) {
 				e.preventDefault();
 				thiss._over(this, false);
 			})
@@ -227,7 +227,7 @@
 				e.preventDefault();
 				thiss._over(this, true);
 			})
-			.on('mouseout.mk', tt, function (e) {
+			.on('mouseleave.mk', tt, function (e) {
 				e.preventDefault();
 				thiss._out(this, false);
 			})

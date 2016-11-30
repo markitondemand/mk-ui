@@ -425,7 +425,6 @@
 
 			this._bindInputEvents();
 			this._bindListEvents();
-			this._bindListItemEvents();
 		},
 
 		_bindInputEvents: function () {
@@ -487,13 +486,8 @@
 					return;
 				}
 				thiss.select( this.getAttribute('data-value') );
-			});
-		},
-
-		_bindListItemEvents: function () {
-
-			var thiss = this;
-			this.list.find('[role="option"]').on('mouseenter.mk', function (e) {
+			})
+			.on('mouseenter.mk', '[role="option"]', function (e) {
 
 				if (thiss.list.hasClass('out')) {
 					return;
@@ -738,19 +732,10 @@
 			</method:index>
 		*/
 
-		index: function ( n ) {
-
-			var index = 0;
-
-			this.each(this.listOptions, function (o, i) {
-
-				if (o === n) {
-					index = i;
-					return false;
-				}
+		index: function (n) {
+			return this.first(this.listOptions, function (o, i) {
+				if (o === n) return i;
 			});
-
-			return index;
 		},
 
 		/*
@@ -774,20 +759,16 @@
 
 			label = label.toLowerCase();
 
-			var s = this.selector('label'),
-				o = null, l;
+			var s = this.selector('label'), l;
 
-			this.each(this.listOptions, function (option) {
+			return this.first(this.listOptions, function (option) {
 
 				l = (this.$(option).find(s).text() || '').toLowerCase();
 
 				if (l.indexOf(label) > -1) {
-					o = option;
-					return false;
+					return option;
 				}
 			});
-
-			return o;
 		},
 
 		/*
@@ -812,7 +793,6 @@
 				item = this.$(el);
 
 				if (item.attr('data-value') === v) {
-
 					elems.option = this.getOptionByValue(v);
 					elems.item = item;
 					return false;
@@ -835,15 +815,11 @@
 
 		getOptionByValue: function (v) {
 
-			var option;
-
-			this.each(this.options, function (o) {
+			return this.first(this.options, function (o) {
 				if (o.value === v) {
-					option = o; return false;
+					return o;
 				}
 			});
-
-			return option;
 		},
 
 		getLabelByElement: function (n) {
@@ -895,7 +871,6 @@
 			var t = typeof n;
 
 			if (t !== 'undefined') {
-
 				if (t === 'string') {
 					return n;
 				}
@@ -906,14 +881,11 @@
 				return this.config.label;
 			}
 
-			var l = '';
-			this.each(this.options, function (o) {
+			return this.first(this.options, function (o) {
 				if (o.selected) {
-					l = o.text; return false;
+					return o.text;
 				}
 			});
-
-			return l;
 		},
 
 		/*
@@ -1361,8 +1333,6 @@
 
 			this.list.append(
 				l.find(this.selector('item')));
-
-			this._bindListItemEvents();
 
 			this[m]();
 

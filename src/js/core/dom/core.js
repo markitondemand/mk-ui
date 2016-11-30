@@ -141,7 +141,7 @@ $.prototype = {
 
         // IE does this...
         var t = /^\s*<([^>\s]+)/.exec(s)[1] || null,
-            a = t && $.wrap.hasOwnProperty(t) && $.wrap[t] || $.wrap.defaultt,
+            a = t && $._wraps.hasOwnProperty(t) && $._wraps[t] || $._wraps.defaultt,
             i = 0;
 
         c = d.createElement('div');

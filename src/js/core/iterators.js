@@ -41,7 +41,7 @@ Mk.fn.each = function (context, obj, callback) {
     return context;
 };
 
-Mk.fn.find = function (context, obj, callback) {
+Mk.fn.first = function (context, obj, callback) {
 
     var result;
 

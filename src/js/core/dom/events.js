@@ -1,5 +1,23 @@
 
 $.events = {
+    //
+    // delegation events for certain event types
+    // require the capture boolean to be set to true.
+    //
+    capture: function (type, del) {
+
+        if (del) {
+            switch (type) {
+                case "mouseenter":
+                case "mouseleave":
+                case "blur":
+                case "focus":
+                    return true;
+            }
+        }
+
+        return false;
+    },
 
     delegate: function (parent, node, selector) {
 
@@ -92,7 +110,7 @@ $.events = {
         var events = $.data(node, 'events') || {},
             handlers = events[type] || [];
 
-        return Mk.fn.find(this, handlers, function (handler) {
+        return Mk.fn.first(this, handlers, function (handler) {
             if (handler.id === id) return handler;
         });
     },
@@ -156,7 +174,7 @@ $.events = {
 
         $.data(node, 'events', events);
 
-        node.addEventListener(type, handler, false);
+        node.addEventListener(type, handler, this.capture(type, obj.delegate));
     },
 
     // remove

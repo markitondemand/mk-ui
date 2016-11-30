@@ -223,8 +223,8 @@ Mk.prototype = {
         return Mk.fn.each(this, o, f);
     },
     /*
-    <method:find>
-        <invoke>.find(who, fn)</invoke>
+    <method:first>
+        <invoke>.first(who, fn)</invoke>
         <param:who>
             <type>Mixed</type>
             <desc>Object or Array-like object to iterate over.</desc>
@@ -234,10 +234,10 @@ Mk.prototype = {
             <desc>Callback function run on each iteration.</desc>
         </param:fn>
         <desc>Loops objects and array-like objects running a function on each iteration. The first value to be returned will stop loop and assign from callback.</desc>
-    </method:find>
+    </method:first>
     */
-    find: function (o, f) {
-        return Mk.fn.find(this, o, f);
+    first: function (o, f) {
+        return Mk.fn.first(this, o, f);
     },
     /*
     <method:map>

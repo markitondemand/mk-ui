@@ -159,7 +159,7 @@ html
 
 			selects.each(function (el) {
 
-				select = new mkSelect(this);
+				select = new mkSelect(el);
 
 				select.on('change', function () {
 					console.log('values: ', this.value);

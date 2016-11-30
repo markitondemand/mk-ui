@@ -18,7 +18,7 @@ $.remove = function (node) {
         // frees up memory
         if (data && data.events) {
             Mk.fn.each(this, data.events, function (obj, type) {
-                $.off(node, type);
+                $.events.off(node, type);
             });
         }
         // finally, remove the element
