@@ -139,11 +139,11 @@ Mk.prototype = {
             <type>Mixed - String/Node/Wrapper</type>
             <desc>A parent selector, node, or wrapped ($) node.</desc>
         </param:context>
-        <desc>DOM manipulation wrapper. Default is jQuery but can be changed to anything.</desc>
+        <desc>Custom Mk DOM manipulation wrapper. Think minimalistic jQuery.</desc>
     </method:$>
     */
-    $: function (s, c) {
-        return Mk.$(s, c);
+    $: function (selector, context) {
+        return Mk.$(selector, context);
     },
     /*
     <method:uid>
@@ -168,8 +168,9 @@ Mk.prototype = {
         <desc>Invokes the Template Engine using the configured tempates and returns parse string.</desc>
     </method:template>
     */
-    template: function (n, d) {
-        return Mk.fn.template.parse(n, this.name, this.config.templates, d);
+    template: function (name, data) {
+        return Mk.fn.template.parse(
+            name, this.name, this.config.templates, data);
     },
     /*
     <method:format>
@@ -185,8 +186,9 @@ Mk.prototype = {
         <desc>Invokes the Template Engine using the configured formats and returns parse string.</desc>
     </method:format>
     */
-    format: function (n, d) {
-        return Mk.fn.template.parse(n, this.name, this.config.formats, d);
+    format: function (name, data) {
+        return Mk.fn.template.parse(
+            name, this.name, this.config.formats, data);
     },
     /*
     <method:html>
@@ -202,8 +204,8 @@ Mk.prototype = {
         <desc>Invokes the Template Engine using the configured templates and returns a wrapped ($) Node/DocumentFragment.</desc>
     </method:html>
     */
-    html: function (t, d) {
-        return this.$(this.template(t, d));
+    html: function (templateOrMarkup, data) {
+        return this.$(this.template(templateOrMarkup, data));
     },
     /*
     <method:each>
@@ -287,21 +289,21 @@ Mk.prototype = {
         <desc>Shadow nodes created by Mk components have prefixed names. This method runs your selector through the prefixed name and root context to easily find your element.</desc>
     </method:node>
     */
-    node: function (n, c) {
-        return this.$(this.selector(n), c || this.root || null);
+    node: function (selector, context) {
+        return this.$(this.selector(selector), context || this.root || null);
     },
     /*
     <method:selector>
         <invoke>.selector(name)</invoke>
-        <param:name>
+        <param:key>
             <type>String</type>
             <desc>A selector to be prefixed with component naming.</desc>
-        </param:name>
+        </param:key>
         <desc>Takes a base string selector (ie: 'list') and returns the component's true selector (ie: mk-core-list).</desc>
     </method:selector>
     */
-    selector: function (n) {
-        return '.' + this.name + (n && '-' + n || '');
+    selector: function (key) {
+        return '.' + this.name + (key && '-' + key || '');
     },
     /*
     <method:transition>

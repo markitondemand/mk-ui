@@ -35,11 +35,11 @@
 
 .mk-sm-trigger:before {
   content: "›";
-  font-size: 2rem;
-  height: 3rem;
-  line-height: 3rem;
+  font-size: 18px;
+  height: 30px;
+  line-height: 30px;
   position: absolute;
-  right: 0.2rem;
+  right: 1rem;
   top: calc(50% - 1.5rem);
   transform: rotate(90deg); }
 

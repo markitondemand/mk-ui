@@ -87,6 +87,8 @@
 
 		relexp: /^relative|absolute|fixed$/i,
 
+		focusSelector: 'a, button, input, select, textarea, table, iframe',
+
 		templates: {
 			modal: '<span class="{{$key}}-modal">{{html}}</span>',
 			kill: '<button class="{{$key}}-kill" role="presentation"></button>'
@@ -251,12 +253,12 @@
 		//
 		_down: function (e) {
 
-			var t = this.$(e.target),
+			var el = this.$(e.target),
 				tt = this.selector(),
 				tm = this.selector('modal');
 
-			if ((t.is(tt) || t.closest(tt).length > 0)
-				|| (t.is(tm) || t.closest(tm).length > 0)) {
+			if ((el.is(tt) || el.closest(tt).length > 0)
+				|| (el.is(tm) || el.closest(tm).length > 0)) {
 				return false;
 			}
 
@@ -277,9 +279,7 @@
 		//
 		_click: function (tip) {
 
-			var t = this.$(tip);
-
-			if (t.data('action') === 'click') {
+			if (this.device || this.$(tip).data('action') === 'click') {
 				this.toggle(tip);
 			}
 		},
@@ -289,15 +289,11 @@
 		//
 		_over: function (tip, keyboard) {
 
-			var t = this.$(tip);
-
-			if (t.data('action') !== 'click') {
+			if (!this.device && this.$(tip).data('action') !== 'click') {
 
 				this.show(tip);
 
-				if (keyboard === true
-					&& this.isFocusable(this.modal(tip))) {
-
+				if (keyboard && this.isFocusable(this.modal(tip))) {
 					this._lock(tip);
 				}
 			}
@@ -308,13 +304,9 @@
 		//
 		_out: function (tip, keyboard) {
 
-			var t = this.$(tip);
+			if (!this.device && this.$(tip).data('action') !== 'click') {
 
-			if (t.data('action') !== 'click') {
-
-				if (keyboard !== true
-					&& this.isFocusable(this.modal(tip))) {
-
+				if (!keyboard && this.isFocusable(this.modal(tip))) {
 					this._unlock(tip);
 				}
 				this.hide(tip);
@@ -325,7 +317,6 @@
 		// Use lock() for external usage.
 		//
 		_lock: function (tip) {
-
 			this.$(tip).addClass('-locked');
 			return this;
 		},
@@ -334,7 +325,6 @@
 		// Use lock() for external usage.
 		//
 		_unlock: function (tip) {
-
 			this.$(tip).removeClass('-locked');
 			return this;
 		},
@@ -350,7 +340,7 @@
 		// returns boolean.
 		//
 		_unlocked: function (tip) {
-			return this.$(tip).hasClass('-locked') !== true;
+			return !this.$(tip).hasClass('-locked');
 		},
 		//
 		// Get relative offset all the way up
@@ -365,7 +355,7 @@
 				p = this.offset(o.parent);
 
 				r.left = x + p.left;
-				r.top  = y + p.top;
+				r.top = y + p.top;
 
 				if (p.parent) {
 					return this._relative(p, r.left, r.top);
@@ -378,17 +368,16 @@
 		// then the tooltip and tip do not share a common parent of measurement,
 		// so we must go out and find the parents to calculate the offsets.
 		//
-		_adjust: function (mOffset, tOffset) {
+		_adjust: function (mo, to) {
 
-			if (!tOffset.ajusted
-				&& mOffset.parent !== tOffset.parent) {
+			if (!to.ajusted && mo.parent !== to.parent) {
 
-				var tNewOffset = this._relative(tOffset, tOffset.left, tOffset.top);
+				var o = this._relative(to, to.left, to.top);
 
-				tOffset.left = tNewOffset.left;
-				tOffset.top  = tNewOffset.top;
+				to.left = o.left;
+				to.top = o.top;
 
-				tOffset.ajusted = true;
+				to.ajusted = true;
 			}
 		},
 		//
@@ -397,7 +386,7 @@
 		// what the map methods wants to set the modal as. We'll attempt up to 5 different
 		// positions if for some reason the modal cannot fit in the position initially requested.
 		//
-		_position: function (key, mOffset, tOffset, frame, attempt) {
+		_position: function (key, mo, to, frame, attempt) {
 
 			key = key.toLowerCase();
 			attempt = attempt || 0;
@@ -413,58 +402,54 @@
 				if (fn) {
 					// try adjusting any offsets. for instance, if our
 					// tooltip and tip do not live in the same relative parent.
-					this._adjust(mOffset, tOffset);
+					this._adjust(mo, to);
 
-					var coords = fn(mOffset, tOffset),
-						key2 = key,
+					var coords = fn(mo, to),
 						left = coords.left,
 						top  = coords.top,
 						rp;
 
+					coords.key = key;
+
 					// if we're dealing with elements positioned in a
 					// relative, absolute, or fixed container we have a little extra work to do.
-					if (tOffset.parent && mOffset.parent === tOffset.parent) {
+					if (to.parent && mo.parent === to.parent) {
 
-						rp = this._relative(tOffset, left, 0);
+						rp = this._relative(to, left, 0);
 
 						left = rp.left;
-						top  = rp.top + tOffset.top - mOffset.height;
+						top = rp.top + to.top - mo.height;
 					}
 
 					// basically if left < 0
 					// but could be a negative value in x-scrollbar situations
 					if (left < frame.left) {
-						key2 = /^left/i.test(key) && key2.replace(/left/, 'right')
-							|| key2.replace(/center/, 'left');
+						key = /^left/i.test(key) && key.replace(/left/, 'right')
+							|| key.replace(/center/, 'left');
 					}
 					// if left is greater than our entire stage of real estate
 					// we want to position right-based instead
 					else if (left > frame.width) {
-						key2 = /^right/.test(key) && key2.replace(/right/, 'left')
-							|| key2.replace(/center/, 'right');
+						key = /^right/.test(key) && key.replace(/right/, 'left')
+							|| key.replace(/center/, 'right');
 					}
 					// if the top is going to be cutoff,
 					// we want to try positioning on the bottom
 					if (top < frame.top) {
-						key2 = key2.replace(/top/, 'bottom');
+						key = key.replace(/top/, 'bottom');
 					}
 					// reverse of top. If positioning bottom cuts off the modal,
 					// we want to try positioning at the top.
 					else if (top > frame.height) {
-						key2 = key2.replace(/bottom/, 'top');
+						key = key.replace(/bottom/, 'top');
 					}
 
-					if (key2 !== key) {
-						return this._position(
-							key2, mOffset, tOffset, frame, ++attempt);
+					if (key !== coords.key) {
+						return this._position(key, mo, to, frame, ++attempt);
 					}
-
-					coords.key = key;
-
 					return coords;
 				}
 			}
-
 			return null;
 		},
 
@@ -481,21 +466,16 @@
 
 		isFocusable: function (modal) {
 
-			var focusable = this.$(
-				'a, button, input, select, textarea, table, iframe', modal).length > 0;
-
-			if (focusable !== true) {
-
-				this.each(this.$('[tabindex]', modal), function(n) {
-
-					if (n.tabindex > -1) {
-						focusable = true;
-						return false;
-					}
-				});
+			if (modal.attr('role') === 'dialog') {
+				return true;
 			}
 
-			return focusable;
+			return modal.find(this.focusSelector).length > 0
+				|| this.first(modal.find('[tabindex]'), function (n) {
+					if (n.tabindex > -1) {
+						return true;
+					}
+			});
 		},
 
 		/*
@@ -512,8 +492,7 @@
 		link: function (tip) {
 
 			var t = this.$(tip),
-				m = this.$('#' + t.attr('aria-describedby')),
-				h;
+				m = this.$('#' + t.attr('aria-describedby')), h;
 
 			// if we don't have a modal
 			if (m.length < 1) {
@@ -536,7 +515,6 @@
 					if (m.length < 1) {
 						m = t.parent().find(this.selector('modal'));
 					}
-
 					id = m.attr('id') || id;
 				}
 				// set the id so we don't have to run through this code again
@@ -560,15 +538,13 @@
 		//
 		connect: function (tip, modal) {
 
-			var t = this.$(tip),
-				m = this.$(modal),
-				i = t.attr('id'),
-				r = 'tooltip';
-
-			// if we've previously been connected, leave
-			if (m.data(this.name + '-connected')) {
+			if (tip.data(this.name + '-connected')) {
 				return this;
 			}
+
+			var i = tip.attr('id'),
+				r = 'tooltip';
+
 			// if the modal has focusable (tabbable) content,
 			// change the role to dialog (tooltip is default)
 			if (this.isFocusable(modal)) {
@@ -576,24 +552,25 @@
 				r = 'dialog';
 
 				if (!i) {
+
 					i = this.uid();
-					t.attr('id', i);
+					tip.attr('id', i);
 				}
 
-				m.attr('aria-labelledby', i);
+				modal.attr('aria-labelledby', i);
 			}
 
-			m.attr('role', r);
-			t.attr('aria-describedby', m.attr('id'));
+			modal.attr('role', r);
+			tip.attr('aria-describedby', modal.attr('id'));
 
 			// if transitions are enabled, set animation class hooks
 			if (this.transitions) {
-				m.addClass('transitions');
+				modal.addClass('transitions');
 			}
 
-			m.data(this.name + '-connected', true);
+			tip.data(this.name + '-connected', true);
 
-			this.emit('connect', t, m);
+			this.emit('connect', tip[0], modal[0]);
 
 			return this;
 		},
@@ -601,10 +578,9 @@
 		// get boxmodel values directly from css
 		// adds margin and borders together for accurate measurements
 		//
-		box: function (n) {
+		box: function (node) {
 
-			var node = this.$(n)[0],
-				box = {top: 0, left: 0, right: 0, bottom: 0};
+			var box = {top: 0, left: 0, right: 0, bottom: 0};
 
 			if (node) {
 
@@ -695,41 +671,22 @@
 			return {node: null};
 		},
 
-		/*
-			<method:position>
-				<invoke>.position(modal, tip)</invoke>
-				<param:modal>
-					<type>Node</type>
-					<desc>Modal element (.mk-tt-modal)</desc>
-				</param:modal>
-				<param:tip>
-					<type>Node</type>
-					<desc>tip element (.mk-tt)</desc>
-				</param:tip>
-				<desc>Positions a modal next to a tip.</desc>
-			</method:position>
-		*/
+		position: function (tip, modal) {
 
-		position: function (modal, tip) {
-
-			var t = this.$(tip),
-				p = t.attr('data-position') || this.config.position,
-				coords = this._position(p,
-					this.offset(modal, true), this.offset(tip), this.frame(modal));
+			var p = tip.attr('data-position') || this.config.position,
+				coords = this._position(p, this.offset(modal, true), this.offset(tip), this.frame(modal));
 
 			if (coords) {
 
-				var m = this.$(modal);
-
 				this.each(this.config.map, function (fn, key) {
-					m.removeClass(key);
+					modal.removeClass(key);
 				});
 
-				m.addClass(coords.key);
+				modal.addClass(coords.key);
 
-				this.emit('position', t, m, coords);
+				this.emit('position', tip[0], modal[0], coords);
 
-				m.css({
+				modal.css({
 					left: coords.left,
 					top: coords.top
 				});
@@ -750,23 +707,16 @@
 
 		modal: function (tip) {
 
-			var t  = this.$(tip),
-				id = t.attr('aria-describedby') || '', m;
+			var tt = this.$(tip),
+				id = tt.attr('aria-describedby') || '', m;
 
 			if (!id) {
-
-				this.link(tip);
-
-				id = t.attr('aria-describedby') || '';
+				return this.link(tip).modal(tip);
 			}
 
-			if (id) {
-				id = '#' + id;
-			}
+			m = this.$('#' + id);
 
-			m = this.$(id);
-
-			this.connect(t, m);
+			this.connect(tt, m);
 
 			return m;
 		},
@@ -778,8 +728,7 @@
 		//
 		focus: function (tip, modal) {
 
-			var m = this.$(modal),
-				k = m.find(this.selector('kill'));
+			var k = modal.find(this.selector('kill'));
 
 			if (k.length < 1) {
 
@@ -788,10 +737,8 @@
 				k.on('focus.mk', function () {
 					tip.focus();
 				});
-
-				m.append(k);
+				modal.append(k);
 			}
-
 			return this;
 		},
 
@@ -823,12 +770,12 @@
 
 					m.attr('aria-hidden', 'false');
 
-					this.position(m, tip);
+					this.position(t, m);
 
 					if (this.isFocusable(m)) {
-						this.focus(tip, m);
+						this.focus(t, m);
 					}
-					this.emit('show', t, m);
+					this.emit('show', t[0], m[0]);
 				});
 
 				this.transition(m, function (e, el) {
@@ -856,8 +803,7 @@
 		hide: function (tip, immediate) {
 
 			var t = this.$(tip),
-				a = t.attr('data-action'),
-				m, d;
+				a = t.attr('data-action'), m, d;
 
 			if (this._unlocked(t) && this.unlocked(t)) {
 
@@ -866,7 +812,7 @@
 				d = immediate !== true
 					&& a !== 'click'
 					&& this.isFocusable(m)
-					&& this.config.delay || 0;
+					&& this.config.delay || 1;
 
 				this.delay(function () {
 
@@ -880,7 +826,7 @@
 						this.clearTransitions(m);
 					}
 
-					this.emit('hide', t, m);
+					this.emit('hide', t[0], m[0]);
 
 				}, d);
 
@@ -901,12 +847,12 @@
 
 		hideAll: function () {
 
-			var ms = this.$(this.selector('modal')).filter('[aria-hidden="false"]'),
-				ts = this.$(this.selector(), this.element), t;
+			var tt = this.root.find(this.selector());
 
-			return this.each(ms, function (m) {
-				t = ts.filter('[aria-describedby="' + m.id + '"]');
-				this._unlock(t).hide(t, true);
+			return this.each(tt, function (t) {
+				if (this.isOpen(t)) {
+					this._unlock(t).hide(t, true);
+				}
 			});
 		},
 
@@ -921,12 +867,9 @@
 			</method:toggle>
 		*/
 
-		toggle: function (tip) {
+		toggle: function (tip) {;
 
-			var m = this.modal(tip),
-				isOpen = m.attr('aria-hidden') === 'false';
-
-			if (isOpen) {
+			if (this.isOpen(this.modal(tip))) {
 				return this.hide(tip);
 			}
 			return this.show(tip);
@@ -979,7 +922,7 @@
 
 			if (t.hasClass(this.name) && !t.hasClass('locked')) {
 				t.addClass('locked');
-				this.emit('lock', t, true);
+				this.emit('lock', t[0], true);
 			}
 			return this;
 		},
@@ -1001,7 +944,7 @@
 
 			if (t.hasClass(this.name) && t.hasClass('locked')) {
 				t.removeClass('locked');
-				this.emit('lock', t, false);
+				this.emit('lock', t[0], false);
 			}
 			return this;
 		},

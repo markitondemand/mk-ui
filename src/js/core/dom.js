@@ -728,6 +728,22 @@ $.prototype = {
         return this;
     },
 
+    focus: function () {
+
+        if (this.length) {
+            this[this.length - 1].focus();
+        }
+        return this;
+    },
+
+    blur: function () {
+
+        if (this.length) {
+            this[this.length - 1].blur();
+        }
+        return this;
+    },
+
     on: function (type, delegate, handler, single) {
 
         if (!handler) {

@@ -14,9 +14,8 @@ html
 						| Mk[ui] is a flexible ES5 library build with WCAG 2.0 accessiblity, mobility, and responsive design at the forefront.
 						| All of our components follow the W3 guidlines on accessibility. We also accurately mimic native browser controls for the best user experience possible.
 						| With mobile, we degrate to triggering device controls when applicable, again, for the best user experience possible.
-						| All components support AMD module loading, and play nicely with Angular. Mk[ui] is also DOM library agnostic, which means you can substitute jQuery (the default) with anything you like.
-						| All components are written as cleanly as possible and insert DOM nodes into descrete places as to place nicely with frameworks like React and the Virtual DOM.
-						| We also use HTML5 and CSS3 with all of our components, written in both LESS and SASS depending on what you need for your project.
+						| All components support AMD module loading, play nicely with frameoworks like Angular, and insert DOM nodes into descrete "root" elements for compatibility with frameworks like React and the Virtual DOM.
+						| All components advocate HTML5, CSS3, and come with both LESS and SASS alternatives depending on what you need for your project.
 
 					p
 						| At the base, each components inherits from Core, which is basically just an abstract object bundled with a bunch of goodies.
@@ -28,20 +27,131 @@ html
 					p
 						| Mk[ui] comes with a light-weight templating system similar to handlebars.
 						| The template system is accessed with methods like template(), format(), and html() on the prototype of Core.
-						| You may pass in template string directly or, pass in reference keys, while keeping the actual define templates in an organized place (templates and formats property on the Core prototype).
+						| You can also access the templating system yourself as it lives as a static property on Mk (Mk.fn.template).
+						| You may pass in template string directly or pass in reference keys while keeping the actual define templates in an organized place (templates and formats property on the Core prototype for instance).
 						| Below is a list of the Template Engine features and how to use them.
+
+					h4
+						| Template Keys
+					p
+						| Every template has a key accessible with $key. For instance, if you're using the Selectmenu, the key is mk-sm which gets prepended to all of the element class names.
+					pre
+						code.language-html
+							| &lt;div class="{{$key}}-shadow"&gt;
+
+					h4
+						| Accessing Data
+					p
+						| To access template data, use double curly braces to tell the template engine the data point you'd like to access based off of it's current scope.
+					pre
+						code.language-html
+							| &lt;div&gt;{{datapoint}}&lt;/div&gt;
+
+					h4
+						| Changing Scope
+					p
+						| It's more than likely your data will have multi-dimentions. You can access "deep" objects with the scope keyword.
+						| For instance, let's say our data object has a property called list, which has a property called items we want to access.
+					pre
+						code.language-html
+							| {{scope:list}}
+							| 	&lt;div&gt;{{items}}&lt;/div&gt;
+							| {{/scope:list}}
+
+					h4
+						| Nesting Templates
+					p
+						| You can call templates within templates like the below.
+						| If you reference a template that does not exists, no markup will be generated.
+						| To reference templates accurately, make sure it exists in the template object you pass to the parser.
+					pre
+						code.language-html
+							| &lt;div class="{{$key}}-shadow"&gt;
+							| 	{{template:my-template-name}}
+							| &lt;/div&gt;
+
+					h4
+						| Looping
+					p
+						| The best part of templating by far. You can loop objects, arra-like object, and even a simple integer.
+						| No matter how you loop, you'll have access to a secret data point called $index which represents the iteration count.
+						| When looping arrays, each iteration will change the scope of the data to that data set.
+					pre
+						code.language-html
+							| {{loop:options}}
+							| 	&lt;option data-number="{{$index}}" value="{{value}}"&gt;{{label}}&lt;/option&gt;
+							| {{/loop:options}}
+					p
+						| Looping an object will give you key, value pairs.
+						| If you loop an array who's items are NOT objects/arrays, you'll also be given a key, value pair object.
+						| For instance, you loop [1,2,3,4,5] your value will be the integer and key will be empty.
+					pre
+						code.language-html
+							| {{loop:myObject}}
+							| 	&lt;option data-number="{{$index}}" value="{{value}}"&gt;{{key}}&lt;/option&gt;
+							| {{/loop:list}}
+
+					h4
+						| If Statements
+					p
+						| Mk Templating Engine if statements are basic. Basically they only interpret truthy/falsey statements.
+						| So no, no crazy logic is supported here. The only exception to the truthy/falsey is the value 0.
+						| Mk does not consider 0 to be falsey and will evaluate it as truthy.
+						| Null, undefined, empty string, and false will all evaluate to falsey.
+					pre
+						code.language-html
+							| {{if:options}}
+							|	{{loop:options}}
+							| 		&lt;option data-number="{{$index}}" value="{{value}}"&gt;{{label}}&lt;/option&gt;
+							| 	{{/loop:options}}
+							| {{/if:options}}
+
 					h3
-						| Super Functions
+						| Super Functions &amp; Inheritance
 					p
 						| JavaScript is a bit restrictive when it comes to inheritance. Thankfully with ES5 we have a ton of new features that allowed us to create Super Functions.
-						| All component methods are passed through a defineProperty scrubber which sets up a call-stack to track the chain of invoked methods.
-						| Each time a method is invoked, you have access to the 'super' property on each Mk instance.
-						| The super property is at first a getter, which will return you the super class method of the same named method invoking.
+						| All component methods are passed through a property scrubber, which supports property descriptors and sets up a call-stack to track the chain of invoked methods.
+						| When taking advantage of the Mk inheritance, each time a method is invoked, that method has access to a 'super' property on each Mk instance.
+						| The super property is firstly a property getter, which will return you the super class method of the same named method.
 						| You may then invoke that super method, which calls the function is proper context. Super invoking is recursive, so it's possible to continue calling super functions all the way down to the base object (Core).
+						| Since we've provided access to the Mk inheritance as static methods on the Mk object, you can take advantage of using the Mk inheritance on existing object or when creating your own objects.
+
+					pre
+						code.language-javascript
+							| var myObject = Mk.create('MyObject', {
+							| 	_init: function (root, config) {
+							|		//we inherited from Mk so call the superclass _init method
+							| 		this.super(root, config);
+							| 	}
+							| });
+							| //
+							| //copy an entire object of members
+							| //this will accurately set existing property descriptors,
+							| //setup super functions, and create new property descriptors using the Mk.property method below.
+							| Mk.inherit(myObject.prototype, objectToInheritFrom);
+							| //
+							| //set a new function onto the myobject prototype
+							| Mk.property(myObject.prototype, 'newMethod', function () {
+							|	//do stuff...
+							| });
+							| //
+							| //set a property descriptor getter only
+							| Mk.property(myObject.prototype, 'newProperty', {
+							| 	configurable: true,
+							|	enumberable: true,
+							|	get: function () {
+							|		return this.newMethod();
+							|	},
+							|	set: null
+							| });
+
 					h3
 						| Event Emitters
-					h3
-						| Device
+					p
+						| With Mk 2.0 you no longer hook into behaviors through DOM events. We now use an event emitter to call custom functionality.
+						| This has a few benefits. First, DOM event listeners are kept at a minimum.
+						| Second, we can add hooks to just about every behavior possibly, making our components extremely flexible and versitile.
+						| Events are specific to each component, so there will be no example here but know that each component built with Mk has an on(), one(), off(), and emit() method used for event hooks.
 
 				div.col-sm-4
 					section.panel
