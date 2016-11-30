@@ -23,6 +23,59 @@ html
 						| Components derived from 1st Class components are called 2nd Class components. And so on.
 						| Below we outline the different features of Core available to you, whether using an existing component or building your own.
 					h3
+						| Type Checking
+					p
+						| Type checking is pretty important in JavaScript and unfortunately the typeof function doesn't really provide us with a great deal of awesome.
+						| Fortunately we've created a light-weight addition to type checking accessibly on Mk as a static member. All types typeof uses are still available through the use of Mk.type.
+
+					pre
+						code.language-javascript
+							| //
+							| // checks for type array
+							| Mk.type(o, "array")
+							| //
+							| // checks for type array-like
+							| // this could be an array, jQuery, html collection, arguments, etc.
+							| Mk.type(o, "arraylike");
+							| //
+							| // checks for truthy/falsey
+							| Mk.type(o, "empty");
+							| //
+							| // check for null
+							| Mk.type(o, "null");
+							| //
+							| // check for a date object
+							| Mk.type(o, "date");
+							| //
+							| // checks for type nodelist
+							| Mk.type(o, "nodelist")
+							| //
+							| // checks for type node
+							| Mk.type(o, "node");
+							| //
+							| // checks for type window
+							| Mk.type(o, "window");
+							| //
+							| // check if o is a function but NOT a classlike object.
+							| Mk.type(o, "function");
+							| //
+							| // check if o is a classlike object
+							| Mk.type(o, "classlike");
+							| //
+							| // check if o is an instance of an object
+							| Mk.type(o, "instance");
+							| //
+							| // check if o is a descriptor (see Object.defineProperty)
+							| Mk.type(o, "descriptor");
+
+					p
+						| You can also combine types with a pipe.
+
+					pre
+						code.language-javascript
+							| Mk.type(o, "string|number|undefined|arraylike|classlike");
+
+					h3
 						| Template System
 					p
 						| Mk[ui] comes with a light-weight templating system similar to handlebars.
@@ -89,7 +142,7 @@ html
 						code.language-html
 							| {{loop:myObject}}
 							| 	&lt;option data-number="{{$index}}" value="{{value}}"&gt;{{key}}&lt;/option&gt;
-							| {{/loop:list}}
+							| {{/loop:myObject}}
 
 					h4
 						| If Statements
