@@ -503,7 +503,7 @@ $.prototype = {
         }
 
         // IE does this...
-        var t = /^\s*<([^>\s]+)/.exec(s)[1] || null,
+        var t = (/^\s*<([^>\s]+)/.exec(s) || [])[1] || null,
             a = t && $._wraps.hasOwnProperty(t) && $._wraps[t] || $._wraps.defaultt,
             i = 0;
 
