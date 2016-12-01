@@ -24,7 +24,7 @@ body a:focus {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: #008e89 !important;
+    color: #008e89;
 }
 
 /***********************
@@ -55,45 +55,77 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /***********************
+  Subheader Stuff
+ ***********************/
+
+.subheader {
+	background: #333;
+	padding: 20px;
+}
+
+.subheader h2,
+.subheader h3,
+.subheader h4 {
+	color: #ffffff;
+}
+
+.subheader h2 {
+	font-size: 24px;
+	margin: 0;
+}
+
+.subheader h3 {
+	font-size: 16px;
+	margin: 10px 0 0;
+}
+
+.subheader h4 {
+	font-style: italic;
+	font-size: 12px;
+	margin: 5px 0 0;
+}
+
+/***********************
   Component Stuff
  ************************/
 
-.component-brand {
+.component-card {
+	background: #444;
+	box-shadow: 0 0px 12px rgba(0, 0, 0, 0.4);
+	text-align: center;
+	padding: 30px 0;
+	position: relative;
+}
+
+.component-card h2,
+.component-card h3,
+.component-card h4 {
+	color: #fff;
+	text-shadow: 0 0 8px #000000;
+}
+
+.component-card h2 {
+	font-size: 24px;
+	margin: 0;
+}
+
+.component-card h3 {
 	font-size: 16px;
+	margin: 10px 0 0;
 }
 
-.component-brand:hover,
-.component-brand:active,
-.component-brand:focus {
-	text-decoration: none;
-}
-
-.component-brand:before {
-	display: inline-block;
+.component-card h4 {
 	font-style: italic;
-	margin-right: 10px;
-	text-align: right;
-	width: 32px;
+	font-size: 12px;
+	margin: 5px 0 0;
 }
 
-.component-brand-sm:before {
-	content: '[sm]';
-}
-
-.component-brand-tt:before {
-	content: '[tt]';
-}
-
-.component-brand-ld:before {
-	content: '[ld]';
-}
-
-.component-brand-ac:before {
-	content: '[ac]';
-}
-
-.component-brand-dg:before {
-	content: '[dg]';
+.component-card a {
+	 position: absolute;
+	 top: 0;
+	 left: 0;
+	 right: 0;
+	 bottom: 0;
 }
 
 /***********************
@@ -113,6 +145,7 @@ h1, h2, h3, h4, h5, h6 {
     width: 100%;
     z-index: 2;
     min-height: 78px;
+	margin-bottom: 0;
 }
 
 .navbar-theme .navbar-brand {

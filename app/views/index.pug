@@ -4,10 +4,11 @@ html
 		include ./shared/head
 	body
 		include ./shared/header
+		include ./shared/components
 		main.container
-			include ./shared/info
 			div.row
-				div.col-sm-8
+				div.col-sm-9
+					include ./shared/info
 					h2
 						| What is Mk[ui] ?
 					p
@@ -22,6 +23,57 @@ html
 						| Components derived directly from core are called 1st Class components.
 						| Components derived from 1st Class components are called 2nd Class components. And so on.
 						| Below we outline the different features of Core available to you, whether using an existing component or building your own.
+
+					h3
+						| Create
+					p
+						| Want to create your own Mk objects? Use Mk.create for that. Create takes up to three arguments: a name, a base class (optional), and a prototype.
+						| Note that as of now, the base class must always be derived from Mk. We may change this later.
+					pre
+						code.language-javascript
+							| //
+							| // create a first class object (inherits from Mk Core)
+							| // namespaced as myClient.myObject.
+							| var myObject = Mk.create("myClient.myObject", {
+							| 	...prototype goes here...
+							| });
+							| //
+							| // create a second class object derived from Selectmenu.
+							| var myObject = Mk.create("myClient.myObject", Mk.Selectmenu, {
+							|	...prototype goes here...
+							| });
+
+					h3
+						| Define
+					p
+						| We can also store random data within Mk using the *define* method.
+						| When using create, define is called internally, storing the object as the *name* argument.
+					pre
+						code.language-javascript
+							| // store this random array of data
+							| Mk.define("myClient.availableStates", [
+							|	"Colorado",
+							|	"California",
+							|	"New York",
+							|	"Washington"
+							| ]);
+
+					h3
+						| Get
+					p
+						| Using the code in the Create section above we can also retrieve our components with the *get* method.
+						| This is a safer way to retrieve our objects rather than raw object pointing.
+					pre
+						code.language-javascript
+							| // get the selectmenu object
+							| var Selectmenu = Mk.get("Selectmenu");
+							| //
+							| // get the myClient.myObject object
+							| var myObject = Mk.get("myClient.myObject");
+							| //
+							| // get the myClient.availableStates object
+							| var states = Mk.get("myClient.availableStates");
+
 					h3
 						| Type Checking
 					p
@@ -143,6 +195,14 @@ html
 							| {{loop:myObject}}
 							| 	&lt;option data-number="{{$index}}" value="{{value}}"&gt;{{key}}&lt;/option&gt;
 							| {{/loop:myObject}}
+					p
+						| You can also loop a number, which keeps the same data context running a standard for loop on the size of the number provided.
+						| This is really handy for presentational UI elements.
+					pre
+						code.language-html
+							| {{loop:10}}
+							| 	&lt;option value="{{$index}}"&gt;Options Number {{$index}}&lt;/option&gt;
+							| {{/loop:10}}
 
 					h4
 						| If Statements
@@ -153,11 +213,14 @@ html
 						| Null, undefined, empty string, and false will all evaluate to falsey.
 					pre
 						code.language-html
-							| {{if:options}}
-							|	{{loop:options}}
-							| 		&lt;option data-number="{{$index}}" value="{{value}}"&gt;{{label}}&lt;/option&gt;
-							| 	{{/loop:options}}
-							| {{/if:options}}
+							| {{loop:options}}
+							| 	&lt;option data-number="{{$index}}" value="{{value}}"&gt;
+							|		{{label}}
+							|		{{if:description}}
+							|			&lt;span class="{{$key}}-description"&gt;{{description}}&lt;/span&gt;
+							|		{{/if:description}}
+							|	&lt;/option&gt;
+							| {{/loop:options}}
 
 					h3
 						| Super Functions &amp; Inheritance
@@ -199,47 +262,34 @@ html
 							| });
 
 					h3
+						| Animation &amp; Transition Effects
+					p
+						| Animations are taken care of with CSS3 but the JavaScript end does contain animation event handlers to invoke perticular behaviors when elements have completed animations.
+						| You also have control over turning animations on or off through the JavaScript Mk API.
+
+					pre
+						code.language-javascript
+							| // enable transitions
+							| Mk.transitions.enable();
+							| //
+							| // disable transitions
+							| Mk.transitions.disable();
+							| //
+							| // get the transition event name
+							| Mk.transitions.key;
+							| //
+							| // booleans representing transitions enabled
+							| Mk.transitions.enabled;
+							| //
+							| // booleans representing transitions disabled
+							| Mk.transitions.disabled;
+
+					h3
 						| Event Emitters
 					p
 						| With Mk 2.0 you no longer hook into behaviors through DOM events. We now use an event emitter to call custom functionality.
 						| This has a few benefits. First, DOM event listeners are kept at a minimum.
 						| Second, we can add hooks to just about every behavior possibly, making our components extremely flexible and versitile.
 						| Events are specific to each component, so there will be no example here but know that each component built with Mk has an on(), one(), off(), and emit() method used for event hooks.
-
-				div.col-sm-4
-					section.panel
-						header.panel-heading
-							h3.panel-title
-								| 1
-								sup
-									| st
-								| &nbsp;Class Components
-						div.panel-body
-							ul.list-unstyled
-								li
-									a.component-brand.component-brand-sm(href="/selectmenu")
-										| Selectmenu
-								li
-									a.component-brand.component-brand-tt(href="/tooltip")
-										| Tooltip
-								li
-									a.component-brand.component-brand-ld(href="/loader")
-										| Loader
-					section.panel
-						header.panel-heading
-							h3.panel-title
-								| 2
-								sup
-									| nd
-								| &nbsp;Class Components
-						div.panel-body
-							ul.list-unstyled
-								li
-									a.component-brand.component-brand-ac(href="/autocomplete")
-										| Autocomplete
-								li
-									a.component-brand.component-brand-dg(href="/dialog")
-										| Dialog
-
 			include ./shared/api
 		include ./shared/scripts

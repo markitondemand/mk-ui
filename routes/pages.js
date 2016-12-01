@@ -19,7 +19,7 @@ module.exports = function ( express, app ) {
   app.get('/loader', function (req, res) {
 
       docBuilder.parse('js/loader.js', function (data) {
-          data.title = 'Loader';
+          data.title = 'Loader [ld]';
           res.render('loader', data);
       });
   });
@@ -27,7 +27,7 @@ module.exports = function ( express, app ) {
   app.get('/selectmenu', function (req, res) {
 
     docBuilder.parse('js/selectmenu.js', function (data) {
-        data.title = 'Selectmenu';
+        data.title = 'Selectmenu [sm]';
         res.render('selectmenu', data);
     });
   });
@@ -35,7 +35,7 @@ module.exports = function ( express, app ) {
   app.get('/autocomplete', function (req, res) {
 
     docBuilder.parse('js/autocomplete.js', function (data) {
-        data.title = 'Autocomplete';
+        data.title = 'Autocomplete [ac]';
         res.render('autocomplete', data);
     });
   });
@@ -43,7 +43,7 @@ module.exports = function ( express, app ) {
   app.get('/tooltip', function (req, res) {
 
     docBuilder.parse('js/tooltip.js', function (data) {
-        data.title = 'Tooltip';
+        data.title = 'Tooltip [tt]';
         res.render('tooltip', data);
     });
   });
@@ -51,7 +51,7 @@ module.exports = function ( express, app ) {
   app.get('/dialog', function (req, res) {
 
       docBuilder.parse('js/dialog.js', function (data) {
-          data.title = 'Dialog';
+          data.title = 'Dialog [dg]';
           res.render('dialog', data);
       });
   });

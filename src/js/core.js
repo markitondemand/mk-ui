@@ -1653,7 +1653,7 @@ Mk.prototype = {
     /*
     <property:keycode>
         <desc>Object containing friendly named keycodes for keyboard events.</desc>
-    </property:super>
+    </property:keycode>
     */
     get keycode () {
         return Mk.fn.keycodes;
