@@ -621,11 +621,13 @@ Mk.prototype = {
         var v, t;
 
         if (prop.call(o, n)) {
-            v = o[n];
+            return v = o[n];
         }
 
-        if (v === void+1 && ty != 'undefined') {
-            v = this.$(el || this.root).data(n);
+        v = this.$(el || this.root).data(n);
+
+        if (v === undefined && ty !== 'undefined' || v === null) {
+            v = d;
         }
 
         t = typeof(v);

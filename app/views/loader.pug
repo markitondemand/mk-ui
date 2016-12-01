@@ -41,21 +41,23 @@ html
 			include ./shared/events
 			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/dist/js/loader.min.js")
+		script(type="text/javascript", src="/src/js/loader.js")
 		script.
 
-			Mk.transitions(true);
+			Mk.transitions.enable();
 
 			var Loader = Mk.get('Loader');
 			var loader = new Loader('#content');
 
-			$('button').on('click', function (e) {
+			Mk.$('button').on('click', function (e) {
 
 				e.preventDefault();
 
-				if ($(this).hasClass('load')) {
+				if (Mk.$(this).hasClass('load')) {
+
 					loader.show();
 					return;
 				}
+
 				loader.hide();
 			})

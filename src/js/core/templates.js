@@ -100,7 +100,17 @@ Mk.fn.template = {
                 buffer = [], i = 0,
                 l, dp, x;
 
-            if (Mk.type(data, 'arraylike')) {
+            if (/^\d+$/.test(point)) {
+
+                l = parseInt(point, 10);
+
+                for(; i < l; i++) {
+                    data.$index = i;
+                    buffer.push(tmp.parse(name, key, templates, data));
+                }
+                delete data.$index;
+            }
+            else if (Mk.type(data, 'arraylike')) {
 
                 l = data.length;
 
@@ -114,30 +124,23 @@ Mk.fn.template = {
 
                     dp.$index = i;
 
-                    buffer.push(
-                        tmp.parse(name, key, templates, dp));
+                    buffer.push(tmp.parse(name, key, templates, dp));
+
+                    delete dp.$index;
                 }
             }
-
             else {
 
                 x = 0;
 
                 for (l in data) {
-
-                    buffer.push(
-                        tmp.parse(
-                        name,
-                        key,
-                        templates, {
-                            key: l,
-                            value: data[i],
-                            $index: x++
-                        }
-                    ));
+                    buffer.push(tmp.parse(name, key, templates, {
+                        key: l,
+                        value: data[i],
+                        $index: x++
+                    }));
                 }
             }
-
             return buffer.join('');
         },
 

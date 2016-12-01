@@ -3,7 +3,6 @@
 		<src>dist/js/core.js</src>
 		<docs>/</docs>
 	</depedency:Core>
-
 	<file:js>
 		<src>dist/js/tooltip.js</src>
 	</file:js>
@@ -186,6 +185,11 @@
 				};
 			}
 		},
+
+		get version () {
+			return 'v2.0.0';
+		},
+
 		//
 		// setup maps and a couple other per-element features
 		// to run through and build the config object from
@@ -278,7 +282,6 @@
 		// we use mousedown instead of click for speed
 		//
 		_click: function (tip) {
-
 			if (this.device || this.$(tip).data('action') === 'click') {
 				this.toggle(tip);
 			}
@@ -538,18 +541,18 @@
 		//
 		connect: function (tip, modal) {
 
-			if (tip.data(this.name + '-connected')) {
+			if (modal.data(this.name + '-connected')) {
 				return this;
 			}
 
-			var i = tip.attr('id'),
-				r = 'tooltip';
+			var r = 'tooltip', i;
 
 			// if the modal has focusable (tabbable) content,
 			// change the role to dialog (tooltip is default)
 			if (this.isFocusable(modal)) {
 
 				r = 'dialog';
+				i = tip.attr('id');
 
 				if (!i) {
 
@@ -568,7 +571,7 @@
 				modal.addClass('transitions');
 			}
 
-			tip.data(this.name + '-connected', true);
+			modal.data(this.name + '-connected', true);
 
 			this.emit('connect', tip[0], modal[0]);
 
@@ -614,14 +617,14 @@
 				obj.width  = node.offsetWidth;
 				obj.height = node.offsetHeight;
 
-				var test = node;
+				var scroll = node;
 
-				while ((test = test.parentNode) && test.tagName !== 'BODY') {
-					if (test.scrollTop) {
-						obj.top -= test.scrollTop;
+				while ((scroll = scroll.parentNode) && scroll.tagName !== 'BODY') {
+					if (scroll.scrollTop) {
+						obj.top -= scroll.scrollTop;
 					}
-					if (test.scrollLeft) {
-						obj.left -= test.scrollLeft;
+					if (scroll.scrollLeft) {
+						obj.left -= scroll.scrollLeft;
 					}
 				}
 
@@ -651,23 +654,34 @@
 		//
 		frame: function (n) {
 
-			var node = this.$(n)[0];
+			var doc = document.documentElement,
+				body = document.body,
+				node = this.$(n)[0],
+				scroll = node;
 
 			if (node) {
 
-				while (node.scrollTop <= 0 && node.tagName !== 'BODY') {
+				while (node.scrollTop <= 0 && node !== body) {
 					node = node.parentNode;
+					scroll = node;
+				}
+
+				// ridiculous check for IE and Firefox because
+				// the body scroll positions are set on the documentElement
+				if (node === body && (node.scrollTop < doc.scrollTop || node.scrollLeft < doc.scrollLeft)) {
+					scroll = doc;
 				}
 
 				return {
 					node:   node,
-					top:    node.scrollTop,
-					left:   node.scrollLeft,
-					scroll: node.scrollTop,
+					top:    scroll.scrollTop,
+					left:   scroll.scrollLeft,
+					scroll: scroll.scrollTop,
 					width:  node.offsetWidth,
 					height: node.offsetHeight
 				};
 			}
+
 			return {node: null};
 		},
 
@@ -869,7 +883,7 @@
 
 		toggle: function (tip) {;
 
-			if (this.isOpen(this.modal(tip))) {
+			if (this.isOpen(tip)) {
 				return this.hide(tip);
 			}
 			return this.show(tip);
@@ -887,7 +901,7 @@
 		*/
 
 		isOpen: function (tip) {
-			return this.modal(tip).attr('aria-hidden') !== 'true';
+			return !this.isHidden(tip);
 		},
 
 		/*

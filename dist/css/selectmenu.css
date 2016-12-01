@@ -138,6 +138,9 @@
   background: #eee;
   border-top: 1px solid #ccc; }
 
+.mk-sm-removable.active {
+  background: #ccc; }
+
 .mk-sm-alt {
   display: block;
   font-size: 80%; }

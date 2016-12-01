@@ -456,9 +456,10 @@ $.events = {
         return false;
     },
 
-    delegate: function (parent, node, selector) {
+    delegate: function (parent, e, selector) {
 
-        var result = {
+        var node = e.target,
+            result = {
             // are we allowed to invoke the handler with
             // these perticular parameters??
             allowed: false,
@@ -474,6 +475,18 @@ $.events = {
             result.allowed = true;
         }
         else {
+            // crazyness for event capturing
+            // (ie: delegate focus/blur mouseenter/leave events)
+            if (e.toElement) {
+
+                var n = new $(e.toElement, parent),
+                    f = new $(e.fromElement, parent);
+
+                if ((n.is(selector) && f.parent(e.toElement).length)
+                    || (f.is(selector) && n.parent(e.fromElement).length)) {
+                    return result;
+                }
+            }
             // we're dealing with a delegate
             // find the selector elements in the target parent,
             // loop them, and look for exact matches.
@@ -481,6 +494,7 @@ $.events = {
             new $(selector, parent).each(function (el) {
 
                 if (node === el || new $(node).parent(el).length) {
+
                     result.allowed = true;
                     result.target = el;
                     return false;
@@ -569,7 +583,7 @@ $.events = {
         handler = function (e) {
 
             var event = $.events.find(this, e.type, id),
-                trigger = $.events.delegate(this, e.target, event.delegate),
+                trigger = $.events.delegate(this, e, event.delegate),
                 invoked = false,
                 result;
 
@@ -843,6 +857,7 @@ $.prototype = {
     },
 
     attr: function (n, v) {
+
         return this.nv(n, v, function (_n, _v) {
 
             if (_v === void+1) {
@@ -1264,7 +1279,17 @@ Mk.fn.template = {
                 buffer = [], i = 0,
                 l, dp, x;
 
-            if (Mk.type(data, 'arraylike')) {
+            if (/^\d+$/.test(point)) {
+
+                l = parseInt(point, 10);
+
+                for(; i < l; i++) {
+                    data.$index = i;
+                    buffer.push(tmp.parse(name, key, templates, data));
+                }
+                delete data.$index;
+            }
+            else if (Mk.type(data, 'arraylike')) {
 
                 l = data.length;
 
@@ -1278,30 +1303,23 @@ Mk.fn.template = {
 
                     dp.$index = i;
 
-                    buffer.push(
-                        tmp.parse(name, key, templates, dp));
+                    buffer.push(tmp.parse(name, key, templates, dp));
+
+                    delete dp.$index;
                 }
             }
-
             else {
 
                 x = 0;
 
                 for (l in data) {
-
-                    buffer.push(
-                        tmp.parse(
-                        name,
-                        key,
-                        templates, {
-                            key: l,
-                            value: data[i],
-                            $index: x++
-                        }
-                    ));
+                    buffer.push(tmp.parse(name, key, templates, {
+                        key: l,
+                        value: data[i],
+                        $index: x++
+                    }));
                 }
             }
-
             return buffer.join('');
         },
 
@@ -2195,11 +2213,13 @@ Mk.prototype = {
         var v, t;
 
         if (prop.call(o, n)) {
-            v = o[n];
+            return v = o[n];
         }
 
-        if (v === void+1 && ty != 'undefined') {
-            v = this.$(el || this.root).data(n);
+        v = this.$(el || this.root).data(n);
+
+        if (v === undefined && ty !== 'undefined' || v === null) {
+            v = d;
         }
 
         t = typeof(v);

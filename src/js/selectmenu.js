@@ -182,7 +182,7 @@
 		*/
 
 		get version () {
-			return 'v1.0.0';
+			return 'v2.0.0';
 		},
 
 		/*
@@ -212,7 +212,7 @@
 		*/
 
 		get enabled () {
-			return this.element.disabled !== true;
+			return !this.element.disabled;
 		},
 
 		/*
@@ -591,11 +591,10 @@
 
 				var active = this.items.find('.active');
 
-				if (this.multiple !== true
+				if (!this.multiple
 					&& active.length && active.attr('aria-selected') !== 'true') {
 					this.select(active.attr('data-value'));
 				}
-
 				this.hide();
 			}
 		},
@@ -1134,6 +1133,8 @@
 
 		deselect: function (value, silent) {
 
+			var result = false;
+
 			if (this.multiple) {
 
 				var el = this.getElementsByValue(value);
@@ -1145,16 +1146,17 @@
 
 					this._updateRemovableAlt();
 
-					if (silent !== true) {
+					if (!silent) {
 						this.emit('change', this.value);
 					}
-					return true;
+					result = true;
 				}
 			}
+			else {
+				this.hide();
+			}
 
-			this.hide();
-
-			return false;
+			return result;
 		},
 
 		/*
@@ -1171,18 +1173,12 @@
 		deselectAll: function (silent) {
 
 			this.each(this.options, function (o) {
-				o.selected = false;
+				this.deselect(o.value, true);
 			});
 
-			if (this.config.removable) {
-				this._updateRemovableAlt();
-				this.update();
-			}
-
-			if (silent !== true) {
+			if (!silent) {
 				this.emit('change', this.value);
 			}
-
 			return this;
 		},
 
@@ -1204,7 +1200,7 @@
 		select: function (value, silent) {
 
 			if (value === this.config.removableId) {
-				this.deselectAll();
+				this.deselectAll(silent);
 				return false;
 			}
 
@@ -1236,17 +1232,15 @@
 			this.input
 				.attr('aria-activedescendant', el.item.attr('id'));
 
-
 			this._updateRemovableAlt();
 
-			if (silent !== true) {
+			if (!silent) {
 				this.emit('change', this.value);
 			}
 
-			if (multiple !== true) {
+			if (!multiple) {
 				this.hide();
 			}
-
 			return true;
 		},
 
@@ -1259,7 +1253,7 @@
 
 				var elems = this.getElementsByValue(v);
 
-				if (elems.option.selected !== true) {
+				if (!elems.option.selected) {
 					this.select(v, true);
 				}
 				else {
@@ -1273,7 +1267,7 @@
 				});
 			}
 
-			if (silent !== true) {
+			if (!silent) {
 				this.emit('change', this.value);
 			}
 

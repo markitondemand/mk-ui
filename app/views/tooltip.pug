@@ -114,6 +114,11 @@ html
 								| If your tooltip contains focusable content (ie: links, form elements, etc) it will become focuasable.
 								| Basically what this means is it's read differently by screen readers and behavior changes.
 								| You can tab and interact with the elements inside the tooltip. Focus then becomes more like a Modal.
+
+							p
+								em
+									| *Interactive tooltips are only available with click events (data-action of "click") NOT mouseover events.
+									| This is intentional as it is considered bad design to have interactivity within the content of mouseover/out elements.
 							div
 								button.btn.btn-primary.mk-tt(data-action="click")
 									| Tooltip

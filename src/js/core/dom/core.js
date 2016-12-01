@@ -200,6 +200,7 @@ $.prototype = {
     },
 
     attr: function (n, v) {
+
         return this.nv(n, v, function (_n, _v) {
 
             if (_v === void+1) {

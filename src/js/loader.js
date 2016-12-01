@@ -40,31 +40,21 @@
 		</example>
 	</event:focus>
 */
-(function ( root, factory ) {
-	//
-	// AMD support
-	// ---------------------------------------------------
-	if ( typeof define === 'function' && define.amd ) {
+(function (root, factory) {
 
-		define( [ 'mk' ], function ( mk ) {
-			return factory( root, mk );
+	if (typeof define === 'function' && define.amd) {
+		define(['mk'], function (mk) {
+			return factory(root, mk);
 		});
 	}
-	//
-	// CommonJS module support
-	// -----------------------------------------------------
 	else if ( typeof module === 'object' && module.exports ) {
-
-		module.exports = factory( root, require( 'mk' ));
+		module.exports = factory(root, require('mk'));
 	}
-	//
-	// Everybody else
-	// -----------------------------------------------------
 	else {
-		return factory( root, root.Mk );
+		return factory(root, root.Mk);
 	}
 
-})( typeof window !== "undefined" ? window : this, function ( root, mk ) {
+})(typeof window !== "undefined" && window || this, function (root, mk) {
 
 	mk.create('Loader', {
 
@@ -80,12 +70,12 @@
 			overlay:
 				'<div class="{{$key}}-overlay" aria-hidden="true">\
 					{{loop:6}}\
-						<div class="disk disk-{{$index}}" />\
+						<div class="disk disk-{{$index}}"></div>\
 					{{/loop:6}}\
 				</div>',
 
 			alert: '<div role="alert" class="{{$key}}-alert">{{message}}</div>',
-			focus: '<button role="presentation" />'
+			focus: '<button role="presentation"></button>'
 		},
 
 		formats: {
@@ -93,7 +83,7 @@
 		},
 
 		get version () {
-			return 'v1.0.0';
+			return 'v2.0.0';
 		},
 
 		/*
@@ -172,6 +162,7 @@
 
 					this.shadow.remove();
 					this.shadow = null;
+
 					this.emit('hide');
 				});
 			}
@@ -179,6 +170,7 @@
 			if (this.refocus) {
 				return this.focus();
 			}
+
 			return this;
 		},
 
@@ -206,7 +198,7 @@
 
 		focus: function () {
 
-			this.html('focus')
+			var f = this.html('focus')
 				.prependTo(this.root)
 				.focus()
 				.remove();
