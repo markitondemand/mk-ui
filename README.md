@@ -1,25 +1,26 @@
 # Mk[ui] v2.0
 A Flexible UI Build on Accessibility.
 
-##### Quick Links
+#### Live Docs & Examples
+Check out our live documentation and example of each availble component on our [GitHub Pages](http://markitondemand.github.io/mk-ui/).
 
-View live documentation and examples [here](http://markitondemand.github.io/mk-ui/)
-View mk[ui] v1.0 [here](https://github.com/markitondemand/mk-ui/tree/version-1.0/)
+#### Mk[ui] v1.0
+Using an older version of Mk[ui]? Get access to the old repository [here](https://github.com/markitondemand/mk-ui/tree/version-1.0/).
 
-#### Currently Available Components
+### Currently Available Components
 
 1. Core
 2. Selectmenu
 3. Tooltip
 4. Loader
 
-*Available Soon*
+###### *Available Soon*
 
 1. Autocomplete
 2. Dialog
 3. Datepicker
 
-#### Install
+### Install
 
 You can copy the files directly from this repo OR (recommended) you can install this project as a node module using npm. Using NPM is ideal for easy updates. It also *will not* give you the enire project. Doing an install gives you the JavaScript, Less, SCSS, and CSS assets for Mk-Ui only. So don't worry about the install being bulky, it aint.
 
@@ -27,7 +28,7 @@ You can copy the files directly from this repo OR (recommended) you can install 
 npm install mk-ui
 ```
 
-#### Documentation
+### Documentation
 
 Clone or Fork this repository for the most up to date documentation. Once the you have the app running, simply go to localhost:5280 to launch the docs site.
 
