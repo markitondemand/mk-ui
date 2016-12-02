@@ -1,7 +1,7 @@
 /*
 	<depedency:Core>
 		<src>/dist/js/core.js</src>
-		<docs>./</docs>
+		<docs>../</docs>
 	</depedency:Core>
 	<depedency:Tooltip>
 		<src>/dist/js/tooltip.js</src>

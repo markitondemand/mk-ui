@@ -1,19 +1,19 @@
 /*
 	<depedency:Core>
 		<src>/dist/js/core.js</src>
-		<docs>./</docs>
+		<docs>../</docs>
 	</depedency:Core>
 	<file:js>
-		<src>/dist/js/tooltip.js</src>
+		<src>dist/js/tooltip.js</src>
 	</file:js>
 	<file:css>
-		<src>/dist/css/tooltip.css</src>
+		<src>dist/css/tooltip.css</src>
 	</file:css>
 	<file:less>
-		<src>/dist/less/tooltip.less</src>
+		<src>dist/less/tooltip.less</src>
 	</file:less>
 	<file:scss>
-		<src>/dist/scss/tooltip.scss</src>
+		<src>dist/scss/tooltip.scss</src>
 	</file:scss>
 	<event:show>
 		<desc>Fires when tooltip is shown.</desc>

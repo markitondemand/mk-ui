@@ -9,9 +9,9 @@ var gulp   = require('gulp'),
 	paths  = {
 		'docs': {
 			index: '/',
-			selectmenu: '/selectmenu.html',
-			tooltip: '/tooltip.html',
-			loader: '/loader.html'
+			selectmenu: '/docs/selectmenu.html',
+			tooltip: '/docs/tooltip.html',
+			loader: '/docs/loader.html'
 		},
 		'style': {
 			sass: './dist/scss/*.scss',
@@ -55,7 +55,9 @@ var gulp   = require('gulp'),
 
 function createFile (filename, filepath) {
 
-	if (filename !== 'index') {
+	var isIndex = filename === 'index';
+
+	if (!isIndex) {
 		filename = './docs/' + filename;
 	}
 
@@ -76,7 +78,13 @@ function createFile (filename, filepath) {
 		var data = [];
 
 		res.on('data', function (chunk) {
-			data.push(chunk);
+
+			var newChunk = chunk
+				.replace(/\/docs\/assets/g, isIndex ? 'docs/assets' : '../docs/assets')
+				.replace(/\/src\/js/g, isIndex ? 'src/js' : '../src/js')
+				.replace(/\/dist\/css/g, isIndex ? 'dist/' : '../dist/css');
+
+			data.push(newChunk);
 		});
 
 		res.on('end', function () {

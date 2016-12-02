@@ -1,23 +1,23 @@
 /*
 	<depedency:Core>
-		<src>/dist/js/core.js</src>
-		<docs>./</docs>
+		<src>dist/js/core.js</src>
+		<docs>../</docs>
 	</depedency:Core>
 	<depedency:Selectmenu>
-		<src>/dist/js/selectmenu.js</src>
+		<src>dist/js/selectmenu.js</src>
 		<docs>./docs/selectmenu.html</docs>
 	</depedency:Selectmenu>
 	<file:js>
-		<src>/dist/js/autocomplete.js</src>
+		<src>dist/js/autocomplete.js</src>
 	</file:js>
 	<file:css>
-		<src>/dist/css/autocomplete.css</src>
+		<src>dist/css/autocomplete.css</src>
 	</file:css>
 	<file:less>
-		<src>/dist/less/autocomplete.less</src>
+		<src>dist/less/autocomplete.less</src>
 	</file:less>
 	<file:scss>
-		<src>/dist/scss/autocomplete.scss</src>
+		<src>dist/scss/autocomplete.scss</src>
 	</file:scss>
 	<event:render>
 		<desc>Fired when data has been retrieved and the list is ready to be built. Binding this event replaces the original rending with your own, custom, rendering.</desc>
