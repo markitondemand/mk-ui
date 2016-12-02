@@ -4,7 +4,15 @@ var gulp   = require('gulp'),
 	less   = require('gulp-less'),
 	mini   = require('gulp-minify'),
 	concat = require('gulp-concat'),
+	http   = require('http'),
+	fs	   = require('fs'),
 	paths  = {
+		'docs': {
+			index: '/',
+			selectmenu: '/selectmenu.html',
+			tooltip: '/tooltip.html',
+			loader: '/loader.html'
+		},
 		'style': {
 			sass: './dist/scss/*.scss',
 			less: './dist/less/*.less',
@@ -21,7 +29,6 @@ var gulp   = require('gulp'),
 				'./src/js/core/dom/intro.js',
 				'./src/js/core/dom/data.js',
 				'./src/js/core/dom/remove.js',
-				//'./src/js/core/dom/ajax.js',
 				'./src/js/core/dom/events.js',
 				'./src/js/core/dom/core.js',
 				'./src/js/core/dom/outro.js'
@@ -45,6 +52,43 @@ var gulp   = require('gulp'),
 			]
 		}
 	};
+
+function createFile (filename, filepath) {
+
+	var req = http.request({
+		host: 'localhost',
+		port: 5280,
+		path: filepath,
+		method: 'GET',
+		headers: {
+			'Content-Type': 'text/html'
+		}
+	}, function (res) {
+
+		res.setEncoding('utf8');
+
+		var data = [];
+
+		res.on('data', function (chunk) {
+			data.push(chunk);
+		});
+
+		res.on('end', function () {
+			fs.writeFileSync('./docs/' + filename + '.html', data.join(''));
+		});
+	});
+
+	req.end();
+}
+
+gulp.task('static-site', function () {
+
+	var docs = paths.docs, file;
+
+	for (file in docs) {
+		createFile(file, docs[file]);
+	}
+});
 
 gulp.task('build-core', function () {
 

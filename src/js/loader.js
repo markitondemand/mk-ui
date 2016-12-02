@@ -1,19 +1,19 @@
 /*
 	<depedency:Core>
-		<src>dist/js/core.js</src>
-		<docs>/</docs>
+		<src>/dist/js/core.js</src>
+		<docs>./</docs>
 	</depedency:Core>
 	<file:js>
-		<src>dist/js/loader.js</src>
+		<src>/dist/js/loader.js</src>
 	</file:js>
 	<file:css>
-		<src>dist/css/loader.css</src>
+		<src>/dist/css/loader.css</src>
 	</file:css>
 	<file:less>
-		<src>dist/less/loader.less</src>
+		<src>/dist/less/loader.less</src>
 	</file:less>
 	<file:scss>
-		<src>dist/scss/loader.scss</src>
+		<src>/dist/scss/loader.scss</src>
 	</file:scss>
 	<event:show>
 		<desc>Fires when the loader is shown.</desc>

@@ -1,19 +1,19 @@
 /*
 	<depedency:Core>
-		<src>dist/js/core.js</src>
-		<docs>/</docs>
+		<src>/dist/js/core.js</src>
+		<docs>./</docs>
 	</depedency:Core>
 	<file:js>
-		<src>dist/js/selectmenu.js</src>
+		<src>/dist/js/selectmenu.js</src>
 	</file:js>
 	<file:css>
-		<src>dist/css/selectmenu.css</src>
+		<src>/dist/css/selectmenu.css</src>
 	</file:css>
 	<file:less>
-		<src>dist/less/selectmenu.less</src>
+		<src>/dist/less/selectmenu.less</src>
 	</file:less>
 	<file:scss>
-		<src>dist/scss/selectmenu.scss</src>
+		<src>/dist/scss/selectmenu.scss</src>
 	</file:scss>
 	<event:change>
 		<desc>Fires when selectmenu value changes.</desc>

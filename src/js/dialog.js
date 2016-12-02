@@ -1,24 +1,23 @@
 /*
 	<depedency:Core>
-		<src>dist/js/core.js</src>
-		<docs>/</docs>
+		<src>/dist/js/core.js</src>
+		<docs>./</docs>
 	</depedency:Core>
 	<depedency:Tooltip>
-		<src>dist/js/tooltip.js</src>
-		<docs>/tooltip</docs>
+		<src>/dist/js/tooltip.js</src>
+		<docs>./tooltip.html</docs>
 	</depedency:Tooltip>
-
 	<file:js>
-		<src>dist/js/dialog.js</src>
+		<src>/dist/js/dialog.js</src>
 	</file:js>
 	<file:css>
-		<src>dist/css/dialog.css</src>
+		<src>/dist/css/dialog.css</src>
 	</file:css>
 	<file:less>
-		<src>dist/less/dialog.less</src>
+		<src>/dist/less/dialog.less</src>
 	</file:less>
 	<file:scss>
-		<src>dist/scss/dialog.scss</src>
+		<src>/dist/scss/dialog.scss</src>
 	</file:scss>
 
 	<event:show>

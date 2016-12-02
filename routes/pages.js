@@ -16,7 +16,7 @@ module.exports = function ( express, app ) {
       });
   });
 
-  app.get('/loader', function (req, res) {
+  app.get('/loader.html', function (req, res) {
 
       docBuilder.parse('js/loader.js', function (data) {
           data.title = 'Loader [ld]';
@@ -24,7 +24,7 @@ module.exports = function ( express, app ) {
       });
   });
 
-  app.get('/selectmenu', function (req, res) {
+  app.get('/selectmenu.html', function (req, res) {
 
     docBuilder.parse('js/selectmenu.js', function (data) {
         data.title = 'Selectmenu [sm]';
@@ -32,7 +32,7 @@ module.exports = function ( express, app ) {
     });
   });
 
-  app.get('/autocomplete', function (req, res) {
+  app.get('/autocomplete.html', function (req, res) {
 
     docBuilder.parse('js/autocomplete.js', function (data) {
         data.title = 'Autocomplete [ac]';
@@ -40,7 +40,7 @@ module.exports = function ( express, app ) {
     });
   });
 
-  app.get('/tooltip', function (req, res) {
+  app.get('/tooltip.html', function (req, res) {
 
     docBuilder.parse('js/tooltip.js', function (data) {
         data.title = 'Tooltip [tt]';
@@ -48,30 +48,12 @@ module.exports = function ( express, app ) {
     });
   });
 
-  app.get('/dialog', function (req, res) {
+  app.get('/dialog.html', function (req, res) {
 
       docBuilder.parse('js/dialog.js', function (data) {
           data.title = 'Dialog [dg]';
           res.render('dialog', data);
       });
-  });
-
-  // testing ajax functionality
-
-  app.get('/ajax', function (req, res) {
-      res.write(JSON.stringify({
-          "status": 200,
-          "message": "successful GET"
-      }));
-      res.end();
-  });
-
-  app.post('/ajax', function (req, res) {
-     res.write(JSON.stringify({
-         "status": 200,
-         "message": "successful POST"
-     }));
-     res.end();
   });
 
 };

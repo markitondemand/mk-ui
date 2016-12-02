@@ -1,0 +1,152 @@
+<!DOCTYPE html><html><head><title>Mk[ui]</title><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" type="text/css" href="/docs/assets/css/bootstrap.css"><link rel="stylesheet" type="text/css" href="/docs/assets/css/prism.css"><link rel="stylesheet" type="text/css" href="/docs/assets/css/theme.css"></head><body><header><nav class="navbar navbar-default navbar-theme"><div class="navbar-header"><div class="navbar-brand clearfix"><img class="navbar-logo" src="/docs/assets/images/logo.png"><span class="navbar-details"><span class="navbar-title">/Core</span><span class="navbar-quote">A Flexible UI Built on Accessibility</span></span></div></div><ul class="nav navbar-top"><li class="active"><a target="_blank" href="http://codepen.io/micha3ldavid/post/mk-ui">Codepen</a></li><li><a target="_blank" href="https://github.com/micha3ldavid/mk-ui">Github</a></li></ul></nav></header><div class="subheader"><ul class="list-unstyled row"><li class="col-sm-3"><div class="component-card color-sm"><h2>[sm]</h2><h3>Selectmenu</h3><h4>First Class Component</h4><a href="./selectmenu.html" title="view selectmenu documentation"></a></div></li><li class="col-sm-3"><div class="component-card color-tt"><h2>[tt]</h2><h3>Tooltip</h3><h4>First Class Component</h4><a href="./tooltip.html" title="view tooltip documentation"></a></div></li><li class="col-sm-3"><div class="component-card color-ld"><h2>[ld]</h2><h3>Loader</h3><h4>First Class Component</h4><a href="./loader.html" title="view loader documentation"></a></div></li></ul></div><main class="container"><div class="row"><div class="col-sm-9"><div class="row"><div class="col-sm-6"><h2>Assets</h2><table class="table"><thead><tr><th>Type</th><th>File</th></tr></thead><tbody><tr><td>js</td><td>dist/js/core.js</td></tr></tbody></table></div></div><h2>What is Mk[ui] ?</h2><p>Mk[ui] is a flexible ES5 library build with WCAG 2.0 accessiblity, mobility, and responsive design at the forefront.
+All of our components follow the W3 guidlines on accessibility. We also accurately mimic native browser controls for the best user experience possible.
+With mobile, we degrate to triggering device controls when applicable, again, for the best user experience possible.
+All components support AMD module loading, play nicely with frameoworks like Angular, and insert DOM nodes into descrete "root" elements for compatibility with frameworks like React and the Virtual DOM.
+All components advocate HTML5, CSS3, and come with both LESS and SASS alternatives depending on what you need for your project.</p><p>At the base, each components inherits from Core, which is basically just an abstract object bundled with a bunch of goodies.
+Components derived directly from core are called 1st Class components.
+Components derived from 1st Class components are called 2nd Class components. And so on.
+Below we outline the different features of Core available to you, whether using an existing component or building your own.</p><h3>Create</h3><p>Want to create your own Mk objects? Use Mk.create for that. Create takes up to three arguments: a name, a base class (optional), and a prototype.
+Note that as of now, the base class must always be derived from Mk. We may change this later.</p><pre><code class="language-javascript">//
+// create a first class object (inherits from Mk Core)
+// namespaced as myClient.myObject.
+var myObject = Mk.create("myClient.myObject", {
+	...prototype goes here...
+});
+//
+// create a second class object derived from Selectmenu.
+var myObject = Mk.create("myClient.myObject", Mk.Selectmenu, {
+	...prototype goes here...
+});</code></pre><h3>Define</h3><p>We can also store random data within Mk using the *define* method.
+When using create, define is called internally, storing the object as the *name* argument.</p><pre><code class="language-javascript">// store this random array of data
+Mk.define("myClient.availableStates", [
+	"Colorado",
+	"California",
+	"New York",
+	"Washington"
+]);</code></pre><h3>Get</h3><p>Using the code in the Create section above we can also retrieve our components with the *get* method.
+This is a safer way to retrieve our objects rather than raw object pointing.</p><pre><code class="language-javascript">// get the selectmenu object
+var Selectmenu = Mk.get("Selectmenu");
+//
+// get the myClient.myObject object
+var myObject = Mk.get("myClient.myObject");
+//
+// get the myClient.availableStates object
+var states = Mk.get("myClient.availableStates");</code></pre><h3>Type Checking</h3><p>Type checking is pretty important in JavaScript and unfortunately the typeof function doesn't really provide us with a great deal of awesome.
+Fortunately we've created a light-weight addition to type checking accessibly on Mk as a static member. All types typeof uses are still available through the use of Mk.type.</p><pre><code class="language-javascript">//
+// checks for type array
+Mk.type(o, "array")
+//
+// checks for type array-like
+// this could be an array, jQuery, html collection, arguments, etc.
+Mk.type(o, "arraylike");
+//
+// checks for truthy/falsey
+Mk.type(o, "empty");
+//
+// check for null
+Mk.type(o, "null");
+//
+// check for a date object
+Mk.type(o, "date");
+//
+// checks for type nodelist
+Mk.type(o, "nodelist")
+//
+// checks for type node
+Mk.type(o, "node");
+//
+// checks for type window
+Mk.type(o, "window");
+//
+// check if o is a function but NOT a classlike object.
+Mk.type(o, "function");
+//
+// check if o is a classlike object
+Mk.type(o, "classlike");
+//
+// check if o is an instance of an object
+Mk.type(o, "instance");
+//
+// check if o is a descriptor (see Object.defineProperty)
+Mk.type(o, "descriptor");</code></pre><p>You can also combine types with a pipe.</p><pre><code class="language-javascript">Mk.type(o, "string|number|undefined|arraylike|classlike");</code></pre><h3>Template System</h3><p>Mk[ui] comes with a light-weight templating system similar to handlebars.
+The template system is accessed with methods like template(), format(), and html() on the prototype of Core.
+You can also access the templating system yourself as it lives as a static property on Mk (Mk.fn.template).
+You may pass in template string directly or pass in reference keys while keeping the actual define templates in an organized place (templates and formats property on the Core prototype for instance).
+Below is a list of the Template Engine features and how to use them.</p><h4>Template Keys</h4><p>Every template has a key accessible with $key. For instance, if you're using the Selectmenu, the key is mk-sm which gets prepended to all of the element class names.</p><pre><code class="language-html">&lt;div class="{{$key}}-shadow"&gt;</code></pre><h4>Accessing Data</h4><p>To access template data, use double curly braces to tell the template engine the data point you'd like to access based off of it's current scope.</p><pre><code class="language-html">&lt;div&gt;{{datapoint}}&lt;/div&gt;</code></pre><h4>Changing Scope</h4><p>It's more than likely your data will have multi-dimentions. You can access "deep" objects with the scope keyword.
+For instance, let's say our data object has a property called list, which has a property called items we want to access.</p><pre><code class="language-html">{{scope:list}}
+	&lt;div&gt;{{items}}&lt;/div&gt;
+{{/scope:list}}</code></pre><h4>Nesting Templates</h4><p>You can call templates within templates like the below.
+If you reference a template that does not exists, no markup will be generated.
+To reference templates accurately, make sure it exists in the template object you pass to the parser.</p><pre><code class="language-html">&lt;div class="{{$key}}-shadow"&gt;
+	{{template:my-template-name}}
+&lt;/div&gt;</code></pre><h4>Looping</h4><p>The best part of templating by far. You can loop objects, arra-like object, and even a simple integer.
+No matter how you loop, you'll have access to a secret data point called $index which represents the iteration count.
+When looping arrays, each iteration will change the scope of the data to that data set.</p><pre><code class="language-html">{{loop:options}}
+	&lt;option data-number="{{$index}}" value="{{value}}"&gt;{{label}}&lt;/option&gt;
+{{/loop:options}}</code></pre><p>Looping an object will give you key, value pairs.
+If you loop an array who's items are NOT objects/arrays, you'll also be given a key, value pair object.
+For instance, you loop [1,2,3,4,5] your value will be the integer and key will be empty.</p><pre><code class="language-html">{{loop:myObject}}
+	&lt;option data-number="{{$index}}" value="{{value}}"&gt;{{key}}&lt;/option&gt;
+{{/loop:myObject}}</code></pre><p>You can also loop a number, which keeps the same data context running a standard for loop on the size of the number provided.
+This is really handy for presentational UI elements.</p><pre><code class="language-html">{{loop:10}}
+	&lt;option value="{{$index}}"&gt;Options Number {{$index}}&lt;/option&gt;
+{{/loop:10}}</code></pre><h4>If Statements</h4><p>Mk Templating Engine if statements are basic. Basically they only interpret truthy/falsey statements.
+So no, no crazy logic is supported here. The only exception to the truthy/falsey is the value 0.
+Mk does not consider 0 to be falsey and will evaluate it as truthy.
+Null, undefined, empty string, and false will all evaluate to falsey.</p><pre><code class="language-html">{{loop:options}}
+	&lt;option data-number="{{$index}}" value="{{value}}"&gt;
+		{{label}}
+		{{if:description}}
+			&lt;span class="{{$key}}-description"&gt;{{description}}&lt;/span&gt;
+		{{/if:description}}
+	&lt;/option&gt;
+{{/loop:options}}</code></pre><h3>Super Functions &amp; Inheritance</h3><p>JavaScript is a bit restrictive when it comes to inheritance. Thankfully with ES5 we have a ton of new features that allowed us to create Super Functions.
+All component methods are passed through a property scrubber, which supports property descriptors and sets up a call-stack to track the chain of invoked methods.
+When taking advantage of the Mk inheritance, each time a method is invoked, that method has access to a 'super' property on each Mk instance.
+The super property is firstly a property getter, which will return you the super class method of the same named method.
+You may then invoke that super method, which calls the function is proper context. Super invoking is recursive, so it's possible to continue calling super functions all the way down to the base object (Core).
+Since we've provided access to the Mk inheritance as static methods on the Mk object, you can take advantage of using the Mk inheritance on existing object or when creating your own objects.</p><pre><code class="language-javascript">var myObject = Mk.create('MyObject', {
+	_init: function (root, config) {
+		//we inherited from Mk so call the superclass _init method
+		this.super(root, config);
+	}
+});
+//
+//copy an entire object of members
+//this will accurately set existing property descriptors,
+//setup super functions, and create new property descriptors using the Mk.property method below.
+Mk.inherit(myObject.prototype, objectToInheritFrom);
+//
+//set a new function onto the myobject prototype
+Mk.property(myObject.prototype, 'newMethod', function () {
+	//do stuff...
+});
+//
+//set a property descriptor getter only
+Mk.property(myObject.prototype, 'newProperty', {
+	configurable: true,
+	enumberable: true,
+	get: function () {
+		return this.newMethod();
+	},
+	set: null
+});</code></pre><h3>Animation &amp; Transition Effects</h3><p>Animations are taken care of with CSS3 but the JavaScript end does contain animation event handlers to invoke perticular behaviors when elements have completed animations.
+You also have control over turning animations on or off through the JavaScript Mk API.</p><pre><code class="language-javascript">// enable transitions
+Mk.transitions.enable();
+//
+// disable transitions
+Mk.transitions.disable();
+//
+// get the transition event name
+Mk.transitions.key;
+//
+// booleans representing transitions enabled
+Mk.transitions.enabled;
+//
+// booleans representing transitions disabled
+Mk.transitions.disabled;</code></pre><h3>Event Emitters</h3><p>With Mk 2.0 you no longer hook into behaviors through DOM events. We now use an event emitter to call custom functionality.
+This has a few benefits. First, DOM event listeners are kept at a minimum.
+Second, we can add hooks to just about every behavior possibly, making our components extremely flexible and versitile.
+Events are specific to each component, so there will be no example here but know that each component built with Mk has an on(), one(), off(), and emit() method used for event hooks.</p></div></div><h2>API</h2><p>Below are the different public properties and methods accessible to you, the end developer.
+All of these are accessible on your Core instance as well as inside event handlers bound to your instance.
+Some methods have intentionally been left out due to their difficulty tof use for end developers vs. internal use.</p><div class="row"><div class="col-sm-6"><h3>Methods</h3><ul class="list-unstyled list-methods"><li><h4><em>instance</em><span>.$(selector, context)</span></h4><p>Custom Mk DOM manipulation wrapper. Think minimalistic jQuery.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>selector</dd></dl><dl><dt>Type</dt><dd>Mixed - String/Node/NodeList/Wrapper</dd></dl><dl><dt>Description</dt><dd>A selector, Node, NodeList, or wrapped ($) node.</dd></dl></li><li><dl><dt>Name</dt><dd>context</dd></dl><dl><dt>Type</dt><dd>Mixed - String/Node/Wrapper</dd></dl><dl><dt>Description</dt><dd>A parent selector, node, or wrapped ($) node.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.uid()</span></h4><p>Generates a unique id.</p><ul class="list-unstyled list-params"><li><strong>No params required.</strong></li></ul></li><li><h4><em>instance</em><span>.template(name, data)</span></h4><p>Invokes the Template Engine using the configured tempates and returns parse string.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>name</dd></dl><dl><dt>Type</dt><dd>String</dd></dl><dl><dt>Description</dt><dd>Name of the template.</dd></dl></li><li><dl><dt>Name</dt><dd>data</dd></dl><dl><dt>Type</dt><dd>Object</dd></dl><dl><dt>Description</dt><dd>Data Object given to template parser.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.format(name, data)</span></h4><p>Invokes the Template Engine using the configured formats and returns parse string.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>name</dd></dl><dl><dt>Type</dt><dd>String</dd></dl><dl><dt>Description</dt><dd>Name of the format.</dd></dl></li><li><dl><dt>Name</dt><dd>data</dd></dl><dl><dt>Type</dt><dd>Object</dd></dl><dl><dt>Description</dt><dd>Data Object given to format parser.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.html(template, data)</span></h4><p>Invokes the Template Engine using the configured templates and returns a wrapped ($) Node/DocumentFragment.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>name</dd></dl><dl><dt>Type</dt><dd>String</dd></dl><dl><dt>Description</dt><dd>Name of the template.</dd></dl></li><li><dl><dt>Name</dt><dd>data</dd></dl><dl><dt>Type</dt><dd>Object</dd></dl><dl><dt>Description</dt><dd>Data Object given to template parser.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.each(who, fn)</span></h4><p>Loops objects and array-like objects running a function on each iteration. Return false to break loop. Return -1 to splice/delete item from object.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>who</dd></dl><dl><dt>Type</dt><dd>Mixed</dd></dl><dl><dt>Description</dt><dd>Object or Array-like object to iterate over.</dd></dl></li><li><dl><dt>Name</dt><dd>fn</dd></dl><dl><dt>Type</dt><dd>Function</dd></dl><dl><dt>Description</dt><dd>Callback function run on each iteration.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.first(who, fn)</span></h4><p>Loops objects and array-like objects running a function on each iteration. The first value to be returned will stop loop and assign from callback.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>who</dd></dl><dl><dt>Type</dt><dd>Mixed</dd></dl><dl><dt>Description</dt><dd>Object or Array-like object to iterate over.</dd></dl></li><li><dl><dt>Name</dt><dd>fn</dd></dl><dl><dt>Type</dt><dd>Function</dd></dl><dl><dt>Description</dt><dd>Callback function run on each iteration.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.map(who, fn)</span></h4><p>Loop objects and array-like objects and return a value on each iteraction to be 'mapped' to a new object (like Array's map). Return nothing, or undefined, to exclude adding anything for that iteration.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>who</dd></dl><dl><dt>Type</dt><dd>Mixed</dd></dl><dl><dt>Description</dt><dd>Object or Array-like object to iterate over.</dd></dl></li><li><dl><dt>Name</dt><dd>fn</dd></dl><dl><dt>Type</dt><dd>Function</dd></dl><dl><dt>Description</dt><dd>Callback function run on each iteration.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.filter(who, fn)</span></h4><p>Loop objects and array-like objects and return true or false to specify whether to filter the element out of the new return object. (like Array's filter).</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>who</dd></dl><dl><dt>Type</dt><dd>Mixed</dd></dl><dl><dt>Description</dt><dd>Object or Array-like object to iterate over.</dd></dl></li><li><dl><dt>Name</dt><dd>fn</dd></dl><dl><dt>Type</dt><dd>Function</dd></dl><dl><dt>Description</dt><dd>Callback function run on each iteration.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.node(selector[, context])</span></h4><p>Shadow nodes created by Mk components have prefixed names. This method runs your selector through the prefixed name and root context to easily find your element.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>selector</dd></dl><dl><dt>Type</dt><dd>String</dd></dl><dl><dt>Description</dt><dd>A selector to be run through the selector() prefixer.</dd></dl></li><li><dl><dt>Name</dt><dd>context</dd></dl><dl><dt>Type</dt><dd>Mixed</dd></dl><dl><dt>Description</dt><dd>Selector/Node/Wrapped ($) Node to be used as context element. Default is root.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.selector(name)</span></h4><p>Takes a base string selector (ie: 'list') and returns the component's true selector (ie: mk-core-list).</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>key</dd></dl><dl><dt>Type</dt><dd>String</dd></dl><dl><dt>Description</dt><dd>A selector to be prefixed with component naming.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.transition(node, handler)</span></h4><p>Binds transition event to a node(s). If transitions are disabled, or not supported, handler is executed in setTimeout (1 millisecond).</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>node</dd></dl><dl><dt>Type</dt><dd>Mixed</dd></dl><dl><dt>Description</dt><dd>A Selector/Node/Wrapped ($) Node to bind transition event handler on.</dd></dl></li><li><dl><dt>Name</dt><dd>handler</dd></dl><dl><dt>Type</dt><dd>Function</dd></dl><dl><dt>Description</dt><dd>Event handler to be bound.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.clearTransitions(node)</span></h4><p>Clear transition handlers on node.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>node</dd></dl><dl><dt>Type</dt><dd>Mixed</dd></dl><dl><dt>Description</dt><dd>A Selector/Node/Wrapped ($) Node to bind transition event handler on.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.delay(fn[, milliseconds])</span></h4><p>Runs a timer on invoking a function. Useful for rendering race conditions and transition effects. For rendering race conditions, no milliseconds are necessary as the default (1) handles that.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>fn</dd></dl><dl><dt>Type</dt><dd>Function</dd></dl><dl><dt>Description</dt><dd>Function to be invoked when delay ends.</dd></dl></li><li><dl><dt>Name</dt><dd>milliseconds</dd></dl><dl><dt>Type</dt><dd>Number</dd></dl><dl><dt>Description</dt><dd>Number of milliseconds for the timer. Default is 1.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.on(event, handler)</span></h4><p>Binds a handler to an event type through the Event Emitter. Allows for namespaced events.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>event</dd></dl><dl><dt>Type</dt><dd>String</dd></dl><dl><dt>Description</dt><dd>Event type</dd></dl></li><li><dl><dt>Name</dt><dd>handler</dd></dl><dl><dt>Type</dt><dd>Function</dd></dl><dl><dt>Description</dt><dd>Handler to invoke when event type has been emit.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.one(event, handler)</span></h4><p>Binds a handler to an event type through the Event Emitter. Once fired, an event bound through one() will be removed. Allows for namespaced events.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>event</dd></dl><dl><dt>Type</dt><dd>String</dd></dl><dl><dt>Description</dt><dd>Event type</dd></dl></li><li><dl><dt>Name</dt><dd>handler</dd></dl><dl><dt>Type</dt><dd>Function</dd></dl><dl><dt>Description</dt><dd>Handler to invoke when event type has been emit.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.off(event[, handler])</span></h4><p>Removes a handler (or all handlers) from an event type.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>event</dd></dl><dl><dt>Type</dt><dd>String</dd></dl><dl><dt>Description</dt><dd>Event type</dd></dl></li><li><dl><dt>Name</dt><dd>handler</dd></dl><dl><dt>Type</dt><dd>Function</dd></dl><dl><dt>Description</dt><dd>Optional handler to remove. Defaults to remove all handlers for event type.</dd></dl></li></ul></li><li><h4><em>instance</em><span>.emit(event[, argument1, arguments2, ...])</span></h4><p>Invokes handler(s) bound to event type.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>event</dd></dl><dl><dt>Type</dt><dd>String</dd></dl><dl><dt>Description</dt><dd>Event type</dd></dl></li><li><dl><dt>Name</dt><dd>arguments</dd></dl><dl><dt>Type</dt><dd>Mixed</dd></dl><dl><dt>Description</dt><dd>Any other arguments passed through emit will be applied to the handlers invoked on the event.</dd></dl></li></ul></li><li><h4><em>instance</em><span>._init(root[, config])</span></h4><p>Internal, private, method used as a contructor. Useful when building your own custom components. Invoked internally only.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>root</dd></dl><dl><dt>Type</dt><dd>Mixed</dd></dl><dl><dt>Description</dt><dd>A Selector/Node/Wrapped ($) Node set to be the root.</dd></dl></li><li><dl><dt>Name</dt><dd>config</dd></dl><dl><dt>Type</dt><dd>Object</dd></dl><dl><dt>Description</dt><dd>Configuration object passed into an instance as settings.</dd></dl></li></ul></li><li><h4><em>instance</em><span>._define(root[, config])</span></h4><p>A setup function called by _init. This initializes the root, events, config object, formats, templates, etc. Invoked internally only.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>root</dd></dl><dl><dt>Type</dt><dd>Mixed</dd></dl><dl><dt>Description</dt><dd>A Selector/Node/Wrapped ($) Node set to be the root.</dd></dl></li><li><dl><dt>Name</dt><dd>config</dd></dl><dl><dt>Type</dt><dd>Object</dd></dl><dl><dt>Description</dt><dd>Configuration object passed into an instance as settings.</dd></dl></li></ul></li><li><h4><em>instance</em><span>._config(object)</span></h4><p>Internal method, invoked by _init, responsible for setting object properties onto the internal configuration object.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>object</dd></dl><dl><dt>Type</dt><dd>Object</dd></dl><dl><dt>Description</dt><dd>An object of end developer settings passed in and added to the config property.</dd></dl></li></ul></li><li><h4><em>instance</em><span>._param(name, type, config, default[, node])</span></h4><p>Runs logic to find a configuration setting. It will first look to see if the value lives on config already. If not, it will check for the value on the node (or root if no node is specified). Lastly, it will type case the value based on the type specified. The final result will be set on the config object passed in.</p><h5>Parameters</h5><ul class="list-unstyled list-params"><li><dl><dt>Name</dt><dd>name</dd></dl><dl><dt>Type</dt><dd>String</dd></dl><dl><dt>Description</dt><dd>Name of config property.</dd></dl></li><li><dl><dt>Name</dt><dd>type</dd></dl><dl><dt>Type</dt><dd>String</dd></dl><dl><dt>Description</dt><dd>Type to case value to.</dd></dl></li><li><dl><dt>Name</dt><dd>config</dd></dl><dl><dt>Type</dt><dd>Object</dd></dl><dl><dt>Description</dt><dd>Object to set result value on.</dd></dl></li><li><dl><dt>Name</dt><dd>default</dd></dl><dl><dt>Type</dt><dd>Mixed</dd></dl><dl><dt>Description</dt><dd>Default value to set if no value is found through all other means.</dd></dl></li><li><dl><dt>Name</dt><dd>node</dd></dl><dl><dt>Type</dt><dd>Wrapped Node ($)</dd></dl><dl><dt>Description</dt><dd>Optional Node to search for configurations on. Default is root.</dd></dl></li></ul></li><li><h4><em>instance</em><span>._build()</span></h4><p>Internal Placeholder method for building the components UI. Invoked internally by _init.</p><ul class="list-unstyled list-params"><li><strong>No params required.</strong></li></ul></li><li><h4><em>instance</em><span>._bind()</span></h4><p>Internal Placeholder method for binding the components UI events. Invoked internally by _init.</p><ul class="list-unstyled list-params"><li><strong>No params required.</strong></li></ul></li></ul></div><div class="col-sm-6"><h3>Properties</h3><ul class="list-unstyled list-property"><li><h4><em>instance.</em><span>name</span></h4><p>Unique name used for each object derived from Mk. This name will be used in templating signatures, markup, event emitters, and selectors.</p></li><li><h4><em>instance.</em><span>templates</span></h4><p>Contains default templates for generating markup. See the Templates section for more details.</p></li><li><h4><em>instance.</em><span>formats</span></h4><p>Contains default formats for text. See the Templates section for more details.</p></li><li><h4><em>instance.</em><span>config</span></h4><p>Configuration object of settings built of attributes and parameters passed into each instance.</p></li><li><h4><em>instance.</em><span>events</span></h4><p>Event Emitter handlers are stored here.</p></li><li><h4><em>instance.</em><span>root</span></h4><p>The root elements passed in as the first parameter to each instance of an Mk object.</p></li><li><h4><em>instance.</em><span>deviceExp</span></h4><p>Expression used to check the user agent for device patterns.</p></li><li><h4><em>instance.</em><span>super</span></h4><p>The super is a property as well as a function. It is dynamic in that it will return you the same super method as derived method you are invoking, but in correct context. Super is also recursive and can be chained down until you reach the Core object, Mk.</p></li><li><h4><em>instance.</em><span>keycode</span></h4><p>Object containing friendly named keycodes for keyboard events.</p></li><li><h4><em>instance.</em><span>transitions</span></h4><p>Boolean representing if transitions are turned on or not.</p></li><li><h4><em>instance.</em><span>version</span></h4><p>Current version.</p></li><li><h4><em>instance.</em><span>element</span></h4><p>The root as a raw Node.</p></li><li><h4><em>instance.</em><span>device</span></h4><p>Returns device API. See Device for more details.</p></li><li><h4><em>instance.</em><span>devicekey</span></h4><p>Key pulled from user agent for general device name checking (iphone, android, ipad, etc).</p></li></ul></div></div></main><script type="text/javascript" language="javascript" src="/docs/assets/js/prism.js"></script><script type="text/javascript" language="javascript" src="/src/js/core.js"></script></body></html>

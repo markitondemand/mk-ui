@@ -41,11 +41,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .error-404 {
-	background-image: url(/app/assets/images/404.jpg);
+	background-image: url(/docs/assets/images/404.jpg);
 }
 
 .error-500 {
-	background-image: url(/app/assets/src/images/500.jpg);
+	background-image: url(/docs/assets/src/images/500.jpg);
 }
 
 .error-500 > header,
