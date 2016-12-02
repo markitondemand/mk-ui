@@ -3,8 +3,8 @@ A Flexible UI Build on Accessibility.
 
 ##### Quick Links
 
-[Live Docs and Examples](http://markitondemand.github.io/mk-ui/)
-[Mk v1.0](https://github.com/markitondemand/mk-ui/tree/version-1.0)
+View live documentation and examples [here](http://markitondemand.github.io/mk-ui/)
+View mk[ui] v1.0 [here](https://github.com/markitondemand/mk-ui/tree/version-1.0/)
 
 #### Currently Available Components
 
