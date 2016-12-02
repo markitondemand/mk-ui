@@ -6,6 +6,7 @@ var gulp   = require('gulp'),
 	concat = require('gulp-concat'),
 	http   = require('http'),
 	fs	   = require('fs'),
+
 	paths  = {
 		'docs': {
 			index: '/',

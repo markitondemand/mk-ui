@@ -1,7 +1,7 @@
 /*
 	<depedency:Core>
-		<src>dist/js/core.js</src>
-		<docs>/</docs>
+		<src>/dist/js/core.js</src>
+		<docs>../</docs>
 	</depedency:Core>
 	<file:js>
 		<src>dist/js/selectmenu.js</src>

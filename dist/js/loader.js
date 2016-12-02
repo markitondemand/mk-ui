@@ -1,7 +1,7 @@
 /*
 	<depedency:Core>
-		<src>dist/js/core.js</src>
-		<docs>/</docs>
+		<src>/dist/js/core.js</src>
+		<docs>../</docs>
 	</depedency:Core>
 	<file:js>
 		<src>dist/js/loader.js</src>
@@ -67,12 +67,20 @@
 					{{template:alert}}\
 				</div>',
 
-			overlay:
-				'<div class="{{$key}}-overlay" aria-hidden="true">\
-					{{loop:6}}\
-						<div class="disk disk-{{$index}}"></div>\
-					{{/loop:6}}\
+			overlay: '<div class="{{$key}}-overlay" aria-hidden="true"></div>',
+
+			spincycle: '<div class="spincycle-inner"></div>',
+
+			bubble:
+				'<div class="bubble-inner">\
+					<div class="bubble-1"></div>\
+					<div class="bubble-2"></div>\
 				</div>',
+
+			samsung:
+					'{{loop:6}}\
+						<div class="disk disk-{{$index}}"></div>\
+					{{/loop:6}}',
 
 			alert: '<div role="alert" class="{{$key}}-alert">{{message}}</div>',
 			focus: '<button role="presentation"></button>'
@@ -101,7 +109,30 @@
 			o = o || {};
 
 			this._param('refocus', 'boolean', o, true);
+			this._param('type', 'string', o, 'default');
+
 			this.super(o);
+		},
+
+		_buildShadow: function () {
+
+			if (!this.shadow) {
+
+				this.shadow = this.html('shadow', {
+					message: this.config.formats.message
+				}).appendTo(this.root);
+
+				var overlay = this.node('overlay', this.shadow),
+					type = this.config.type;
+
+				if (this.config.templates.hasOwnProperty(type)) {
+					overlay.append(this.html(type));
+				}
+
+				overlay.addClass(type);
+			}
+
+			return this.shadow;
 		},
 
 		/*
@@ -113,17 +144,12 @@
 
 		show: function () {
 
-			var r = this.root,
-				b = r.attr('aria-busy'),
-				o;
+			var b = this.root.attr('aria-busy'), o, s;
 
 			if (b !== 'true') {
 
-				this.shadow = this.html('shadow', {
-					message: this.config.formats.message
-				}).appendTo(r);
-
-				o = this.node('overlay', this.shadow);
+				s = this._buildShadow();
+				o = this.node('overlay', s);
 
 				if (this.transitions) {
 					o.addClass('transition');
@@ -131,7 +157,7 @@
 
 				this.delay(function () {
 					o.addClass('in');
-					r.attr('aria-busy', 'true');
+					this.root.attr('aria-busy', 'true');
 					this.emit('show');
 				});
 			}
@@ -147,18 +173,16 @@
 
 		hide: function () {
 
-			var r = this.root,
-				b = r.attr('aria-busy'),
-				o;
+			var b = this.root.attr('aria-busy'), o;
 
-			if (b === 'true') {
+			if (this.shadow && b === 'true') {
 
 				o = this.node('overlay', this.shadow);
 				o.removeClass('in');
 
 				this.transition(o, function () {
 
-					r.attr('aria-busy', 'false');
+					this.root.attr('aria-busy', 'false');
 
 					this.shadow.remove();
 					this.shadow = null;

@@ -9,11 +9,11 @@
   left: 0;
   position: absolute;
   right: 0;
+  text-align: center;
   top: 0;
   opacity: 0; }
 
 .mk-ld-overlay.transition {
-  -webkit-transition: opacity 0.5s;
   transition: opacity 0.5s; }
 
 .mk-ld-overlay.in {
@@ -30,7 +30,95 @@
   position: absolute;
   width: 1px; }
 
-.mk-ld-overlay .disk {
+.mk-ld-overlay.default:after {
+  color: #008e89;
+  font-size: 12px;
+  margin: 100px auto;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  margin-top: -6px;
+  text-indent: -9999em;
+  animation: mk-default 1.5s infinite linear;
+  transform: translateZ(0);
+  content: ""; }
+
+.mk-ld-overlay.spincycle .spincycle-inner {
+  background: linear-gradient(to right, #008e89 10%, transparent 42%);
+  text-indent: -9999em;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -25px;
+  margin-top: -25px;
+  animation: mk-spincycle 1s infinite linear;
+  transform: translateZ(0); }
+
+.mk-ld-overlay .spincycle-inner:before {
+  width: 50%;
+  height: 50%;
+  background: #008e89;
+  border-radius: 100% 0 0 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  content: ''; }
+
+.mk-ld-overlay .spincycle-inner:after {
+  background: #ffffff;
+  width: 75%;
+  height: 75%;
+  border-radius: 50%;
+  content: '';
+  margin: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0; }
+
+.mk-ld-overlay.square:after {
+  animation: mk-square 1.5s infinite ease-in-out;
+  background-color: #008e89;
+  content: "";
+  height: 50px;
+  left: 50%;
+  margin-left: -25px;
+  margin-top: -25px;
+  position: absolute;
+  top: 50%;
+  width: 50px; }
+
+.mk-ld-overlay .bubble-inner {
+  width: 50px;
+  height: 50px;
+  top: 50%;
+  left: 50%;
+  margin-left: -25px;
+  margin-top: -25px;
+  position: absolute; }
+
+.mk-ld-overlay .bubble-1,
+.mk-ld-overlay .bubble-2 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #008e89;
+  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: mk-bubble 2s infinite ease-in-out; }
+
+.mk-ld-overlay .bubble-2 {
+  animation-delay: -1s; }
+
+.mk-ld-overlay.samsung .disk {
   background: #008e89;
   border-radius: 50%;
   box-shadow: 0 0 1rem rgba(0, 0, 0, 0.15);
@@ -40,25 +128,70 @@
   top: calc(50% - 1rem);
   width: 3rem; }
 
-.mk-ld-overlay .disk-0 {
-  animation: mk-disk-0 1.5s infinite; }
+.mk-ld-overlay.samsung .disk-0 {
+  animation: mk-samsung-0 1.5s infinite; }
 
-.mk-ld-overlay .disk-1 {
-  animation: mk-disk-1 1.5s infinite; }
+.mk-ld-overlay.samsung .disk-1 {
+  animation: mk-samsung-1 1.5s infinite; }
 
-.mk-ld-overlay .disk-2 {
-  animation: mk-disk-2 1.5s infinite; }
+.mk-ld-overlay.samsung .disk-2 {
+  animation: mk-samsung-2 1.5s infinite; }
 
-.mk-ld-overlay .disk-3 {
-  animation: mk-disk-3 1.5s infinite; }
+.mk-ld-overlay.samsung .disk-3 {
+  animation: mk-samsung-3 1.5s infinite; }
 
-.mk-ld-overlay .disk-4 {
-  animation: mk-disk-4 1.5s infinite; }
+.mk-ld-overlay.samsung .disk-4 {
+  animation: mk-samsung-4 1.5s infinite; }
 
-.mk-ld-overlay .disk-5 {
-  animation: mk-disk-5 1.5s infinite; }
+.mk-ld-overlay.samsung .disk-5 {
+  animation: mk-samsung-5 1.5s infinite; }
 
-@keyframes mk-disk-0 {
+@keyframes mk-default {
+  0%, 100% {
+    box-shadow: 0 -3em 0 0.2em, 2em -2em 0 0em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 0; }
+  12.5% {
+    box-shadow: 0 -3em 0 0, 2em -2em 0 0.2em, 3em 0 0 0, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 -1em; }
+  25% {
+    box-shadow: 0 -3em 0 -0.5em, 2em -2em 0 0, 3em 0 0 0.2em, 2em 2em 0 0, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 -1em; }
+  37.5% {
+    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0em 0 0, 2em 2em 0 0.2em, 0 3em 0 0em, -2em 2em 0 -1em, -3em 0em 0 -1em, -2em -2em 0 -1em; }
+  50% {
+    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 0em, 0 3em 0 0.2em, -2em 2em 0 0, -3em 0em 0 -1em, -2em -2em 0 -1em; }
+  62.5% {
+    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 0, -2em 2em 0 0.2em, -3em 0 0 0, -2em -2em 0 -1em; }
+  75% {
+    box-shadow: 0em -3em 0 -1em, 2em -2em 0 -1em, 3em 0em 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0.2em, -2em -2em 0 0; }
+  87.5% {
+    box-shadow: 0em -3em 0 0, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0, -2em -2em 0 0.2em; } }
+
+@keyframes mk-spincycle {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg); }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg); } }
+
+@keyframes mk-bubble {
+  0%, 100% {
+    transform: scale(0);
+    -webkit-transform: scale(0); }
+  50% {
+    transform: scale(1);
+    -webkit-transform: scale(1); } }
+
+@keyframes mk-square {
+  0% {
+    transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+    -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg); }
+  50% {
+    transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+    -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg); }
+  100% {
+    transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+    -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg); } }
+
+@keyframes mk-samsung-0 {
   25% {
     transform: translateX(-1.5rem) scale(0.75); }
   50% {
@@ -68,7 +201,7 @@
   95% {
     transform: translateX(0rem) scale(1); } }
 
-@keyframes mk-disk-1 {
+@keyframes mk-samsung-1 {
   25% {
     transform: translateX(-1.5rem) scale(0.75); }
   50%, 75% {
@@ -76,19 +209,19 @@
   95% {
     transform: translateX(0rem) scale(1); } }
 
-@keyframes mk-disk-2 {
+@keyframes mk-samsung-2 {
   25%, 75% {
     transform: translateX(-1.5rem) scale(0.75); }
   95% {
     transform: translateX(0rem) scale(1); } }
 
-@keyframes mk-disk-3 {
+@keyframes mk-samsung-3 {
   25%, 75% {
     transform: translateX(1.5rem) scale(0.75); }
   95% {
     transform: translateX(0rem) scale(1); } }
 
-@keyframes mk-disk-4 {
+@keyframes mk-samsung-4 {
   25% {
     transform: translateX(1.5rem) scale(0.75); }
   50%, 75% {
@@ -96,7 +229,7 @@
   95% {
     transform: translateX(0rem) scale(1); } }
 
-@keyframes mk-disk-5 {
+@keyframes mk-samsung-5 {
   25% {
     transform: translateX(1.5rem) scale(0.75); }
   50% {

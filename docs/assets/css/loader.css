@@ -17,3 +17,19 @@
 #buttons button + button {
     margin-left: 10px;
 }
+
+#loader-types {
+    margin-top: 20px;
+}
+
+#loader-types .panel aside {
+    margin-top: 10px;
+}
+
+#square,
+#bubble,
+#samsung,
+#spincycle {
+    position:relative;
+    height: 100px;
+}

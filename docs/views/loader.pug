@@ -9,7 +9,7 @@ html
 		include ./shared/header
 		main.container
 			include ./shared/info
-			h2 Example
+			h2 Examples
 			div
 				div#content
 					ul.list-inline
@@ -38,6 +38,35 @@ html
 					button.btn.btn-secondary.unload
 						| Unload
 
+			div#loader-types.row
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title Square Loader
+							aside To get a square loader, set the 'type' config parameter to 'square' or provide it as a data-type attribute on the root.
+						div#square.panel-body
+
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title Bubble Loader
+							aside To get a bubble loader, set the 'type' config parameter to 'bubble' or provide it as a data-type attribute on the root.
+						div#bubble.panel-body
+
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title Samsung Loader
+							aside To get a samsung loader, set the 'type' config parameter to 'samsung' or provide it as a data-type attribute on the root.
+						div#samsung.panel-body
+
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title Spincycle Loader
+							aside To get a spincycle loader, set the 'type' config parameter to 'spincycle' or provide it as a data-type attribute on the root.
+						div#spincycle.panel-body
+
 			include ./shared/events
 			include ./shared/api
 		include ./shared/scripts
@@ -47,7 +76,7 @@ html
 			Mk.transitions.enable();
 
 			var Loader = Mk.get('Loader');
-			var loader = new Loader('#content');
+			var mainLoader = new Loader('#content');
 
 			Mk.$('button').on('click', function (e) {
 
@@ -55,9 +84,13 @@ html
 
 				if (Mk.$(this).hasClass('load')) {
 
-					loader.show();
+					mainLoader.show();
 					return;
 				}
+				mainLoader.hide();
+			});
 
-				loader.hide();
-			})
+			new Loader('#square', {type: 'square'}).show();
+			new Loader('#bubble', {type: 'bubble'}).show();
+			new Loader('#samsung', {type: 'samsung'}).show();
+			new Loader('#spincycle', {type: 'spincycle'}).show();

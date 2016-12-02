@@ -17,9 +17,20 @@ $mk-margin: 0.8rem;
 // loader
 // -------------------------------------------
 
-$mk-ld-transition-speed: 0.5s;
+$mk-ld-overlay-speed: 0.5s;
+$mk-ld-default-speed: 1.5s;
+$mk-ld-samsung-speed: 1.5s;
+$mk-ld-spincycle-speed: 1s;
+$mk-ld-square-speed: 1.5s;
+$mk-ld-bubble-speed: 2s;
+$mk-ld-bubble-delay: -1.0s;
+
 $mk-ld-overlay-bg: rgba(255, 255, 255, 0.7);
 $mk-ld-boxshadow-color: rgba(0, 0, 0, 0.15);
+$mk-ld-default-size: 12px;
+$mk-ld-square-size: 50px;
+$mk-ld-bubble-size: 50px;
+$mk-ld-spincycle-size: 50px;
 
 //
 // selectmenu

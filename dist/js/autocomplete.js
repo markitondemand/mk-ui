@@ -1,11 +1,11 @@
 /*
 	<depedency:Core>
 		<src>dist/js/core.js</src>
-		<docs>/</docs>
+		<docs>../</docs>
 	</depedency:Core>
 	<depedency:Selectmenu>
 		<src>dist/js/selectmenu.js</src>
-		<docs>/selectmenu</docs>
+		<docs>./docs/selectmenu.html</docs>
 	</depedency:Selectmenu>
 	<file:js>
 		<src>dist/js/autocomplete.js</src>
