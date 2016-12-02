@@ -55,6 +55,12 @@ var gulp   = require('gulp'),
 
 function createFile (filename, filepath) {
 
+	if (filename !== 'index') {
+		filename = './docs/' + filename;
+	}
+
+	filename = filename + '.html';
+
 	var req = http.request({
 		host: 'localhost',
 		port: 5280,
@@ -74,7 +80,7 @@ function createFile (filename, filepath) {
 		});
 
 		res.on('end', function () {
-			fs.writeFileSync('./docs/' + filename + '.html', data.join(''));
+			fs.writeFileSync(filename, data.join(''));
 		});
 	});
 
