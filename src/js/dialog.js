@@ -5,7 +5,7 @@
 	</depedency:Core>
 	<depedency:Tooltip>
 		<src>/dist/js/tooltip.js</src>
-		<docs>./tooltip.html</docs>
+		<docs>./docs/tooltip.html</docs>
 	</depedency:Tooltip>
 	<file:js>
 		<src>/dist/js/dialog.js</src>

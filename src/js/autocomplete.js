@@ -5,7 +5,7 @@
 	</depedency:Core>
 	<depedency:Selectmenu>
 		<src>/dist/js/selectmenu.js</src>
-		<docs>./selectmenu.html</docs>
+		<docs>./docs/selectmenu.html</docs>
 	</depedency:Selectmenu>
 	<file:js>
 		<src>/dist/js/autocomplete.js</src>

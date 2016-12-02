@@ -16,7 +16,7 @@ module.exports = function ( express, app ) {
       });
   });
 
-  app.get('/loader.html', function (req, res) {
+  app.get('/docs/loader.html', function (req, res) {
 
       docBuilder.parse('js/loader.js', function (data) {
           data.title = 'Loader [ld]';
@@ -24,7 +24,7 @@ module.exports = function ( express, app ) {
       });
   });
 
-  app.get('/selectmenu.html', function (req, res) {
+  app.get('/docs/selectmenu.html', function (req, res) {
 
     docBuilder.parse('js/selectmenu.js', function (data) {
         data.title = 'Selectmenu [sm]';
@@ -32,7 +32,7 @@ module.exports = function ( express, app ) {
     });
   });
 
-  app.get('/autocomplete.html', function (req, res) {
+  app.get('/docs/autocomplete.html', function (req, res) {
 
     docBuilder.parse('js/autocomplete.js', function (data) {
         data.title = 'Autocomplete [ac]';
@@ -40,7 +40,7 @@ module.exports = function ( express, app ) {
     });
   });
 
-  app.get('/tooltip.html', function (req, res) {
+  app.get('/docs/tooltip.html', function (req, res) {
 
     docBuilder.parse('js/tooltip.js', function (data) {
         data.title = 'Tooltip [tt]';
@@ -48,7 +48,7 @@ module.exports = function ( express, app ) {
     });
   });
 
-  app.get('/dialog.html', function (req, res) {
+  app.get('/docs/dialog.html', function (req, res) {
 
       docBuilder.parse('js/dialog.js', function (data) {
           data.title = 'Dialog [dg]';
