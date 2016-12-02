@@ -1,8 +1,10 @@
 # Mk[ui] v2.0
-
 A Flexible UI Build on Accessibility.
 
-*For Mk[ui] v1.0 visit [this](https://github.com/markitondemand/mk-ui/tree/version-1.0) branch*
+##### Quick Links
+
+[Live Docs and Examples](http://markitondemand.github.io/mk-ui/)
+[Mk v1.0](https://github.com/markitondemand/mk-ui/tree/version-1.0)
 
 #### Currently Available Components
 
@@ -11,7 +13,7 @@ A Flexible UI Build on Accessibility.
 3. Tooltip
 4. Loader
 
-*Coming Soon*
+*Available Soon*
 
 1. Autocomplete
 2. Dialog
