@@ -2,7 +2,7 @@
 A Flexible UI Build on Accessibility.
 
 #### Live Docs & Examples
-Check out our live documentation and example of each availble component on our [GitHub Pages](http://markitondemand.github.io/mk-ui/).
+Check out our live documentation and example of each available component on our [GitHub Pages](http://markitondemand.github.io/mk-ui/).
 
 #### Mk[ui] v1.0
 Using an older version of Mk[ui]? Get access to the old repository [here](https://github.com/markitondemand/mk-ui/tree/version-1.0/).
@@ -30,7 +30,7 @@ npm install mk-ui
 
 ### Documentation
 
-Clone or Fork this repository for the most up to date documentation. Once the you have the app running, simply go to localhost:5280 to launch the docs site.
+Clone or Fork this repository for the most up to date documentation. Once the you have the app running, simply go to localhost:5280 to launch the docs site. Or just visit our [GitHub Pages](http://markitondemand.github.io/mk-ui/).
 
 ```bash
 git clone https://github.com/markitondemand/mk-ui.git mk-ui
