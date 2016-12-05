@@ -42,267 +42,319 @@
 // default loader
 // -----------------------------------------
 
-.mk-ld-overlay.default:after {
-	color: $mk-primary;
-	font-size: $mk-ld-default-size;
-	margin: 100px auto;
-	width: $mk-ld-default-size;
-	height: $mk-ld-default-size;
-	border-radius: 50%;
-	position: absolute;
-	top: 50%;
-	margin-top: (($mk-ld-default-size / 2) * -1);
-	text-indent: -9999em;
-	animation: mk-default $mk-ld-default-speed infinite linear;
-	transform: translateZ(0);
-	content: "";
+@mixin mk-ld-default () {
+
+	.mk-ld-overlay.default:after {
+		color: $mk-primary;
+		font-size: $mk-ld-default-size;
+		margin: 100px auto;
+		width: $mk-ld-default-size;
+		height: $mk-ld-default-size;
+		border-radius: 50%;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		margin-top: (($mk-ld-default-size / 2) * -1);
+		margin-left: (($mk-ld-default-size / 2) * -1);
+		text-indent: -9999em;
+		animation: mk-default $mk-ld-default-speed infinite linear;
+		transform: translateZ(0);
+		content: "";
+	}
+
+	@keyframes mk-default {
+	  0%, 100% {
+	    box-shadow: 0 -3em 0 0.2em, 2em -2em 0 0em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 0;
+	  }
+	  12.5% {
+	    box-shadow: 0 -3em 0 0, 2em -2em 0 0.2em, 3em 0 0 0, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 -1em;
+	  }
+	  25% {
+	    box-shadow: 0 -3em 0 -0.5em, 2em -2em 0 0, 3em 0 0 0.2em, 2em 2em 0 0, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 -1em;
+	  }
+	  37.5% {
+	    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0em 0 0, 2em 2em 0 0.2em, 0 3em 0 0em, -2em 2em 0 -1em, -3em 0em 0 -1em, -2em -2em 0 -1em;
+	  }
+	  50% {
+	    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 0em, 0 3em 0 0.2em, -2em 2em 0 0, -3em 0em 0 -1em, -2em -2em 0 -1em;
+	  }
+	  62.5% {
+	    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 0, -2em 2em 0 0.2em, -3em 0 0 0, -2em -2em 0 -1em;
+	  }
+	  75% {
+	    box-shadow: 0em -3em 0 -1em, 2em -2em 0 -1em, 3em 0em 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0.2em, -2em -2em 0 0;
+	  }
+	  87.5% {
+	    box-shadow: 0em -3em 0 0, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0, -2em -2em 0 0.2em;
+	  }
+	}
+}
+
+//
+// bar loader
+// -----------------------------------------
+
+@mixin mk-ld-bar () {
+
+	.mk-ld-overlay.bar .bar-inner {
+		background-color: $mk-gray-3;
+		bottom: 0;
+		height: $mk-ld-bar-size;
+		position: absolute;
+		width: 100%;
+	}
+
+	.mk-ld-overlay.bar .bar-inner .bar {
+		content: "";
+		display: inline;
+		position: absolute;
+		width: 0;
+		height: 100%;
+		left: 50%;
+		text-align: center;
+	}
+
+	.mk-ld-overlay.bar .bar-inner .bar:nth-child(1) {
+		background-color: $mk-primary;
+		animation: mk-bar $mk-ld-bar-speed linear infinite;
+	}
+
+	.mk-ld-overlay.bar .bar-inner .bar:nth-child(2) {
+		background-color: $mk-secondary;
+		animation: mk-bar $mk-ld-bar-speed linear 1s infinite;
+	}
+
+	@keyframes mk-bar {
+		from {left: 50%; width: 0; z-index:100;}
+		33.3333% {left: 0; width: 100%; z-index: 10;}
+		to {left: 0; width: 100%;}
+	}
 }
 
 //
 // spincycle loader
 // -----------------------------------------
 
+@mixin mk-ld-spincycle () {
 
-.mk-ld-overlay.spincycle .spincycle-inner {
-	background: linear-gradient(to right, $mk-primary 10%, rgba(0, 0, 0, 0) 42%);
-	text-indent: -9999em;
-	width: $mk-ld-spincycle-size;
-	height: $mk-ld-spincycle-size;
-	border-radius: 50%;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	margin-left: (($mk-ld-spincycle-size / 2) * -1);
-	margin-top: (($mk-ld-spincycle-size / 2) * -1);
-	animation: mk-spincycle $mk-ld-spincycle-speed infinite linear;
-	transform: translateZ(0);
-}
+	.mk-ld-overlay.spincycle .spincycle-inner {
+		background: linear-gradient(to right, $mk-primary 10%, rgba(0, 0, 0, 0) 42%);
+		text-indent: -9999em;
+		width: $mk-ld-spincycle-size;
+		height: $mk-ld-spincycle-size;
+		border-radius: 50%;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		margin-left: (($mk-ld-spincycle-size / 2) * -1);
+		margin-top: (($mk-ld-spincycle-size / 2) * -1);
+		animation: mk-spincycle $mk-ld-spincycle-speed infinite linear;
+		transform: translateZ(0);
+	}
 
-.mk-ld-overlay .spincycle-inner:before {
-	width: 50%;
-	height: 50%;
-	background: $mk-primary;
-	border-radius: 100% 0 0 0;
-	position: absolute;
-	top: 0;
-	left: 0;
-	content: '';
-}
+	.mk-ld-overlay .spincycle-inner:before {
+		width: 50%;
+		height: 50%;
+		background: $mk-primary;
+		border-radius: 100% 0 0 0;
+		position: absolute;
+		top: 0;
+		left: 0;
+		content: '';
+	}
 
-.mk-ld-overlay .spincycle-inner:after {
-	background: #ffffff;
-	width: 75%;
-	height: 75%;
-	border-radius: 50%;
-	content: '';
-	margin: auto;
-	position: absolute;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
+	.mk-ld-overlay .spincycle-inner:after {
+		background: #ffffff;
+		width: 75%;
+		height: 75%;
+		border-radius: 50%;
+		content: '';
+		margin: auto;
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		right: 0;
+	}
+
+	//
+	// spincycle keyframes
+	// ------------------------------------------
+
+	@keyframes mk-spincycle {
+	  0% { transform: rotate(0deg); }
+	  100% { transform: rotate(360deg); }
+	}
 }
 
 //
-// square loader
+// windows loader
 // -----------------------------------------
 
-.mk-ld-overlay.square:after {
-	animation: mk-square $mk-ld-square-speed infinite ease-in-out;
-	background-color: $mk-primary;
-	content: "";
-	height: $mk-ld-square-size;
-	left: 50%;
-	margin-left: (($mk-ld-square-size / 2) * -1);
-	margin-top: (($mk-ld-square-size / 2) * -1);
-	position: absolute;
-	top: 50%;
-	width: $mk-ld-square-size;
+@mixin mk-ld-windows () {
+
+	.mk-ld-overlay.windows:after {
+		animation: mk-windows $mk-ld-windows-speed infinite ease-in-out;
+		background-color: $mk-primary;
+		content: "";
+		height: $mk-ld-windows-size;
+		left: 50%;
+		margin-left: (($mk-ld-windows-size / 2) * -1);
+		margin-top: (($mk-ld-windows-size / 2) * -1);
+		position: absolute;
+		top: 50%;
+		width: $mk-ld-windows-size;
+	}
+
+	//
+	// windows keyframes
+	// --------------------------------------------
+
+	@keyframes mk-windows {
+	  0% {
+	    transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+	    -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+	  } 50% {
+	    transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+	    -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+		background: darken($mk-primary, 10%);
+	  } 100% {
+	    transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+	    -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+
+	  }
+	}
 }
 
 //
 // bubble loader
 // ------------------------------------------
 
-.mk-ld-overlay .bubble-inner {
-	width: $mk-ld-bubble-size;
-	height: $mk-ld-bubble-size;
-	top: 50%;
-	left: 50%;
-	margin-left: (($mk-ld-bubble-size / 2) * -1);
-	margin-top: (($mk-ld-bubble-size / 2) * -1);
-	position: absolute;
-}
+@mixin mk-ld-bubble () {
 
-.mk-ld-overlay .bubble-1,
-.mk-ld-overlay .bubble-2 {
-	width: 100%;
-	height: 100%;
-	border-radius: 50%;
-	background-color: $mk-primary;
-	opacity: 0.6;
-	position: absolute;
-	top: 0;
-	left: 0;
-	animation: mk-bubble $mk-ld-bubble-speed infinite ease-in-out;
-}
+	.mk-ld-overlay .bubble-inner {
+		width: $mk-ld-bubble-size;
+		height: $mk-ld-bubble-size;
+		top: 50%;
+		left: 50%;
+		margin-left: (($mk-ld-bubble-size / 2) * -1);
+		margin-top: (($mk-ld-bubble-size / 2) * -1);
+		position: absolute;
+	}
 
-.mk-ld-overlay .bubble-2 {
-	animation-delay: $mk-ld-bubble-delay;
+	.mk-ld-overlay .bubble-1,
+	.mk-ld-overlay .bubble-2 {
+		width: 100%;
+		height: 100%;
+		border-radius: 50%;
+		background-color: $mk-primary;
+		opacity: 0.6;
+		position: absolute;
+		top: 0;
+		left: 0;
+		animation: mk-bubble $mk-ld-bubble-speed infinite ease-in-out;
+	}
+
+	.mk-ld-overlay .bubble-2 {
+		animation-delay: $mk-ld-bubble-delay;
+	}
+
+	//
+	// bubble keyframes
+	// ------------------------------------------
+
+	@keyframes mk-bubble {
+	  0%, 100% { transform: scale(0.0); }
+	  50% { transform: scale(1.0); }
+	}
 }
 
 //
 // Samsung loader
 // ----------------------------------------------
 
-.mk-ld-overlay.samsung .disk {
-	background: $mk-primary;
-	border-radius: 50%;
-	box-shadow: 0 0 1rem $mk-ld-boxshadow-color;
-	height: 3rem;
-	left: calc(50% - 1rem);
-	position: absolute;
-	top: calc(50% - 1rem);
-	width: 3rem;
+@mixin mk-ld-samsung () {
+
+	.mk-ld-overlay.samsung .disk {
+		background: $mk-primary;
+		border-radius: 50%;
+		height: 3rem;
+		left: calc(50% - 1rem);
+		position: absolute;
+		top: calc(50% - 1rem);
+		width: 3rem;
+	}
+
+	.mk-ld-overlay.samsung .disk-0 {
+	    animation: mk-samsung-0 $mk-ld-samsung-speed infinite;
+	}
+
+	.mk-ld-overlay.samsung .disk-1 {
+	    animation: mk-samsung-1 $mk-ld-samsung-speed infinite;
+	}
+
+	.mk-ld-overlay.samsung .disk-2 {
+	    animation: mk-samsung-2 $mk-ld-samsung-speed infinite;
+	}
+
+	.mk-ld-overlay.samsung .disk-3 {
+	    animation: mk-samsung-3 $mk-ld-samsung-speed infinite;
+	}
+
+	.mk-ld-overlay.samsung .disk-4 {
+	    animation: mk-samsung-4 $mk-ld-samsung-speed infinite;
+	}
+
+	.mk-ld-overlay.samsung .disk-5 {
+	    animation: mk-samsung-5 $mk-ld-samsung-speed infinite;
+	}
+
+	//
+	// samsung animation keyframes
+	// --------------------------------------------
+
+	@keyframes mk-samsung-0 {
+	    25% { transform: translateX(-1.5rem) scale(0.75); }
+	    50% { transform: translateX(-4.5rem) scale(0.6); }
+	    75% { transform: translateX(-7.5rem) scale(0.5); }
+	    95% { transform: translateX(0rem) scale(1); }
+	}
+
+	@keyframes mk-samsung-1 {
+	    25% { transform: translateX(-1.5rem) scale(0.75); }
+	    50%, 75% { transform: translateX(-4.5rem) scale(0.6) }
+	    95% { transform: translateX(0rem) scale(1); }
+	}
+
+	@keyframes mk-samsung-2 {
+	    25%, 75% { transform: translateX(-1.5rem) scale(0.75); }
+	    95% { transform: translateX(0rem) scale(1); }
+	}
+
+	@keyframes mk-samsung-3 {
+	    25%, 75% { transform: translateX(1.5rem) scale(0.75); }
+	    95% { transform: translateX(0rem) scale(1); }
+	}
+
+	@keyframes mk-samsung-4 {
+	    25% { transform: translateX(1.5rem) scale(0.75); }
+	    50%, 75% { transform: translateX(4.5rem) scale(0.6); }
+	    95% { transform: translateX(0rem) scale(1); }
+	}
+
+	@keyframes mk-samsung-5 {
+	    25% { transform: translateX(1.5rem) scale(0.75); }
+	    50% { transform: translateX(4.5rem) scale(0.6); }
+	    75% { transform: translateX(7.5rem) scale(0.5); }
+	    95% { transform: translateX(0rem) scale(1); }
+	}
 }
 
-.mk-ld-overlay.samsung .disk-0 {
-    animation: mk-samsung-0 $mk-ld-samsung-speed infinite;
-}
-
-.mk-ld-overlay.samsung .disk-1 {
-    animation: mk-samsung-1 $mk-ld-samsung-speed infinite;
-}
-
-.mk-ld-overlay.samsung .disk-2 {
-    animation: mk-samsung-2 $mk-ld-samsung-speed infinite;
-}
-
-.mk-ld-overlay.samsung .disk-3 {
-    animation: mk-samsung-3 $mk-ld-samsung-speed infinite;
-}
-
-.mk-ld-overlay.samsung .disk-4 {
-    animation: mk-samsung-4 $mk-ld-samsung-speed infinite;
-}
-
-.mk-ld-overlay.samsung .disk-5 {
-    animation: mk-samsung-5 $mk-ld-samsung-speed infinite;
-}
-
-//
-// default keyframes
-// -----------------------------------------
-
-@keyframes mk-default {
-  0%, 100% {
-    box-shadow: 0 -3em 0 0.2em, 2em -2em 0 0em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 0;
-  }
-  12.5% {
-    box-shadow: 0 -3em 0 0, 2em -2em 0 0.2em, 3em 0 0 0, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 -1em;
-  }
-  25% {
-    box-shadow: 0 -3em 0 -0.5em, 2em -2em 0 0, 3em 0 0 0.2em, 2em 2em 0 0, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 -1em;
-  }
-  37.5% {
-    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0em 0 0, 2em 2em 0 0.2em, 0 3em 0 0em, -2em 2em 0 -1em, -3em 0em 0 -1em, -2em -2em 0 -1em;
-  }
-  50% {
-    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 0em, 0 3em 0 0.2em, -2em 2em 0 0, -3em 0em 0 -1em, -2em -2em 0 -1em;
-  }
-  62.5% {
-    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 0, -2em 2em 0 0.2em, -3em 0 0 0, -2em -2em 0 -1em;
-  }
-  75% {
-    box-shadow: 0em -3em 0 -1em, 2em -2em 0 -1em, 3em 0em 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0.2em, -2em -2em 0 0;
-  }
-  87.5% {
-    box-shadow: 0em -3em 0 0, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0, -2em -2em 0 0.2em;
-  }
-}
-
-//
-// spincycle keyframes
-// ------------------------------------------
-
-@keyframes mk-spincycle {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-
-//
-// bubble keyframes
-// ------------------------------------------
-
-@keyframes mk-bubble {
-  0%, 100% {
-    transform: scale(0.0);
-    -webkit-transform: scale(0.0);
-  } 50% {
-    transform: scale(1.0);
-    -webkit-transform: scale(1.0);
-  }
-}
-
-//
-// square keyframes
-// --------------------------------------------
-
-@keyframes mk-square {
-  0% {
-    transform: perspective(120px) rotateX(0deg) rotateY(0deg);
-    -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg)
-  } 50% {
-    transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
-    -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg)
-  } 100% {
-    transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
-    -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
-  }
-}
-
-//
-// samsung animation keyframes
-// --------------------------------------------
-
-@keyframes mk-samsung-0 {
-    25% { transform: translateX(-1.5rem) scale(0.75); }
-    50% { transform: translateX(-4.5rem) scale(0.6); }
-    75% { transform: translateX(-7.5rem) scale(0.5); }
-    95% { transform: translateX(0rem) scale(1); }
-}
-
-@keyframes mk-samsung-1 {
-    25% { transform: translateX(-1.5rem) scale(0.75); }
-    50%, 75% { transform: translateX(-4.5rem) scale(0.6) }
-    95% { transform: translateX(0rem) scale(1); }
-}
-
-@keyframes mk-samsung-2 {
-    25%, 75% { transform: translateX(-1.5rem) scale(0.75); }
-    95% { transform: translateX(0rem) scale(1); }
-}
-
-@keyframes mk-samsung-3 {
-    25%, 75% { transform: translateX(1.5rem) scale(0.75); }
-    95% { transform: translateX(0rem) scale(1); }
-}
-
-@keyframes mk-samsung-4 {
-    25% { transform: translateX(1.5rem) scale(0.75); }
-    50%, 75% { transform: translateX(4.5rem) scale(0.6); }
-    95% { transform: translateX(0rem) scale(1); }
-}
-
-@keyframes mk-samsung-5 {
-    25% { transform: translateX(1.5rem) scale(0.75); }
-    50% { transform: translateX(4.5rem) scale(0.6); }
-    75% { transform: translateX(7.5rem) scale(0.5); }
-    95% { transform: translateX(0rem) scale(1); }
+@if ($mk-ld-dump) {
+	@include mk-ld-default();
+	@include mk-ld-windows();
+	@include mk-ld-samsung();
+	@include mk-ld-spincycle();
+	@include mk-ld-bubble();
+	@include mk-ld-bar();
 }

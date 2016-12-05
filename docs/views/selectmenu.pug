@@ -9,44 +9,6 @@ html
 		main.container
 			include ./shared/info
 
-			h2
-				| Setup
-			p
-				| To setup a selectmenu, all you need is a root element and a native select.
-				| See the <strong>Examples Section</strong> below for details on the different options available through html data-attributes.
-
-			pre
-				code.language-html
-					| &lt;div class="mk-sm-root"&gt;
-					|	&lt;select class="mk-sm" aria-label="My Options"&gt;
-					|		&lt;option value="1"&gt;Option One&lt;/option&gt;
-					|	&lt;/select&gt;
-					| &lt;/div&gt;
-
-			h2
-				| Instantiation
-			p
-				| Instantiating an instance of Selectmenu is easy. Just target the root element and pass in your config options if necessary.
-				| Config options are opt-in and most can be set as html data-attributes on the native select element making it easy to customize instances without passing in a config object.
-				| But in case you want to, below are all possible options available to pass in.
-				| Additionally, check out the <strong>Events Section</strong> for adding events to your instance.
-
-			pre
-				code.language-javascript
-					| var Selectmenu = Mk.get('Selectmenu');
-					| //
-					| // instantiate
-					| var mySelect = new Selectmenu('.mk-sm-root', {
-					|	multiple: true/false,
-					|	removable: true/false,
-					|	formats: {
-					|		//change any of the formats for this instance only
-					| 	},
-					|	templates: {
-					|		//change any of the templates for this instance only
-					|	}
-					| });
-
 			h2 Examples
 			div.row
 				div.col-sm-6
@@ -183,6 +145,43 @@ html
 										option(value="10") Gummy Bears
 										option(value="11") Salt Water Taffy
 										option(value="12") Chocolate
+			h2
+				| Setup
+			p
+				| To setup a selectmenu, all you need is a root element and a native select.
+				| See the <strong>Examples Section</strong> below for details on the different options available through html data-attributes.
+
+			pre
+				code.language-html
+					| &lt;div class="mk-sm-root"&gt;
+					|	&lt;select class="mk-sm" aria-label="My Options"&gt;
+					|		&lt;option value="1"&gt;Option One&lt;/option&gt;
+					|	&lt;/select&gt;
+					| &lt;/div&gt;
+
+			h2
+				| Instantiation
+			p
+				| Instantiating an instance of Selectmenu is easy. Just target the root element and pass in your config options if necessary.
+				| Config options are opt-in and most can be set as html data-attributes on the native select element making it easy to customize instances without passing in a config object.
+				| But in case you want to, below are all possible options available to pass in.
+				| Additionally, check out the <strong>Events Section</strong> for adding events to your instance.
+
+			pre
+				code.language-javascript
+					| var Selectmenu = Mk.get('Selectmenu');
+					| //
+					| // instantiate
+					| var mySelect = new Selectmenu('.mk-sm-root', {
+					|	multiple: true/false,
+					|	removable: true/false,
+					|	formats: {
+					|		//change any of the formats for this instance only
+					| 	},
+					|	templates: {
+					|		//change any of the templates for this instance only
+					|	}
+					| });
 
 			include ./shared/events
 			include ./shared/api

@@ -69,6 +69,11 @@
 
 			overlay: '<div class="{{$key}}-overlay" aria-hidden="true"></div>',
 
+			bar: '<div class="bar-inner">\
+					<div class="bar"></div>\
+					<div class="bar"></div>\
+				</div>',
+
 			spincycle: '<div class="spincycle-inner"></div>',
 
 			bubble:

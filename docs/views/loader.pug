@@ -39,11 +39,17 @@ html
 						| Unload
 
 			div#loader-types.row
+				div.col-sm-12
+					section.panel
+						header.panel-heading
+							h3.panel-title Bar Loader
+							aside To get a bar loader, set the 'type' config parameter to 'bar' or provide it as a data-type attribute on the root.
+						div#bar.panel-body
 				div.col-sm-6
 					section.panel
 						header.panel-heading
-							h3.panel-title Square Loader
-							aside To get a square loader, set the 'type' config parameter to 'square' or provide it as a data-type attribute on the root.
+							h3.panel-title Windows Loader
+							aside To get a windows style loader, set the 'type' config parameter to 'windows' or provide it as a data-type attribute on the root.
 						div#square.panel-body
 
 				div.col-sm-6
@@ -57,7 +63,7 @@ html
 					section.panel
 						header.panel-heading
 							h3.panel-title Samsung Loader
-							aside To get a samsung loader, set the 'type' config parameter to 'samsung' or provide it as a data-type attribute on the root.
+							aside To get a samsung style loader, set the 'type' config parameter to 'samsung' or provide it as a data-type attribute on the root.
 						div#samsung.panel-body
 
 				div.col-sm-6
@@ -66,6 +72,32 @@ html
 							h3.panel-title Spincycle Loader
 							aside To get a spincycle loader, set the 'type' config parameter to 'spincycle' or provide it as a data-type attribute on the root.
 						div#spincycle.panel-body
+
+			h2 Setup
+			p
+				| Setting up an instance of Loader is easy. Like all Mk components, Loader takes two arguments: a root and config options.
+				| The root for Loader is going to be a container element that houses the dynamic content waiting to be changed, or if you're using Loader for another purpose the root is where you'd like the Loader to be appended to.
+				| The settings is just a JavScript object of parameters you can pass in. Below is an example of setting up a loader and all possible configuration settings.
+			p
+				em
+					| *Loader appends a childen into your container temporarily.
+					| This may or may not mess with your React virtual DOM depending on how your app is setup.
+					| Loaders are completely removed when hide() is invoked, so in most cases Loader will not mess with virtual DOM lookups.*
+			pre
+				code.language-javascript
+					| var Loader = Mk.get('Loader');
+					| var loader = new Loader('#my-container', {
+					|	// refocus back to the top of the container after hide() is invoked.
+					|	refocus: true/false,
+					|	// specify the type of loader to render. Default is 'default'
+					|	type: 'default|samsung|windows|spincycle|bar|bubble|&lt;custom loader you create&gt;',
+					|	templates: {
+					|		.. override templates for this instance only..
+					|	},
+					|	formats: {
+					|		.. override formats for this instance only..
+					|	}
+					| });
 
 			include ./shared/events
 			include ./shared/api
@@ -90,7 +122,8 @@ html
 				mainLoader.hide();
 			});
 
-			new Loader('#square', {type: 'square'}).show();
+			new Loader('#square', {type: 'windows'}).show();
 			new Loader('#bubble', {type: 'bubble'}).show();
 			new Loader('#samsung', {type: 'samsung'}).show();
 			new Loader('#spincycle', {type: 'spincycle'}).show();
+			new Loader('#bar', {type: 'bar'}).show();

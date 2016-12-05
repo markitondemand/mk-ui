@@ -9,72 +9,6 @@ html
 		include ./shared/header
 		main.container
 			include ./shared/info
-			h2 Setup
-			p
-				| Tooltip is a component which works on delegation, which means you'll want to specify a *parent* node to work from.
-				| Yes, you can use even the body as the parent node, making adding/removing tooltips dynamic and creating the smallest number of event listeners possible.
-				| There are four ways you can set up a tooltip.
-
-			h4 As Aria-Label
-			pre
-				code.language-html
-					| &lt;button class="mk-tt" aria-label="Some text and even markup!"&gt;A Tooltip&lt;/button&gt;
-
-			h4 As Nested Element
-			pre
-				code.language-html
-					| &lt;button class="mk-tt"&gt;
-					|	&lt;span&gt;A Tooltip&lt;/span&gt;
-					|	&lt;span class="mk-tt-modal"&gt;A Tooltip Modal!&lt;/span&gt;
-					| &lt;/button&gt;
-
-			h4 As Sibling Element
-			pre
-				code.language-html
-					| &lt;div&gt;
-					| 	&lt;button class="mk-tt"&gt;
-					|		&lt;span&gt;A Tooltip&lt;/span&gt;
-					| 	&lt;/button&gt;
-					| 	&lt;div class="mk-tt-modal"&gt;A Tooltip Modal!&lt;/div&gt;
-					| &lt;/div&gt;
-
-			h4 Anywhere You Want
-			p
-				| This option requires you to 'connect' the tooltip and modal with one another manually with id and aria-describedby attributes.
-			pre
-				code.language-html
-					| &lt;!-- some part of the document --&gt;
-					| &lt;button class="mk-tt" aria-describedby="my-tooltip-modal-id"&gt;
-					|	&lt;span&gt;A Tooltip&lt;/span&gt;
-					| &lt;/button&gt;
-					| &lt;!-- some other part of the document --&gt;
-					| &lt;div id="my-tooltip-modal-id" class="mk-tt-modal"&gt;A Tooltip Modal!&lt;/div&gt;
-
-
-			h2
-				| Instantiation
-			p
-				| Remember, Tooltip works on delegation, which is different than our other components.
-				| However, instantiation is the same: the first argument being the root, the second being the config options.
-				| Config options are opt-in and since Tooltip is a delegate, you'll probably want most of your options set specifically on your tooltip elements.
-				| See the <strong>Examples Section</strong> for more of that.
-				| But in case you want to, below are all possible options available to pass in.
-				| Additionally, check out the <strong>Events Section</strong> for adding events to your instance.
-			pre
-				code.language-javascript
-					| var Tooltip = Mk.get('Tooltip');
-					| //
-					| // instantiate
-					| var myTooltip = new Tooltip('body', {
-					|	// set the default position
-					|	// see Examples for all 12 positions
-					|	position: 'top-center'
-					|	// set the delay in milliseconds for mouseover/out tooltips, if any
-					|	delay: 100,
-					|	templates: {
-					|		// change any of the templates for this instance only
-					|	}
-					| });
 
 			h2 Examples
 			p
@@ -256,14 +190,79 @@ html
 							p
 								| Tooltip Content.
 
-
-
-
 			div#example-3.mk-tt-modal
 				h4
 					| Tooltip Title
 				p
 					| Tooltip Content.
+
+			h2 Setup
+			p
+				| Tooltip is a component which works on delegation, which means you'll want to specify a *parent* node to work from.
+				| Yes, you can use even the body as the parent node, making adding/removing tooltips dynamic and creating the smallest number of event listeners possible.
+				| There are four ways you can set up a tooltip.
+
+			h4 As Aria-Label
+			pre
+				code.language-html
+					| &lt;button class="mk-tt" aria-label="Some text and even markup!"&gt;A Tooltip&lt;/button&gt;
+
+			h4 As Nested Element
+			pre
+				code.language-html
+					| &lt;button class="mk-tt"&gt;
+					|	&lt;span&gt;A Tooltip&lt;/span&gt;
+					|	&lt;span class="mk-tt-modal"&gt;A Tooltip Modal!&lt;/span&gt;
+					| &lt;/button&gt;
+
+			h4 As Sibling Element
+			pre
+				code.language-html
+					| &lt;div&gt;
+					| 	&lt;button class="mk-tt"&gt;
+					|		&lt;span&gt;A Tooltip&lt;/span&gt;
+					| 	&lt;/button&gt;
+					| 	&lt;div class="mk-tt-modal"&gt;A Tooltip Modal!&lt;/div&gt;
+					| &lt;/div&gt;
+
+			h4 Anywhere You Want
+			p
+				| This option requires you to 'connect' the tooltip and modal with one another manually with id and aria-describedby attributes.
+			pre
+				code.language-html
+					| &lt;!-- some part of the document --&gt;
+					| &lt;button class="mk-tt" aria-describedby="my-tooltip-modal-id"&gt;
+					|	&lt;span&gt;A Tooltip&lt;/span&gt;
+					| &lt;/button&gt;
+					| &lt;!-- some other part of the document --&gt;
+					| &lt;div id="my-tooltip-modal-id" class="mk-tt-modal"&gt;A Tooltip Modal!&lt;/div&gt;
+
+
+			h2
+				| Instantiation
+			p
+				| Remember, Tooltip works on delegation, which is different than our other components.
+				| However, instantiation is the same: the first argument being the root, the second being the config options.
+				| Config options are opt-in and since Tooltip is a delegate, you'll probably want most of your options set specifically on your tooltip elements.
+				| See the <strong>Examples Section</strong> for more of that.
+				| But in case you want to, below are all possible options available to pass in.
+				| Additionally, check out the <strong>Events Section</strong> for adding events to your instance.
+			pre
+				code.language-javascript
+					| var Tooltip = Mk.get('Tooltip');
+					| //
+					| // instantiate
+					| var myTooltip = new Tooltip('body', {
+					|	// set the default position
+					|	// see Examples for all 12 positions
+					|	position: 'top-center'
+					|	// set the delay in milliseconds for mouseover/out tooltips, if any
+					|	delay: 100,
+					|	templates: {
+					|		// change any of the templates for this instance only
+					|	}
+					| });
+
 
 			include ./shared/events
 			include ./shared/api

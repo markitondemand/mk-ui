@@ -29,7 +29,8 @@
 #square,
 #bubble,
 #samsung,
-#spincycle {
+#spincycle,
+#bar {
     position:relative;
     height: 100px;
 }
