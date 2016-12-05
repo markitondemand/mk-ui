@@ -1,0 +1,56 @@
+
+#example-1-trigger {
+    display: inline-block;
+    padding: 0 20px 0 5px;
+    border: 1px solid transparent;
+    border-width: 1px 1px 0;
+    position: relative;
+}
+
+#example-1-trigger:before {
+    content: "\25b4";
+    position: absolute;
+    right: 5px;
+    transform: rotate(180deg);
+    font-size: 24px;
+    line-height: 20px;
+    top: 0;
+}
+
+#example-1-trigger:after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    border-top: 1px solid #fff;
+    width: 100%;
+    left: 0;
+}
+
+#example-1-trigger.active {
+    background: #fff;
+    border-color: #999;
+    z-index: 10000;
+}
+
+#example-1 {
+    background: #fff;
+    border: 1px solid #999;
+}
+
+#example-1 p {
+    color: #333;
+    font-size: 70%;
+}
+
+#example-2 {
+    border-radius: 4px;
+    margin: 10px;
+}
+
+#example-2 input {
+    margin-bottom: 10px;
+}
+
+#example-2 .btn + .btn {
+    margin-left: 10px;
+}

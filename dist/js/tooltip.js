@@ -248,10 +248,10 @@
 			this.$(document.documentElement)
 			.off('mousedown' + tt)
 			.on ('mousedown' + tt, function (e) {
-				thiss._down(e);
+				return thiss._down(e);
 			});
 		},
-
+		//
 		// when mousedown is tiped
 		// on the document element
 		//
@@ -263,9 +263,13 @@
 
 			if ((el.is(tt) || el.closest(tt).length > 0)
 				|| (el.is(tm) || el.closest(tm).length > 0)) {
+
+				if (el.data('action') === 'close') {
+					e.preventDefault();
+					this.hide(el);
+				}
 				return false;
 			}
-
 			return this.hideAll();
 		},
 		//
@@ -685,6 +689,21 @@
 			return {node: null};
 		},
 
+		/*
+			<method:position>
+				<invoke>.position(tip, modal)</invoke>
+				<param:tip>
+					<type>Node</type>
+					<desc>tip element (.mk-tt)</desc>
+				</param:tip>
+				<param:modal>
+					<type>Node</type>
+					<desc>modal element (.mk-tt-modal)</desc>
+				</param:modal>
+				<desc>Position a modal to a tip.</desc>
+			</method:position>
+		*/
+
 		position: function (tip, modal) {
 
 			var p = tip.attr('data-position') || this.config.position,
@@ -734,6 +753,7 @@
 
 			return m;
 		},
+
 		//
 		// appends a focusable element to the modal
 		// if the modal has content. This allows us to 'trap'
@@ -779,16 +799,17 @@
 
 				this.delay(function () {
 
-					m.removeClass('out');
-					m.addClass('in');
-
-					m.attr('aria-hidden', 'false');
+					m.removeClass('out')
+						.addClass('in')
+						.attr('aria-hidden', 'false');
 
 					this.position(t, m);
 
 					if (this.isFocusable(m)) {
 						this.focus(t, m);
 					}
+
+					t.addClass('active');
 					this.emit('show', t[0], m[0]);
 				});
 
@@ -830,16 +851,16 @@
 
 				this.delay(function () {
 
-					m.removeClass('in');
-					m.addClass('out');
+					m.removeClass('in')
+						.addClass('out')
+						.attr('aria-hidden', 'true');
 
-					m.attr('aria-hidden', 'true');
-
-					if (immediate || this.transitions !== true) {
+					if (immediate === true || !this.transitions) {
 						m.removeClass('out');
 						this.clearTransitions(m);
 					}
 
+					t.removeClass('active');
 					this.emit('hide', t[0], m[0]);
 
 				}, d);
@@ -848,7 +869,6 @@
 					el.removeClass('out');
 				});
 			}
-
 			return this;
 		},
 
@@ -861,7 +881,7 @@
 
 		hideAll: function () {
 
-			var tt = this.root.find(this.selector());
+			var tt = this.$(this.selector());
 
 			return this.each(tt, function (t) {
 				if (this.isOpen(t)) {
@@ -881,7 +901,7 @@
 			</method:toggle>
 		*/
 
-		toggle: function (tip) {;
+		toggle: function (tip) {
 
 			if (this.isOpen(tip)) {
 				return this.hide(tip);

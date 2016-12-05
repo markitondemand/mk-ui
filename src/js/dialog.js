@@ -5,7 +5,7 @@
 	</depedency:Core>
 	<depedency:Tooltip>
 		<src>/dist/js/tooltip.js</src>
-		<docs>./docs/tooltip.html</docs>
+		<docs>./tooltip.html</docs>
 	</depedency:Tooltip>
 	<file:js>
 		<src>/dist/js/dialog.js</src>
@@ -65,29 +65,21 @@
 		</example>
 	</event:lock>
 */
-(function ( root, factory ) {
-	//
-	// AMD support
-	// ---------------------------------------------------
+(function (root, factory) {
+
 	if ( typeof define === 'function' && define.amd ) {
 		define( ['mk'], function ( mk ) {
 			return factory( root, mk );
 		});
 	}
-	//
-	// CommonJS module support
-	// -----------------------------------------------------
-	else if ( typeof module === 'object' && module.exports ) {
+	else if (typeof module === 'object' && module.exports) {
 		module.exports = factory( root, require('mk'));
 	}
-	//
-	// Everybody else
-	// -----------------------------------------------------
 	else {
 		return factory( root, root.Mk );
 	}
 
-})( typeof window !== "undefined" ? window : this, function ( root, mk ) {
+})(typeof window !== "undefined" && window || this, function (root, mk) {
 
 	mk.create('Dialog', mk.Tooltip, {
 
@@ -96,11 +88,11 @@
 		modal: null,
 
 		get _locked () {
-			return this.root.hasClass('--locked');
+			return this.root.hasClass('-locked');
 		},
 
 		get _unlocked () {
-			return this.root.hasClass('--locked') !== true;
+			return !this._locked;
 		},
 
 		/*
@@ -120,7 +112,7 @@
 		*/
 
 		get unlocked () {
-			return this.root.hasClass('locked') !== true;
+			return !this.locked;
 		},
 
 		/*
@@ -130,7 +122,7 @@
 		*/
 
 		get isOpen () {
-			return this.modal.attr('aria-hidden') !== 'true';
+			return this.modal.attr('aria-hidden') === 'false';
 		},
 
 		/*
@@ -140,7 +132,7 @@
 		*/
 
 		get isHidden () {
-			return this.modal.attr('aria-hidden') !== 'false';
+			return !this.isOpen;
 		},
 
 		/*
@@ -158,13 +150,20 @@
 			o = o || {};
 			o.position = o.position || 'bottom-left';
 
+			this._param('arrow', 'boolean', o, false);
+
 			this.super(o);
 		},
 
 		_build: function () {
 
 			this.link();
+
 			this.modal = this.$('#' + this.root.attr('aria-describedby'));
+
+			if (this.config.arrow) {
+				this.modal.addClass('arrow');
+			}
 		},
 
 		_bind: function () {
@@ -176,56 +175,81 @@
 				e.preventDefault();
 				thiss._click();
 			})
-			.on('mouseenter.mk, focus.mk', function (e) {
+			.on('mouseenter.mk', function (e) {
 				e.preventDefault();
-				thiss._over(e.type !== 'mouseenter');
+				thiss._over(false);
 			})
-			.on('mouseleave.mk, blur.mk', function (e) {
+			.on('mouseleave.mk', function (e) {
 				e.preventDefault();
-				thiss._out(e.type !== 'mouseleave');
+				thiss._out(false);
+			})
+			.on('focus.mk', function (e) {
+				e.preventDefault();
+				thiss._over(true);
+			})
+			.on('blur.mk', function (e) {
+				e.preventDefault();
+				thiss._out(true);
 			})
 			.on('keyup.mk', function (e) {
 				thiss._keyup(e);
 			});
 
 			this.$(document.documentElement)
-			.off('mousedown.mk-dg')
-			.on ('mousedown.mk-dg', function (e) {
-				thiss._down(e);
+			.on('mousedown' + this.selector(), function (e) {
+				return thiss._down(e);
 			});
 		},
 
 		_keyup: function (e) {
-
 			if (e.which === this.keycode.esc) {
 				this._unlock().hide();
 			}
 		},
 
 		_click: function () {
-
-			if (this.root.data('action') === 'click') {
+			if (this.device || this.root.data('action') === 'click') {
 				this.toggle();
 			}
 		},
 
 		_over: function (keyboard) {
 
-			if (this.root.data('action') !== 'click') {
+			if (!this.device && this.root.data('action') !== 'click') {
 
 				this.show();
 
-				if (keyboard === true && this.focusable) {
+				if (keyboard && this.focusable) {
 					this._lock();
 				}
 			}
 		},
 
+		_down: function (e) {
+
+			var el = this.$(e.target),
+				dg = this.selector(),
+				md = this.selector('modal'),
+
+				root = el.is(dg) ? el : el.closest(dg),
+				modal = el.is(md) ? el : el.closest(md);
+
+			if (modal.length > 0 || root.length > 0) {
+				if (modal[0] === this.modal[0] && el.data('action') === 'close'
+					|| (modal.length < 1 && root[0] !== this.root[0] )) {
+					e.preventDefault();
+					this.hide();
+				}
+				return false;
+			}
+			return this.hideAll();
+		},
+
 		_out: function (keyboard) {
 
-			if (this.root.data('action') !== 'click') {
+			if (!this.device && this.root.data('action') !== 'click') {
 
-				if (keyboard !== true && this.focusable) {
+				if (!keyboard && this.focusable) {
 					this._unlock();
 				}
 				this.hide();
@@ -233,12 +257,12 @@
 		},
 
 		_lock: function () {
-			this.root.addClass('--locked');
+			this.root.addClass('-locked');
 			return this;
 		},
 
 		_unlock: function () {
-			this.root.removeClass('--locked');
+			this.root.removeClass('-locked');
 			return this;
 		},
 
@@ -261,7 +285,7 @@
 		*/
 
 		position: function () {
-			return this.super(this.modal, this.root);
+			return this.super(this.root, this.modal);
 		},
 
 		/*
@@ -283,32 +307,32 @@
 				k.on('focus.mk', function () {
 					t.focus();
 				});
-
 				this.modal.append(k);
 			}
-
 			return this;
 		},
 
 		/*
 			<method:show>
-				<invoke>.show()</invoke>
+				<invoke>.show([silent])</invoke>
 				<desc>Shows the modal.</desc>
+				<param:silent>
+					<type>Boolean</type>
+					<desc>Set as true to keep show event from triggering.</desc>
+				</param:silent>
 			</method:show>
 		*/
 
-		show: function () {
+		show: function (silent) {
 
 			if (this._unlocked && this.unlocked) {
 
 				this.hideAll();
 
-				this.transition(this.modal, function () {
-					this.modal.removeClass('in');
-				})
-				.delay(function () {
+				this.delay(function () {
 
-					this.modal.addClass('in')
+					this.modal.removeClass('out')
+						.addClass('in')
 						.attr('aria-hidden', 'false');
 
 					this.position();
@@ -316,7 +340,15 @@
 					if (this.focusable) {
 						this.focus();
 					}
-					this.emit('show', this.root, this.modal);
+					this.root.addClass('active');
+
+					if (!silent) {
+						this.emit('show', this.root[0], this.modal[0]);
+					}
+				});
+
+				this.transition(this.modal, function (e, el) {
+					el.removeClass('in');
 				});
 			}
 			return this;
@@ -324,16 +356,20 @@
 
 		/*
 			<method:hide>
-				<invoke>.hide([immediate])</invoke>
+				<invoke>.hide([immediate, silent])</invoke>
 				<param:immediate>
 					<type>Boolean</type>
-					<desc>Set as true to close the modal without delay.</desc>
+					<desc>Set as true to close the modal without delay or animations.</desc>
 				</param:immediate>
+				<param:silent>
+					<type>Boolean</type>
+					<desc>Set as true to keep hide event from triggering.</desc>
+				</param:silent>
 				<desc>Hides the modal.</desc>
 			</method:hide>
 		*/
 
-		hide: function (immediate) {
+		hide: function (immediate, silent) {
 
 			var a = this.root.attr('data-action'), d;
 
@@ -344,23 +380,27 @@
 					&& this.focusable
 					&& this.config.delay || 0;
 
-				this.transition(this.modal, function () {
-					this.modal.removeClass('out');
-				})
-				.delay(function () {
+				this.delay(function () {
 
-					this.modal.addClass('out')
+					this.modal.removeClass('in')
+						.addClass('out')
 						.attr('aria-hidden', 'true');
 
-					if (immediate || this.transitions !== true) {
-
-						this.clearTransitions(this.modal);
+					if (immediate === true || !this.transitions) {
 						this.modal.removeClass('out');
+						this.clearTransitions(this.modal);
+					}
+					this.root.removeClass('active');
+
+					if (!silent) {
+						this.emit('hide', this.root[0], this.modal[0]);
 					}
 
-					this.emit('hide', this.root, this.modal);
-
 				}, d);
+
+				this.transition(this.modal, function (e, el) {
+					el.removeClass('out');
+				});
 			}
 			return this;
 		},
@@ -368,12 +408,12 @@
 		/*
 			<method:hideAll>
 				<invoke>.hideAll()</invoke>
-				<desc>Hides all associated dialogs with an element in "immediate" mode.</desc>
+				<desc>Hides all page dialogs in root context with "immediate" mode on (no delay or animations).</desc>
 			</method:hideAll>
 		*/
 
 		hideAll: function () {
-			return this.hide(true);
+			return this.hide();
 		},
 
 		/*
@@ -400,9 +440,9 @@
 
 		lock: function () {
 
-			if (this.root.hasClass('locked') !== true) {
+			if (!this.root.hasClass('locked')) {
 				this.root.addClass('locked');
-				this.emit('lock', t, true);
+				this.emit('lock', this.root[0], true);
 			}
 			return this;
 		},
@@ -418,7 +458,7 @@
 
 			if (this.root.hasClass('locked')) {
 				this.root.removeClass('locked');
-				this.emit('lock', t, false);
+				this.emit('lock', this.root[0], false);
 			}
 			return this;
 		}

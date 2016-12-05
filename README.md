@@ -13,12 +13,12 @@ Using an older version of Mk[ui]? Get access to the old repository [here](https:
 2. Selectmenu
 3. Tooltip
 4. Loader
+5. Dialog
 
 ###### *Available Soon*
 
 1. Autocomplete
-2. Dialog
-3. Datepicker
+2. Datepicker
 
 ### Install
 

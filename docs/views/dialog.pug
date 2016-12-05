@@ -3,42 +3,74 @@ html
 	head
 		include ./shared/head
 		link(rel="stylesheet", type="text/css", href="/dist/css/dialog.css")
+		link(rel="stylesheet", type="text/css", href="/docs/assets/css/dialog.css")
 	body
 		include ./shared/header
 		main.container
 			include ./shared/info
 			h2 Examples
-			div
-				table
-					tbody
-						tr
-							td
-								button.mk-dg(aria-describedby="test", data-action="click")
-									| Tooltip
-			div#test.mk-dg-modal
-				span
-					| Parentino fofino
-				ul.list-unstyled
-					li
-						a(href="#")
-							| Link 001
-					li
-						a(href="#")
-							| Link 002
-					li
-						a(href="#")
-							| Link 003
-					li
-						a(href="#")
-							| Link 004
+			div.row
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Dropdown Menu
+						div.panel-body
+							p
+								| Easily link an anchor with a dialog and create a dropdown menu on hover/focus or click.
+								| Use one of the twelve positions inherited from Tooltip to align your dropdown wherever you like.
+							ul.list-inline
+								li
+									a(href="#") About
+								li
+									a(href="#") Brand
+								li
+									a#example-1-trigger(href="#", class="mk-dg", aria-describedby="example-1", role="button", data-action="click")
+										| Categories
+									div#example-1.mk-dg-modal
+										ul.list-unstyled
+											li
+												a(href="#") HTML5
+												p Learn HTML 5 like a pro
+											li
+												a(href="#") CSS3
+												p Learn CSS3 like a pro
+											li
+												a(href="#") JavaScript
+												p Learn JavaScript like a pro
+											li
+												a(href="#") Accessibility
+												p Learn Accessibility like a pro
 
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Popover
+						div.panel-body
+							p
+								| The number of ways a Dialog can be used is endless. Anytime you have an element, assiciated with another, that is abolustely positioned in a "popover" fashion, it is a suitable case to use the Dialog.
+							div.text-center
+								button#example-2-trigger.btn.btn-primary.mk-dg(data-position="bottom-center", data-action="click", aria-describedby="example-2")
+									| Login
+								div#example-2.mk-dg-modal
+									form
+										input.form-control(type="text", placeholder="username")
+										input.form-control(type="password", placeholder="password")
+										a.btn.btn-warning(href="#", data-action="close", role="button")
+											| Cancel
+										button.btn.btn-primary(type="submit")
+											| Login
 			include ./shared/events
 			include ./shared/api
 	include ./shared/scripts
-	script(type="text/javascript", src="/dist/js/tooltip.min.js")
-	script(type="text/javascript", src="/dist/js/dialog.min.js")
+	script(type="text/javascript", src="/src/js/tooltip.js")
+	script(type="text/javascript", src="/src/js/dialog.js")
 	script.
 
-		Mk.transitions(true);
+		Mk.transitions.enable();
 
-		var dialog = new Mk.Dialog('.mk-dg');
+		var Dialog = Mk.get('Dialog'),
+
+			dialog1 = new Dialog('#example-1-trigger'),
+			dialog2 = new Dialog('#example-2-trigger', {arrow: true});

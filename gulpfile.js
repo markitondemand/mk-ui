@@ -12,7 +12,8 @@ var gulp   = require('gulp'),
 			index: '/',
 			selectmenu: '/docs/selectmenu.html',
 			tooltip: '/docs/tooltip.html',
-			loader: '/docs/loader.html'
+			loader: '/docs/loader.html',
+			dialog: '/docs/dialog.html'
 		},
 		'style': {
 			sass: './dist/scss/*.scss',
