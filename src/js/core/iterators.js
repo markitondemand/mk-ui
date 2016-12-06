@@ -78,7 +78,7 @@ Mk.fn.map = function (context, obj, callback) {
 
         map = {};
 
-        for (i in o) {
+        for (i in obj) {
 
             result = callback.call(context, obj[i], i, obj);
 

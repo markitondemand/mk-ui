@@ -26,7 +26,10 @@
         NOTIFY_STATES: {
             EMPTY: 0,
             ERROR: 1,
-            CAPACITY: 2
+            CAPACITY: 2,
+            LOADING: 3,
+            LOADED: 4,
+            ABORT: 5
         },
 
 		templates: {
@@ -85,7 +88,7 @@
 					{{loop:items}}{{template:item}}{{/loop:items}}\
 				</ul>',
 
-			item:
+			item:        //data-display="{{value}}"
 				'<li class="{{$key}}-item" role="presentation">\
 					<a id="{{id}}" \
 						class="{{$key}}-option" \
@@ -93,8 +96,7 @@
 						href="javascript: void(0);" \
 						aria-selected="{{selected}}" \
 						aria-disabled="{{disabled}}" \
-						data-value="{{$value}}" \
-						data-display="{{value}}">\
+						data-value="{{$value}}">\
 						<span class="{{$key}}-label">\
 							{{highlight:label}}\
 						</span>\
@@ -497,7 +499,7 @@
             // trigger the doubledelete functionality and pop the last value out of selections
             // if only one value is allowed to be selected, do nothing.
             if (w === k.backspace && !v) {
-				return this._popByDelete().clear();
+				return this._popByDelete().abort().clear();
 			}
 
 			this.doubledelete = false;
@@ -505,7 +507,7 @@
             // if user hit the comma, is allowed to input anything, and commas are enabled
             // allow the input of the comma and split up the values to be entered as selections
 			if (w === k.comma && this.anything && this.config.comma) {
-				return this.comma(v);
+				return this._comma(v);
 			}
 
             // do standard search behaviors
@@ -521,7 +523,8 @@
 				v = this.input.val();
 
 			if (v && a.length < 1 && this.anything) {
-				return this.select(this.flatten({
+
+				return this.abort().select(this.flatten({
 					label: v,
 					value: v
 				}));
@@ -553,6 +556,42 @@
 			this.each(data, function (obj, i) {
 				list.append(this.html('item', obj));
 			});
+		},
+
+		_comma: function (value) {
+
+			var values = value.split(/\,\s{0,}/),
+				first = true,
+				added = false;
+
+			this.each(values, function (v) {
+
+				if (v) {
+                    //abort any requsts that may be in progress
+					if (first) {
+						this.abort();
+						first = false;
+					}
+
+					added = true;
+
+					this.select(this.flatten({
+						label: v,
+						value: v
+					}));
+				}
+			});
+
+			if (added) {
+                //clear all request logic
+				this.clear();
+
+                //remove input text if we're allowing multipl selections
+                if (this.multiple) {
+				    this.input.val('');
+                }
+			}
+			return this;
 		},
 
         _popByDelete: function () {
@@ -642,7 +681,7 @@
 			this.query = q;
 
 			if (this.hasCache(q)) {
-				this.render(q, this.getCache(q));
+				this.render(this.getCache(q), q);
 				return;
 			}
 
@@ -661,11 +700,13 @@
         request: function () {
 
             if (this.remote) {
+
+                this.abort();
+                this.notify(this.NOTIFY_STATES.LOADING, this.query);
                 this.emit('request', this.query);
-                // TODO: setup loading flags
                 return;
             }
-            // TODO: render no results
+            this.render([], this.query);
         },
 
         /*
@@ -808,7 +849,7 @@
 				disabled: this.disabled,
 				list: {
 					id: id,
-					items: this.buildListData(data, query)
+					items: this.prepData(data, query)
 				}
 			};
 		},
@@ -844,22 +885,44 @@
 			return data;
         },
 
-        buildListData: function (data, query) {
+        /*
+			<method:prepData>
+				<invoke>.filterData(data[, query])</invoke>
+				<param:data>
+					<type>Array</type>
+					<desc>An array of (typically) objects. Objects must contain a 'value' and 'label' property for templating and mapping.</desc>
+				</param:data>
+				<param:query>
+					<type>String</type>
+					<desc>A text term used for term highlighting results for the user.</desc>
+				</param:query>
+				<desc>Prep a date set for use with templating and user interactions.</desc>
+			</method:prepData>
+		*/
 
-			data = data || [];
+        prepData: function (data, query) {
 
-			this.each(data, function (o, i) {
+            var set;
 
-				o.$value = o.$value || this.flatten({
-					value: o.value,
-					label: o.label
-				});
+            return this.map(data, function (obj) {
 
-				o.highlight = query || '';
-				o.id = o.id || this.uid();
-			});
+                //copy object properties
+                set = this.map(obj, function (value, key) {
+                    return value;
+                });
 
-			return data;
+                //add new properties
+                set.$value = this.flatten({
+                    label: obj.label,
+                    value: obj.value
+                });
+                //term highlighting
+                set.highlight = query || '';
+                //item ids (templating)
+                set.id = this.uid();
+
+                return set;
+            });
 		},
 
         /*
@@ -873,24 +936,33 @@
 			</method:select>
 		*/
 
-		select: function (value) {
+		select: function (value, silent) {
 
 			var data = this.unflatten(value);
 
 			if (!this.exists(data.value)) {
 
 				if (this.limit < 2) {
-					this.deselectAll();
+					this.deselectAll(true);
 				}
 
 				if (this.capacity) {
+
 					this.notify(this.NOTIFY_STATES.CAPACITY);
-					this.emit('capacity', this.selections);
+
+                    if (!silent) {
+					    this.emit('capacity', this.selections);
+                    }
 				}
 				else {
+
 					this.shadow.removeClass('capacity');
 					this.selections.push(data);
-					this.tag(data).updateRoot().emit('change');
+					this.tag(data).updateRoot();
+
+                    if (!silent) {
+                        this.emit('change', data);
+                    }
 				}
 				this.hide();
 			}
@@ -908,21 +980,28 @@
 			</method:deselect>
 		*/
 
-		deselect: function (value) {
+		deselect: function (value, silent) {
 
 			var data = this.unflatten(value),
 				result = false;
 
 			this.each(this.selections, function (o, i) {
+
 				if (o.value === data.value) {
+
 					result = true;
 					return -1;
 				}
 			});
 
 			if (result) {
+
 				this.notify();
-				this.tag(data, true).updateRoot().emit('change');
+				this.tag(data, true).updateRoot();
+
+                if (!silent) {
+                    this.emit('change', data);
+                }
 			}
 			return this;
 		},
@@ -934,7 +1013,7 @@
 			</method:deselectAll>
 		*/
 
-		deselectAll: function () {
+		deselectAll: function (silent) {
 
             var s = this.selections;
 
@@ -943,8 +1022,11 @@
 				var removed = s.splice(0, s.length);
 
 				this.notify();
-				//this.tags.remove();
-				this.emit('change', removed);
+				this.tags.remove();
+
+                if (!silent) {
+	                this.emit('change', removed);
+                }
 			}
 			return this;
 		},
@@ -971,6 +1053,19 @@
 		},
 
         /*
+			<method:abort>
+				<invoke>.abort()</invoke>
+				<desc>Calls the abort event to let end developer know they should cancel their current request, if any.</desc>
+			</method:abort>
+		*/
+
+        abort: function () {
+            this.emit('request.abort');
+            this.notify(this.NOTIFY_STATES.ABORT);
+            return this;
+        },
+
+        /*
 			<method:blur>
 				<invoke>.blur()</invoke>
 				<desc>Invokes XHR abort event and stops internal loading processes.</desc>
@@ -978,8 +1073,7 @@
 		*/
 
         blur: function () {
-			//this.abort().loading(false);
-			return this;
+			return this.abort();
 		},
 
         /*
@@ -1015,7 +1109,7 @@
 					this.input.val(data.value);
 				}
 
-				this.tag(data, true);
+				this.abort().tag(data, true);
 
 				return data;
 			}
@@ -1025,30 +1119,47 @@
         /*
 			<method:notify>
 				<invoke>.notify(type[, query])</invoke>
-				<desc>Sends text notifications to the screen reader about the state of the Autocomplete.</desc>
+				<desc>Sends text notifications to the screen reader about the state of the Autocomplete. Also applies state classes (request loading for example) to the Autocomplete.</desc>
 			</method:notify>
 		*/
 
-        notify: function (type, query) {
+        notify: function (type, query, count) {
 
             query = query || this.query;
+            count = count || null;
 
-            var data = {},
+            var data = {query: query, count: count, highlight: query},
                 states = this.NOTIFY_STATES,
-                format = '';
+                format = '',
+                live = false;
 
             switch (type) {
+
                 case states.EMPTY:
                     format = 'empty'; break;
                 case states.ERROR:
                     format = 'error'; break;
                 case states.CAPACITY:
                     format = 'capacity'; break;
+                case states.LOADING:
+                    format = 'loading'; live = true; break;
+                case states.LOADED:
+                    format = 'loaded'; live = true; break;
+                case states.ABORT:
+                    live = true; break;
             }
 
-			this.notifications.html(
-				this.format(format, data));
-
+            if (live) {
+                if ((type === states.LOADING && query) || (query && count !== null)) {
+                    this.live.text(this.format(format, data));
+                } else {
+                    this.live.text('');
+                }
+                this.shadow[type === states.LOADING && 'addClass' || 'removeClass']('loading');
+            }
+            else {
+	             this.notifications.html(this.format(format, data));
+            }
 			return this;
 		},
 
@@ -1079,25 +1190,31 @@
 			return this;
 		},
 
-        render: function (query, data) {
+        render: function (data, query) {
 
-			data = data || [];
+            data = data || [];
+            query = query || this.query;
+
+			var prepedData = this.prepData(data, query);
 
 			this.items.remove();
 
 			this.notify();
 
+            if (prepedData.length < 1) {
+                this.notify(this.NOTIFY_STATES.EMPTY, query);
+                return;
+            }
+
 			if (this.events.render && this.events.render.length > 0) {
-				this.emit('render', data);
+				this.emit('render', prepedData);
 			}
 			else {
-				this._render(data);
+				this._render(prepedData);
 			}
 
 			this.show();
-
-			//return this.loading(
-				//false, query, data.list.items.length);
+            this.notify(this.NOTIFY_STATES.LOADED, query, data.length);
 
             return this;
 		}

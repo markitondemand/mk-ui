@@ -376,6 +376,14 @@ $.events = {
 };
 
 
+function insertable (to) {
+
+    if (to && to.nodeType === 1) {
+        return true;
+    }
+    return false;
+}
+
 $.prototype = {
 
     length: 0,
@@ -546,11 +554,17 @@ $.prototype = {
         }
 
         return this.each(function (el) {
+
             while (el.firstChild) {
                 $.remove(el.firstChild);
             }
-            Mk.fn.each(this, this.markup(s), function (f) {
-                el.appendChild(f);
+
+            var m = this.markup(s);
+
+            Mk.fn.each(this, this.markup(s), function (node) {
+                if (insertable(node)) {
+                    el.appendChild(node);
+                }
             });
         });
     },
@@ -677,9 +691,10 @@ $.prototype = {
 
     appendTo: function (s, c) {
 
-        var elem = new $(s, c)[0] || null;
+        var elem = new $(s, c)[0] || null,
+            allowed = insertable(elem);
 
-        if (elem) {
+        if (elem && allowed) {
             this.each(function (el) {
                 elem.appendChild(el);
             });
@@ -689,11 +704,15 @@ $.prototype = {
 
     prependTo: function (s, c) {
 
-        var elem = new $(s, c)[0] || null;
+        var elem = new $(s, c)[0] || null,
+            allowed = insertable(elem);
 
-        if (elem) {
+        if (elem && allowed) {
+
             this.each(function (el) {
+
                 if (elem.firstChild) {
+
                     elem.insertBefore(el, elem.firstChild);
                     return;
                 }
@@ -707,11 +726,15 @@ $.prototype = {
 
         if (this.length) {
 
-            var elem = this[this.length - 1];
+            var elem = this[this.length - 1],
+                allowed = insertable(elem);
 
-            new $(s, c).each(function (el) {
-                elem.appendChild(el);
-            });
+            if (allowed) {
+
+                new $(s, c).each(function (el) {
+                    elem.appendChild(el);
+                });
+            }
         }
         return this;
     },
@@ -720,15 +743,20 @@ $.prototype = {
 
         if (this.length) {
 
-            var elem = this[this.length - 1];
+            var elem = this[this.length - 1],
+                allowed = insertable(elem);
 
-            new $(s, c).each(function (el) {
-                if (elem.firstChild) {
-                    elem.insertBefore(el, elem.firstChild);
-                    return;
-                }
-                elem.appendChild(el);
-            });
+            if (allowed) {
+
+                new $(s, c).each(function (el) {
+
+                    if (elem.firstChild) {
+                        elem.insertBefore(el, elem.firstChild);
+                        return;
+                    }
+                    elem.appendChild(el);
+                });
+            }
         }
         return this;
     },

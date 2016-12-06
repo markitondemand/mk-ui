@@ -166,7 +166,7 @@ Mk.fn.template = {
                 htm;
 
             if (hlt) {
-                htm = tp.get('highlight', tp.markup);
+                htm = tmp.get('highlight', tmp.markup);
                 str = str.replace(new RegExp('(' + hlt + ')', 'gi'), htm);
             }
             return str;
