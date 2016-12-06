@@ -546,7 +546,8 @@ Mk.prototype = {
 
         this.config = {
             templates: {},
-            formats: {}
+            formats: {},
+            events: {}
         };
 
         this.each(this.formats, function (v, n) {
@@ -576,10 +577,16 @@ Mk.prototype = {
         o = o || {};
 
         var c = this.config;
+            c.events
 
         this.each(o, function (v, n) {
 
-            if (Mk.type(v, 'object|arraylike') && prop.call(c, n)) {
+            if (n === 'events') {
+                this.each(v, function (handler, type) {
+                    this.on(type, handler);
+                });
+            }
+            else if (Mk.type(v, 'object|arraylike') && prop.call(c, n)) {
                 this.each(v, function (e, k) {
                     c[n][k] = e;
                 });
@@ -588,6 +595,7 @@ Mk.prototype = {
                 c[n] = v;
             }
         });
+
         return this;
     },
     /*

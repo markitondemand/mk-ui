@@ -2,7 +2,7 @@ doctype html
 html
 	head
 		include ./shared/head
-		link(rel="stylesheet", type="text/css", href="../dist/css/autocomplete.css")
+		link(rel="stylesheet", type="text/css", href="/dist/css/autocomplete.css")
 	body
 		include ./shared/header
 		main.container
@@ -89,39 +89,36 @@ html
 			include ./shared/events
 			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/dist/js/selectmenu.min.js")
-		script(type="text/javascript", src="/dist/js/autocomplete.min.js")
+		script(type="text/javascript", src="/src/js/selectmenu.js")
+		script(type="text/javascript", src="/src/js/autocomplete.js")
 		script.
 
-			Mk.transitions(true);
+			Mk.transitions.enable();
 
-			var inputs = $('.mk-ac-root'),
+			var inputs = Mk.$('.mk-ac-root'),
 				Autocomplete = Mk.get('Autocomplete'),
 				autocomplete;
 
-			inputs.each(function (i) {
+			inputs.each(function (el) {
 
 				if (this.id && this.id === 'remote') {
-
-					autocomplete = new Autocomplete(this, {
-						remote: 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/jsonp?input={{%query}}',
-						type: 'jsonp'
-					});
-
-					autocomplete.on('create.taglabel', function (data) {
-							data.label = data.raw.value;
-					});
-
-					autocomplete.on('request.success', function (q, d) {
-						this.each(d, function (i, o) {
-							o.label = o.Name,
-							o.value = o.Symbol
-						});
-					});
+					// remote
 				}
 				else {
 
-					autocomplete = new Autocomplete(this, {
+					autocomplete = new Autocomplete(el, {
+						events: {
+							activate: function (node, keyboard) {
+
+								if (keyboard) {
+
+									var data = this.unflatten(
+											node.attr('data-value'));
+
+									this.input.val(data.value);
+								}
+							}
+						},
 						data: [{
 							label: 'Comedy',
 							value: 'Comedy'
@@ -169,17 +166,7 @@ html
 					});
 				}
 
-
-				autocomplete.on('activate', function (node, keyboard) {
-
-					if (keyboard) {
-
-						var data = this.unflatten(
-								node.attr('data-value'));
-
-						this.input.val(data.value);
-					}
-				});
+				//autocomplete.on('activate', );
 
 				autocomplete.on('change', function () {
 					console.info('selections (raw):', this.selections);

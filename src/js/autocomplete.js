@@ -1,172 +1,33 @@
-/*
-	<depedency:Core>
-		<src>dist/js/core.js</src>
-		<docs>../</docs>
-	</depedency:Core>
-	<depedency:Selectmenu>
-		<src>dist/js/selectmenu.js</src>
-		<docs>./docs/selectmenu.html</docs>
-	</depedency:Selectmenu>
-	<file:js>
-		<src>dist/js/autocomplete.js</src>
-	</file:js>
-	<file:css>
-		<src>dist/css/autocomplete.css</src>
-	</file:css>
-	<file:less>
-		<src>dist/less/autocomplete.less</src>
-	</file:less>
-	<file:scss>
-		<src>dist/scss/autocomplete.scss</src>
-	</file:scss>
-	<event:render>
-		<desc>Fired when data has been retrieved and the list is ready to be built. Binding this event replaces the original rending with your own, custom, rendering.</desc>
-		<example>
-			instance.on('render', function (data) {
-				console.info(data);
-			});
-		</example>
-	</event:render>
-	<event:change>
-		<desc>Fires when autocomplete value changes.</desc>
-		<example>
-			instance.on('change', function () {
-				console.info('base 64:', this.value);
-				console.info('raw objects:', this.selections);
-			});
-		</example>
-	</event:change>
-	<event:show>
-		<desc>Fired when menu is shown.</desc>
-		<example>
-			instance.on('show', function () {
-				console.info('Menu has opened!');
-			});
-		</example>
-	</event:show>
-	<event:hide>
-		<desc>Fired when menu is hidden.</desc>
-		<example>
-			instance.on('hide', function () {
-				console.info('Menu has closed!');
-			});
-		</example>
-	</event:hide>
-	<event:activate>
-		<desc>Fired when an option becomes active.</desc>
-		<example>
-			instance.on('activate', function (option, keyboard) {
-				console.info('active option:', option);
-				console.info('came from keyboard (vs mouse):', keyboard);
-			});
-		</example>
-	</event:activate>
-	<event:disabled>
-		<desc>Fired when selectmenu is disabled, if previously enabled.</desc>
-		<example>
-			instance.on('disabled', function () {
-				console.info('Selectmenu has been diabled.');
-			});
-		</example>
-	</event:disabled>
-	<event:enabled>
-		<desc>Fired when selectmenu is enabled, if previously disabled.</desc>
-		<example>
-			instance.on('enabled', function () {
-				console.info('Selectmenu has become enabled.');
-			});
-		</example>
-	</event:enabled>
-	<event:update>
-		<desc>Fired when updates are made to the rendered UI through the use of update().</desc>
-		<example>
-			instance.on('update', function () {
-				console.info('Changes to the native select have been applied to the UI.');
-			});
-		</example>
-	</event:update>
-	<event:capacity>
-		<desc>Fired when you've reached the selection limit. Does not fire for single selects.</desc>
-		<example>
-			instance.on('capacity', function () {
-				console.info('We reached capacity!');
-			});
-		</example>
-	</event:capacity>
-	<event:create.label>
-		<desc>Fired when the trigger input value (label) changes.</desc>
-		<example>
-			instance.on('create.label', function (o) {
-				o.label = o.node.text() + ' new label!';
-			});
-		</example>
-	</event:create.label>
-	<event:request.before>
-		<desc>Fired before ajax requests search is invoked.</desc>
-		<example>
-			instance.on('request.before', function (query) {
-				console.info('about to searhc for ', query);
-			});
-		</example>
-	</event:request.before>
-	<event:request.error>
-		<desc>Fired before ajax requests search is invoked.</desc>
-		<example>
-			instance.on('request.error', function (query, xhr) {
-				console.info('request failed for ', query);
-			});
-		</example>
-	</event:request.error>
-	<event:request.complete>
-		<desc>Fired when a data request has completed</desc>
-		<example>
-			instance.on('request.complete', function (query, xhr, code) {
-				console.info('successful seach for ', query);
-			});
-		</example>
-	</event:request.complete>
-	<event:request.success>
-		<desc>Fired when data is ready to be cached and used by autocomplete.</desc>
-		<example>
-			instance.on('request.success', function (query, data, code, xhr) {
-				this.each(data, function (i, o) {
-					o.value = o.originalProperty;
-					o.label = o.originalPropertyLabel;
-				});
-			});
-		</example>
-	</event:request.success>
-*/
-(function ( root, factory ) {
-	//
-	// AMD support
-	// ---------------------------------------------------
-	if ( typeof define === 'function' && define.amd ) {
 
-		define( [ 'mk'], function ( mk ) {
+(function ( root, factory ) {
+
+	if (typeof define === 'function' && define.amd) {
+		define(['mk'], function (mk) {
 			return factory( root, mk );
 		});
 	}
-
-	//
-	// CommonJS module support
-	// -----------------------------------------------------
-	else if ( typeof module === 'object' && module.exports ) {
-
-		module.exports = factory( root, require('mk'));
+	else if (typeof module === 'object' && module.exports) {
+		module.exports = factory(root, require('mk'));
 	}
-	//
-	// Everybody else
-	// -----------------------------------------------------
 	else {
-		return factory( root, root.Mk );
+		return factory(root, root.Mk);
 	}
 
-})( typeof window !== "undefined" ? window : this, function ( root, mk ) {
+})(typeof window !== "undefined" && window || this, function (root, mk) {
 
-	mk.create('Autocomplete', mk.Selectmenu, {
+    if (mk.type(mk.Selectmenu, 'undefined')) {
+        throw new Error('Mk.Autocomplete: Selectmenu base class not found.');
+    }
 
-		name: 'mk-ac',
+    mk.create('Autocomplete', mk.Selectmenu, {
+
+        name: 'mk-ac',
+
+        NOTIFY_STATES: {
+            EMPTY: 0,
+            ERROR: 1,
+            CAPACITY: 2
+        },
 
 		templates: {
 
@@ -249,42 +110,32 @@
 			loaded: '{{count}} results loaded for {{query}}',
 			error: 'Whoops, looks like we\'re having issues with {{highlight:query}}',
 			empty: 'No results found for {{highlight:query}}',
-			capacity: 'You\'ve reached your tag limit'
+			capacity: 'You\'ve reached your tag limit',
+            label: 'Autocomplete'
 		},
 
 		get version () {
-			return 'v1.0.0';
+			return 'v2.0.0';
 		},
 
 		/*
-			<property:rootinput>
-				<desc>This is your wrapped input, living in the root container.</desc>
-			</property:rootinput>
+			<property:input>
+				<desc>The wrapped, rendered triggering input element.</desc>
+			</property:input>
 		*/
 
-		get rootinput () {
-			return this.node('', this.root);
+		get input () {
+			return this.node('input', this.shadow);
 		},
 
-		/*
-			<property:element>
-				<desc>This is your raw input, living in the root container.</desc>
-			</property:element>
-		*/
-
-		get element () {
-			return this.rootinput[0];
-		},
-
-		/*
+        /*
 			<property:tagroot>
 				<desc>The wrapped root element holding tags.</desc>
 			</property:tagroot>
 		*/
 
 		get tagroot () {
-			return this.shadow.find(
-				this.selector('tags'));
+            return this.node('tags', this.shadow);
 		},
 
 		/*
@@ -294,8 +145,7 @@
 		*/
 
 		get tags () {
-			return this.tagroot.find(
-				this.selector('tag'));
+            return this.node('tag', this.tagroot);
 		},
 
 		/*
@@ -305,8 +155,7 @@
 		*/
 
 		get live () {
-			return this.shadow.find(
-				this.selector('live'));
+            return this.node('live', this.shadow);
 		},
 
 		/*
@@ -316,8 +165,7 @@
 		*/
 
 		get notifications () {
-			return this.shadow.find(
-				this.selector('notifications'));
+            return this.node('notifications', this.shadow);
 		},
 
 		/*
@@ -389,14 +237,9 @@
 		get value () {
 
 			if (this.selections.length > 0) {
-
-				if (this.multiple) {
-					return this.flatten(this.selections);
-				}
-
-				return this.flatten(this.selections[0]);
+                return this.flatten(
+                    this.multiple && this.selections || this.selections[0]);
 			}
-
 			return null;
 		},
 
@@ -409,6 +252,17 @@
 		get isEmpty () {
 			return this.items.length < 1;
 		},
+
+        /*
+			<property:remote>
+				<desc>Boolean representing if our instance is equipt to make XHR requests for data.</desc>
+			</property:remote>
+		*/
+
+        get remote () {
+            return this.events.request
+                && this.events.request.length > 0;
+        },
 
 		/*
 			<property:deletecount>
@@ -450,7 +304,7 @@
 
 		query: '',
 
-		_verifyTag: function (n) {
+        _verifyTag: function (n) {
 
 			var node = this.node('', n);
 
@@ -458,7 +312,6 @@
 				node[0].tagName.toLowerCase() !== 'input') {
 				throw new Error(':: Mk.Autocomplete - root must have a text <input> node ::');
 			}
-
 			return true;
 		},
 
@@ -475,12 +328,13 @@
 		_config: function (o, internal) {
 
 			o = o || {};
+            o.data = o.data || null;
 
-			var input = this.rootinput;
-
-			o.data = o.data || null;
+			var input = this.rootelement,
+                label = input.attr('aria-label') || this.formats.label;
 
 			this
+            ._param('label', 'string', o, label, input)
 			._param('remote', 'string', o, null, input)
 			._param('type', 'string', o, 'json', input)
 			._param('limit', 'number', o, 1, input)
@@ -495,26 +349,51 @@
 			}
 		},
 
-		_build: function() {
+        _build: function () {
 
-			this.super();
+            this.super();
 
-			this.input.attr('placeholder',
-				this.rootinput.attr('placeholder'));
-
-			this.updateTagroot();
+            this.input.attr('placeholder',
+                this.rootelement.attr('placeholder'));
+			this._updateTagroot();
 		},
 
-		_bind: function () {
+        _updateTagroot: function () {
 
-			this._bindInputEvents();
-			this._bindListEvents();
-			this._bindLabelEvents();
+			var method = 'removeClass',
+				hidden = 'false';
+
+			if (this.config.notags) {
+				method = 'addClass';
+				hidden = 'true';
+			}
+
+			this.shadow[method]('no-tags');
+			this.tagroot.attr('aria-hidden', hidden);
+
+			return this;
 		},
 
-		_bindInputEvents: function () {
+        _bind: function () {
 
-			var thiss = this,
+            this._bindInputEvents();
+            this._bindListEvents();
+            this._bindLabelEvents();
+        },
+
+        _bindLabelEvents: function () {
+
+			var thiss = this;
+
+			this.tagroot.on('click.mk', '[data-action="remove"]', function (e) {
+				e.preventDefault();
+				thiss.deselect(this.getAttribute('data-value'));
+			});
+		},
+
+        _bindInputEvents: function () {
+
+            var thiss = this,
 				trigger = this.trigger;
 
 			this.input
@@ -531,109 +410,154 @@
 				}
 				thiss.blur();
 			})
-			.on('keydown.mk', function (e) {
+            .on('keydown.mk', function (e) {
 				thiss._keydown(e);
 			})
 			.on('keyup.mk', function (e) {
 				thiss._keyup(e);
 			});
-		},
+        },
 
-		_bindLabelEvents: function () {
+        _keyIsBehavior: function (w) {
 
-			var thiss = this;
+            var k = this.keycode;
 
-			this.tagroot.on('click.mk', '[data-action="remove"]', function (e) {
-				e.preventDefault();
-				thiss.deselect(this.getAttribute('data-value'));
-			});
-		},
+            switch (w) {
 
-		_keyup: function (e) {
+                case k.space:
+				case k.tab:
+					return 0;
 
-			var which = e.which,
-				behavior = this.keyIsBehavior(which);
+				case k.enter:
+				case k.up:
+				case k.down:
+				case k.left:
+				case k.right:
+				case k.esc:
+					return 1;
+            }
 
-			if (behavior > -1) {
+            return -1;
+        },
 
-				if (behavior === 1) {
-					e.preventDefault();
-				}
+        _keydown: function (e) {
+
+            if (this.disabled) {
 				return;
 			}
 
-			var value = this.input.val();
+			var v = this.input.val(),
+                w = e.which,
+				k = this.keycode;
 
-			if (which === this.keycode.backspace && !value) {
-				return this.popByDelete().abort().clear();
+			switch (w) {
+
+				case k.enter:
+					return this._enter(e);
+
+				case k.space:
+					return this._space(e);
+
+				case k.esc:
+					return this._esc(e);
+
+				case k.up:
+				case k.down:
+					e.preventDefault();
+					return this.move(w === k.up);
+
+				case k.tab:
+                    // only invoke the _tab method if the list is open,
+                    // otherwise continue with native browser behavior
+					if (this.isOpen) {
+						return this._tab(e);
+					}
+			}
+        },
+
+        _keyup: function (e) {
+
+            if (this.disabled) {
+				return;
+			}
+
+            var v = this.input.val(),
+                w = e.which,
+				k = this.keycode,
+                b = this._keyIsBehavior(w);
+
+            if (b > -1) {
+                if (b === 1) {
+                    e.preventDefault();
+                }
+                return;
+            }
+
+            // if we are hitting backspace with no input value,
+            // trigger the doubledelete functionality and pop the last value out of selections
+            // if only one value is allowed to be selected, do nothing.
+            if (w === k.backspace && !v) {
+				return this._popByDelete().clear();
 			}
 
 			this.doubledelete = false;
 
-			if (which === this.keycode.comma
-				&& this.anything
-				&& this.config.comma) {
-
-				return this.comma(value);
+            // if user hit the comma, is allowed to input anything, and commas are enabled
+            // allow the input of the comma and split up the values to be entered as selections
+			if (w === k.comma && this.anything && this.config.comma) {
+				return this.comma(v);
 			}
 
-			this.search(value);
-		},
+            // do standard search behaviors
+			return this.search(v);
+        },
 
-		_enter: function (e) {
+        _enter: function (e) {
 
-			e.preventDefault();
+            e.preventDefault();
 
-			var active = this.items.find('.active'),
-				value  = this.input.val();
+			var a = this.items.find('.active'),
+                i = a.data('value'),
+				v = this.input.val();
 
-			if (value && active.length < 1 && this.anything) {
-
-				var data = this.flatten({
-					label: value,
-					value: value
-				});
-
-				return this.abort().select(data);
+			if (v && a.length < 1 && this.anything) {
+				return this.select(this.flatten({
+					label: v,
+					value: v
+				}));
 			}
 
-			if (this.isHidden && this.isEmpty !== true) {
+			if (this.isHidden && !this.isEmpty) {
 				return this.show();
 			}
-			this.super(e);
-		},
 
-		_render: function (data) {
+            if (a.attr('aria-selected') !== 'true') {
+				this.select(i);
+			}
+			else if (this.multiple) {
+				this.deselect(i);
+			}
+			else {
+				return this.show();
+			}
 
-			var list = this.list,
-				items = data.list.items;
+			if (!this.multiple) {
+				return this.hide();
+			}
+        },
 
-			this.each(items, function (i, d) {
-				list.append(
-					this.html('item', d));
+        _render: function (data) {
+
+			var list = this.list;
+
+			this.each(data, function (obj, i) {
+				list.append(this.html('item', obj));
 			});
 		},
 
-		updateTagroot: function () {
-
-			var tagMethod = 'removeClass',
-				ariaHidden = 'false';
-
-			if (this.config.notags) {
-				tagMethod = 'addClass';
-				ariaHidden = 'true';
-			}
-
-			this.shadow[tagMethod]('no-tags');
-			this.tagroot.attr('aria-hidden', ariaHidden);
-
-			return this;
-		},
-
-		popByDelete: function () {
+        _popByDelete: function () {
 
 			if (this.doubledelete) {
-
 				if (this.deletecount > 0) {
 					this.deletecount = 0;
 					this.pop();
@@ -645,7 +569,7 @@
 			return this;
 		},
 
-		/*
+        /*
 			<method:move>
 				<invoke>.move([up])</invoke>
 				<param:up>
@@ -661,7 +585,7 @@
 			if (this.isEmpty) {
 
 				if (this.hasCache()) {
-					this.search('');
+					this.search();
 				}
 				else {
 					return;
@@ -669,8 +593,7 @@
 			}
 
 			if (this.isHidden) {
-				this.show();
-				return;
+				return this.show();
 			}
 
 			var active = this.items.find('.active')[0],
@@ -693,82 +616,59 @@
 			this.super(up);
 		},
 
-		keyIsBehavior: function (w) {
-
-			var k = this.keycode;
-
-			switch (w) {
-
-				case k.space:
-				case k.tab:
-					return 0;
-
-				case k.enter:
-				case k.up:
-				case k.down:
-				case k.left:
-				case k.right:
-				case k.esc:
-					return 1;
-			}
-
-			return -1;
-		},
-
-		buildOptionData: function (data, query) {
-
-			data = data || [];
-
-			this.each(data, function (i, o) {
-
-				o.$value = o.$value || this.flatten({
-					value: o.value,
-					label: o.label
-				});
-				o.highlight = query || '';
-				o.id = o.id || this.uid();
-			});
-			return data;
-		},
-
-		/*
-			<method:data>
-				<invoke>.data([value])</invoke>
-				<param:value>
+        /*
+			<method:search>
+				<invoke>.search(key[, add])</invoke>
+				<param:key>
 					<type>String</type>
-					<desc>Cache key for query data. Empty will give you static data (if provided).</desc>
-				</param:value>
-				<desc>Generate a JSON representation of the current autocomplete state.</desc>
-			</method:data>
+					<desc>a string representing query text.</desc>
+				</param:key>
+				<param:add>
+					<type>Boolean</type>
+					<desc>Add the the current query, or replace the current query. Default is false (replace).</desc>
+				</param:add>
+				<desc>Runs a search for the query.</desc>
+			</method:search>
 		*/
 
-		data: function (data) {
+		search: function (key, add) {
 
-			data = data || this.getCache();
+            var q = key = (key || '');
 
-			var query = this.input.val();
-
-			if (typeof data == 'string') {
-				query = data;
-				data = this.getCache(data);
+			if (add === true) {
+				q = (this.query || '') + key;
 			}
 
-			var reg = new RegExp(' ' + this.name + ' ', 'i'),
-				cls = ' ' + this.element.className + ' ',
-				id  = this.shadow && this.shadow.attr('id') || this.uid();
+			this.query = q;
 
-			return {
-				classname: cls.replace(reg, ''),
-				multiple: this.multiple,
-				disabled: this.disabled,
-				list: {
-					id: id,
-					items: this.buildOptionData(data, query)
-				}
-			};
+			if (this.hasCache(q)) {
+				this.render(q, this.getCache(q));
+				return;
+			}
+
+			if (q) {
+				this.request();
+			}
 		},
 
-		/*
+        /*
+			<method:request>
+				<invoke>.request()</invoke>
+				<desc>Invokes the request event handlers associated with the autocomplete instance. If your autocomplete uses dynaimc data (API endpoints), setup a requset event to hook your requset into.</desc>
+			</method:request>
+		*/
+
+        request: function () {
+
+            if (this.remote) {
+                this.emit('request', this.query);
+                // TODO: setup loading flags
+                return;
+            }
+            // TODO: render no results
+        },
+
+        /*
 			<method:flatten>
 				<invoke>.flatten(value)</invoke>
 				<param:value>
@@ -798,67 +698,7 @@
 			return value && JSON.parse(atob(value)) || {};
 		},
 
-		/*
-			<method:label>
-				<invoke>.label([n])</invoke>
-				<param:n>
-					<type>Node/undefined</type>
-					<desc>Pulls the label value out of a Node. Uf undefined, pulls the current label value. Default is undefined.</desc>
-				</param:n>
-				<desc>Invokes atob and JSON.parse on a string.</desc>
-			</method:label>
-		*/
-
-		label: function (n) {
-
-			if (typeof n == 'undefined') {
-				return this.input.val();
-			}
-
-			var node = this.$(n),
-				label = node.find(this.selector('label')).text(),
-				pointer = {node: node, label: label};
-
-			this.emit('create.label', pointer);
-
-			return pointer.label;
-		},
-
-		/*
-			<method:filterData>
-				<invoke>.filterData(key, data)</invoke>
-				<param:key>
-					<type>String</type>
-					<desc>a text query to filter data with.</desc>
-				</param:key>
-				<param:data>
-					<type>Array</type>
-					<desc>An array of data objects to filter by key.</desc>
-				</param:data>
-				<desc>Filters a set of data results by a query term.</desc>
-			</method:filterData>
-		*/
-
-		filterData: function (key, data) {
-
-			var result = data, reg;
-
-			if (key) {
-
-				result = [],
-				reg = new RegExp(key, 'i');
-
-				this.each(data, function (i, o) {
-					if (reg.test(o.label) || reg.test(o.value)) {
-						result.push(o);
-					}
-				});
-			}
-
-			return result;
-		},
-
-		/*
+        /*
 			<method:hasCache>
 				<invoke>.hasCache(key)</invoke>
 				<param:key>
@@ -873,15 +713,18 @@
 
 			key = (key || '').toLowerCase();
 
-			if (this.config.remote === null && this.config.data) {
+            // if we do not have a key or we do not have dynamic data (request handlers)
+            // and we have a data object (prefefined data) then yes, we have cache
+			if ((!key || !this.remote) && this.config.data) {
 				return true;
 			}
-
+            // if we have cache for the key provided,
+            // then yes we have cache
 			if (this.cache.hasOwnProperty(key)) {
 				return true;
 			}
-
-			return (!key && this.config.data !== null) || false;
+            // we have nothing
+			return false;
 		},
 
 		/*
@@ -899,15 +742,18 @@
 
 			key = (key || '').toLowerCase();
 
-			if (this.config.remote === null && this.config.data) {
+            // if we dont have a key or we dont have a remote setup,
+            // but we have predefined data, return the predefined data.
+			if ((!key || !this.remote) && this.config.data) {
 				return this.filterData(key, this.config.data);
 			}
-
+            // if we have data cached for the key,
+            // give us that data
 			if (this.cache.hasOwnProperty(key)) {
 				return this.cache[key];
 			}
-
-			return (!key && this.config.data) || null;
+            // nothing found
+			return null;
 		},
 
 		/*
@@ -920,7 +766,7 @@
 				<param:data>
 					<type>Object/Array</type>
 					<desc>Object to be cached.</desc>
-				</param:fata>
+				</param:data>
 				<desc>Caches object for a given query.</desc>
 			</method:setCache>
 		*/
@@ -929,166 +775,94 @@
 			return this.cache[(key || '').toLowerCase()] = data;
 		},
 
-		/*
-			<method:pop>
-				<invoke>.pop()</invoke>
-				<desc>Pop a selection from the current collection.</desc>
-			</method:pop>
-		*/
-
-		pop: function () {
-
-			if (this.selections.length > 0) {
-
-				var data = this.selections.pop();
-
-				if (this.multiple) {
-					this.input.val(data.value);
-				}
-				this.abort().tag(data, true);
-
-				return data;
-			}
-			return null;
-		},
-
-		/*
-			<method:comma>
-				<invoke>.comma(value)</invoke>
+        /*
+			<method:data>
+				<invoke>.data([value])</invoke>
 				<param:value>
 					<type>String</type>
-					<desc>a string represending query text (comma seperted values).</desc>
+					<desc>Cache key for query data. Empty will give you static data (if provided).</desc>
 				</param:value>
-				<desc>Run the comma parsing on a string value. Only works when anything flag is true.</desc>
-			</method:pop>
+				<desc>Generate a JSON representation of the current autocomplete state.</desc>
+			</method:data>
 		*/
 
-		comma: function (value) {
+		data: function (data) {
 
-			var values = value.split(/\,\s{0,}/),
-				first = true,
-				added = false;
+			data = data || this.getCache();
 
-			this.each(values, function (i, v) {
+			var query = this.rootelement.val();
 
-				if (v) {
-
-					if (first) {
-						this.abort();
-						first = false;
-					}
-
-					added = true;
-
-					this.select(this.flatten({
-						label: v,
-						value: v
-					}));
-				}
-			});
-
-			if (added) {
-				this.clear();
-				this.input.val('');
+			if (typeof data === 'string') {
+				query = data;
+				data = this.getCache(data);
 			}
 
-			return this;
+            var cls = [].slice.apply(this.element.classList),
+				id = this.shadow && this.shadow.attr('id') || this.uid();
+
+            cls.splice(cls.indexOf(this.name), 1);
+
+			return {
+				classname: cls.join(' '),
+				multiple: this.multiple,
+				disabled: this.disabled,
+				list: {
+					id: id,
+					items: this.buildListData(data, query)
+				}
+			};
 		},
 
-		/*
-			<method:search>
-				<invoke>.search(key[, add])</invoke>
+        /*
+			<method:filterData>
+				<invoke>.filterData(key, data)</invoke>
 				<param:key>
 					<type>String</type>
-					<desc>a string representing query text.</desc>
+					<desc>a string represending query text.</desc>
 				</param:key>
-				<param:add>
-					<type>Boolean</type>
-					<desc>Add the the current query, or replace the current query. Default is false (replace).</desc>
-				</param:add>
-				<desc>Runs a search for the query.</desc>
-			</method:search>
+				<param:data>
+					<type>Array</type>
+					<desc>A dataset as Array (typically of objects).</desc>
+				</param:data>
+				<desc>Filters a dataset by query text.</desc>
+			</method:filterData>
 		*/
 
-		search: function (key, add) {
+        filterData: function (key, data) {
 
-			var q = key;
+			if (key) {
 
-			if (add === true) {
-				q = (this.query || '') + key;
-			}
+				var reg = new RegExp(key, 'i');
 
-			this.query = q;
-
-			if (this.hasCache(this.query)) {
-				this.render(this.query, this.data(
-					this.getCache(this.query)));
-				return;
-			}
-
-			if (this.query) {
-				this.request(this.query);
-				return;
-			}
-		},
-
-		/*
-			<method:clear>
-				<invoke>.clear()</invoke>
-				<desc>Clear query, list results, and close the menu.</desc>
-			</method:clear>
-		*/
-
-		clear: function () {
-
-			this.items.remove();
-			this.live.text('');
-			this.hide();
-
-			return this;
-		},
-
-		/*
-			<method:show>
-				<invoke>.show()</invoke>
-				<desc>Shows the menu.</desc>
-			</method:show>
-		*/
-
-		/*
-			<method:hide>
-				<invoke>.hide()</invoke>
-				<desc>Hides the menu</desc>
-			</method:hide>
-		*/
-
-		show: function () {
-
-			if (this.isEmpty) {
-				return;
-			}
-
-			var t = this.trigger,
-				l = this.list;
-
-			if (this.disabled !== true && this.isHidden) {
-
-				this.transition(l, function () {
-					l.addClass('in');
-				});
-
-				this.delay(function () {
-
-					t.attr('aria-expanded', 'true');
-					l.attr('aria-hidden', 'false');
-
-					this.emit('show');
+				return this.filter(data, function (o, i) {
+					if (reg.test(o.label) || reg.test(o.value)) {
+						return o;
+					}
 				});
 			}
-			return this;
+
+			return data;
+        },
+
+        buildListData: function (data, query) {
+
+			data = data || [];
+
+			this.each(data, function (o, i) {
+
+				o.$value = o.$value || this.flatten({
+					value: o.value,
+					label: o.label
+				});
+
+				o.highlight = query || '';
+				o.id = o.id || this.uid();
+			});
+
+			return data;
 		},
 
-		/*
+        /*
 			<method:select>
 				<invoke>.select(value)</invoke>
 				<param:value>
@@ -1103,14 +877,14 @@
 
 			var data = this.unflatten(value);
 
-			if (this.exists(data.value) !== true) {
+			if (!this.exists(data.value)) {
 
 				if (this.limit < 2) {
-					this.removeAll();
+					this.deselectAll();
 				}
 
 				if (this.capacity) {
-					this.notify(1);
+					this.notify(this.NOTIFY_STATES.CAPACITY);
 					this.emit('capacity', this.selections);
 				}
 				else {
@@ -1120,7 +894,6 @@
 				}
 				this.hide();
 			}
-
 			return this;
 		},
 
@@ -1140,7 +913,7 @@
 			var data = this.unflatten(value),
 				result = false;
 
-			this.each(this.selections, function (i, o) {
+			this.each(this.selections, function (o, i) {
 				if (o.value === data.value) {
 					result = true;
 					return -1;
@@ -1148,10 +921,30 @@
 			});
 
 			if (result) {
+				this.notify();
+				this.tag(data, true).updateRoot().emit('change');
+			}
+			return this;
+		},
+
+        /*
+			<method:deselectAll>
+				<invoke>.deselectAll()</invoke>
+				<desc>Removes all current selections.</desc>
+			</method:deselectAll>
+		*/
+
+		deselectAll: function () {
+
+            var s = this.selections;
+
+			if (s.length > 0) {
+
+				var removed = s.splice(0, s.length);
 
 				this.notify();
-				this.tag(data, true);
-				this.updateRoot().emit('change');
+				//this.tags.remove();
+				this.emit('change', removed);
 			}
 			return this;
 		},
@@ -1169,27 +962,104 @@
 
 		exists: function (value) {
 
-			var result = false;
-
-			this.each(this.selections, function (i, o) {
+			return this.first(this.selections, function (o, i) {
 				if (o.value === value) {
-					result = true;
-					return false;
+					return true;
 				}
 			});
-
-			return result;
+			return false;
 		},
 
-		blur: function () {
-			this.abort().loading(false);
+        /*
+			<method:blur>
+				<invoke>.blur()</invoke>
+				<desc>Invokes XHR abort event and stops internal loading processes.</desc>
+			</method:blur>
+		*/
+
+        blur: function () {
+			//this.abort().loading(false);
 			return this;
 		},
 
-		tag: function (data, remove) {
+        /*
+			<method:clear>
+				<invoke>.clear()</invoke>
+				<desc>Clear query, list results, and close the menu.</desc>
+			</method:clear>
+		*/
+
+		clear: function () {
+
+			this.items.remove();
+			this.live.text('');
+			this.hide();
+
+			return this;
+		},
+
+        /*
+			<method:pop>
+				<invoke>.pop()</invoke>
+				<desc>Pop a selection from the current collection.</desc>
+			</method:pop>
+		*/
+
+		pop: function () {
+
+			if (this.selections.length > 0) {
+
+				var data = this.selections.pop();
+
+				if (this.multiple) {
+					this.input.val(data.value);
+				}
+
+				this.tag(data, true);
+
+				return data;
+			}
+			return null;
+		},
+
+        /*
+			<method:notify>
+				<invoke>.notify(type[, query])</invoke>
+				<desc>Sends text notifications to the screen reader about the state of the Autocomplete.</desc>
+			</method:notify>
+		*/
+
+        notify: function (type, query) {
+
+            query = query || this.query;
+
+            var data = {},
+                states = this.NOTIFY_STATES,
+                format = '';
+
+            switch (type) {
+                case states.EMPTY:
+                    format = 'empty'; break;
+                case states.ERROR:
+                    format = 'error'; break;
+                case states.CAPACITY:
+                    format = 'capacity'; break;
+            }
+
+			this.notifications.html(
+				this.format(format, data));
+
+			return this;
+		},
+
+        tag: function (data, remove) {
 
 			var flattened = this.flatten(data),
-				pointer = {label: data.label, value: flattened, raw: data};
+				pointer = {
+                    label: data.label,
+                    value: flattened,
+                    raw: data
+                };
 
 			if (remove) {
 				this.tags.filter('[data-value="' + flattened + '"]').remove();
@@ -1209,202 +1079,29 @@
 			return this;
 		},
 
-		loading: function (show, query, count) {
+        render: function (query, data) {
 
-			var method = show && 'addClass' || 'removeClass',
-				format = show && 'loading' || 'loaded',
-				data = {query: query, count: count};
-
-			this.live.text('');
-
-			if ((show && query) || (query && count)) {
-				this.live.text(this.format(format, data));
-			}
-
-			this.shadow[method]('loading');
-
-			return this;
-		},
-
-		notify: function (type, query) {
-
-			var label = '',
-				data = {query: query},
-				format = type === 0 && 'empty'
-					|| type === -1 && 'error'
-					|| type === 1 && 'capacity'
-					|| '';
-
-			this.notifications.html(
-				this.format(format, data));
-
-			return this;
-		},
-
-		/*
-			<method:removeAll>
-				<invoke>.removeAll()</invoke>
-				<desc>Removes all selections.</desc>
-			</method:removeAll>
-		*/
-
-		removeAll: function () {
-
-			if (this.selections.length > 0) {
-
-				var removed = this.selections.splice(
-						0, this.selections.length);
-
-				this.notify();
-				this.tags.remove();
-				this.emit('change', removed);
-			}
-			return this;
-		},
-
-		/*
-			<method:abort>
-				<invoke>.abort()</invoke>
-				<desc>Aborts current request.</desc>
-			</method:abort>
-		*/
-
-		abort: function () {
-
-			if (this.timer) {
-
-				clearTimeout(this.timer);
-
-				this.timer = null;
-				this.requests -= 1;
-				this.loading(false);
-			}
-			return this;
-		},
-
-		/*
-			<method:request>
-				<invoke>.request(query)</invoke>
-				<param:query>
-					<type>String</type>
-					<desc>String representing text to query on.</desc>
-				</param:query>
-				<desc>Bypasses the logic in search() and kicks off request for query.</desc>
-			</method:request>
-		*/
-
-		request: function (query) {
-
-			if (this.config.remote) {
-
-				this.abort();
-
-				this.timer = this.delay(function () {
-
-					this.query = query;
-					this.loading(true, query);
-
-					this.emit('request.before', query);
-
-					var q = this.query,
-						url = this.format(this.config.remote, {'%query': q}),
-						thiss = this;
-
-					$.ajax({
-						url: url,
-						type: 'get',
-						dataType: this.config.type,
-						requestNumber: ++this.requests,
-						complete: function (x, c) {
-							if (this.requestNumber === thiss.requests) {
-								thiss.complete(q, x, c);
-							}
-						},
-						error: function (x) {
-							if (this.requestNumber === thiss.requests) {
-								thiss.error(q, x);
-							}
-						},
-						success: function (d, c, x) {
-							if (this.requestNumber === thiss.requests) {
-								thiss.success(q, d, c, x);
-							}
-						}
-					});
-
-				}, this.config.time);
-			}
-		},
-
-		complete: function (query, xhr, code) {
-			this.emit('request.complete', query, xhr, code);
-		},
-
-		error: function (query, xhr) {
-
-			this.emit('request.error', query, xhr);
-			this.render(query, null, -1);
-		},
-
-		success: function (query, data, code, xhr) {
-
-			this.emit('request.success', query, data, code, xhr);
-
-			this.setCache(query, data);
-			this.render(query, this.data(query));
-		},
-
-		render: function (query, data, code) {
-
-			data = data || {};
-			data.list = data.list || {};
-			data.list.items = data.list.items || [];
+			data = data || [];
 
 			this.items.remove();
 
-			if (code === -1) {
-				this.notify(code, query);
-				this.hide();
-			}
-			else if (data.list.items.length < 1) {
-				this.notify(0, query);
-				this.hide();
+			this.notify();
+
+			if (this.events.render && this.events.render.length > 0) {
+				this.emit('render', data);
 			}
 			else {
-
-				this.notify();
-
-				if (this.events.render && this.events.render.length > 0) {
-					this.emit('render', data);
-				}
-				else {
-					this._render(data);
-				}
-				this.show();
+				this._render(data);
 			}
 
-			return this.loading(
-				false, query, data.list.items.length);
-		},
+			this.show();
 
-		/*
-			<method:update>
-				<invoke>.update()</invoke>
-				<desc>Make changes to your original input then call this for the UI to consume new changes.</desc>
-			</method:update>
-		*/
+			//return this.loading(
+				//false, query, data.list.items.length);
 
-		update: function () {
-
-			this._config(this.config);
-			this.super();
-
-			this.input.attr('placeholder',
-				this.rootinput.attr('placeholder'));
-
-			this.updateTagroot();
+            return this;
 		}
-	});
+    });
 
-	return mk.get('Autocomplete');
+    return mk.get('Autocomplete');
 });

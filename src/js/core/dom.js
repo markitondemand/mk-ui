@@ -392,8 +392,9 @@ $.prototype = {
 
         var d = document, n
 
-        s = s || d;
-        c = c || this.length && this || [d];
+        c = c || this.length && this
+            || this.length !== void+1 && this.context
+            || [d];
 
         if (c === this) {
             return new $(s, c);
@@ -432,7 +433,10 @@ $.prototype = {
         }
 
         [].splice.call(this, 0, this.length || 0);
-        [].push.apply(this, n);
+
+        if (n) {
+            [].push.apply(this, n);
+        }
 
         this.context = c;
 
@@ -581,7 +585,7 @@ $.prototype = {
         return this.nv(n, v, function (_n, _v) {
 
             if (_v === void+1) {
-                return this.length && this[0].getAttribute(_n);
+                return this.length && this[0].getAttribute(_n) || null;
             }
             return this.each(function (el) {
                 if (_v === null) {
@@ -618,7 +622,7 @@ $.prototype = {
     data: function (n, v) {
         return this.nv(n, v, function (_n, _v) {
             if (_v === void+1) {
-                return $.data(this[0], _n);
+                return this.length && $.data(this[0], _n) || null;
             }
             return this.each(function (el) {
                 $.data(el, _n, _v);
@@ -628,8 +632,8 @@ $.prototype = {
 
     css: function (n, v) {
         return this.nv(n, v, function (_n, _v) {
-            if (_v === void+1 && this.length) {
-                return getComputedStyle(this[0]).getPropertyValue(_v);
+            if (_v === void+1) {
+                return this.length && getComputedStyle(this[0]).getPropertyValue(_v) || null;
             }
             return this.each(function (el) {
                 el.style[_n] = Mk.type(_v, 'number') && (_v + 'px') || _v;

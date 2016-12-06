@@ -155,12 +155,12 @@
 		},
 
 		/*
-			<property:selectmenu>
+			<property:rootelement>
 				<desc>The wrapped select child node living in the provided root.</desc>
-			</property:selectmenu>
+			</property:rootelement>
 		*/
 
-		get selectmenu () {
+		get rootelement () {
 			return this.node('', this.root);
 		},
 
@@ -171,7 +171,7 @@
 		*/
 
 		get element () {
-			return this.selectmenu[0];
+			return this.rootelement[0];
 		},
 
 		/*
@@ -332,7 +332,7 @@
 
 			o = o || {};
 
-			var sm = this.selectmenu,
+			var sm = this.rootelement,
 				label = sm.attr('aria-label') || this.formats.label;
 
 			this._param('label', 'string', o, label, sm);
@@ -359,24 +359,25 @@
 				this.shadow.addClass('transitions');
 			}
 
-			var l = this.list,
-				o = l.find('[aria-selected="true"]'),
-				s = this.selectmenu,
-				i = this.input,
+			var list = this.list,
+				selected = list.find('[aria-selected="true"]'),
+				root = this.rootelement,
+				input = this.input,
 				label = this.$('label[for="'+ this.element.id +'"]');
 
 			this.trigger.attr({
-				'aria-controls': l.attr('id') || '',
-				'aria-activedescendant': o.attr('id') || ''
+				'aria-controls': list.attr('id') || '',
+				'aria-activedescendant': selected.attr('id') || ''
 			});
 
-			i.attr('id', this.uid());
-			s.attr('aria-hidden', 'true');
+			input.attr('id', this.uid());
+			root.attr('aria-hidden', 'true');
 
 			if (label.length) {
-				label.attr('for', i.attr('id'));
-			} else {
-				i.attr('aria-label', this.config.label);
+				label.attr('for', input.attr('id'));
+			}
+			else {
+				input.attr('aria-label', this.config.label);
 			}
 		},
 
@@ -896,12 +897,12 @@
 
 		data: function () {
 
-			var reg = new RegExp(' ' + this.name + ' ', 'i'),
-				cls = ' ' + this.element.className + ' ';
+			var cls = [].slice.apply(this.element.classList);
+			cls.splice(cls.indexOf(this.name), 1);
 
 			return {
 				label: this.label(),
-				classname: cls.replace(reg, ''),
+				classname: cls.join(' '),
 				multiple: this.multiple,
 				disabled: this.disabled,
 				list: {
@@ -1331,7 +1332,7 @@
 			this[m]();
 
 			this._param(
-				'removable', 'boolean', this.config, false, this.selectmenu);
+				'removable', 'boolean', this.config, false, this.rootelement);
 
 			if (this.config.removable
 				&& this.items.find(this.selector('removable')).length < 1) {
