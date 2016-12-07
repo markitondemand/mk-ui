@@ -13,7 +13,8 @@ var gulp   = require('gulp'),
 			selectmenu: '/docs/selectmenu.html',
 			tooltip: '/docs/tooltip.html',
 			loader: '/docs/loader.html',
-			dialog: '/docs/dialog.html'
+			dialog: '/docs/dialog.html',
+			autocomplete: '/docs/autocomplete.html'
 		},
 		'style': {
 			sass: './dist/scss/*.scss',
