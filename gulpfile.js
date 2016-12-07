@@ -30,6 +30,7 @@ var gulp   = require('gulp'),
 			files: [
 				'./src/js/core/dom/intro.js',
 				'./src/js/core/dom/data.js',
+				'./src/js/core/dom/markup.js',
 				'./src/js/core/dom/remove.js',
 				'./src/js/core/dom/events.js',
 				'./src/js/core/dom/core.js',

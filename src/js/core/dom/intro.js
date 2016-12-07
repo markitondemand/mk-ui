@@ -43,25 +43,8 @@
     ajax()
 */
 
-function $(s, c) {
-    return this.find(s, c);
+function $(selector, context) {
+    return this.find(selector, context);
 }
 
-$._cache = {};
-
-$._wraps = {
-    option: [1, '<select multiple="multiple">', '</select>'],
-    thead: [1, '<table>', '</table>'],
-    col: [2, '<table><colgroup>', '</colgroup></table>'],
-    tr: [2, '<table><tbody>', '</tbody></table>'],
-    td: [3, '<table><tbody><tr>', '</tr></tbody></table>'],
-    li: [1, '<ul>', '</ul>'],
-    dd: [1, '<dl>', '</dl>'],
-    defaultt: [ 0, "", ""]
-};
-
-$._wraps.optgroup  = $._wraps.option;
-$._wraps.caption   = $._wraps.thead;
-$._wraps.tbody     = $._wraps.thead;
-$._wraps.tfoot     = $._wraps.thead;
-$._wraps.dt        = $._wraps.dd;
+$.cache = {};

@@ -1,12 +1,4 @@
 
-function insertable (to) {
-
-    if (to && to.nodeType === 1) {
-        return true;
-    }
-    return false;
-}
-
 $.prototype = {
 
     length: 0,
@@ -15,8 +7,100 @@ $.prototype = {
 
     constructor: $,
 
+    toFrag: function () {
+
+        var f = document.createDocumentFragment();
+
+        this.each(function (el) {
+            f.appendChild(el);
+        });
+
+        return f;
+    },
+
+    nv: function (name, value, fn) {
+
+        if (typeof name === 'object') {
+
+            var k = Object.keys(name),
+                l = k.length, i;
+
+            return this.each(function (el) {
+
+                i = 0;
+
+                for (; i < l; i++) {
+                    fn(el, k[i], name[k[i]]);
+                }
+            });
+        }
+
+        if (value === void+1) {
+            return this.length ? fn(this[0], name, value) : undefined;
+        }
+
+        return this.each(function (el) {
+            fn(el, name, value);
+        });
+    },
+
+    first: function () {
+
+        var reg = /1|9|11/, i = 0, l, n;
+
+        if (this.length) {
+
+            l = this.length;
+
+            while (i < l) {
+
+                n = this[i];
+                i++;
+
+                if (reg.test(n.nodeType)) {
+                    return n;
+                }
+            }
+        }
+
+        return undefined;
+    },
+
+    last: function () {
+
+        var reg = /1|9|11/, n, l;
+
+        if (this.length) {
+
+            l = this.length;
+
+            while (l--) {
+
+                n = this[l]
+
+                if (reg.test(n.nodeType)) {
+                    return n;
+                }
+            }
+        }
+
+        return undefined;
+    },
+
     each: function (fn) {
-        return Mk.fn.each(this, this, fn);
+
+        var i = 0,
+            l = this.length,
+            r;
+
+        while (i < l) {
+
+            r = fn.call(this, this[i], i++);
+
+            if (r === false) break;
+        }
+
+        return this;
     },
 
     find: function (s, c) {
@@ -74,19 +158,26 @@ $.prototype = {
         return this;
     },
 
-    is: function (s) {
+    is: function (selector) {
 
-        var elems = new $(s, this.context),
+        var elems = new $(selector, this.context),
             result = false;
 
         this.each(function (el) {
+
             elems.each(function (_el) {
+
                 if (el === _el) {
-                    result = true; return false;
+                    result = true;
+                    return false;
                 }
             });
-            if (result) return false;
+
+            if (result) {
+                return false;
+            }
         });
+
         return result;
     },
 
@@ -140,153 +231,122 @@ $.prototype = {
         return this.parent(selector, context);
     },
 
-    markup: function (s) {
+    markup: function (str) {
 
-        // if we support html5 templates (everybody but IE)
-        var d = document,
-            c = d.createElement('template');
-
-        if (c.content) {
-            c.innerHTML = s;
-            return [].slice.call(c.content.childNodes);
-        }
-
-        // IE does this...
-        var t = (/^\s*<([^>\s]+)/.exec(s) || [])[1] || null,
-            a = t && $._wraps.hasOwnProperty(t) && $._wraps[t] || $._wraps.defaultt,
-            i = 0;
-
-        c = d.createElement('div');
-        c.innerHTML = a[1] + s + a[2];
-
-        while (i < a[0]) {
-            c = c.firstChild;
-            i++;
-        }
-
-        return [].slice.call(c.childNodes);
+        var m = $.markup(str);
+        return m.childNodes;
     },
 
-    html: function (s) {
+    html: function (str) {
 
-        if (s === void+1) {
-            if (this.length) {
-                return this[0].innerHTML;
-            }
-            return null;
+        if (str === void+1) {
+
+            var elem = this.first();
+
+            return elem && elem.innerHTML || '';
         }
 
         return this.each(function (el) {
 
-            while (el.firstChild) {
-                $.remove(el.firstChild);
+            var children = el.childNodes,
+                l = children.length;
+
+            while (l--) {
+                $.remove(children[l]);
             }
 
-            var m = this.markup(s);
-
-            Mk.fn.each(this, this.markup(s), function (node) {
-                if (insertable(node)) {
-                    el.appendChild(node);
-                }
-            });
+            el.appendChild($.markup(str));
         });
     },
 
-    text: function (s) {
+    text: function (text) {
 
-        if (s === void+1) {
-            if (this.length) {
-                return this[0].textContent;
-            }
-            return null;
+        if (text === void+1) {
+
+            var elem = this.first();
+
+            return elem && elem.textContent || '';
         }
 
         return this.each(function (el) {
-            el.textContent = s;
+            el.textContent = text;
         });
     },
 
-    nv: function (n, v, fn) {
+    removeAttr: function (name) {
 
-        if (typeof n === 'object') {
-            for (var i in n) {
-                fn.call(this, i, n[i]);
-            }
-            return this;
-        }
-        return fn.call(this, n, v);
-    },
-
-    attr: function (n, v) {
-
-        return this.nv(n, v, function (_n, _v) {
-
-            if (_v === void+1) {
-                return this.length && this[0].getAttribute(_n) || null;
-            }
-            return this.each(function (el) {
-                if (_v === null) {
-                    el.removeAttribute(_n);
-                    return;
-                }
-                el.setAttribute(_n, _v);
-            });
+        return this.each(function (el) {
+            el.removeAttribute(name);
         });
     },
 
-    prop: function (n, v) {
-        return this.nv(n, v, function (_n, _v) {
-            if (_v === void+1) {
-                return this.length && this[0][_n] || null;
+    attr: function (name, value) {
+
+        return this.nv(name, value, function (el, n, v) {
+
+            if (v === void+1) {
+                return el.getAttribute(n);
             }
-            return this.each(function (el) {
-                el[_n] = _v;
-            });
+            el.setAttribute(n, v);
         });
     },
 
-    val: function (v) {
+    prop: function (name, value) {
 
-        if (v === void+1 && this.length) {
+        return this.nv(name, value, function (el, n, v) {
+
+            if (v === void+1) {
+                return el[n] || undefined;
+            }
+            el[n] = v;
+        });
+    },
+
+    val: function (value) {
+
+        if (value === void+1 && this.length) {
             return this[0].value;
         }
 
-        return this.each(function(el) {
-            el.value = v;
+        return this.each(function (el) {
+            el.value = value;
         });
     },
 
-    data: function (n, v) {
-        return this.nv(n, v, function (_n, _v) {
-            if (_v === void+1) {
-                return this.length && $.data(this[0], _n) || null;
+    data: function (name, value) {
+
+        return this.nv(name, value, function (el, n, v) {
+
+            if (v === void+1) {
+                return $.data(el, n) || null;
             }
-            return this.each(function (el) {
-                $.data(el, _n, _v);
-            });
+            $.data(el, n, v);
         });
     },
 
-    css: function (n, v) {
-        return this.nv(n, v, function (_n, _v) {
-            if (_v === void+1) {
-                return this.length && getComputedStyle(this[0]).getPropertyValue(_v) || null;
+    css: function (name, value) {
+
+        return this.nv(name, value, function (el, n, v) {
+            if (v === void+1) {
+                return getComputedStyle(el).getPropertyValue(v);
             }
-            return this.each(function (el) {
-                el.style[_n] = Mk.type(_v, 'number') && (_v + 'px') || _v;
-            });
+            el.style[n] = typeof v === 'number' && v + 'px' || v;
         });
     },
 
-    hasClass: function (v) {
+    hasClass: function (cls) {
 
         var r = false;
+
         this.each(function (el) {
-            if (el.classList.contains(v)) {
+
+            if (el.classList.contains(cls)) {
+
                 r = true;
                 return false;
             }
         });
+
         return r;
     },
 
@@ -312,74 +372,52 @@ $.prototype = {
         });
     },
 
-    appendTo: function (s, c) {
+    appendTo: function (selector, context) {
 
-        var elem = new $(s, c)[0] || null,
-            allowed = insertable(elem);
+        var elem = new $(selector, context).last();
 
-        if (elem && allowed) {
-            this.each(function (el) {
-                elem.appendChild(el);
-            });
+        if (elem) {
+            elem.appendChild(this.toFrag());
         }
         return this;
     },
 
-    prependTo: function (s, c) {
+    prependTo: function (selector, context) {
 
-        var elem = new $(s, c)[0] || null,
-            allowed = insertable(elem);
+        var elem = new $(selector, context).last(),
+            frag = this.toFrag();
 
-        if (elem && allowed) {
-
-            this.each(function (el) {
-
-                if (elem.firstChild) {
-
-                    elem.insertBefore(el, elem.firstChild);
-                    return;
-                }
-                elem.appendChild(el);
-            });
+        if (elem) {
+            elem.firstChild
+                ? elem.insertBefore(frag, elem.firstChild)
+                : elem.appendChild(frag);
         }
         return this;
     },
 
-    append: function (s, c) {
+    append: function (selector, context) {
 
-        if (this.length) {
+        var elem = this.last();
 
-            var elem = this[this.length - 1],
-                allowed = insertable(elem);
+        if (elem) {
+            elem.appendChild(
+                new $(selector, context).toFrag());
 
-            if (allowed) {
-
-                new $(s, c).each(function (el) {
-                    elem.appendChild(el);
-                });
-            }
         }
         return this;
     },
 
-    prepend: function (s, c) {
+    prepend: function (selector, context) {
 
-        if (this.length) {
+        var elem = this.last(), frag;
 
-            var elem = this[this.length - 1],
-                allowed = insertable(elem);
+        if (elem) {
 
-            if (allowed) {
+            frag = new $(selector, context).toFrag();
 
-                new $(s, c).each(function (el) {
-
-                    if (elem.firstChild) {
-                        elem.insertBefore(el, elem.firstChild);
-                        return;
-                    }
-                    elem.appendChild(el);
-                });
-            }
+            elem.firstChild
+                ? elem.insertBefore(frag, elem.firstChild)
+                : elem.appendChild (frag);
         }
         return this;
     },
@@ -395,21 +433,26 @@ $.prototype = {
         o.each(function (el) {
             $.remove(el);
         });
+
         return this;
     },
 
     focus: function () {
 
-        if (this.length) {
-            this[this.length - 1].focus();
+        var elem = this.last();
+
+        if (elem) {
+            elem.focus();
         }
         return this;
     },
 
     blur: function () {
 
-        if (this.length) {
-            this[this.length - 1].blur();
+        var elem = this.last();
+
+        if (elem) {
+            elem.blur();
         }
         return this;
     },

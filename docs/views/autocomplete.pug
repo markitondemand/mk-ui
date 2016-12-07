@@ -89,6 +89,7 @@ html
 			include ./shared/events
 			include ./shared/api
 		include ./shared/scripts
+		script(type="text/javascript", src="/docs/assets/js/jquery.js")
 		script(type="text/javascript", src="/src/js/selectmenu.js")
 		script(type="text/javascript", src="/src/js/autocomplete.js")
 		script.
@@ -101,24 +102,48 @@ html
 
 			inputs.each(function (el) {
 
-				if (this.id && this.id === 'remote') {
-					// remote
+				if (el.id && el.id === 'remote') {
+
+					autocomplete = new Autocomplete(el, {
+						events: {
+							'create.tag': function (obj) {
+								obj.label = obj.raw.value;
+							},
+							'request.send': function (query, requestnum) {
+
+								var ac = this;
+
+								$.ajax({
+									url: 'http://dev.markitondemand.com/Api/v2/Lookup/jsonp',
+									data: {input: query},
+									type: 'get',
+									dataType: 'jsonp',
+									success: function (data) {
+
+										if (ac.requests !== requestnum) {
+											ac.abort();
+											return;
+										}
+
+										ac.each(data, function (obj) {
+											obj.label = obj.Name;
+											obj.value = obj.Symbol;
+										});
+
+										ac.setCache(query, data);
+										ac.render(data, query);
+									},
+									error: function () {
+										ac.emit('request.error');
+									}
+								});
+							}
+						}
+					});
 				}
 				else {
 
 					autocomplete = new Autocomplete(el, {
-						events: {
-							activate: function (node, keyboard) {
-
-								if (keyboard) {
-
-									var data = this.unflatten(
-											node.attr('data-value'));
-
-									this.input.val(data.value);
-								}
-							}
-						},
 						data: [{
 							label: 'Comedy',
 							value: 'Comedy'
@@ -166,7 +191,16 @@ html
 					});
 				}
 
-				//autocomplete.on('activate', );
+				autocomplete.on('activate', function (node, keyboard) {
+
+					if (keyboard) {
+
+						var data = this.unflatten(
+								node.attr('data-value'));
+
+						this.input.val(data.value);
+					}
+				});
 
 				autocomplete.on('change', function () {
 					console.info('selections (raw):', this.selections);

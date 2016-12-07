@@ -8,7 +8,7 @@ $.data = function (node, key, value) {
         // default out the value.
         val = value,
         // pull the cache object or create a new empty primitive
-        cache = $._cache[id] || {};
+        cache = $.cache[id] || {};
 
     // if the key is explicitly null, we want to remove the entire cache entry.
     // remove the node id, and delete the cache. Finally, return it to
@@ -16,7 +16,7 @@ $.data = function (node, key, value) {
 
     if (key === null) {
         node._id_ = null;
-        delete $._cache[id];
+        delete $.cache[id];
 
         return cache;
     }
@@ -54,7 +54,7 @@ $.data = function (node, key, value) {
     // reassign the id incase this is the first entry
     node._id_ = id;
     // reassign the cache in case this is the first entry
-    $._cache[id] = cache;
+    $.cache[id] = cache;
 
     return val;
 }

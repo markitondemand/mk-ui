@@ -499,6 +499,15 @@ Mk.prototype = {
         return this;
     },
     /*
+    <method:unmount>
+        <invoke>.unmount()</invoke>
+        <desc>Specialized method used for performance benefits with SPA frameworks. Frameworks like Angular and React use different methods to remove dom nodes and events bound to the app. In your unmount/teardown handlers, you may call this method to remove dom elements, data, and events bound through Mk[ui] freeing up memory and space.</desc>
+    </method:unmount>
+    */
+    unmount: function () {
+        /* to be populated by each individual component */
+    },
+    /*
     <method:_init>
         <invoke>._init(root[, config])</invoke>
         <param:root>

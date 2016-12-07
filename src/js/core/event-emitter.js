@@ -5,14 +5,19 @@ Mk.fn.eventEmitter = {
         var bucket = obj.bucket,
             event = this.event(obj.type);
 
-        obj.namespace = event.ns;
+        obj.namespace = event.namespace;
         obj.type = event.type;
 
         if (!prop.call(bucket, event.type)) {
              bucket[event.type] = [];
         }
 
-        bucket[event.type].push(obj);
+        bucket[event.type].push({
+            namespace: event.namespace,
+            type: event.type,
+            handler: obj.handler,
+            context: obj.context,
+        });
     },
 
     event: function (type) {

@@ -167,7 +167,9 @@ Mk.fn.template = {
 
             if (hlt) {
                 htm = tmp.get('highlight', tmp.markup);
-                str = str.replace(new RegExp('(' + hlt + ')', 'gi'), htm);
+                //string escape patterns throw errors
+				//so we must replace the escape character with doubles.
+                str = str.replace(new RegExp('(' + hlt.replace(/\\/g, '\\\\') + ')', 'gi'), htm);
             }
             return str;
         },

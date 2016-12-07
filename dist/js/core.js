@@ -247,7 +247,7 @@ Mk.fn.map = function (context, obj, callback) {
 
         map = {};
 
-        for (i in o) {
+        for (i in obj) {
 
             result = callback.call(context, obj[i], i, obj);
 
@@ -323,28 +323,11 @@ Mk.fn.filter = function (context, obj, callback) {
     ajax()
 */
 
-function $(s, c) {
-    return this.find(s, c);
+function $(selector, context) {
+    return this.find(selector, context);
 }
 
-$._cache = {};
-
-$._wraps = {
-    option: [1, '<select multiple="multiple">', '</select>'],
-    thead: [1, '<table>', '</table>'],
-    col: [2, '<table><colgroup>', '</colgroup></table>'],
-    tr: [2, '<table><tbody>', '</tbody></table>'],
-    td: [3, '<table><tbody><tr>', '</tr></tbody></table>'],
-    li: [1, '<ul>', '</ul>'],
-    dd: [1, '<dl>', '</dl>'],
-    defaultt: [ 0, "", ""]
-};
-
-$._wraps.optgroup  = $._wraps.option;
-$._wraps.caption   = $._wraps.thead;
-$._wraps.tbody     = $._wraps.thead;
-$._wraps.tfoot     = $._wraps.thead;
-$._wraps.dt        = $._wraps.dd;
+$.cache = {};
 
 
 $.data = function (node, key, value) {
@@ -356,7 +339,7 @@ $.data = function (node, key, value) {
         // default out the value.
         val = value,
         // pull the cache object or create a new empty primitive
-        cache = $._cache[id] || {};
+        cache = $.cache[id] || {};
 
     // if the key is explicitly null, we want to remove the entire cache entry.
     // remove the node id, and delete the cache. Finally, return it to
@@ -364,7 +347,7 @@ $.data = function (node, key, value) {
 
     if (key === null) {
         node._id_ = null;
-        delete $._cache[id];
+        delete $.cache[id];
 
         return cache;
     }
@@ -402,35 +385,96 @@ $.data = function (node, key, value) {
     // reassign the id incase this is the first entry
     node._id_ = id;
     // reassign the cache in case this is the first entry
-    $._cache[id] = cache;
+    $.cache[id] = cache;
 
     return val;
 }
 
 
+$.wrap = {
+    option: [1, '<select multiple="multiple">', '</select>'],
+    thead: [1, '<table>', '</table>'],
+    col: [2, '<table><colgroup>', '</colgroup></table>'],
+    tr: [2, '<table><tbody>', '</tbody></table>'],
+    td: [3, '<table><tbody><tr>', '</tr></tbody></table>'],
+    li: [1, '<ul>', '</ul>'],
+    dd: [1, '<dl>', '</dl>'],
+    defaultt: [ 0, '', '']
+};
+
+$.wrap.optgroup  = $.wrap.option;
+$.wrap.caption   = $.wrap.thead;
+$.wrap.tbody     = $.wrap.thead;
+$.wrap.tfoot     = $.wrap.thead;
+$.wrap.dt        = $.wrap.dd;
+
+$.markup = function (s) {
+
+    // html5 templates
+    // most browsers support this method and
+    // is much faster than the latter.
+    var d = document,
+        c = d.createElement('template'), f;
+
+    if (c.content) {
+        c.innerHTML = s;
+        return c.content;
+    }
+
+    // Sadly, buy as expected, Internet Explorer doesn't support
+    // templates so we get to insert inner html and rip out the children.
+    var t = (/^\s*<([^>\s]+)/.exec(s) || [])[1] || null,
+        a = t && $.wrap.hasOwnProperty(t) && $.wrap[t] || $.wrap.defaultt,
+        i = 0;
+
+    c = d.createElement('div');
+    f = d.createDocumentFragment();
+
+    c.innerHTML = a[1] + s + a[2];
+
+    while (i < a[0]) {
+        f.appendChild(c.firstChild);
+        i++;
+    }
+
+    return f;
+};
+
+
 $.remove = function (node) {
 
-    // we are only dealing with node types of 1
-    // 9 and 11 get ignored, even though they are nodes.
-    if (node && node.nodeType === 1) {
+    // we are only dealing with node types of 1 (element) and 11 (fragment)
+    // 9 (document) gets ignored
+
+    if (node && (node.nodeType === 1 || node.nodeType === 11)) {
+
         // recursively look children and call remove
         // we do this because of the following steps
-        Mk.fn.each(this, node.childNodes, function (child) {
-            $.remove(child);
-        });
+
+        var children = node.childNodes,
+            l = children.length;
+
+        while (l--) {
+            $.remove(children[l]);
+        }
 
         // pull the data entry and remove it from cache
         // frees up memory
+
         var data = $.data(node, null);
 
         // loop events associated with the node and remove all listeners
         // frees up memory
+
         if (data && data.events) {
             Mk.fn.each(this, data.events, function (obj, type) {
                 $.events.off(node, type);
             });
         }
-        // finally, remove the element
+    }
+
+    // finally, remove the element
+    if (node.parentNode) {
         node.parentNode.removeChild(node);
     }
 }
@@ -440,7 +484,6 @@ $.events = {
     //
     // delegation events for certain event types
     // require the capture boolean to be set to true.
-    //
     capture: function (type, del) {
 
         if (del) {
@@ -664,16 +707,109 @@ $.prototype = {
 
     constructor: $,
 
+    toFrag: function () {
+
+        var f = document.createDocumentFragment();
+
+        this.each(function (el) {
+            f.appendChild(el);
+        });
+
+        return f;
+    },
+
+    nv: function (name, value, fn) {
+
+        if (typeof name === 'object') {
+
+            var k = Object.keys(name),
+                l = k.length, i;
+
+            return this.each(function (el) {
+
+                i = 0;
+
+                for (; i < l; i++) {
+                    fn(el, k[i], name[k[i]]);
+                }
+            });
+        }
+
+        if (value === void+1) {
+            return this.length ? fn(this[0], name, value) : undefined;
+        }
+
+        return this.each(function (el) {
+            fn(el, name, value);
+        });
+    },
+
+    first: function () {
+
+        var reg = /1|9|11/, i = 0, l, n;
+
+        if (this.length) {
+
+            l = this.length;
+
+            while (i < l) {
+
+                n = this[i];
+                i++;
+
+                if (reg.test(n.nodeType)) {
+                    return n;
+                }
+            }
+        }
+
+        return undefined;
+    },
+
+    last: function () {
+
+        var reg = /1|9|11/, n, l;
+
+        if (this.length) {
+
+            l = this.length;
+
+            while (l--) {
+
+                n = this[l]
+
+                if (reg.test(n.nodeType)) {
+                    return n;
+                }
+            }
+        }
+
+        return undefined;
+    },
+
     each: function (fn) {
-        return Mk.fn.each(this, this, fn);
+
+        var i = 0,
+            l = this.length,
+            r;
+
+        while (i < l) {
+
+            r = fn.call(this, this[i], i++);
+
+            if (r === false) break;
+        }
+
+        return this;
     },
 
     find: function (s, c) {
 
         var d = document, n
 
-        s = s || d;
-        c = c || this.length && this || [d];
+        c = c || this.length && this
+            || this.length !== void+1 && this.context
+            || [d];
 
         if (c === this) {
             return new $(s, c);
@@ -712,26 +848,36 @@ $.prototype = {
         }
 
         [].splice.call(this, 0, this.length || 0);
-        [].push.apply(this, n);
+
+        if (n) {
+            [].push.apply(this, n);
+        }
 
         this.context = c;
 
         return this;
     },
 
-    is: function (s) {
+    is: function (selector) {
 
-        var elems = new $(s, this.context),
+        var elems = new $(selector, this.context),
             result = false;
 
         this.each(function (el) {
+
             elems.each(function (_el) {
+
                 if (el === _el) {
-                    result = true; return false;
+                    result = true;
+                    return false;
                 }
             });
-            if (result) return false;
+
+            if (result) {
+                return false;
+            }
         });
+
         return result;
     },
 
@@ -785,147 +931,122 @@ $.prototype = {
         return this.parent(selector, context);
     },
 
-    markup: function (s) {
+    markup: function (str) {
 
-        // if we support html5 templates (everybody but IE)
-        var d = document,
-            c = d.createElement('template');
-
-        if (c.content) {
-            c.innerHTML = s;
-            return [].slice.call(c.content.childNodes);
-        }
-
-        // IE does this...
-        var t = (/^\s*<([^>\s]+)/.exec(s) || [])[1] || null,
-            a = t && $._wraps.hasOwnProperty(t) && $._wraps[t] || $._wraps.defaultt,
-            i = 0;
-
-        c = d.createElement('div');
-        c.innerHTML = a[1] + s + a[2];
-
-        while (i < a[0]) {
-            c = c.firstChild;
-            i++;
-        }
-
-        return [].slice.call(c.childNodes);
+        var m = $.markup(str);
+        return m.childNodes;
     },
 
-    html: function (s) {
+    html: function (str) {
 
-        if (s === void+1) {
-            if (this.length) {
-                return this[0].innerHTML;
-            }
-            return null;
+        if (str === void+1) {
+
+            var elem = this.first();
+
+            return elem && elem.innerHTML || '';
         }
 
         return this.each(function (el) {
-            while (el.firstChild) {
-                $.remove(el.firstChild);
+
+            var children = el.childNodes,
+                l = children.length;
+
+            while (l--) {
+                $.remove(children[l]);
             }
-            Mk.fn.each(this, this.markup(s), function (f) {
-                el.appendChild(f);
-            });
+
+            el.appendChild($.markup(str));
         });
     },
 
-    text: function (s) {
+    text: function (text) {
 
-        if (s === void+1) {
-            if (this.length) {
-                return this[0].textContent;
-            }
-            return null;
+        if (text === void+1) {
+
+            var elem = this.first();
+
+            return elem && elem.textContent || '';
         }
 
         return this.each(function (el) {
-            el.textContent = s;
+            el.textContent = text;
         });
     },
 
-    nv: function (n, v, fn) {
+    removeAttr: function (name) {
 
-        if (typeof n === 'object') {
-            for (var i in n) {
-                fn.call(this, i, n[i]);
-            }
-            return this;
-        }
-        return fn.call(this, n, v);
-    },
-
-    attr: function (n, v) {
-
-        return this.nv(n, v, function (_n, _v) {
-
-            if (_v === void+1) {
-                return this.length && this[0].getAttribute(_n);
-            }
-            return this.each(function (el) {
-                if (_v === null) {
-                    el.removeAttribute(_n);
-                    return;
-                }
-                el.setAttribute(_n, _v);
-            });
+        return this.each(function (el) {
+            el.removeAttribute(name);
         });
     },
 
-    prop: function (n, v) {
-        return this.nv(n, v, function (_n, _v) {
-            if (_v === void+1) {
-                return this.length && this[0][_n] || null;
+    attr: function (name, value) {
+
+        return this.nv(name, value, function (el, n, v) {
+
+            if (v === void+1) {
+                return el.getAttribute(n);
             }
-            return this.each(function (el) {
-                el[_n] = _v;
-            });
+            el.setAttribute(n, v);
         });
     },
 
-    val: function (v) {
+    prop: function (name, value) {
 
-        if (v === void+1 && this.length) {
+        return this.nv(name, value, function (el, n, v) {
+
+            if (v === void+1) {
+                return el[n] || undefined;
+            }
+            el[n] = v;
+        });
+    },
+
+    val: function (value) {
+
+        if (value === void+1 && this.length) {
             return this[0].value;
         }
 
-        return this.each(function(el) {
-            el.value = v;
+        return this.each(function (el) {
+            el.value = value;
         });
     },
 
-    data: function (n, v) {
-        return this.nv(n, v, function (_n, _v) {
-            if (_v === void+1) {
-                return $.data(this[0], _n);
+    data: function (name, value) {
+
+        return this.nv(name, value, function (el, n, v) {
+
+            if (v === void+1) {
+                return $.data(el, n) || null;
             }
-            return this.each(function (el) {
-                $.data(el, _n, _v);
-            });
+            $.data(el, n, v);
         });
     },
 
-    css: function (n, v) {
-        return this.nv(n, v, function (_n, _v) {
-            if (_v === void+1 && this.length) {
-                return getComputedStyle(this[0]).getPropertyValue(_v);
+    css: function (name, value) {
+
+        return this.nv(name, value, function (el, n, v) {
+            if (v === void+1) {
+                return getComputedStyle(el).getPropertyValue(v);
             }
-            return this.each(function (el) {
-                el.style[_n] = Mk.type(_v, 'number') && (_v + 'px') || _v;
-            });
+            el.style[n] = typeof v === 'number' && v + 'px' || v;
         });
     },
 
-    hasClass: function (v) {
+    hasClass: function (cls) {
 
         var r = false;
+
         this.each(function (el) {
-            if (el.classList.contains(v)) {
+
+            if (el.classList.contains(cls)) {
+
                 r = true;
                 return false;
             }
         });
+
         return r;
     },
 
@@ -951,60 +1072,52 @@ $.prototype = {
         });
     },
 
-    appendTo: function (s, c) {
+    appendTo: function (selector, context) {
 
-        var elem = new $(s, c)[0] || null;
-
-        if (elem) {
-            this.each(function (el) {
-                elem.appendChild(el);
-            });
-        }
-        return this;
-    },
-
-    prependTo: function (s, c) {
-
-        var elem = new $(s, c)[0] || null;
+        var elem = new $(selector, context).last();
 
         if (elem) {
-            this.each(function (el) {
-                if (elem.firstChild) {
-                    elem.insertBefore(el, elem.firstChild);
-                    return;
-                }
-                elem.appendChild(el);
-            });
+            elem.appendChild(this.toFrag());
         }
         return this;
     },
 
-    append: function (s, c) {
+    prependTo: function (selector, context) {
 
-        if (this.length) {
+        var elem = new $(selector, context).last(),
+            frag = this.toFrag();
 
-            var elem = this[this.length - 1];
-
-            new $(s, c).each(function (el) {
-                elem.appendChild(el);
-            });
+        if (elem) {
+            elem.firstChild
+                ? elem.insertBefore(frag, elem.firstChild)
+                : elem.appendChild(frag);
         }
         return this;
     },
 
-    prepend: function (s, c) {
+    append: function (selector, context) {
 
-        if (this.length) {
+        var elem = this.last();
 
-            var elem = this[this.length - 1];
+        if (elem) {
+            elem.appendChild(
+                new $(selector, context).toFrag());
 
-            new $(s, c).each(function (el) {
-                if (elem.firstChild) {
-                    elem.insertBefore(el, elem.firstChild);
-                    return;
-                }
-                elem.appendChild(el);
-            });
+        }
+        return this;
+    },
+
+    prepend: function (selector, context) {
+
+        var elem = this.last(), frag;
+
+        if (elem) {
+
+            frag = new $(selector, context).toFrag();
+
+            elem.firstChild
+                ? elem.insertBefore(frag, elem.firstChild)
+                : elem.appendChild (frag);
         }
         return this;
     },
@@ -1020,21 +1133,26 @@ $.prototype = {
         o.each(function (el) {
             $.remove(el);
         });
+
         return this;
     },
 
     focus: function () {
 
-        if (this.length) {
-            this[this.length - 1].focus();
+        var elem = this.last();
+
+        if (elem) {
+            elem.focus();
         }
         return this;
     },
 
     blur: function () {
 
-        if (this.length) {
-            this[this.length - 1].blur();
+        var elem = this.last();
+
+        if (elem) {
+            elem.blur();
         }
         return this;
     },
@@ -1345,8 +1463,10 @@ Mk.fn.template = {
                 htm;
 
             if (hlt) {
-                htm = tp.get('highlight', tp.markup);
-                str = str.replace(new RegExp('(' + hlt + ')', 'gi'), htm);
+                htm = tmp.get('highlight', tmp.markup);
+                //string escape patterns throw errors
+				//so we must replace the escape character with doubles.
+                str = str.replace(new RegExp('(' + hlt.replace(/\\/g, '\\\\') + ')', 'gi'), htm);
             }
             return str;
         },
@@ -1368,14 +1488,19 @@ Mk.fn.eventEmitter = {
         var bucket = obj.bucket,
             event = this.event(obj.type);
 
-        obj.namespace = event.ns;
+        obj.namespace = event.namespace;
         obj.type = event.type;
 
         if (!prop.call(bucket, event.type)) {
              bucket[event.type] = [];
         }
 
-        bucket[event.type].push(obj);
+        bucket[event.type].push({
+            namespace: event.namespace,
+            type: event.type,
+            handler: obj.handler,
+            context: obj.context,
+        });
     },
 
     event: function (type) {
@@ -2091,6 +2216,15 @@ Mk.prototype = {
         return this;
     },
     /*
+    <method:unmount>
+        <invoke>.unmount()</invoke>
+        <desc>Specialized method used for performance benefits with SPA frameworks. Frameworks like Angular and React use different methods to remove dom nodes and events bound to the app. In your unmount/teardown handlers, you may call this method to remove dom elements, data, and events bound through Mk[ui] freeing up memory and space.</desc>
+    </method:unmount>
+    */
+    unmount: function () {
+        /* to be populated by each individual component */
+    },
+    /*
     <method:_init>
         <invoke>._init(root[, config])</invoke>
         <param:root>
@@ -2138,7 +2272,8 @@ Mk.prototype = {
 
         this.config = {
             templates: {},
-            formats: {}
+            formats: {},
+            events: {}
         };
 
         this.each(this.formats, function (v, n) {
@@ -2168,10 +2303,16 @@ Mk.prototype = {
         o = o || {};
 
         var c = this.config;
+            c.events
 
         this.each(o, function (v, n) {
 
-            if (Mk.type(v, 'object|arraylike') && prop.call(c, n)) {
+            if (n === 'events') {
+                this.each(v, function (handler, type) {
+                    this.on(type, handler);
+                });
+            }
+            else if (Mk.type(v, 'object|arraylike') && prop.call(c, n)) {
                 this.each(v, function (e, k) {
                     c[n][k] = e;
                 });
@@ -2180,6 +2321,7 @@ Mk.prototype = {
                 c[n] = v;
             }
         });
+
         return this;
     },
     /*

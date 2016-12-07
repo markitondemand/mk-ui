@@ -3,7 +3,6 @@ $.events = {
     //
     // delegation events for certain event types
     // require the capture boolean to be set to true.
-    //
     capture: function (type, del) {
 
         if (del) {

@@ -1,4 +1,131 @@
-
+/*
+	<depedency:Core>
+		<src>dist/js/core.js</src>
+		<docs>../</docs>
+	</depedency:Core>
+	<depedency:Selectmenu>
+		<src>dist/js/selectmenu.js</src>
+		<docs>./docs/selectmenu.html</docs>
+	</depedency:Selectmenu>
+	<file:js>
+		<src>dist/js/autocomplete.js</src>
+	</file:js>
+	<file:css>
+		<src>dist/css/autocomplete.css</src>
+	</file:css>
+	<file:less>
+		<src>dist/less/autocomplete.less</src>
+	</file:less>
+	<file:scss>
+		<src>dist/scss/autocomplete.scss</src>
+	</file:scss>
+	<event:render>
+		<desc>Fired when data has been retrieved and the list is ready to be built. Binding this event replaces the original rending with your own, custom, rendering.</desc>
+		<example>
+			instance.on('render', function (data) {
+				console.info(data);
+			});
+		</example>
+	</event:render>
+	<event:change>
+		<desc>Fires when autocomplete value changes.</desc>
+		<example>
+			instance.on('change', function () {
+				console.info('base 64:', this.value);
+				console.info('raw objects:', this.selections);
+			});
+		</example>
+	</event:change>
+	<event:show>
+		<desc>Fired when menu is shown.</desc>
+		<example>
+			instance.on('show', function () {
+				console.info('Menu has opened!');
+			});
+		</example>
+	</event:show>
+	<event:hide>
+		<desc>Fired when menu is hidden.</desc>
+		<example>
+			instance.on('hide', function () {
+				console.info('Menu has closed!');
+			});
+		</example>
+	</event:hide>
+	<event:activate>
+		<desc>Fired when an option becomes active.</desc>
+		<example>
+			instance.on('activate', function (option, keyboard) {
+				console.info('active option:', option);
+				console.info('came from keyboard (vs mouse):', keyboard);
+			});
+		</example>
+	</event:activate>
+	<event:disabled>
+		<desc>Fired when selectmenu is disabled, if previously enabled.</desc>
+		<example>
+			instance.on('disabled', function () {
+				console.info('Selectmenu has been diabled.');
+			});
+		</example>
+	</event:disabled>
+	<event:enabled>
+		<desc>Fired when selectmenu is enabled, if previously disabled.</desc>
+		<example>
+			instance.on('enabled', function () {
+				console.info('Selectmenu has become enabled.');
+			});
+		</example>
+	</event:enabled>
+	<event:update>
+		<desc>Fired when updates are made to the rendered UI through the use of update().</desc>
+		<example>
+			instance.on('update', function () {
+				console.info('Changes to the native select have been applied to the UI.');
+			});
+		</example>
+	</event:update>
+	<event:capacity>
+		<desc>Fired when you've reached the selection limit. Does not fire for single selects.</desc>
+		<example>
+			instance.on('capacity', function () {
+				console.info('We reached capacity!');
+			});
+		</example>
+	</event:capacity>
+	<event:create.tag>
+		<desc>Fired when the trigger input value (label) changes.</desc>
+		<example>
+			instance.on('create.label', function (o) {
+				o.label = o.node.text() + ' new label!';
+			});
+		</example>
+	</event:create.tag>
+	<event:request.send>
+		<desc>Used when hooking into request logic to send requests to the server for data.</desc>
+		<example>
+			instance.on('request.before', function (query, requestnumber) {
+				console.info('about to search for ', query);
+			});
+		</example>
+	</event:request.before>
+	<event:request.error>
+		<desc>Since remote requests are left the end developers, this event must be emit by the end developer as well, typically in an error handler. Since the end developer emits this event, you may pass in any arguments you like.</desc>
+		<example>
+			instance.on('request.error', function () {
+				console.info('request failed');
+			});
+		</example>
+	</event:request.error>
+	<event:request.abort>
+		<desc>Fired when a request is being aborted.</desc>
+		<example>
+			instance.on('request.abort', function () {
+				console.info('my request is being aborted due to new user actions.');
+			});
+		</example>
+	</event:request.abort>
+*/
 (function ( root, factory ) {
 
 	if (typeof define === 'function' && define.amd) {
@@ -15,7 +142,7 @@
 
 })(typeof window !== "undefined" && window || this, function (root, mk) {
 
-    if (mk.type(mk.Selectmenu, 'undefined')) {
+    if (typeof mk.Selectmenu === 'undefined') {
         throw new Error('Mk.Autocomplete: Selectmenu base class not found.');
     }
 
@@ -246,12 +373,12 @@
 		},
 
 		/*
-			<property:isEmpty>
+			<property:empty>
 				<desc>Boolean representing if we have no results.</desc>
-			</property:isEmpty>
+			</property:empty>
 		*/
 
-		get isEmpty () {
+		get empty () {
 			return this.items.length < 1;
 		},
 
@@ -262,8 +389,14 @@
 		*/
 
         get remote () {
-            return this.events.request
-                && this.events.request.length > 0;
+
+			var ev = this.events.request || [];
+
+			return this.first(ev, function (e) {
+				if (e.namespace === '.send') {
+					return true;
+				}
+			});
         },
 
 		/*
@@ -337,8 +470,6 @@
 
 			this
             ._param('label', 'string', o, label, input)
-			._param('remote', 'string', o, null, input)
-			._param('type', 'string', o, 'json', input)
 			._param('limit', 'number', o, 1, input)
 			._param('time', 'number', o, 500, input)
 			._param('doubledelete', 'boolean', o, o.limit > 1, input)
@@ -357,6 +488,7 @@
 
             this.input.attr('placeholder',
                 this.rootelement.attr('placeholder'));
+
 			this._updateTagroot();
 		},
 
@@ -377,6 +509,9 @@
 		},
 
         _bind: function () {
+
+			// bind error handler to event emitter
+			this.on('request.error', this.error);
 
             this._bindInputEvents();
             this._bindListEvents();
@@ -483,6 +618,11 @@
 				return;
 			}
 
+			if (this.timer) {
+				clearTimeout(this.timer);
+				this.timer = null;
+			}
+
             var v = this.input.val(),
                 w = e.which,
 				k = this.keycode,
@@ -502,7 +642,7 @@
 				return this._popByDelete().abort().clear();
 			}
 
-			this.doubledelete = false;
+			this.deletecount = 0;
 
             // if user hit the comma, is allowed to input anything, and commas are enabled
             // allow the input of the comma and split up the values to be entered as selections
@@ -510,9 +650,19 @@
 				return this._comma(v);
 			}
 
-            // do standard search behaviors
-			return this.search(v);
+			this.timer = this.delay(function () {
+				// do standard search behaviors
+				return this.search(v);
+			}, this.config.time);
         },
+
+		_space: function (e) {
+
+			if (!this.timer && this.isHidden && this.items.length > 0) {
+				e.preventDefault();
+				this.show();
+			}
+		},
 
         _enter: function (e) {
 
@@ -520,9 +670,10 @@
 
 			var a = this.items.find('.active'),
                 i = a.data('value'),
-				v = this.input.val();
+				v = this.input.val(),
+				h = this.isHidden;
 
-			if (v && a.length < 1 && this.anything) {
+			if (v && h && this.anything) {
 
 				return this.abort().select(this.flatten({
 					label: v,
@@ -530,20 +681,26 @@
 				}));
 			}
 
-			if (this.isHidden && !this.isEmpty) {
+			if (h && !this.empty) {
 				return this.show();
 			}
 
-            if (a.attr('aria-selected') !== 'true') {
-				this.select(i);
+			//if we have an active element
+			if (a.length) {
+				//if the active element has not already been selected
+				if (a.attr('aria-selected') !== 'true') {
+					this.select(i);
+				}
+				//if it has been selected and we're a multple
+				else if (this.multiple) {
+					this.deselect(i);
+				}
+				// or just open the list results
+				else {
+					return this.show();
+				}
 			}
-			else if (this.multiple) {
-				this.deselect(i);
-			}
-			else {
-				return this.show();
-			}
-
+			//after selection, hide the list results if we're a single select
 			if (!this.multiple) {
 				return this.hide();
 			}
@@ -584,9 +741,9 @@
 
 			if (added) {
                 //clear all request logic
-				this.clear();
+				this.abort().clear();
 
-                //remove input text if we're allowing multipl selections
+                //remove input text if we're allowing multiple selections
                 if (this.multiple) {
 				    this.input.val('');
                 }
@@ -621,7 +778,7 @@
 
 		move: function (up) {
 
-			if (this.isEmpty) {
+			if (this.empty) {
 
 				if (this.hasCache()) {
 					this.search();
@@ -702,10 +859,11 @@
             if (this.remote) {
 
                 this.abort();
-                this.notify(this.NOTIFY_STATES.LOADING, this.query);
-                this.emit('request', this.query);
+				this.notify(this.NOTIFY_STATES.LOADING, this.query);
+	            this.emit('request.send', this.query, ++this.requests);
                 return;
             }
+
             this.render([], this.query);
         },
 
@@ -872,8 +1030,9 @@
         filterData: function (key, data) {
 
 			if (key) {
-
-				var reg = new RegExp(key, 'i');
+				//string escape patterns throw errors
+				//so we must replace the escape character with doubles.
+				var reg = new RegExp(key.replace(/\\/g, '\\\\'), 'i');
 
 				return this.filter(data, function (o, i) {
 					if (reg.test(o.label) || reg.test(o.value)) {
@@ -887,7 +1046,7 @@
 
         /*
 			<method:prepData>
-				<invoke>.filterData(data[, query])</invoke>
+				<invoke>.prepData(data[, query])</invoke>
 				<param:data>
 					<type>Array</type>
 					<desc>An array of (typically) objects. Objects must contain a 'value' and 'label' property for templating and mapping.</desc>
@@ -959,6 +1118,7 @@
 					this.shadow.removeClass('capacity');
 					this.selections.push(data);
 					this.tag(data).updateRoot();
+					this.notify();
 
                     if (!silent) {
                         this.emit('change', data);
@@ -1055,15 +1215,36 @@
         /*
 			<method:abort>
 				<invoke>.abort()</invoke>
-				<desc>Calls the abort event to let end developer know they should cancel their current request, if any.</desc>
+				<desc>Invokes the abort event to let end developer know they should cancel their current request, if any.</desc>
 			</method:abort>
 		*/
 
         abort: function () {
-            this.emit('request.abort');
+
+            this.emit('request.abort', --this.requests);
             this.notify(this.NOTIFY_STATES.ABORT);
+
             return this;
         },
+
+		/*
+			<method:error>
+				<invoke>.error()</invoke>
+				<desc>Method invoked when request error event is emit. When making requests for search term data, if an error occurs, emit the error event to invoke this functionality.</desc>
+			</method:error>
+		*/
+
+		error: function () {
+
+			//remove live node text
+			this.notify(this.NOTIFY_STATES.ABORT);
+
+			//update notification node text
+			this.notify(this.NOTIFY_STATES.ERROR, query);
+
+			//hide the list results
+			return this.hide();
+		},
 
         /*
 			<method:blur>
@@ -1079,7 +1260,7 @@
         /*
 			<method:clear>
 				<invoke>.clear()</invoke>
-				<desc>Clear query, list results, and close the menu.</desc>
+				<desc>Clears screen reader text, list results, and close the menu.</desc>
 			</method:clear>
 		*/
 
@@ -1120,6 +1301,18 @@
 			<method:notify>
 				<invoke>.notify(type[, query])</invoke>
 				<desc>Sends text notifications to the screen reader about the state of the Autocomplete. Also applies state classes (request loading for example) to the Autocomplete.</desc>
+				<param:type>
+					<type>CONSTANT</type>
+					<desc>CONSTANT value from instance.NOTIFY_STATES which determines what format text to use for screen readers and user message updating.</desc>
+				</param:type>
+				<param:query>
+					<type>String</type>
+					<desc>Used in the format text for screen readers and user message updates.</desc>
+				</param:query>
+				<param:count>
+					<type>Number</type>
+					<desc>Result count. Only used for the NOTIFY_STATES.LOADED type representing the number of results returned from the request.</desc>
+				</param:count>
 			</method:notify>
 		*/
 
@@ -1150,11 +1343,13 @@
             }
 
             if (live) {
+
+				this.live.text('');
+
                 if ((type === states.LOADING && query) || (query && count !== null)) {
                     this.live.text(this.format(format, data));
-                } else {
-                    this.live.text('');
                 }
+
                 this.shadow[type === states.LOADING && 'addClass' || 'removeClass']('loading');
             }
             else {
@@ -1177,7 +1372,7 @@
 			}
 			else {
 
-				this.emit('create.taglabel', pointer);
+				this.emit('create.tag', pointer);
 
 				this.tagroot.append(
 					this.html('tag', pointer));
@@ -1185,38 +1380,107 @@
 			return this;
 		},
 
+		/*
+			<method:updateRoot>
+				<invoke>.updateRoot()</invoke>
+				<desc>Updates the root input to reflect the current Autocomplete selections.</desc>
+			</method:updateRoot>
+		*/
+
 		updateRoot: function () {
 			this.element.value = this.value;
 			return this;
 		},
+
+		/*
+			<method:render>
+				<invoke>.render(data[, query])</invoke>
+				<desc>Renders a result list based off the data parameter provided</desc>
+				<param:data>
+					<type>Array</type>
+					<desc>Array of data objects to create a list from. Data objects must contain a 'label' and 'value' property.</desc>
+				</param:data>
+				<param:query>
+					<type>String</type>
+					<desc>The query term representing the data set. Used for screen readers. If not provided, default is instance.query property.</desc>
+				</param:query>
+			</method:render>
+		*/
 
         render: function (data, query) {
 
             data = data || [];
             query = query || this.query;
 
-			var prepedData = this.prepData(data, query);
+			var preppedData = this.prepData(data, query);
 
 			this.items.remove();
 
-			this.notify();
+			//if we have no data,
+			//notify user and hide list if vidible.
+            if (preppedData.length < 1) {
 
-            if (prepedData.length < 1) {
+				//remove live node text
+				this.notify(this.NOTIFY_STATES.ABORT);
+
+				//update notification node text
                 this.notify(this.NOTIFY_STATES.EMPTY, query);
-                return;
+
+				//hide the list results
+				return this.hide();
             }
 
 			if (this.events.render && this.events.render.length > 0) {
-				this.emit('render', prepedData);
+				this.emit('render', preppedData);
 			}
 			else {
-				this._render(prepedData);
+				this._render(preppedData);
 			}
-
-			this.show();
+			this.notify();
             this.notify(this.NOTIFY_STATES.LOADED, query, data.length);
+            return this.show();
+		},
 
-            return this;
+		/*
+			<method:unmount>
+				<invoke>.unmount()</invoke>
+				<desc>Remove all mounted nodes, data, events, and cache associated with the Autocomplete instance to free up memory and resources.</desc>
+			</method:unmount>
+		*/
+
+		unmount: function () {
+
+			//remove mounted shadow element, which
+			//will also remove all data and events to any/all
+			//element inside it.
+			this.shadow.remove();
+			this.shadow = null;
+
+			//remove all references to
+			//objects and function pointers
+			this.events =
+			this.config =
+			this.selections =
+			this.cache =
+			this.root = null;
+		},
+
+		/*
+			<method:update>
+				<invoke>.update()</invoke>
+				<desc>Make changes to your original input then call this for the UI to consume new changes.</desc>
+			</method:update>
+		*/
+
+		update: function () {
+
+			this._config(this.config);
+			this.super();
+
+			this.input.attr('placeholder',
+				this.rootinput.attr('placeholder'));
+
+			this.updateTagroot();
 		}
     });
 
