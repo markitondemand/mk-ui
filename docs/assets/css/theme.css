@@ -1,5 +1,5 @@
 
-/* @import 'https://fonts.googleapis.com/css?family=Roboto+Slab:400,700'; */
+@import 'https://fonts.googleapis.com/css?family=Roboto+Slab:400,700';
 
 /***********************
   Tag Stuff
@@ -138,6 +138,7 @@ h1, h2, h3, h4, h5, h6 {
 .navbar-theme {
 	background: linear-gradient(45deg,#328f8a,#08ac4b);
     border-bottom: 1px solid #328f8a;
+	border-top: 0;
     border-radius: 0;
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
     color: white;

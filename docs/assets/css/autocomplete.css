@@ -1,0 +1,12 @@
+
+.panel-example {
+    height: 300px;
+    position: relative;
+}
+
+.panel-example .mk-ac-root {
+    position: absolute;
+    bottom: 5px;
+    left: 15px;
+    right: 15px;
+}

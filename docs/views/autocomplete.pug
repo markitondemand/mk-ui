@@ -3,6 +3,7 @@ html
 	head
 		include ./shared/head
 		link(rel="stylesheet", type="text/css", href="/dist/css/autocomplete.css")
+		link(rel="stylesheet", type="text/css", href="/docs/assets/css/autocomplete.css")
 	body
 		include ./shared/header
 		main.container
@@ -10,7 +11,7 @@ html
 			h2 Examples
 			div.row
 				div.col-sm-4
-					section.panel
+					section.panel.panel-example
 						header.panel-heading
 							h2.panel-title One Selection, Predefined Data.
 						div.panel-body
@@ -23,7 +24,7 @@ html
 									placeholder="Movie Genres",
 									name="symbol-1")
 				div.col-sm-4
-					section.panel
+					section.panel.panel-example
 						header.panel-heading
 							h2.panel-title Four Selections
 						div.panel-body
@@ -38,7 +39,7 @@ html
 									name="symbol-2",
 									data-limit="4")
 				div.col-sm-4
-					section.panel
+					section.panel.panel-example
 						header.panel-heading
 							h2.panel-title Remote URLs
 						div.panel-body
@@ -54,7 +55,7 @@ html
 									data-limit="4")
 			div.row
 				div.col-sm-4
-					section.panel
+					section.panel.panel-example
 						header.panel-heading
 							h2.panel-title Comma Seperate
 						div.panel-body
@@ -69,7 +70,7 @@ html
 									data-limit="4",
 									data-comma="true")
 				div.col-sm-4
-					section.panel
+					section.panel.panel-example
 						header.panel-heading
 							h2.panel-title Only Allow Result Selections
 						div.panel-body
@@ -84,7 +85,7 @@ html
 									data-limit="4",
 									data-anything="false")
 				div.col-sm-4
-					section.panel
+					section.panel.panel-example
 						header.panel-heading
 							h2.panel-title Removed Tag UI
 						div.panel-body

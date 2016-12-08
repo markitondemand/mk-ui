@@ -98,7 +98,6 @@
 	padding: 0;
 	min-width: 100%;
 	position: absolute;
-	top: 100%;
 	z-index: 1;
 }
 
@@ -192,7 +191,7 @@
 	margin: $mk-margin 0;
 	border: 1px solid $mk-gray-3;
 	min-height: $mk-ac-tag-min-height;
-	padding: $mk-padding;
+	padding: 0 $mk-padding $mk-padding;
 	position: relative;
 }
 
@@ -220,7 +219,7 @@
 }
 
 .mk-ac-tag {
-	margin-right: 0.6rem;
+	margin: $mk-margin $mk-margin 0 0;
 }
 
 .mk-ac-tag [data-action="remove"] {
@@ -230,4 +229,14 @@
 
 .mk-ac-tag [data-action="remove"]:before {
 	content: $mk-ac-tag-remove-icon;
+}
+
+.mk-ac-notifications {
+	background: white;
+	font-size: 1.2rem;
+	height: $mk-ac-notification-height;
+}
+
+.mk-ac-notifications .highlight {
+	font-weight: bold;
 }

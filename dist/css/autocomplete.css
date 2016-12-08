@@ -86,7 +86,6 @@
   padding: 0;
   min-width: 100%;
   position: absolute;
-  top: 100%;
   z-index: 1; }
 
 .mk-ac-shadow.loading .mk-ac-list:before {
@@ -166,8 +165,8 @@
 .mk-ac-tags {
   margin: 0.8rem 0;
   border: 1px solid #ccc;
-  min-height: 4.6rem;
-  padding: 0.8rem;
+  min-height: 5rem;
+  padding: 0 0.8rem 0.8rem;
   position: relative; }
 
 .mk-ac-tags:before {
@@ -187,15 +186,23 @@
   border: 1px solid #ccc;
   list-style: none;
   display: inline-block;
-  padding: 0.3rem 0.3rem 0.3rem 0;
+  padding: 0.5rem 0.5rem 0.5rem 0;
   margin: 0; }
 
 .mk-ac-tag {
-  margin-right: 0.6rem; }
+  margin: 0.8rem 0.8rem 0 0; }
 
 .mk-ac-tag [data-action="remove"] {
   display: inline-block;
-  padding: 0 0.3rem; }
+  padding: 0 0.5rem; }
 
 .mk-ac-tag [data-action="remove"]:before {
   content: "×"; }
+
+.mk-ac-notifications {
+  background: white;
+  font-size: 1.2rem;
+  height: 16px; }
+
+.mk-ac-notifications .highlight {
+  font-weight: bold; }

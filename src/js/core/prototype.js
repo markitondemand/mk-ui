@@ -43,7 +43,7 @@ Mk.prototype = {
         <desc>Expression used to check the user agent for device patterns.</desc>
     </property:deviceExp>
     */
-    deviceExp: /(android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
+    deviceExp: /(android|nexus|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i,
 
     get _pushSuper () {
         return Mk.fn.pushSuper;

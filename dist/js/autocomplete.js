@@ -165,8 +165,8 @@
 				'<div class="{{$key}}-shadow">\
 					{{template:tags}}\
 					{{template:trigger}}\
-					{{template:notifications}}\
 					{{scope:list}}{{template:list}}{{/scope:list}}\
+					{{template:notifications}}\
 				</div>',
 
 			tags: '<ul class="{{$key}}-tags" aria-label="Current selections"></ul>',
@@ -470,7 +470,7 @@
 			this
             .param('label', 'string', o, label, input)
 			.param('limit', 'number', o, 1, input)
-			.param('time', 'number', o, 300, input)
+			.param('time', 'number', o, 500, input)
 			.param('doubledelete', 'boolean', o, o.limit > 1, input)
 			.param('anything', 'boolean', o, true, input)
 			.param('comma', 'boolean', o, false, input)
@@ -598,6 +598,12 @@
 
             return -1;
         },
+
+		_esc: function (e) {
+
+			this.notify();
+			this.super(e);
+		},
 
         _keydown: function (e) {
 
