@@ -215,7 +215,7 @@
 					{{loop:items}}{{template:item}}{{/loop:items}}\
 				</ul>',
 
-			item:        //data-display="{{value}}"
+			item:
 				'<li class="{{$key}}-item" role="presentation">\
 					<a id="{{id}}" \
 						class="{{$key}}-option" \
@@ -439,18 +439,17 @@
 
 		query: '',
 
-        _verifyTag: function (n) {
+        verifyRoot: function (n) {
 
 			var node = this.node('', n);
 
-			if (node.length < 1 ||
-				node[0].tagName.toLowerCase() !== 'input') {
+			if (!this.node('', n).is('input')) {
 				throw new Error(':: Mk.Autocomplete - root must have a text <input> node ::');
 			}
 			return true;
 		},
 
-		_define: function (r, o) {
+		define: function (r, o) {
 
 			this.query = '';
 			this.selections = [];
@@ -460,7 +459,7 @@
 			this.super(r, o);
 		},
 
-		_config: function (o, internal) {
+		configure: function (o, internal) {
 
 			o = o || {};
             o.data = o.data || null;
@@ -469,30 +468,54 @@
                 label = input.attr('aria-label') || this.formats.label;
 
 			this
-            ._param('label', 'string', o, label, input)
-			._param('limit', 'number', o, 1, input)
-			._param('time', 'number', o, 500, input)
-			._param('doubledelete', 'boolean', o, o.limit > 1, input)
-			._param('anything', 'boolean', o, true, input)
-			._param('comma', 'boolean', o, false, input)
-			._param('notags', 'boolean', o, false, input);
+            .param('label', 'string', o, label, input)
+			.param('limit', 'number', o, 1, input)
+			.param('time', 'number', o, 500, input)
+			.param('doubledelete', 'boolean', o, o.limit > 1, input)
+			.param('anything', 'boolean', o, true, input)
+			.param('comma', 'boolean', o, false, input)
+			.param('notags', 'boolean', o, false, input);
 
 			if (internal !== true) {
 				this.super(o);
 			}
 		},
 
-        _build: function () {
+		/*
+			<method:unmount>
+				<invoke>.unmount()</invoke>
+				<desc>Remove all mounted nodes, data, events, and cache associated with the Autocomplete instance to free up memory and resources.</desc>
+			</method:unmount>
+		*/
+
+		unmount: function () {
+
+			//remove mounted shadow element, which
+			//will also remove all data and events to any/all
+			//element inside it.
+			this.shadow.remove();
+
+			//remove all references to
+			//objects and function pointers
+			this.shadow =
+			this.events =
+			this.config =
+			this.selections =
+			this.cache =
+			this.root = null;
+		},
+
+        build: function () {
 
             this.super();
 
             this.input.attr('placeholder',
                 this.rootelement.attr('placeholder'));
 
-			this._updateTagroot();
+			this.updateTagroot();
 		},
 
-        _updateTagroot: function () {
+        updateTagroot: function () {
 
 			var method = 'removeClass',
 				hidden = 'false';
@@ -508,17 +531,16 @@
 			return this;
 		},
 
-        _bind: function () {
+        bind: function () {
 
-			// bind error handler to event emitter
 			this.on('request.error', this.error);
 
-            this._bindInputEvents();
-            this._bindListEvents();
-            this._bindLabelEvents();
+            this.bindInputEvents();
+            this.bindListEvents();
+            this.bindLabelEvents();
         },
 
-        _bindLabelEvents: function () {
+        bindLabelEvents: function () {
 
 			var thiss = this;
 
@@ -528,7 +550,7 @@
 			});
 		},
 
-        _bindInputEvents: function () {
+        bindInputEvents: function () {
 
             var thiss = this,
 				trigger = this.trigger;
@@ -1086,11 +1108,15 @@
 
         /*
 			<method:select>
-				<invoke>.select(value)</invoke>
+				<invoke>.select(value[, silent])</invoke>
 				<param:value>
 					<type>String</type>
 					<desc>a flattened string representing a selection object.</desc>
 				</param:value>
+				<param:silent>
+					<type>Boolean</type>
+					<desc>Pass true to prevent change events from triggering.</desc>
+				</param:silent>
 				<desc>Selects a value from results, or a custom value provided by you.</desc>
 			</method:select>
 		*/
@@ -1131,11 +1157,15 @@
 
 		/*
 			<method:deselect>
-				<invoke>.deselect(value)</invoke>
+				<invoke>.deselect(value[, silent])</invoke>
 				<param:value>
 					<type>String</type>
 					<desc>a flattened string representing a selection object.</desc>
 				</param:value>
+				<param:silent>
+					<type>Boolean</type>
+					<desc>Pass true to prevent change events from triggering.</desc>
+				</param:silent>
 				<desc>Deselects a value from results, or a custom value provided by you.</desc>
 			</method:deselect>
 		*/
@@ -1168,8 +1198,12 @@
 
         /*
 			<method:deselectAll>
-				<invoke>.deselectAll()</invoke>
+				<invoke>.deselectAll([silent])</invoke>
 				<desc>Removes all current selections.</desc>
+				<param:silent>
+					<type>Boolean</type>
+					<desc>Pass true to prevent change events from triggering.</desc>
+				</param:silent>
 			</method:deselectAll>
 		*/
 
@@ -1442,30 +1476,6 @@
 		},
 
 		/*
-			<method:unmount>
-				<invoke>.unmount()</invoke>
-				<desc>Remove all mounted nodes, data, events, and cache associated with the Autocomplete instance to free up memory and resources.</desc>
-			</method:unmount>
-		*/
-
-		unmount: function () {
-
-			//remove mounted shadow element, which
-			//will also remove all data and events to any/all
-			//element inside it.
-			this.shadow.remove();
-			this.shadow = null;
-
-			//remove all references to
-			//objects and function pointers
-			this.events =
-			this.config =
-			this.selections =
-			this.cache =
-			this.root = null;
-		},
-
-		/*
 			<method:update>
 				<invoke>.update()</invoke>
 				<desc>Make changes to your original input then call this for the UI to consume new changes.</desc>
@@ -1474,7 +1484,7 @@
 
 		update: function () {
 
-			this._config(this.config);
+			this.configure(this.config, true);
 			this.super();
 
 			this.input.attr('placeholder',

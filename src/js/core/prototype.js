@@ -499,17 +499,8 @@ Mk.prototype = {
         return this;
     },
     /*
-    <method:unmount>
-        <invoke>.unmount()</invoke>
-        <desc>Specialized method used for performance benefits with SPA frameworks. Frameworks like Angular and React use different methods to remove dom nodes and events bound to the app. In your unmount/teardown handlers, you may call this method to remove dom elements, data, and events bound through Mk[ui] freeing up memory and space.</desc>
-    </method:unmount>
-    */
-    unmount: function () {
-        /* to be populated by each individual component */
-    },
-    /*
-    <method:_init>
-        <invoke>._init(root[, config])</invoke>
+    <method:init>
+        <invoke>.init(root[, config])</invoke>
         <param:root>
             <type>Mixed</type>
             <desc>A Selector/Node/Wrapped ($) Node set to be the root.</desc>
@@ -519,23 +510,26 @@ Mk.prototype = {
             <desc>Configuration object passed into an instance as settings.</desc>
         </param:config>
         <desc>Internal, private, method used as a contructor. Useful when building your own custom components. Invoked internally only.</desc>
-    </method:_init>
+    </method:init>
     */
-    _init: function (r, o) {
+    init: function (r, o) {
 
         // define properties such as:
         // templates, formats, name, etc.
-        this._define(r, o);
+        this.define(r, o);
 
         //build markup or invoke logic
-        this._build();
+        this.build();
 
         //bind events, hooks, messages, etc.
-        this._bind();
+        this.bind();
+
+        //mount component to the dom
+        this.mount();
     },
     /*
-    <method:_define>
-        <invoke>._define(root[, config])</invoke>
+    <method:define>
+        <invoke>.define(root[, config])</invoke>
         <param:root>
             <type>Mixed</type>
             <desc>A Selector/Node/Wrapped ($) Node set to be the root.</desc>
@@ -545,9 +539,9 @@ Mk.prototype = {
             <desc>Configuration object passed into an instance as settings.</desc>
         </param:config>
         <desc>A setup function called by _init. This initializes the root, events, config object, formats, templates, etc. Invoked internally only.</desc>
-    </method:_define>
+    </method:define>
     */
-    _define: function (r, o) {
+    define: function (r, o) {
 
         this.root = this.$(r);
 
@@ -567,21 +561,21 @@ Mk.prototype = {
             this.config.templates[ n ] = v;
         });
 
-        this._config(o);
+        this.configure(o);
 
         return this;
     },
     /*
-    <method:_config>
+    <method:configure>
         <invoke>._config(object)</invoke>
         <param:object>
             <type>Object</type>
             <desc>An object of end developer settings passed in and added to the config property.</desc>
         </param:object>
         <desc>Internal method, invoked by _init, responsible for setting object properties onto the internal configuration object.</desc>
-    </method:_config>
+    </method:configure>
     */
-    _config: function (o) {
+    configure: function (o) {
 
         o = o || {};
 
@@ -608,8 +602,8 @@ Mk.prototype = {
         return this;
     },
     /*
-    <method:_param>
-        <invoke>._param(name, type, config, default[, node])</invoke>
+    <method:param>
+        <invoke>.param(name, type, config, default[, node])</invoke>
         <param:name>
             <type>String</type>
             <desc>Name of config property.</desc>
@@ -631,9 +625,9 @@ Mk.prototype = {
             <desc>Optional Node to search for configurations on. Default is root.</desc>
         </param:node>
         <desc>Runs logic to find a configuration setting. It will first look to see if the value lives on config already. If not, it will check for the value on the node (or root if no node is specified). Lastly, it will type case the value based on the type specified. The final result will be set on the config object passed in.</desc>
-    </method:_param>
+    </method:param>
     */
-    _param: function (n, ty, o, d, el) {
+    param: function (n, ty, o, d, el) {
 
         var v, t;
 
@@ -680,17 +674,31 @@ Mk.prototype = {
         return this;
     },
     /*
-    <method:_build>
-        <invoke>._build()</invoke>
-        <desc>Internal Placeholder method for building the components UI. Invoked internally by _init.</desc>
-    </method:_build>
+    <method:bind>
+        <invoke>.bind()</invoke>
+        <desc>Internal Placeholder method for binding the event handlers. Invoked internally by init.</desc>
+    </method:bind>
     */
-    _build: function () {},
+    bind: function () {},
     /*
-    <method:_bind>
-        <invoke>._bind()</invoke>
-        <desc>Internal Placeholder method for binding the components UI events. Invoked internally by _init.</desc>
-    </method:_bind>
+    <method:build>
+        <invoke>.build()</invoke>
+        <desc>Internal Placeholder method for building the components. Invoked internally by init.</desc>
+    </method:build>
     */
-    _bind: function () {}
+    build: function () {},
+    /*
+    <method:mount>
+        <invoke>.mount()</invoke>
+        <desc>Internal Placeholder method for mounting the component to the DOM. Invoked internally by init.</desc>
+    </method:mount>
+    */
+    mount: function () {},
+    /*
+    <method:unmount>
+        <invoke>.unmount()</invoke>
+        <desc>Internal Placeholder method for component teardown. Invoked by end developer by choice.</desc>
+    </method:unmount>
+    */
+    unmount: function () {},
 };

@@ -81,7 +81,7 @@
 
 })(typeof window !== "undefined" && window || this, function (root, mk) {
 
-	if (mk.type(mk.Tooltip, 'undefined')) {
+	if (typeof mk.Tooltip === 'undefined') {
         throw new Error('Mk.Dialog: Tooltip base class not found.');
     }
 
@@ -149,17 +149,17 @@
 			return this.isFocusable(this.modal);
 		},
 
-		_config: function (o) {
+		configure: function (o) {
 
 			o = o || {};
 			o.position = o.position || 'bottom-left';
 
-			this._param('arrow', 'boolean', o, false);
+			this.param('arrow', 'boolean', o, false);
 
 			this.super(o);
 		},
 
-		_build: function () {
+		mount: function () {
 
 			this.link();
 
@@ -170,7 +170,31 @@
 			}
 		},
 
-		_bind: function () {
+		/*
+			<method:unmount>
+				<invoke>.unmount()</invoke>
+				<desc>Teardown instance freeing event, data, and reference memory.</desc>
+			</method:unmount>
+		*/
+
+		unmount: function () {
+
+			var r = this.root;
+
+			this.$(document.documentElement)
+				.off('mousedown' + this.selector(), this._mousedown);
+
+			this.each('click,mouseenter,mouseleave,focus,blur,keyup'.split(','), function (type) {
+				r.off(type + '.mk');
+			});
+
+			this.root =
+			this.modal =
+			this.config =
+			this._mousedown = null;
+		},
+
+		bind: function () {
 
 			var thiss = this;
 
@@ -199,11 +223,15 @@
 				thiss._keyup(e);
 			});
 
-			this.$(document.documentElement)
-			.on('mousedown' + this.selector(), function (e) {
+			this._mousedown = function (e) {
 				return thiss._down(e);
-			});
+			};
+
+			this.$(document.documentElement)
+				.on('mousedown' + this.selector(), this._mousedown);
 		},
+
+		_mousedown: null,
 
 		_keyup: function (e) {
 			if (e.which === this.keycode.esc) {
@@ -230,6 +258,10 @@
 		},
 
 		_down: function (e) {
+
+			if (this.isHidden) {
+				return;
+			}
 
 			var el = this.$(e.target),
 				dg = this.selector(),

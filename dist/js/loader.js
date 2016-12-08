@@ -109,17 +109,25 @@
 			return this.config.refocus;
 		},
 
-		_config: function (o) {
+		init: function (root, config) {
+
+			//only invoke define.
+			//build, bind, and mount not needed.
+			this.define(root, config);
+
+		},
+
+		configure: function (o) {
 
 			o = o || {};
 
-			this._param('refocus', 'boolean', o, true);
-			this._param('type', 'string', o, 'default');
+			this.param('refocus', 'boolean', o, true);
+			this.param('type', 'string', o, 'default');
 
 			this.super(o);
 		},
 
-		_buildShadow: function () {
+		mount: function () {
 
 			if (!this.shadow) {
 
@@ -136,8 +144,12 @@
 
 				overlay.addClass(type);
 			}
+		},
 
-			return this.shadow;
+		unmount: function () {
+
+			this.shadow.remove();
+			this.shadow = null;
 		},
 
 		/*
@@ -153,8 +165,8 @@
 
 			if (b !== 'true') {
 
-				s = this._buildShadow();
-				o = this.node('overlay', s);
+				this.mount();
+				o = this.node('overlay', this.shadow);
 
 				if (this.transitions) {
 					o.addClass('transition');
@@ -186,12 +198,8 @@
 				o.removeClass('in');
 
 				this.transition(o, function () {
-
+					this.unmount();
 					this.root.attr('aria-busy', 'false');
-
-					this.shadow.remove();
-					this.shadow = null;
-
 					this.emit('hide');
 				});
 			}

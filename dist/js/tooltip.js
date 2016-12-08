@@ -194,7 +194,7 @@
 		// setup maps and a couple other per-element features
 		// to run through and build the config object from
 		//
-		_config: function (o) {
+		configure: function (o) {
 
 			this.config.map = {};
 
@@ -209,12 +209,34 @@
 			return this.super(o);
 		},
 
+		/*
+			<method:unmount>
+				<invoke>.unmount()</invoke>
+				<desc>Teardown instance freeing event, data, and reference memory.</desc>
+			</method:unmount>
+		*/
+
+		unmount: function () {
+
+			var r = this.root
+
+			this.$(document.documentElement)
+				.off('mousedown' + this.selector());
+
+			this.each('click,mouseenter,mouseleave,focus,blur,keyup'.split(','), function (type) {
+				r.off(type + '.mk');
+			});
+
+			this.root =
+			this.config = null;
+		},
+
 		//
 		// bind all events to the root element
 		// and off-focus listeners to the documentElement
 		//
 
-		_bind: function () {
+		bind: function () {
 
 			var thiss = this,
 				tt = this.selector(),

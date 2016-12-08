@@ -92,7 +92,7 @@
 
 })(typeof window !== "undefined" && window || this, function (root, mk) {
 
-	mk.create( 'Selectmenu', {
+	mk.create('Selectmenu', {
 
 		name: 'mk-sm',
 
@@ -313,7 +313,7 @@
 			return this.element.value;
 		},
 
-		_verifyTag: function (n) {
+		verifyRoot: function (n) {
 
 			if (!this.node('', n).is('select')) {
 				throw new Error(':: Mk.Selectmenu - root must have a <select> node ::');
@@ -321,34 +321,82 @@
 			return true;
 		},
 
-		_define: function (r, o) {
+		define: function (r, o) {
 
-			if (this._verifyTag(r)) {
+			if (this.verifyRoot(r)) {
 				this.super(r, o);
 			}
 		},
 
-		_config: function (o) {
+		configure: function (o) {
 
 			o = o || {};
 
 			var sm = this.rootelement,
 				label = sm.attr('aria-label') || this.formats.label;
 
-			this._param('label', 'string', o, label, sm);
+			this.param('label', 'string', o, label, sm);
 
 			if (this.multiple) {
-				this._param('removable', 'boolean', o, false, sm);
-				this._param('removableId', 'string', o, this.uid());
+				this.param('removable', 'boolean', o, false, sm);
+				this.param('removableId', 'string', o, this.uid());
 			}
 
 			this.super(o);
 		},
 
-		_build: function () {
+		mount: function () {
+
+			var input = this.input,
+				label = this.$('label[for="' + this.element.id + '"]');
+
+			input.attr('id', this.uid());
+
+			//if (this.device) {
+				//this.trigger.attr('aria-hidden', 'true');
+				//this.trigger.attr('tabindex', '-1');
+			//}
+			//else {
+				this.rootelement.attr('aria-hidden', 'true');
+			//}
+
+			// if label element is present
+			if (label.length) {
+				label.attr('for', input.attr('id'));
+			}
+			//else set the aria label attribute
+			else {
+				input.attr('aria-label', this.config.label);
+			}
+			//append component to the dom
+			this.shadow.appendTo(this.root);
+		},
+
+		/*
+			<method:unmount>
+				<invoke>.unmount()</invoke>
+				<desc>Teardown component, remove from DOM, and free event, data, and reference memory.</desc>
+			</method:unmount>
+		*/
+
+		unmount: function () {
+
+			this.shadow.remove();
+
+			this.shadow =
+			this.events =
+			this.config =
+			this.root = null;
+		},
+
+		build: function () {
+
+			if (this.device) {
+				this.root.addClass('device');
+			}
 
 			if (this.config.removable) {
-				this._buildRemovable();
+				this.buildRemovable();
 			}
 
 			this.shadow =
@@ -360,37 +408,24 @@
 			}
 
 			var list = this.list,
-				selected = list.find('[aria-selected="true"]'),
-				root = this.rootelement,
-				input = this.input,
-				label = this.$('label[for="'+ this.element.id +'"]');
+				selected = list.find('[aria-selected="true"]');
 
 			this.trigger.attr({
 				'aria-controls': list.attr('id') || '',
 				'aria-activedescendant': selected.attr('id') || ''
 			});
-
-			input.attr('id', this.uid());
-			root.attr('aria-hidden', 'true');
-
-			if (label.length) {
-				label.attr('for', input.attr('id'));
-			}
-			else {
-				input.attr('aria-label', this.config.label);
-			}
 		},
 
-		_buildRemovable: function () {
+		buildRemovable: function () {
 
 			this.html('removable', {
 				label: this.format('removable'),
 				value: this.config.removableId,
-				alt: this._getRemovableAlt()
+				alt: this.getRemovableAlt()
 			}).appendTo(this.element);
 		},
 
-		_getRemovableAlt: function () {
+		getRemovableAlt: function () {
 
 			if (this.multiple && this.value.length > 0) {
 
@@ -403,11 +438,11 @@
 			return '';
 		},
 
-		_updateRemovableAlt: function () {
+		updateRemovableAlt: function () {
 
 			if (this.config.removable) {
 
-				var alt = this._getRemovableAlt();
+				var alt = this.getRemovableAlt();
 
 				this.$(this.options)
 					.filter(this.selector('removable'))
@@ -418,17 +453,15 @@
 					.find(this.selector('alt'))
 					.html(alt);
 			}
-
 			return this;
 		},
 
-		_bind: function () {
-
-			this._bindInputEvents();
-			this._bindListEvents();
+		bind: function () {
+			this.bindInputEvents();
+			this.bindListEvents();
 		},
 
-		_bindInputEvents: function () {
+		bindInputEvents: function () {
 
 			var thiss = this,
 				trigger = this.trigger,
@@ -471,7 +504,7 @@
 			});
 		},
 
-		_bindListEvents: function () {
+		bindListEvents: function () {
 
 			var thiss = this;
 
@@ -1145,7 +1178,7 @@
 					el.option.selected = false;
 					el.item.attr('aria-selected', 'false');
 
-					this._updateRemovableAlt();
+					this.updateRemovableAlt();
 
 					if (!silent) {
 						this.emit('change', this.value);
@@ -1233,7 +1266,7 @@
 			this.input
 				.attr('aria-activedescendant', el.item.attr('id'));
 
-			this._updateRemovableAlt();
+			this.updateRemovableAlt();
 
 			if (!silent) {
 				this.emit('change', this.value);
@@ -1331,12 +1364,12 @@
 
 			this[m]();
 
-			this._param(
+			this.param(
 				'removable', 'boolean', this.config, false, this.rootelement);
 
 			if (this.config.removable
 				&& this.items.find(this.selector('removable')).length < 1) {
-				this._buildRemovable();
+				this.buildRemovable();
 			}
 
 			i.attr('aria-multiselectable', d.multiple && 'true' || 'false');

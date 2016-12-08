@@ -141,6 +141,7 @@ $.events = {
         node = obj.node,
         type = obj.type,
         events = $.data(node, 'events') || {},
+        capture = this.capture(type, obj.delegate),
 
         handler = function (e) {
 
@@ -177,6 +178,7 @@ $.events = {
         events[type] = events[type] || [];
         events[type].push({
             type: type,
+            capture: capture,
             namespace: obj.namespace,
             original: obj.handler,
             delegate: obj.delegate,
@@ -187,7 +189,7 @@ $.events = {
 
         $.data(node, 'events', events);
 
-        node.addEventListener(type, handler, this.capture(type, obj.delegate));
+        node.addEventListener(type, handler, capture);
     },
 
     // remove
@@ -206,10 +208,9 @@ $.events = {
             handlers = events[type] || [];
 
         Mk.fn.each(this, handlers, function (handler) {
-
             if (!ns || handler.namespace === ns) {
                 if (!func || func === handler.original) {
-                    node.removeEventListener(type, handler.handler);
+                    node.removeEventListener(type, handler.handler, handler.capture);
                     return -1;
                 }
             }

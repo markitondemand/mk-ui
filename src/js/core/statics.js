@@ -46,7 +46,7 @@ Mk.create = function (name, base, proto) {
         && base || Mk;
 
     var obj = function () {
-        this._init.apply(this, arguments);
+        this.init.apply(this, arguments);
         return this;
     };
 
