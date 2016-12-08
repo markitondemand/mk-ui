@@ -96,8 +96,8 @@
 	<event:create.tag>
 		<desc>Fired when the trigger input value (label) changes.</desc>
 		<example>
-			instance.on('create.label', function (o) {
-				o.label = o.node.text() + ' new label!';
+			instance.on('create.tag', function (o) {
+				o.label = 'New Label!';
 			});
 		</example>
 	</event:create.tag>
@@ -470,7 +470,7 @@
 			this
             .param('label', 'string', o, label, input)
 			.param('limit', 'number', o, 1, input)
-			.param('time', 'number', o, 500, input)
+			.param('time', 'number', o, 300, input)
 			.param('doubledelete', 'boolean', o, o.limit > 1, input)
 			.param('anything', 'boolean', o, true, input)
 			.param('comma', 'boolean', o, false, input)
