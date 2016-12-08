@@ -1,4 +1,65 @@
-<!DOCTYPE html><html><head><title>Mk[ui]</title><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" type="text/css" href="../docs/assets/css/bootstrap.css"><link rel="stylesheet" type="text/css" href="../docs/assets/css/prism.css"><link rel="stylesheet" type="text/css" href="../docs/assets/css/theme.css"><link rel="stylesheet" type="text/css" href="../dist/css/autocomplete.css"></head><body><header><nav class="navbar navbar-default navbar-theme"><div class="navbar-header"><div class="navbar-brand clearfix"><img class="navbar-logo" src="../docs/assets/images/logo.png"><span class="navbar-details"><span class="navbar-title">/Autocomplete [ac]</span><span class="navbar-quote">A Flexible UI Built on Accessibility</span></span></div></div><ul class="nav navbar-top"><li class="active"><a target="_blank" href="http://codepen.io/micha3ldavid/post/mk-ui">Codepen</a></li><li><a target="_blank" href="https://github.com/micha3ldavid/mk-ui">Github</a></li></ul></nav></header><main class="container"><div class="row"><div class="col-sm-6"><h2>Dependencies</h2><table class="table"><thead><tr><th>Name</th><th>File</th></tr></thead><tbody><tr><td><a href="../">Core</a></td><td>dist/js/core.js</td></tr><tr><td><a href="./docs/selectmenu.html">Selectmenu</a></td><td>dist/js/selectmenu.js</td></tr></tbody></table></div><div class="col-sm-6"><h2>Assets</h2><table class="table"><thead><tr><th>Type</th><th>File</th></tr></thead><tbody><tr><td>js</td><td>dist/js/autocomplete.js</td></tr><tr><td>css</td><td>dist/css/autocomplete.css</td></tr><tr><td>less</td><td>dist/less/autocomplete.less</td></tr><tr><td>scss</td><td>dist/scss/autocomplete.scss</td></tr></tbody></table></div></div><h2>Examples</h2><div class="row"><div class="col-sm-4"><section class="panel"><header class="panel-heading"><h2 class="panel-title">Static Data</h2></header><div class="panel-body"><div class="mk-ac-root"><input class="mk-ac" type="text" placeholder="Movie Genres" name="symbol-1"></div></div></section></div><div class="col-sm-4"><section class="panel"><header class="panel-heading"><h2 class="panel-title">Up to Four Selections</h2></header><div class="panel-body"><div class="mk-ac-root"><input class="mk-ac" type="text" placeholder="Movie Genres" name="symbol-2" data-limit="4"></div></div></section></div><div class="col-sm-4"><section class="panel"><header class="panel-heading"><h2 class="panel-title">Remote URLs</h2></header><div class="panel-body"><div class="mk-ac-root" id="remote"><input class="mk-ac" type="text" placeholder="Search for a symbol" name="symbol-1" data-limit="4"></div></div></section></div></div><div class="row"><div class="col-sm-6"><section class="panel"><header class="panel-heading"><h2 class="panel-title">Comma Seperate</h2></header><div class="panel-body"><div class="mk-ac-root"><input class="mk-ac" type="text" placeholder="Movie Genres" name="symbol-3" data-limit="4" data-comma="true"></div></div></section></div><div class="col-sm-6"><section class="panel"><header class="panel-heading"><h2 class="panel-title">Only Allow Result Selections</h2></header><div class="panel-body"><div class="mk-ac-root"><input class="mk-ac" type="text" placeholder="Movie Genres" name="symbol-4" data-limit="4" data-anything="false"></div></div></section></div></div><div class="row"><div class="col-sm-12"><section class="panel"><header class="panel-heading"><h2 class="panel-title">Removed Tag UI</h2></header><div class="panel-body"><div class="mk-ac-root"><input class="mk-ac" type="text" placeholder="Movie Genres" name="symbol-5" data-comma="true" data-notags="true"></div></div></section></div></div><h2>Events</h2><p>All events are part of the Mk EventEmitter and *not* added to the DOM.
+<!DOCTYPE html><html><head><title>Mk[ui]</title><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" type="text/css" href="../docs/assets/css/bootstrap.css"><link rel="stylesheet" type="text/css" href="../docs/assets/css/prism.css"><link rel="stylesheet" type="text/css" href="../docs/assets/css/theme.css"><link rel="stylesheet" type="text/css" href="../dist/css/autocomplete.css"></head><body><header><nav class="navbar navbar-default navbar-theme"><div class="navbar-header"><div class="navbar-brand clearfix"><img class="navbar-logo" src="../docs/assets/images/logo.png"><span class="navbar-details"><span class="navbar-title">/Autocomplete [ac]</span><span class="navbar-quote">A Flexible UI Built on Accessibility</span></span></div></div><ul class="nav navbar-top"><li class="active"><a target="_blank" href="http://codepen.io/micha3ldavid/post/mk-ui">Codepen</a></li><li><a target="_blank" href="https://github.com/micha3ldavid/mk-ui">Github</a></li></ul></nav></header><main class="container"><div class="row"><div class="col-sm-6"><h2>Dependencies</h2><table class="table"><thead><tr><th>Name</th><th>File</th></tr></thead><tbody><tr><td><a href="../">Core</a></td><td>dist/js/core.js</td></tr><tr><td><a href="./docs/selectmenu.html">Selectmenu</a></td><td>dist/js/selectmenu.js</td></tr></tbody></table></div><div class="col-sm-6"><h2>Assets</h2><table class="table"><thead><tr><th>Type</th><th>File</th></tr></thead><tbody><tr><td>js</td><td>dist/js/autocomplete.js</td></tr><tr><td>css</td><td>dist/css/autocomplete.css</td></tr><tr><td>less</td><td>dist/less/autocomplete.less</td></tr><tr><td>scss</td><td>dist/scss/autocomplete.scss</td></tr></tbody></table></div></div><h2>Examples</h2><div class="row"><div class="col-sm-4"><section class="panel"><header class="panel-heading"><h2 class="panel-title">Static Data</h2></header><div class="panel-body"><div class="mk-ac-root"><input class="mk-ac" type="text" placeholder="Movie Genres" name="symbol-1"></div></div></section></div><div class="col-sm-4"><section class="panel"><header class="panel-heading"><h2 class="panel-title">Up to Four Selections</h2></header><div class="panel-body"><div class="mk-ac-root"><input class="mk-ac" type="text" placeholder="Movie Genres" name="symbol-2" data-limit="4"></div></div></section></div><div class="col-sm-4"><section class="panel"><header class="panel-heading"><h2 class="panel-title">Remote URLs</h2></header><div class="panel-body"><div class="mk-ac-root" id="remote"><input class="mk-ac" type="text" placeholder="Search for a symbol" name="symbol-1" data-limit="4"></div></div></section></div></div><div class="row"><div class="col-sm-6"><section class="panel"><header class="panel-heading"><h2 class="panel-title">Comma Seperate</h2></header><div class="panel-body"><div class="mk-ac-root"><input class="mk-ac" type="text" placeholder="Movie Genres" name="symbol-3" data-limit="4" data-comma="true"></div></div></section></div><div class="col-sm-6"><section class="panel"><header class="panel-heading"><h2 class="panel-title">Only Allow Result Selections</h2></header><div class="panel-body"><div class="mk-ac-root"><input class="mk-ac" type="text" placeholder="Movie Genres" name="symbol-4" data-limit="4" data-anything="false"></div></div></section></div></div><div class="row"><div class="col-sm-12"><section class="panel"><header class="panel-heading"><h2 class="panel-title">Removed Tag UI</h2></header><div class="panel-body"><div class="mk-ac-root"><input class="mk-ac" type="text" placeholder="Movie Genres" name="symbol-5" data-comma="true" data-notags="true"></div></div></section></div></div><h2>Setup</h2><pre><code class="language-html">&lt;div class="mk-ac-root"&gt;
+	&lt;input type="text" name="search" aria-label="Search for Stuff" placeholder="Search..." /&gt;
+&lt;/div&gt;</code></pre><h2>Dynamic Data and Remote Urls</h2><p>Autocomplete does not take care of XMLHttpRequests, JSONP, or any other method of retrieving dynamic data to populate a users search.
+We do, however, provide the proper hooks for you to tie your own custom requests into the Autocomplete.
+This is actually great news. Now you can use whatever existing tools for remote requests your project is already using.
+Below is an example of a JSONP call using jQuery, which hooks into the Autocomplete system.</p><pre><code class="language-javascript">//get the autocomplete object
+var Autocomplete = Mk.get('Autocomplete');
+//
+//create an instance
+var autocomplete = new Autocomplete('.mk-ac-root' /*, options */);
+//will keep refernece to our ajax request
+var xhr;
+//
+// set the request.send and request.abort events
+autocomplete.on('request.send', function (query, requestnum) {
+	//
+	//you can use the 'requestnum'
+	//to catch situations where an abort() procedure isn't possible.
+	//see the success method for more info
+	xhr = $.ajax({
+		url: 'http://dev.markitondemand.com/Api/v2/Lookup/jsonp',
+		data: {input: query},
+		type: 'get',
+		dataType: 'jsonp',
+		success: function (data) {
+			//
+			//requests is a number keeping track of the current request count.
+			//you can use that to check if a request is 'stale' and leave or abort an old request.
+			if (autocomplete.requests &gt; requestnum) {
+				//exit, we have a more current request coming
+				return;
+			}
+			//
+			//autocomplete expects two properties to function correctly: value and label.
+			//our API endpoint does not hand back objects with those properties, but we can set them...
+			autocomplete.each(data, function (obj, index) {
+				obj.label = obj.Name;
+				obj.value = obj.Symbol;
+			});
+			//
+			//We're also going to store the retrieved data in the autocomplete cache.
+			//This way if the user searches the same term again, we'll pull it from cache vs. sending another request.
+			autocomplete.setCache(query, data);
+			//
+			//finally, it's time to render out data.
+			autocomplete.render(data, query);
+		},
+		error: function () {
+			//autocomplete has events already set up if/when an error occurs.
+			//The events notify screen readers and users of what's going on, so it's important to wire them in.
+			//you can also add your own handlers to the request.error event.
+			autocomplete.emit('request.error');
+		}
+	});
+	//
+	// lets also set up an abort events
+	autocomplete.on('request.abort', function () {
+		//abort our xhr request if possible.
+		//we can also use the requests/requestnum logic to do our own aborting.
+		if (xhr) xhr.abort();
+	})
+});</code></pre><h2>Events</h2><p>All events are part of the Mk EventEmitter and *not* added to the DOM.
 Events are also called in context of the component instance so it isn't a great idea to use a proxy function to change context, as you'll loose a lot of beneficial object access.</p><div class="row"><div class="col-sm-6"><section class="panel panel-event"><header class="panel-heading"><h3 class="panel-title">render</h3></header><div class="panel-body"><p>Fired when data has been retrieved and the list is ready to be built. Binding this event replaces the original rending with your own, custom, rendering.</p><pre><code class="language-javascript">
 instance.on('render', function (data) {
 	console.info(data);

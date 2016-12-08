@@ -85,6 +85,78 @@ html
 									name="symbol-5",
 									data-comma="true",
 									data-notags="true")
+			h2 Setup
+			pre
+				code.language-html
+					| &lt;div class="mk-ac-root"&gt;
+					|	&lt;input type="text" name="search" aria-label="Search for Stuff" placeholder="Search..." /&gt;
+					| &lt;/div&gt;
+
+			h2 Dynamic Data and Remote Urls
+			p
+				| Autocomplete does not take care of XMLHttpRequests, JSONP, or any other method of retrieving dynamic data to populate a users search.
+				| We do, however, provide the proper hooks for you to tie your own custom requests into the Autocomplete.
+				| This is actually great news. Now you can use whatever existing tools for remote requests your project is already using.
+				| Below is an example of a JSONP call using jQuery, which hooks into the Autocomplete system.
+			pre
+				code.language-javascript
+					| //get the autocomplete object
+					| var Autocomplete = Mk.get('Autocomplete');
+					| //
+					| //create an instance
+					| var autocomplete = new Autocomplete('.mk-ac-root' /*, options */);
+					| //will keep refernece to our ajax request
+					| var xhr;
+					| //
+					| // set the request.send and request.abort events
+					| autocomplete.on('request.send', function (query, requestnum) {
+					|	//
+					| 	//you can use the 'requestnum'
+					|	//to catch situations where an abort() procedure isn't possible.
+					|	//see the success method for more info
+					| 	xhr = $.ajax({
+					|		url: 'http://dev.markitondemand.com/Api/v2/Lookup/jsonp',
+					|		data: {input: query},
+					|		type: 'get',
+					|		dataType: 'jsonp',
+					|		success: function (data) {
+					|			//
+					|			//requests is a number keeping track of the current request count.
+					|			//you can use that to check if a request is 'stale' and leave or abort an old request.
+					|			if (autocomplete.requests &gt; requestnum) {
+					|				//exit, we have a more current request coming
+					|				return;
+					|			}
+					|			//
+					|			//autocomplete expects two properties to function correctly: value and label.
+					|			//our API endpoint does not hand back objects with those properties, but we can set them...
+					|			autocomplete.each(data, function (obj, index) {
+					|				obj.label = obj.Name;
+					|				obj.value = obj.Symbol;
+					|			});
+					|			//
+					|			//We're also going to store the retrieved data in the autocomplete cache.
+					|			//This way if the user searches the same term again, we'll pull it from cache vs. sending another request.
+					|			autocomplete.setCache(query, data);
+					|			//
+					|			//finally, it's time to render out data.
+					|			autocomplete.render(data, query);
+					|		},
+					|		error: function () {
+					|			//autocomplete has events already set up if/when an error occurs.
+					|			//The events notify screen readers and users of what's going on, so it's important to wire them in.
+					|			//you can also add your own handlers to the request.error event.
+					|			autocomplete.emit('request.error');
+					|		}
+					| 	});
+					|	//
+					|	// lets also set up an abort events
+					|	autocomplete.on('request.abort', function () {
+					|		//abort our xhr request if possible.
+					|		//we can also use the requests/requestnum logic to do our own aborting.
+					|		if (xhr) xhr.abort();
+					| 	})
+					| });
 
 			include ./shared/events
 			include ./shared/api
