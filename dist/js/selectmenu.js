@@ -351,14 +351,7 @@
 				label = this.$('label[for="' + this.element.id + '"]');
 
 			input.attr('id', this.uid());
-
-			//if (this.device) {
-				//this.trigger.attr('aria-hidden', 'true');
-				//this.trigger.attr('tabindex', '-1');
-			//}
-			//else {
-				this.rootelement.attr('aria-hidden', 'true');
-			//}
+			this.rootelement.attr('aria-hidden', 'true');
 
 			// if label element is present
 			if (label.length) {
@@ -380,6 +373,8 @@
 		*/
 
 		unmount: function () {
+
+			this.rootelement.off('change.mk');
 
 			this.shadow.remove();
 
@@ -457,8 +452,25 @@
 		},
 
 		bind: function () {
-			this.bindInputEvents();
-			this.bindListEvents();
+
+			var thiss = this;
+
+			//this is mostly used for mobile/tablet devices BUT
+			//you may also manipulate the raw select values and emit the change event.
+			this.rootelement.on('change.mk', function (e) {
+				thiss.updateLabel();
+				thiss.emit('change', thiss.value);
+			});
+
+			//we're saving outselves a LOT of memory and heap space
+			//by not applying any of the crazy events required in browsers
+			//for mobile devices.
+
+			if (!this.device) {
+
+				this.bindInputEvents();
+				this.bindListEvents();
+			}
 		},
 
 		bindInputEvents: function () {
