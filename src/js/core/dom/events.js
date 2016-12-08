@@ -80,7 +80,8 @@ $.events = {
             namespace: parts.join('.'),
             handler: handler,
             single: single || false,
-            delegate: delegate
+            delegate: typeof delegate === 'string' ? delegate : undefined,
+            capture: typeof delegate === 'boolean' ? delegate : undefined
         });
     },
 
@@ -141,7 +142,7 @@ $.events = {
         node = obj.node,
         type = obj.type,
         events = $.data(node, 'events') || {},
-        capture = this.capture(type, obj.delegate),
+        capture = obj.capture || this.capture(type, obj.delegate),
 
         handler = function (e) {
 
@@ -176,6 +177,7 @@ $.events = {
         };
 
         events[type] = events[type] || [];
+
         events[type].push({
             type: type,
             capture: capture,

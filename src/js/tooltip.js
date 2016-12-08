@@ -220,9 +220,6 @@
 
 			var r = this.root
 
-			this.$(document.documentElement)
-				.off('mousedown' + this.selector());
-
 			this.each('click,mouseenter,mouseleave,focus,blur,keyup'.split(','), function (type) {
 				r.off(type + '.mk');
 			});
@@ -242,135 +239,104 @@
 				tt = this.selector(),
 				md = this.selector('modal');
 
+			if (!this.device) {
+
+				this.root
+				.on('mouseenter.mk', tt, function (e) {
+					e.preventDefault();
+					thiss._focus(this, e, false);
+				})
+				.on('mouseleave.mk', tt, function (e) {
+					e.preventDefault();
+					thiss._blur(this, e, false);
+				});
+			}
+
 			this.root
 			.on('click.mk', tt, function (e) {
 				e.preventDefault();
 				thiss._click(this);
 			})
-			.on('mouseenter.mk', tt, function (e) {
-				e.preventDefault();
-				thiss._over(this, false);
-			})
 			.on('focus.mk', tt, function (e) {
 				e.preventDefault();
-				thiss._over(this, true);
-			})
-			.on('mouseleave.mk', tt, function (e) {
-				e.preventDefault();
-				thiss._out(this, false);
+				thiss._focus(this, e, true);
 			})
 			.on('blur.mk', tt, function (e) {
 				e.preventDefault();
-				thiss._out(this, true);
+				thiss._blur(this, e, true);
 			})
 			.on('keyup.mk', tt, function (e) {
 				thiss._keyup(e, this);
 			});
-
-			this.$(document.documentElement)
-			.off('mousedown' + tt)
-			.on ('mousedown' + tt, function (e) {
-				return thiss._down(e);
-			});
 		},
-		//
-		// when mousedown is tiped
-		// on the document element
-		//
-		_down: function (e) {
 
-			var el = this.$(e.target),
-				tt = this.selector(),
-				tm = this.selector('modal');
-
-			if ((el.is(tt) || el.closest(tt).length > 0)
-				|| (el.is(tm) || el.closest(tm).length > 0)) {
-
-				if (el.data('action') === 'close') {
-					e.preventDefault();
-					this.hide(el);
-				}
-				return false;
-			}
-			return this.hideAll();
-		},
-		//
-		// handler for the escape key
-		//
 		_keyup: function (e, tip) {
 
 			if (e.which === this.keycode.esc) {
-				this._unlock(tip).hide(tip);
+				this.hide(tip);
 			}
 		},
-		//
-		// when mousedown is trigered on a tip
-		// we use mousedown instead of click for speed
-		//
+
 		_click: function (tip) {
+
 			if (this.device || this.$(tip).data('action') === 'click') {
 				this.toggle(tip);
 			}
 		},
-		//
-		// mouseenter/mouseover a tip element
-		// tips with a data-toggle of click will be ignored
-		//
-		_over: function (tip, keyboard) {
 
-			if (!this.device && this.$(tip).data('action') !== 'click') {
+		_focus: function (tip, e, keyboard) {
 
+			if (this.$(tip).data('action') !== 'click') {
 				this.show(tip);
-
-				if (keyboard && this.isFocusable(this.modal(tip))) {
-					this._lock(tip);
-				}
 			}
 		},
-		//
-		// mouseleave/mouseout of a tip element
-		// tip elements with a data-toggle of click will be ignored
-		//
-		_out: function (tip, keyboard) {
 
-			if (!this.device && this.$(tip).data('action') !== 'click') {
+		_blur: function (tip, e, keyboard) {
 
-				if (!keyboard && this.isFocusable(this.modal(tip))) {
-					this._unlock(tip);
-				}
+			var t = this.$(e.relatedTarget);
+
+			if (t.parent(this.selector('modal')).length) {
+				this._bindModalBlur(tip);
+				return;
+			}
+			if (keyboard || (!keyboard && this.$(tip).data('action') !== 'click')) {
 				this.hide(tip);
 			}
 		},
-		//
-		// inernal locking function. For *internal* use only.
-		// Use lock() for external usage.
-		//
-		_lock: function (tip) {
-			this.$(tip).addClass('-locked');
-			return this;
+
+		_bindModalBlur: function (tip) {
+
+			var modal = this.modal(tip),
+				thiss = this;
+
+			modal.on('blur.mk', true, function (e) {
+
+				var t = e.relatedTarget;
+
+				if (!t || thiss.$(t).parent(modal).length < 1) {
+
+					modal.off('blur.mk');
+
+					if (!t) {
+						thiss.hide(tip);
+					}
+				}
+			});
 		},
-		//
-		// inernal locking function. For *internal* use only.
-		// Use lock() for external usage.
-		//
-		_unlock: function (tip) {
-			this.$(tip).removeClass('-locked');
-			return this;
+
+		_bindModalDown: function (modal) {
+
+			modal.on('mousedown.mk', function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+				return false;
+			});
 		},
-		//
-		// check if a triger is locked.
-		// returns boolean.
-		//
-		_locked: function (tip) {
-			return this.$(tip).hasClass('-locked');
+
+		_unbindModalDown: function (modal) {
+			modal.off('mousedown.mk');
 		},
-		//
-		// check if a tip is unlocked.
-		// returns boolean.
-		//
-		_unlocked: function (tip) {
-			return !this.$(tip).hasClass('-locked');
-		},
+
 		//
 		// Get relative offset all the way up
 		// the dom tree to the body.
@@ -729,22 +695,27 @@
 		position: function (tip, modal) {
 
 			var p = tip.attr('data-position') || this.config.position,
+				coords;
+
+			if (p !== 'none') {
+
 				coords = this._position(p, this.offset(modal, true), this.offset(tip), this.frame(modal));
 
-			if (coords) {
+				if (coords) {
 
-				this.each(this.config.map, function (fn, key) {
-					modal.removeClass(key);
-				});
+					this.each(this.config.map, function (fn, key) {
+						modal.removeClass(key);
+					});
 
-				modal.addClass(coords.key);
+					modal.addClass(coords.key);
 
-				this.emit('position', tip[0], modal[0], coords);
+					this.emit('position', tip[0], modal[0], coords);
 
-				modal.css({
-					left: coords.left,
-					top: coords.top
-				});
+					modal.css({
+						left: coords.left,
+						top: coords.top
+					});
+				}
 			}
 			return this;
 		},
@@ -813,7 +784,7 @@
 
 			var t = this.$(tip), m;
 
-			if (this._unlocked(t) && this.unlocked(t)) {
+			if (this.unlocked(t) && this.isHidden(t)) {
 
 				this.hideAll();
 
@@ -826,6 +797,7 @@
 						.attr('aria-hidden', 'false');
 
 					this.position(t, m);
+					this._bindModalDown(m);
 
 					if (this.isFocusable(m)) {
 						this.focus(t, m);
@@ -862,7 +834,7 @@
 			var t = this.$(tip),
 				a = t.attr('data-action'), m, d;
 
-			if (this._unlocked(t) && this.unlocked(t)) {
+			if (this.unlocked(t) && this.isOpen(t)) {
 
 				m = this.modal(tip);
 
@@ -876,6 +848,8 @@
 					m.removeClass('in')
 						.addClass('out')
 						.attr('aria-hidden', 'true');
+
+					this._unbindModalDown(m);
 
 					if (immediate === true || !this.transitions) {
 						m.removeClass('out');
@@ -907,7 +881,7 @@
 
 			return this.each(tt, function (t) {
 				if (this.isOpen(t)) {
-					this._unlock(t).hide(t, true);
+					this.hide(t, true);
 				}
 			});
 		},
