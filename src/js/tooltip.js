@@ -84,7 +84,9 @@
 
 		name: 'mk-tt',
 
-		relexp: /^relative|absolute|fixed$/i,
+		xrel: /^relative|absolute|fixed$/i,
+
+		xfocus: /^a|button|input|select|textarea$/i,
 
 		focusSelector: 'a, button, input, select, textarea, table, iframe',
 
@@ -324,17 +326,31 @@
 			});
 		},
 
-		_bindModalDown: function (modal) {
+		_bindModalDown: function (tip, modal) {
+
+			var thiss = this;
 
 			modal.on('mousedown.mk', function (e) {
+
+				if (thiss.xfocus.test(e.target)) {
+					return;
+				}
+
 				e.preventDefault();
 				e.stopPropagation();
 				return false;
 			});
+
+			modal.on('click.mk', '[data-action="close"]', function (e) {
+				e.preventDefault();
+				thiss.hide(tip);
+			});
 		},
 
 		_unbindModalDown: function (modal) {
+
 			modal.off('mousedown.mk');
+			modal.off('click.mk');
 		},
 
 		//
@@ -598,7 +614,7 @@
 		offset: function (n, box) {
 
 			var node = this.$(n)[0],
-				reg  = this.relexp,
+				reg  = this.xrel,
 				obj  = {left: 0, top: 0, width: 0, height: 0, box: this.box(node)},
 				css;
 
@@ -797,7 +813,7 @@
 						.attr('aria-hidden', 'false');
 
 					this.position(t, m);
-					this._bindModalDown(m);
+					this._bindModalDown(t, m);
 
 					if (this.isFocusable(m)) {
 						this.focus(t, m);

@@ -212,7 +212,7 @@
 		*/
 
 		get enabled () {
-			return !this.element.disabled;
+			return !this.disabled;
 		},
 
 		/*
@@ -293,8 +293,7 @@
 		*/
 
 		get isOpen () {
-			return this.trigger.attr(
-				'aria-expanded') === 'true';
+			return !this.isHidden;
 		},
 
 		/*

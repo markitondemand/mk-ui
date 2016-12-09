@@ -91,14 +91,6 @@
 
 		modal: null,
 
-		get _locked () {
-			return this.root.hasClass('-locked');
-		},
-
-		get _unlocked () {
-			return !this._locked;
-		},
-
 		/*
 			<property:locked>
 				<desc>Boolean representing if the dialog is locked.</desc>
@@ -179,127 +171,78 @@
 
 		unmount: function () {
 
-			var r = this.root;
-
-			this.$(document.documentElement)
-				.off('mousedown' + this.selector(), this._mousedown);
-
-			this.each('click,mouseenter,mouseleave,focus,blur,keyup'.split(','), function (type) {
-				r.off(type + '.mk');
-			});
-
-			this.root =
-			this.modal =
-			this.config =
-			this._mousedown = null;
+			this.super();
+			this.modal = null;
 		},
 
 		bind: function () {
 
-			var thiss = this;
+			var thiss = this,
+				root  = this.root;
+
+			if (!this.device) {
+
+				this.root.
+				on('mouseenter.mk', function (e) {
+					e.preventDefault();
+					thiss._focus(this, e, false);
+				})
+				.on('mouseleave.mk', function (e) {
+					e.preventDefault();
+					thiss._blur(this, e, false);
+				});
+			}
 
 			this.root
+			.on('focus.mk', true, function (e) {
+				e.preventDefault();
+				thiss._focus(this, e, true);
+			})
+			.on('blur.mk', true, function (e) {
+				e.preventDefault();
+				thiss._blur(this, e, true);
+			})
 			.on('click.mk', function (e) {
 				e.preventDefault();
 				thiss._click();
 			})
-			.on('mouseenter.mk', function (e) {
-				e.preventDefault();
-				thiss._over(false);
-			})
-			.on('mouseleave.mk', function (e) {
-				e.preventDefault();
-				thiss._out(false);
-			})
-			.on('focus.mk', function (e) {
-				e.preventDefault();
-				thiss._over(true);
-			})
-			.on('blur.mk', function (e) {
-				e.preventDefault();
-				thiss._out(true);
-			})
 			.on('keyup.mk', function (e) {
 				thiss._keyup(e);
 			});
-
-			this._mousedown = function (e) {
-				return thiss._down(e);
-			};
-
-			this.$(document.documentElement)
-				.on('mousedown' + this.selector(), this._mousedown);
 		},
 
-		_mousedown: null,
-
 		_keyup: function (e) {
+
 			if (e.which === this.keycode.esc) {
-				this._unlock().hide();
+				this.hide();
 			}
 		},
 
 		_click: function () {
+
 			if (this.device || this.root.data('action') === 'click') {
 				this.toggle();
 			}
 		},
 
-		_over: function (keyboard) {
+		_bindModalBlur: function () {
 
-			if (!this.device && this.root.data('action') !== 'click') {
+			var modal = this.modal,
+				thiss = this;
 
-				this.show();
+			modal.on('blur.mk', true, function (e) {
 
-				if (keyboard && this.focusable) {
-					this._lock();
+				var t = e.relatedTarget;
+
+				if (!t || thiss.$(t).parent(modal).length < 1) {
+
+					modal.off('blur.mk');
+
+					if (!t) {
+						thiss.hide();
+					}
 				}
-			}
-		},
-
-		_down: function (e) {
-
-			if (this.isHidden) {
-				return;
-			}
-
-			var el = this.$(e.target),
-				dg = this.selector(),
-				md = this.selector('modal'),
-
-				root = el.is(dg) ? el : el.closest(dg),
-				modal = el.is(md) ? el : el.closest(md);
-
-			if (modal.length > 0 || root.length > 0) {
-				if (modal[0] === this.modal[0] && el.data('action') === 'close'
-					|| (modal.length < 1 && root[0] !== this.root[0] )) {
-					e.preventDefault();
-					this.hide();
-				}
-				return false;
-			}
-			return this.hideAll();
-		},
-
-		_out: function (keyboard) {
-
-			if (!this.device && this.root.data('action') !== 'click') {
-
-				if (!keyboard && this.focusable) {
-					this._unlock();
-				}
-				this.hide();
-			}
-		},
-
-		_lock: function () {
-			this.root.addClass('-locked');
-			return this;
-		},
-
-		_unlock: function () {
-			this.root.removeClass('-locked');
-			return this;
+			});
 		},
 
 		/*
@@ -361,7 +304,7 @@
 
 		show: function (silent) {
 
-			if (this._unlocked && this.unlocked) {
+			if (this.unlocked && this.isHidden) {
 
 				this.hideAll();
 
@@ -371,7 +314,9 @@
 						.addClass('in')
 						.attr('aria-hidden', 'false');
 
+
 					this.position();
+					this._bindModalDown(this.root, this.modal);
 
 					if (this.focusable) {
 						this.focus();
@@ -409,7 +354,7 @@
 
 			var a = this.root.attr('data-action'), d;
 
-			if (this._unlocked && this.unlocked) {
+			if (this.unlocked && this.isOpen) {
 
 				d = immediate !== true
 					&& a !== 'click'
@@ -421,6 +366,8 @@
 					this.modal.removeClass('in')
 						.addClass('out')
 						.attr('aria-hidden', 'true');
+
+					this._unbindModalDown(this.modal);
 
 					if (immediate === true || !this.transitions) {
 						this.modal.removeClass('out');

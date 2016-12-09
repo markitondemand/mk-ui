@@ -225,7 +225,7 @@
 			}
 		},
 
-		_bindModalBlur: function (tip) {
+		_bindModalBlur: function () {
 
 			var modal = this.modal,
 				thiss = this;
@@ -316,7 +316,7 @@
 
 
 					this.position();
-					this._bindModalDown(this.modal);
+					this._bindModalDown(this.root, this.modal);
 
 					if (this.focusable) {
 						this.focus();
