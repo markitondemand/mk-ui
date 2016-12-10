@@ -16,56 +16,23 @@
 		<src>dist/scss/datepicker.scss</src>
 	</file:scss>
 */
-(function ( root, factory ) {
-	//
-	// AMD support
-	// ---------------------------------------------------
-	if ( typeof define === 'function' && define.amd ) {
+(function (root, factory) {
 
-		define( [ 'mknasty' ], function ( mk ) {
-			return factory( root, mk );
+	if (typeof define === 'function' && define.amd) {
+
+		define(['mk'], function (mk) {
+			return factory(root, mk);
 		});
 	}
-	//
-	// CommonJS module support
-	// -----------------------------------------------------
-	else if ( typeof module === 'object' && module.exports ) {
+	else if (typeof module === 'object' && module.exports) {
 
-		module.exports = factory( root, require( 'mknasty' ));
+		module.exports = factory(root, require('mk'));
 	}
-	//
-	// Everybody else
-	// -----------------------------------------------------
 	else {
-		return factory( root, root.mkNasty );
+		return factory(root, root.Mk);
 	}
 
-})( typeof window !== "undefined" ? window : this, function ( root, mk ) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+})(typeof window !== 'undefined' && window || this, function (root, mk) {
 
 	mk.create('Datepicker', {
 
@@ -100,5 +67,4 @@
 	});
 
 	return mk.get('Datepicker');
-
 });

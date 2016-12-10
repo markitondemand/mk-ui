@@ -1,23 +1,60 @@
 <!DOCTYPE html><html><head><title>Mk[ui]</title><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" type="text/css" href="../docs/assets/css/bootstrap.css"><link rel="stylesheet" type="text/css" href="../docs/assets/css/prism.css"><link rel="stylesheet" type="text/css" href="../docs/assets/css/theme.css"><link rel="stylesheet" type="text/css" href="../dist/css/dialog.css"><link rel="stylesheet" type="text/css" href="../docs/assets/css/dialog.css"></head><body><header><nav class="navbar navbar-default navbar-theme"><div class="navbar-header"><div class="navbar-brand clearfix"><img class="navbar-logo" src="../docs/assets/images/logo.png"><span class="navbar-details"><span class="navbar-title">/Dialog [dg]</span><span class="navbar-quote">Flexible, Accessible Web Components</span></span></div></div><ul class="nav navbar-top"><li class="active"><a target="_blank" href="http://codepen.io/micha3ldavid/post/mk-ui">Codepen</a></li><li><a target="_blank" href="https://github.com/micha3ldavid/mk-ui">Github</a></li></ul></nav></header><main class="container"><div class="row"><div class="col-sm-6"><h2>Dependencies</h2><table class="table"><thead><tr><th>Name</th><th>File</th></tr></thead><tbody><tr><td><a href="../">Core</a></td><td>/dist/js/core.js</td></tr><tr><td><a href="./tooltip.html">Tooltip</a></td><td>/dist/js/tooltip.js</td></tr></tbody></table></div><div class="col-sm-6"><h2>Assets</h2><table class="table"><thead><tr><th>Type</th><th>File</th></tr></thead><tbody><tr><td>js</td><td>/dist/js/dialog.js</td></tr><tr><td>css</td><td>../dist/css/dialog.css</td></tr><tr><td>less</td><td>/dist/less/dialog.less</td></tr><tr><td>scss</td><td>/dist/scss/dialog.scss</td></tr></tbody></table></div></div><h2>Examples</h2><div class="row"><div class="col-sm-6"><section class="panel"><header class="panel-heading"><h3 class="panel-title">Dropdown Menu</h3></header><div class="panel-body"><p>Easily link an anchor with a dialog and create a dropdown menu on hover/focus or click.
-Use one of the twelve positions inherited from Tooltip to align your dropdown wherever you like.</p><ul class="list-inline"><li><a href="#">About</a></li><li><a href="#">Brand</a></li><li><a class="mk-dg" id="example-1-trigger" href="#" aria-describedby="example-1" role="button" data-action="click" data-position="none">Categories</a><div class="mk-dg-modal" id="example-1"><ul class="list-unstyled"><li><a href="#">HTML5</a><p>Learn HTML 5 like a pro</p></li><li><a href="#">CSS3</a><p>Learn CSS3 like a pro</p></li><li><a href="#">JavaScript</a><p>Learn JavaScript like a pro</p></li><li><a href="#">Accessibility</a><p>Learn Accessibility like a pro</p></li></ul></div></li></ul></div></section></div><div class="col-sm-6"><section class="panel"><header class="panel-heading"><h3 class="panel-title">Popover</h3></header><div class="panel-body"><p>The number of ways a Dialog can be used is endless. Anytime you have an element, assiciated with another, that is abolustely positioned in a "popover" fashion, it is a suitable case to use the Dialog.</p><div class="text-center"><button class="btn btn-primary mk-dg" id="example-2-trigger" data-position="bottom-center" data-action="click" aria-describedby="example-2">Login</button><div class="mk-dg-modal" id="example-2"><form><input class="form-control" type="text" placeholder="username"><input class="form-control" type="password" placeholder="password"><a class="btn btn-warning" href="#" data-action="close" role="button">Cancel</a><button class="btn btn-primary" type="submit">Login</button></form></div></div></div></section></div></div><h2>Events</h2><p>All events are part of the Mk EventEmitter and *not* added to the DOM.
+Use one of the twelve positions inherited from Tooltip to align your dropdown wherever you like or use a position of "none" to bypass all positioning logic.</p><ul class="list-inline"><li><a href="#">About</a></li><li><a href="#">Brand</a></li><li><a class="mk-dg" id="example-1-trigger" href="#" aria-describedby="example-1" role="button" data-action="click" data-position="none">Categories</a><div class="mk-dg-modal" id="example-1"><ul class="list-unstyled"><li><a href="#">HTML5</a><p>Learn HTML 5 like a pro</p></li><li><a href="#">CSS3</a><p>Learn CSS3 like a pro</p></li><li><a href="#">JavaScript</a><p>Learn JavaScript like a pro</p></li><li><a href="#">Accessibility</a><p>Learn Accessibility like a pro</p></li></ul></div></li></ul></div></section></div><div class="col-sm-6"><section class="panel"><header class="panel-heading"><h3 class="panel-title">Popover</h3></header><div class="panel-body"><p>The number of ways a Dialog can be used is endless. Anytime you have an element, assiciated with another, that is abolustely positioned in a "popover" fashion, it is a suitable case to use the Dialog.</p><div class="text-center"><button class="btn btn-primary mk-dg" id="example-2-trigger" data-position="bottom-center" data-action="click" aria-describedby="example-2">Login</button><div class="mk-dg-modal" id="example-2"><form><input class="form-control" type="text" placeholder="username"><input class="form-control" type="password" placeholder="password"><a class="btn btn-warning" href="#" data-action="close" role="button">Cancel</a><button class="btn btn-primary" type="submit">Login</button></form></div></div></div></section></div></div><h2>Setup</h2><p>Although Dialog inherits from tooltip, the main difference between the two is that Dialog is *not* a delegate.
+Tooltip is more performance for batch dialogs/tooltips, where as Dialog is a better choice for single instances or instances that will require more customization.
+That said, you set up the markup of a Dialog in the same way you would a tooltip.</p><h4>As Aria-Label</h4><pre><code class="language-html">&lt;button class="mk-dg" aria-label="Some text and even markup!"&gt;A Dialog&lt;/button&gt;</code></pre><h4>As Nested Element</h4><pre><code class="language-html">&lt;button class="mk-dg" data-position="top-center"&gt;
+	&lt;span&gt;A Dialog&lt;/span&gt;
+	&lt;span class="mk-dg-modal"&gt;A Dialog Modal!&lt;/span&gt;
+&lt;/button&gt;</code></pre><h4>As Sibling Element</h4><pre><code class="language-html">&lt;div&gt;
+	&lt;button class="mk-dg" data-position="bottom-center" data-arrow="true"&gt;
+		&lt;span&gt;A Dialog&lt;/span&gt;
+	&lt;/button&gt;
+	&lt;div class="mk-dg-modal"&gt;A Dialog Modal!&lt;/div&gt;
+&lt;/div&gt;</code></pre><h4>Anywhere You Want</h4><p>This option requires you to 'connect' the dialog trigger and modal with one another manually with id and aria-describedby attributes.</p><pre><code class="language-html">&lt;!-- some part of the document --&gt;
+&lt;button class="mk-dg" aria-describedby="my-dialog-modal-id"&gt;
+	&lt;span&gt;A Dialog&lt;/span&gt;
+&lt;/button&gt;
+&lt;!-- some other part of the document --&gt;
+&lt;div id="my-dialog-modal-id" class="mk-dg-modal"&gt;A Dialog Modal!&lt;/div&gt;</code></pre><h2>Instantiation</h2><p>Unlike Tooltip (who works on delegation), Dialog is a single instance component like most other Mk components.
+Instantiation takes two arguments: the first being the root (trigger) node, the second being optional configuration options.
+Config options are opt-in and can also be added via data-attributes on the root element.
+See the <strong>Examples Section</strong> and Tooltip Documentation for more of that.
+But in case you want to, below are all possible options available to pass in.
+Additionally, check out the <strong>Events Section</strong> for adding events to your instance.</p><pre><code class="language-javascript">var Dialog = Mk.get('Dialog');
+//
+// instantiate
+var myDialog = new Dialog('.mk-dg', {
+	// set the default position
+	// see Examples for all 12 positions
+	position: 'bottom-center',
+	//tell Dialog whether to add the arrow class (for caret styling)
+	arrow: true,
+	// set the delay in milliseconds for mouseover/out tooltips, if any
+	delay: 100,
+	templates: {
+		..change any of the templates for this instance only..
+	},
+	events: {
+		..add events here (optional)..
+	}
+});</code></pre><h2>Events</h2><p>All events are part of the Mk EventEmitter and *not* added to the DOM.
 Events are also called in context of the component instance so it isn't a great idea to use a proxy function to change context, as you'll loose a lot of beneficial object access.</p><div class="row"><div class="col-sm-6"><section class="panel panel-event"><header class="panel-heading"><h3 class="panel-title">show</h3></header><div class="panel-body"><p>Fires when dialog is shown.</p><pre><code class="language-javascript">
-instance.on('show', function (tip, modal) {
-	console.info('Showing for:', tip, modal);
+instance.on('show', function (dg, modal) {
+	console.info('Showing for:', dg, modal);
 });
 		</code></pre></div></section></div><div class="col-sm-6"><section class="panel panel-event"><header class="panel-heading"><h3 class="panel-title">hide</h3></header><div class="panel-body"><p>Fired when dialog is hidden.</p><pre><code class="language-javascript">
-instance.on('show', function (tip, modal) {
-	console.info('Hiding for:', tip, modal);
+instance.on('show', function (dg, modal) {
+	console.info('Hiding for:', dg, modal);
 });
 		</code></pre></div></section></div><div class="col-sm-6"><section class="panel panel-event"><header class="panel-heading"><h3 class="panel-title">connect</h3></header><div class="panel-body"><p>Fired when a connection is being made between a trigger and it's modal.</p><pre><code class="language-javascript">
-instance.on('connect', function (tip, modal) {
-	console.info('Connection being made for:', tip, modal);
+instance.on('connect', function (dg, modal) {
+	console.info('Connection being made for:', dg, modal);
 });
 		</code></pre></div></section></div><div class="col-sm-6"><section class="panel panel-event"><header class="panel-heading"><h3 class="panel-title">position</h3></header><div class="panel-body"><p>Fired when positioning is invoked for a dialog modal.</p><pre><code class="language-javascript">
-instance.on('position', function (tip, modal, coords) {
+instance.on('position', function (dg, modal, coords) {
 	console.info('Coors for positioning are:', coords);
 });
 		</code></pre></div></section></div><div class="col-sm-6"><section class="panel panel-event"><header class="panel-heading"><h3 class="panel-title">lock</h3></header><div class="panel-body"><p>Fires when dialog is locked or unlocked.</p><pre><code class="language-javascript">
-instance.on('lock', function (tip, isLocked) {
+instance.on('lock', function (dg, isLocked) {
 	console.info('This tooltip is now ', isLocked &amp;&amp; 'locked' || 'unlocked');
 });
 		</code></pre></div></section></div></div><h2>API</h2><p>Below are the different public properties and methods accessible to you, the end developer.

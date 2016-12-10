@@ -47,6 +47,11 @@ html
 						| Left Center
 					button.btn(data-position="left-bottom")
 						| Left Bottom
+				div
+					p
+						| Or you can provide a position of "none" to ignore all positioning logic.
+					button.btn(data-position="none")
+						| None
 			div.row
 				div.col-sm-6
 					section.panel
@@ -115,9 +120,10 @@ html
 								| Interactive Tooltips
 						div.panel-body
 							p
-								| If your tooltip contains focusable content (ie: links, form elements, etc) it will become focuasable.
-								| Basically what this means is it's read differently by screen readers and behavior changes.
+								| If your tooltip contains focusable content (ie: links, form elements, etc) it will become a dialog.
+								| Basically what this means is it's read differently by screen readers and behaviors change.
 								| You can tab and interact with the elements inside the tooltip. Focus then becomes more like a Modal.
+								| With dialog types, add any element inside the modal with a data-action attribute of "close" to trigger closing the modal.
 
 							p
 								em
@@ -126,7 +132,7 @@ html
 							div
 								button.btn.btn-primary.mk-tt(data-action="click")
 									| Tooltip
-								div.mk-tt-modal
+								div#example-dialog.mk-tt-modal
 									h4
 										| Links &amp; Forms
 									p
@@ -141,7 +147,9 @@ html
 									form
 										input.form-control(type="text", value="Example")
 										input.form-control(type="text", value="Example")
-										button.btn
+										button.btn.btn-warning(data-action="close")
+											| Cancel
+										button.btn.btn-primary
 											| Submit
 
 			div.row
@@ -255,11 +263,14 @@ html
 					| var myTooltip = new Tooltip('body', {
 					|	// set the default position
 					|	// see Examples for all 12 positions
-					|	position: 'top-center'
+					|	position: 'top-center',
 					|	// set the delay in milliseconds for mouseover/out tooltips, if any
 					|	delay: 100,
 					|	templates: {
 					|		// change any of the templates for this instance only
+					|	},
+					|	events: {
+					|		..add events here (optional)..
 					|	}
 					| });
 

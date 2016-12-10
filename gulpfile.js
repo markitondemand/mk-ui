@@ -8,25 +8,30 @@ var gulp   = require('gulp'),
 	fs	   = require('fs'),
 
 	paths  = {
+
 		'docs': {
 			index: '/',
 			selectmenu: '/docs/selectmenu.html',
 			tooltip: '/docs/tooltip.html',
 			loader: '/docs/loader.html',
 			dialog: '/docs/dialog.html',
-			autocomplete: '/docs/autocomplete.html'
+			autocomplete: '/docs/autocomplete.html',
+			datepicker: '/docs/datepicker.html',
 		},
+
 		'style': {
 			sass: './dist/scss/*.scss',
 			less: './dist/less/*.less',
 			output: './dist/css'
 		},
+
 		'scripts': {
 			src: './src/js/*.js',
 			output: './dist/js',
 			original: '.js',
 			minified: '.min.js'
 		},
+
 		'dom': {
 			files: [
 				'./src/js/core/dom/intro.js',
@@ -38,6 +43,7 @@ var gulp   = require('gulp'),
 				'./src/js/core/dom/outro.js'
 			]
 		},
+
 		'core': {
 			files: [
 				'./src/js/core/intro.js',

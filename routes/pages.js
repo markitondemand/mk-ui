@@ -56,4 +56,12 @@ module.exports = function ( express, app ) {
       });
   });
 
+  app.get('/docs/datepicker.html', function (req, res) {
+
+      docBuilder.parse('js/datepicker.js', function (data) {
+          data.title = 'Datepicker [dp]';
+          res.render('datepicker', data);
+      });
+  });
+
 };

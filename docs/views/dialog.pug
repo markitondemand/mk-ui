@@ -18,7 +18,7 @@ html
 						div.panel-body
 							p
 								| Easily link an anchor with a dialog and create a dropdown menu on hover/focus or click.
-								| Use one of the twelve positions inherited from Tooltip to align your dropdown wherever you like.
+								| Use one of the twelve positions inherited from Tooltip to align your dropdown wherever you like or use a position of "none" to bypass all positioning logic.
 							ul.list-inline
 								li
 									a(href="#") About
@@ -61,6 +61,77 @@ html
 											| Cancel
 										button.btn.btn-primary(type="submit")
 											| Login
+			h2 Setup
+			p
+				| Although Dialog inherits from tooltip, the main difference between the two is that Dialog is *not* a delegate.
+				| Tooltip is more performance for batch dialogs/tooltips, where as Dialog is a better choice for single instances or instances that will require more customization.
+				| That said, you set up the markup of a Dialog in the same way you would a tooltip.
+
+			h4 As Aria-Label
+			pre
+				code.language-html
+					| &lt;button class="mk-dg" aria-label="Some text and even markup!"&gt;A Dialog&lt;/button&gt;
+
+			h4 As Nested Element
+			pre
+				code.language-html
+					| &lt;button class="mk-dg" data-position="top-center"&gt;
+					|	&lt;span&gt;A Dialog&lt;/span&gt;
+					|	&lt;span class="mk-dg-modal"&gt;A Dialog Modal!&lt;/span&gt;
+					| &lt;/button&gt;
+
+			h4 As Sibling Element
+			pre
+				code.language-html
+					| &lt;div&gt;
+					| 	&lt;button class="mk-dg" data-position="bottom-center" data-arrow="true"&gt;
+					|		&lt;span&gt;A Dialog&lt;/span&gt;
+					| 	&lt;/button&gt;
+					| 	&lt;div class="mk-dg-modal"&gt;A Dialog Modal!&lt;/div&gt;
+					| &lt;/div&gt;
+
+			h4 Anywhere You Want
+			p
+				| This option requires you to 'connect' the dialog trigger and modal with one another manually with id and aria-describedby attributes.
+			pre
+				code.language-html
+					| &lt;!-- some part of the document --&gt;
+					| &lt;button class="mk-dg" aria-describedby="my-dialog-modal-id"&gt;
+					|	&lt;span&gt;A Dialog&lt;/span&gt;
+					| &lt;/button&gt;
+					| &lt;!-- some other part of the document --&gt;
+					| &lt;div id="my-dialog-modal-id" class="mk-dg-modal"&gt;A Dialog Modal!&lt;/div&gt;
+
+
+			h2
+				| Instantiation
+			p
+				| Unlike Tooltip (who works on delegation), Dialog is a single instance component like most other Mk components.
+				| Instantiation takes two arguments: the first being the root (trigger) node, the second being optional configuration options.
+				| Config options are opt-in and can also be added via data-attributes on the root element.
+				| See the <strong>Examples Section</strong> and Tooltip Documentation for more of that.
+				| But in case you want to, below are all possible options available to pass in.
+				| Additionally, check out the <strong>Events Section</strong> for adding events to your instance.
+			pre
+				code.language-javascript
+					| var Dialog = Mk.get('Dialog');
+					| //
+					| // instantiate
+					| var myDialog = new Dialog('.mk-dg', {
+					|	// set the default position
+					|	// see Examples for all 12 positions
+					|	position: 'bottom-center',
+					|	//tell Dialog whether to add the arrow class (for caret styling)
+					|	arrow: true,
+					|	// set the delay in milliseconds for mouseover/out tooltips, if any
+					|	delay: 100,
+					|	templates: {
+					|		..change any of the templates for this instance only..
+					|	},
+					|	events: {
+					|		..add events here (optional)..
+					| 	}
+					| });
 			include ./shared/events
 			include ./shared/api
 	include ./shared/scripts

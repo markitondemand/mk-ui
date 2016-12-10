@@ -632,7 +632,7 @@ Mk.prototype = {
         var v, t;
 
         if (prop.call(o, n)) {
-            return v = o[n];
+            return this;
         }
 
         v = this.$(el || this.root).data(n);

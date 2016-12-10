@@ -27,3 +27,19 @@
 #tools button + button{
     margin-left: 5px;
 }
+
+#example-dialog h4 {
+    color: white;
+}
+
+#example-dialog a {
+    color: white;
+}
+
+#example-dialog input {
+    margin-bottom: 10px;
+}
+
+#example-dialog button {
+    margin-right: 10px;
+}

@@ -10,11 +10,22 @@ html
 			h2 Examples
 			div
 				form
-					fieldset
-						input(type="date", class="mk-datepicker")
+					fieldset.mk-dp-root
+						input(type="date", class="mk-dp")
 
 			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/dist/js/datepicker.min.js")
+		script(type="text/javascript", src="/src/js/datepicker.js")
 		script.
-			mkNasty.transitions(true);
+
+			Mk.transitions.enable();
+
+			var Datepicker = Mk.get('Datepicker'),
+				examples = Mk.$('.mk-dp-root'),
+				datepicker;
+
+			examples.each(function (example) {
+				datepicker = new Datepicker(example, {
+					//format: 'dddd mmmm, dd yyyy'
+				});
+			});

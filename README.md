@@ -1,5 +1,12 @@
 # Mk[ui] v2.0
-A Flexible UI Build on Accessibility.
+Flexible, Accessible Web Components.
+
+1. Independent of any 3rd party libraries/frameworks (including jQuery).
+2. Supports AMD, CommonJS, and vanilla JavaScript.
+3. Plays nice with Angular and React.
+4. Easily customizable JavaScript, CSS (both LESS and SCSS versions), and Markup for any component.
+5. Written with responsive design and full WCAG 2.0 accessibility support.
+6. Written with full mobile and tablet support (and their screen readers) for the best user experience possible.
 
 #### Live Docs & Examples
 Check out our live documentation and example of each available component on our [GitHub Pages](http://markitondemand.github.io/mk-ui/).
@@ -14,11 +21,14 @@ Using an older version of Mk[ui]? Get access to the old repository [here](https:
 3. Tooltip
 4. Loader
 5. Dialog
+6. Autocomplete
 
 ###### *Available Soon*
 
-1. Autocomplete
-2. Datepicker
+1. Datepicker
+2. Modal
+3. Accordion
+4. Table Sorter
 
 ### Install
 

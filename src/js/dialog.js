@@ -23,8 +23,8 @@
 	<event:show>
 		<desc>Fires when dialog is shown.</desc>
 		<example>
-			instance.on('show', function (tip, modal) {
-				console.info('Showing for:', tip, modal);
+			instance.on('show', function (dg, modal) {
+				console.info('Showing for:', dg, modal);
 			});
 		</example>
 	</event:show>
@@ -32,8 +32,8 @@
 	<event:hide>
 		<desc>Fired when dialog is hidden.</desc>
 		<example>
-			instance.on('show', function (tip, modal) {
-				console.info('Hiding for:', tip, modal);
+			instance.on('show', function (dg, modal) {
+				console.info('Hiding for:', dg, modal);
 			});
 		</example>
 	</event:hide>
@@ -41,8 +41,8 @@
 	<event:connect>
 		<desc>Fired when a connection is being made between a trigger and it's modal.</desc>
 		<example>
-			instance.on('connect', function (tip, modal) {
-				console.info('Connection being made for:', tip, modal);
+			instance.on('connect', function (dg, modal) {
+				console.info('Connection being made for:', dg, modal);
 			});
 		</example>
 	</event:connect>
@@ -50,7 +50,7 @@
 	<event:position>
 		<desc>Fired when positioning is invoked for a dialog modal.</desc>
 		<example>
-			instance.on('position', function (tip, modal, coords) {
+			instance.on('position', function (dg, modal, coords) {
 				console.info('Coors for positioning are:', coords);
 			});
 		</example>
@@ -59,7 +59,7 @@
 	<event:lock>
 		<desc>Fires when dialog is locked or unlocked.</desc>
 		<example>
-			instance.on('lock', function (tip, isLocked) {
+			instance.on('lock', function (dg, isLocked) {
 				console.info('This tooltip is now ', isLocked && 'locked' || 'unlocked');
 			});
 		</example>
@@ -144,7 +144,7 @@
 		configure: function (o) {
 
 			o = o || {};
-			o.position = o.position || 'bottom-left';
+			o.position = o.position || 'none';
 
 			this.param('arrow', 'boolean', o, false);
 
