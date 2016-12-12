@@ -1,4 +1,40 @@
 
+@import "_variables";
+
+.mk-dp-root {
+	display: inline-block;
+	position: relative;
+}
+
 .mk-dp {
-	color: black
+	color: black;
+}
+
+.mk-dp-calendar {
+	background: white;
+	min-width: 300px;
+	border: 1px solid $mk-gray-3;
+	position: absolute;
+	z-index: 2;
+}
+
+.mk-dp-table {
+	width: 100%;
+}
+
+.mk-dp-table caption {
+	color: $mk-gray-1;
+	text-align: center;
+	text-transform: capitalize;
+}
+
+.mk-dp-table th,
+.mk-dp-table td {
+	border-bottom: 1px solid $mk-gray-3;
+	padding: 5px;
+	text-align: center;
+}
+
+.mk-dp-table th {
+	text-transform: uppercase;
 }
