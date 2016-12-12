@@ -15,27 +15,15 @@
 	<file:scss>
 		<src>dist/scss/datepicker.scss</src>
 	</file:scss>
-
-
-
-	possible formats:
-
-	04/30/1985
-
-	April 30, 1985
-
-
 */
 (function (root, factory) {
 
 	if (typeof define === 'function' && define.amd) {
-
 		define(['mk'], function (mk) {
 			return factory(root, mk);
 		});
 	}
 	else if (typeof module === 'object' && module.exports) {
-
 		module.exports = factory(root, require('mk'));
 	}
 	else {
@@ -52,6 +40,8 @@
 
 		xSeperate: /\/|-|,\s|\s/,
 
+		xSearch: /(^|\w+)(\/|-|,\s|\s)/g,
+
 		map: {
 			months: [
 				'january', 'february', 'march', 'april', 'may', 'june', 'july',
@@ -64,7 +54,7 @@
 		},
 
 		formats: {
-			date: 'dd/mm/yyyy',
+			date: 'mm/dd/yyyy',
 			days: 'd',
 			month: 'mmmm',
 			nextMo: 'Go to next month',
@@ -116,12 +106,14 @@
 		},
 
 		build: function () {
+
 			this.shadow = this.html('shadow', {
 				value: this.config.format
 			});
 		},
 
 		mount: function () {
+
 			this.shadow.appendTo(this.root);
 		},
 
@@ -150,15 +142,14 @@
 		_focus: function (e) {
 
 			var t = this.$(e.relatedTarget),
-				f = this.config.format.split(this.xSeperate);
+				f = this.config.format.split(this.xSeperate),
+				i = 0;
 
 			if (t.parent(this.shadow).length) {
-				this.index = f.length - 1;
-			} else {
-				this.index = 0;
+				i = f.length - 1;
 			}
-
-			this.setSelection(this.index);
+			this.index = i;
+			this.setSelection(i);
 		},
 
 		_keydown: function (e) {
@@ -183,6 +174,10 @@
 					e.preventDefault();
 					this.changeSelection(w === k.up);
 					break;
+
+				case k.space:
+					e.preventDefault();
+					//this._space();
 			}
 		},
 
@@ -213,82 +208,98 @@
 			this.setSelection(index);
 		},
 
-		setSelection: function (index) {
+		getSelection: function (index) {
 
 			var input = this.input,
 				value = input.val(),
 				parts = value.split(this.xSeperate),
-				part  = parts[index];
+				part = parts[index], i;
 
 			if (part) {
+
+				i = -1;
+
+				value = value.replace(this.xSearch, function (x, y, z) {
+
+					++i;
+
+					if (i !== index) {
+						return new Array(y.length + 1).join('*') + z;
+					}
+					return y + z;
+				});
 
 				var st = value.indexOf(part),
 					ed = st + part.length;
 
-				this.delay(function () {
-					input[0].setSelectionRange(st, ed);
-				}, 1);
+				return {
+					value: value.substring(st, ed),
+					range: [st, ed]
+				};
 			}
+
+			return null;
+		},
+
+		setSelection: function (index) {
+
+			var selection = this.getSelection(index);
+
+			if (selection) {
+
+				this.delay(function () {
+
+					this.input[0].setSelectionRange(
+						selection.range[0], selection.range[1]);
+				});
+			}
+
 			return this;
 		},
 
 		changeSelection: function (up) {
 
-			var format = this.config.format,
-				parts = format.split(this.xSeperate),
-				part = parts[this.index],
-				value = this.getValueByFormat(part);
+			var selection = this.getSelection(this.index),
+				input = this.input,
+				format,
+				value,
+				date;
 
-			if (value > -1) {
+			if (selection) {
 
-				value = this.setValueByFormat(part, up ? value - 1 : value + 1);
+				format = this.config.format.split(this.xSeperate)[this.index];
 
-				var input = this.input,
-					date  = input.val(),
-					i = 0,
-					start = 0,
-					end,
-					ex;
+				value = this.getValue(format);
+				value = this.setValue(format, up ? value - 1 : value + 1);
 
-				while (i < this.index) {
-					ex = this.xSeperate.exec(date) || [''];
-					date = date.replace(ex[0], new Array(ex[0].length + 1).join('*'));
-					start = ex.index + 1;
-					i++
-				}
-
-				end = start + part.length;
 				date = input.val().split('');
-				date.splice(start, end, value);
+				date.splice(selection.range[0], selection.value.length, value);
 
 				input.val(date.join(''));
 				this.setSelection(this.index);
 			}
 		},
 
-		setValueByFormat: function (format, value) {
+		setValue: function (format, value) {
+
+			var d = this.date, days;
 
 			switch (format) {
 
 				case 'd':
 				case 'dd':
-
-					var days = this.getDaysInMonth(
-						this.date.getFullYear(),
-						this.date.getMonth());
-
-					value = value > days && 1
-						|| value > 0 && value || days;
-
-					this.date.setDate(value);
-					return format === 'dd' && value < 10 && '0' + value || value;
+					days = this.daysInMonth(d.getFullYear(), d.getMonth());
+					value = value > days && 1 || value > 0 && value || days;
+					d.setDate(value);
+					break;
 
 				case 'm':
 				case 'mm':
 				case 'mmm':
 				case 'mmmm':
-					this.date.setMonth(value > 11 && 1 || value < 0 && 11 || value);
-					return format === 'mm' && value < 10 && '0' + value || value;
+					value = value < 0 && 11 || value < 12 && value || 0
+					this.date.setMonth(value);
+					break;
 
 				case 'yy':
 				case 'yyyy':
@@ -296,14 +307,14 @@
 					break;
 			}
 
-			return value;
+			return this.formatValue(format, value);
 		},
 
-		getValueByFormat: function (format) {
+		getValue: function (key) {
 
 			var d = this.date;
 
-			switch (format) {
+			switch (key) {
 
 				case 'yy':
 				case 'yyyy':
@@ -329,25 +340,25 @@
 
 		formatValue: function (format, value) {
 
-			var me = this;
+			var me = this,
+				map = this.map;
 
 			switch (format) {
 
 				case 'm':
 					return value + 1;
 				case 'mm':
-					value = value + 1;
-					return value < 10 && '0' + value || value;
+					return (++value) < 10 && '0' + value || value;
 				case 'mmm':
-					return this.map.months[value].substring(0, 3);
+					return map.months[value].substring(0, 3);
 				case 'mmmm':
-					return this.map.months[value];
+					return map.months[value];
 				case 'd':
 					return value;
 				case 'dd':
 					return value < 10 && '0' + value || value;
 				case 'dddd':
-					return this.map.days[value];
+					return map.days[value];
 				case 'yyyy':
 					return value;
 				case 'yy':
@@ -355,7 +366,7 @@
 			}
 		},
 
-		getDaysInMonth: function (year, month) {
+		daysInMonth: function (year, month) {
 			return 32 - new Date(year, month, 32).getDate();
 		}
 	});
