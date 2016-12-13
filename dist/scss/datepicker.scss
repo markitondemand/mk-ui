@@ -10,6 +10,60 @@
 	color: black;
 }
 
+.mk-dp-control {
+	background: transparent;
+	border-width: 0;
+	font-size: 20px;
+	line-height: 20px;
+	position: absolute;
+	top: 10px;
+	height: 20px;
+	width: 20px;
+
+	&:before {
+		position: absolute;
+		top: 0;
+	}
+}
+
+.mk-dp-control.prev-yr {
+	left: 10px;
+
+	&:before {
+		content: "››";
+		left: 0;
+		transform: rotate(180deg);
+	}
+}
+
+.mk-dp-control.prev-mo {
+	left: 40px;
+
+	&:before {
+		content: "›";
+		left: 0;
+		transform: rotate(180deg);
+	}
+}
+
+.mk-dp-control.next-yr {
+	right: 10px;
+
+	&:before {
+		content: "››";
+		right: 0;
+	}
+}
+
+.mk-dp-control.next-mo {
+	right: 40px;
+
+	&:before {
+		content: "›";
+		right: 0;
+	}
+}
+
 .mk-dp-calendar {
 	background: white;
 	min-width: 300px;
@@ -22,10 +76,20 @@
 	width: 100%;
 }
 
-.mk-dp-table caption {
+.mk-dp-table .weekend {
+	background: $mk-gray-4;
+}
+
+.mk-dp-table .inactive {
+	color: $mk-gray-3;
+	cursor: default;
+}
+
+.mk-dp-table .mk-dp-heading {
 	color: $mk-gray-1;
 	text-align: center;
 	text-transform: capitalize;
+	padding: 10px 0;
 }
 
 .mk-dp-table th,
@@ -37,4 +101,8 @@
 
 .mk-dp-table th {
 	text-transform: uppercase;
+}
+
+.mk-dp-table td {
+	cursor: pointer;
 }

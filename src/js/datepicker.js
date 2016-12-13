@@ -90,7 +90,7 @@
 
 			table:
 				'<table class="{{$key}}-table">\
-					<caption aria-atomic="true" aria-live="assertive">{{title}}</caption>\
+					<caption class="{{$key}}-heading" aria-atomic="true" aria-live="assertive">{{title}}</caption>\
 					<thead>\
 						<tr>\
 						{{loop:days}}\
@@ -102,7 +102,7 @@
 				</table>',
 
 			body:
-				'<tbody>\
+				'<tbody tabindex="0">\
 					{{loop:weeks}}\
 						<tr>\
 							{{loop:days}}\
@@ -114,11 +114,12 @@
 
 			day:
 				'<td class="\
-					{{if:today}}today {{if:active}}\
-					{{if:weekend}}weekend {{/if:weekend}}\
-					{{if:inactive}}inactive {{/if:inactive}}\
-					{{if:disabled}}disabled {{/if:disabled}}\
-					{{if:between}}between {{/if:between}}\
+					{{day}}\
+					{{if:today}} today{{/if:today}}\
+					{{if:weekend}} weekend{{/if:weekend}}\
+					{{if:inactive}} inactive{{/if:inactive}}\
+					{{if:disabled}} disabled{{/if:disabled}}\
+					{{if:between}} between{{/if:between}}\
 					" aria-label="label">\
 					{{value}}\
 				</td>',
@@ -183,7 +184,7 @@
 			});
 
 			r.weeks = this.buildCalendar(this.date);
-console.info(r.weeks)
+
 			return r;
 		},
 
@@ -198,7 +199,6 @@ console.info(r.weeks)
 				week,
 				month,
 				year,
-				day,
 				i;
 
 			//basically copying the date object passed in
@@ -219,7 +219,7 @@ console.info(r.weeks)
 
 			//loop any carryover days and add them to our list
 			for (i = 0; prev <= last; prev++) {
-				week.days.push(this.buildDay(year, month, prev, i));
+				week.days.push(this.buildDay(year, month, prev, i, true));
 				i++;
 			}
 
@@ -256,12 +256,12 @@ console.info(r.weeks)
 			year  = d.getFullYear();
 
 			for (i = 1; start <= 6; start++) {
-				week.days.push(this.buildDay(year, month, i, start));
+				week.days.push(this.buildDay(year, month, i, start, true));
 			}
 			return weeks;
 		},
 
-		buildDay: function (year, month, date, day) {
+		buildDay: function (year, month, date, day, inactive) {
 
 			var today = new Date();
 
@@ -272,7 +272,9 @@ console.info(r.weeks)
 					month: this.formatValue('mmmm', month),
 					year: this.formatValue('yyyy', year)
 				}),
+				inactive: inactive,
 				weekend: !day || day > 5,
+				day: this.formatmap.days[day],
 				today: date === today.getDate()
 					&& month === today.getMonth()
 					&& year === today.getFullYear()
@@ -280,7 +282,6 @@ console.info(r.weeks)
 		},
 
 		build: function () {
-
 			this.shadow = this.html('shadow', this.data());
 		},
 
