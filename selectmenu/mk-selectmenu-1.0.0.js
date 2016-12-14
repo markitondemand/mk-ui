@@ -814,6 +814,8 @@
 			this.aria(this.$trigger).expanded();
 			this.aria(this.$menu).visible();
 			this._activate();
+			
+			this.$select.trigger('show.mk-selectmenu');
 		},
 
 		//hide the dropdown
@@ -826,6 +828,8 @@
 			if (!this.multiple) {
 				 this._updateLabel();
 			}
+			
+			this.$select.trigger('hide.mk-selectmenu');
 		},
 
 		//Repaint the mkSelectmenu UI.
