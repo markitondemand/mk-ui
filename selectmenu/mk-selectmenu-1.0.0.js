@@ -820,6 +820,7 @@
 
 		//hide the dropdown
 		hide: function() {
+			var wasVisible = !this.$wrapper.hasClass('aria-hidden');
 
 			this.$wrapper.addClass('aria-hidden');
 			this.aria(this.$trigger).collapsed();
@@ -829,7 +830,9 @@
 				 this._updateLabel();
 			}
 			
-			this.$select.trigger('hide.mk-selectmenu');
+			if(wasVisible) {
+				this.$select.trigger('hide.mk-selectmenu');
+			}
 		},
 
 		//Repaint the mkSelectmenu UI.
