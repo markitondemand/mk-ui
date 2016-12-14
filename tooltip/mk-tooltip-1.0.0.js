@@ -10,12 +10,21 @@
 		_rtl: /\s?rtl\s?/i,
 		_rev: /\s?reverse\s?/i,
 
-		_init: function ($container) {
+		_init: function ($container, options) {
 
 			this.$container = $($container);
 
+			this._setOptions(options);
 			this._define();
 			this.bind();
+		},
+
+		_setOptions: function (options) {
+
+			options = options || {};
+			options.position = options.position || null;
+
+			this.options = options;
 		},
 
 		_define: function () {
@@ -40,15 +49,20 @@
 
 		_click: function (e) {
 
-			if ($(e.target).data('toggle') == 'click') {
+			var $t = $(e.target), $tt;
+
+			if ($t.data('toggle') == 'click') {
+
+				$tt = this._findTooltip($t);
 
 				e.preventDefault();
-				this.show(e.currentTarget);
+				this._trackDialogFocus($t, $tt);
+				this.show($t, e);
 			}
 		},
 
 		_down: function (e) {
-	
+
 			var $t = $(e.target),
 				ns = '.' + this._name;
 
@@ -61,9 +75,7 @@
 				$t = $t.closest(this._class('trigger', true));
 			}
 
-			if ($t.length && $t.data('toggle') == 'click') {
-				this.show($t);
-				this._trackDialogFocus($t, this._findTooltip($t));
+			if ($t.length && $t.data('toggle') === 'click') {
 				return;
 			}
 
@@ -74,11 +86,12 @@
 
 			var $t = $(e.currentTarget);
 
-			if ($t.data('toggle') == 'click') {
+			if ($t.data('toggle') === 'click') {
 				return;
 			}
+
 			this.hide();
-			this.show($t);
+			this.show($t, e);
 		},
 
 		_out: function (e) {
@@ -190,16 +203,20 @@
 				}
 
 				this._applyAria($tip, $t);
-				this._bindTooltipEvents($tip, $t);
 				this._getParent($t).append($tip);
 			}
+
+			this._bindTooltipEvents($tip, $t);
+
 			return $tip;
 		},
 
 		_bindTooltipEvents: function ($tip, $t) {
 
-			var me = this;
-			$tip.on(this._ns('click'), '[data-action=close]', function (e) {
+			var me = this,
+				ev = this._ns('click');
+
+			$tip.off(ev).on(ev, '[data-action="close"]', function (e) {
 				e.preventDefault();
 				me.hide($t);
 				$t.focus();
@@ -353,6 +370,20 @@
 			}
 		},
 
+		unmount: function () {
+
+			this.$container.data('mk-tooltip', null);
+
+			this.$container
+				.off(this._ns('mouseover', 'focus'))
+				.off(this._ns('mouseout', 'blur'))
+				.off(this._ns('click'))
+				.off(this._ns('mousedown'));
+
+			this.$container = null;
+			this.options = null;
+		},
+
 		bind: function () {
 
 			var self = this;
@@ -402,6 +433,24 @@
 			}
 		},
 
+		lock: function (el, xy) {
+			var me = this,
+				$t = this._findTrigger(el),
+				$tip = this._findTooltip($t);
+			$tip.addClass('lock');
+			return this;
+
+		},
+
+		unlock: function (el, xy) {
+			var me = this,
+				$t = this._findTrigger(el),
+				$tip = this._findTooltip($t);
+			$tip.removeClass('lock');
+			return this;
+
+		},
+
 		show: function (el, xy) {
 
 			var me = this,
@@ -409,13 +458,15 @@
 				$tip = this._findTooltip($t);
 
 			this.aria($tip).visible();
-			this._position($tip, $t, xy);
+
+			if (this.options.position) {
+				this.options.position.call(this, $t, $tip, xy);
+			}
+			else {
+				this._position($tip, $t, xy);
+			}
 
 			$tip.removeClass('transition');
-
-			if ($t.data('toggle') == 'click') {
-				$tip.focus();
-			}
 
 			$(window).one(this._ns('resize'), function () {
 				me.hide();
@@ -427,6 +478,14 @@
 			this.clearTransitions($tip);
 
 			$tip.addClass('show');
+
+			this.transition($tip, function () {
+				if ($t.data('toggle') === 'click') {
+					$tip.focus();
+				}
+			});
+
+			return this;
 		},
 
 		hide: function (el) {
@@ -439,9 +498,12 @@
 				$tip = this.aria($trigger).describedby(),
 				me = this;
 
+			if ($tip.hasClass('lock')) { return; }
+
 			this.clearTransitions($tip);
+
 			this.transition($tip, function () {
-				
+
 				$tip.removeClass('reverse left right rtl top bottom');
 				$tip.removeAttr('style');
 
@@ -460,19 +522,20 @@
 
 			var me = this;
 			this.$container.find(this._class('trigger', true)).each(function() {
+				if ( $(this).hasClass('lock') ) { return; }
 				me.hide(this);
 			});
 			return this;
 		}
 	});
 
-	$.fn.mktooltip = function () {
+	$.fn.mktooltip = function (options) {
 		return this.each(function () {
 
 			var $container = $(this);
 
 			$container.data('mk-tooltip',
-				$container.data('mk-tooltip') || new $.Mk.Tooltip($container));
+				$container.data('mk-tooltip') || new $.Mk.Tooltip($container, options));
 		});
 	};
 

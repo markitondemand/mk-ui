@@ -700,7 +700,7 @@
 
 			for (var i = 0, c = values.length; i < c; i++) {
 				 this.aria(
-				 	$options.filter('[data-value=' + values[i].value + ']')).selected();
+				 	$options.filter('[data-value="' + values[i].value + '"]')).selected();
 			}
 
 			this.aria(this.$trigger).activedescendant($el);
@@ -814,6 +814,8 @@
 			this.aria(this.$trigger).expanded();
 			this.aria(this.$menu).visible();
 			this._activate();
+			
+			this.$select.trigger('show.mk-selectmenu');
 		},
 
 		//hide the dropdown
@@ -826,6 +828,8 @@
 			if (!this.multiple) {
 				 this._updateLabel();
 			}
+			
+			this.$select.trigger('hide.mk-selectmenu');
 		},
 
 		//Repaint the mkSelectmenu UI.
@@ -876,7 +880,7 @@
 			for (var i = 0, c = $options.length, $o, $i; i < c; i++) {
 
 				 var $o = $($options[i]),
-				 	 $i = $items.filter('[data-value=' + $o.val() + ']')
+				 	 $i = $items.filter('[data-value="' + $o.val() + '"]')
 
 				 this.aria($i)
 				 	.disabled($o.is(':disabled'))
