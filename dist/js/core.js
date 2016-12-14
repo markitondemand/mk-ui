@@ -371,7 +371,7 @@ $.data = function (node, key, value) {
         val = cache[key];
 
         if (val === void+1 && /1|9|11/.test(node.nodeType)) {
-            val = node.getAttribute('data-' + key) || null;
+            val = node.getAttribute('data-' + key) || undefined;
         }
     }
 
@@ -640,29 +640,31 @@ $.events = {
 
             var event = $.events.find(this, e.type, id),
                 trigger = $.events.delegate(this, e, event.delegate),
-                invoked = false,
+                invoke = false,
                 result;
 
             if (e.namespace) {
                 if (e.namespace === event.namespace && trigger.allowed) {
-                    result = event.original.apply(trigger.target, [e].concat(e.data));
-                    invoked = true;
+                    invoke = true;
                 }
             }
             else if (trigger.allowed) {
-                result = event.original.apply(trigger.target, [e].concat(e.data));
-                invoked = true;
+                invoke = true;
             }
 
-            if (invoked && event.single) {
+            if (invoke) {
 
-                $.events.remove({
-                    node: this,
-                    add: false,
-                    type: event.type,
-                    handler: event.original,
-                    namespace: event.namespace
-                });
+                if (event.single) {
+                    $.events.remove({
+                        node: this,
+                        add: false,
+                        type: event.type,
+                        handler: event.original,
+                        namespace: event.namespace
+                    });
+                }
+
+                result = event.original.apply(trigger.target, [e].concat(e.data));
             }
 
             return result;
@@ -2363,7 +2365,7 @@ Mk.prototype = {
         var v, t;
 
         if (prop.call(o, n)) {
-            return v = o[n];
+            return this;
         }
 
         v = this.$(el || this.root).data(n);

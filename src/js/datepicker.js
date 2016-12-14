@@ -42,6 +42,12 @@
 
 		xSearch: /(^|\w+)(\/|-|,\s|\s)/g,
 
+		/*
+			<property:formatmap>
+				<desc>Keeps friendly names for months and days of the week.</desc>
+			</property:formatmap>
+		*/
+
 		formatmap: {
 			months: [
 				'january', 'february', 'march', 'april', 'may', 'june', 'july',
@@ -54,6 +60,7 @@
 		},
 
 		formats: {
+			native: 'yyyy-mm-dd',
 			date: 'mm/dd/yyyy',
 			days: 'd',
 			month: 'mmmm',
@@ -91,7 +98,7 @@
 			table:
 				'<table class="{{$key}}-table">\
 					<caption class="{{$key}}-heading" aria-atomic="true" aria-live="assertive">{{title}}</caption>\
-					<thead>\
+					<thead class="{{$key}}-head">\
 						<tr>\
 						{{loop:days}}\
 							<th aria-label="{{day}}">{{label}}</th>\
@@ -102,7 +109,7 @@
 				</table>',
 
 			body:
-				'<tbody tabindex="0">\
+				'<tbody class="{{$key}}-body" tabindex="0">\
 					{{loop:weeks}}\
 						<tr>\
 							{{loop:days}}\
@@ -113,51 +120,95 @@
 				</tbody>',
 
 			day:
-				'<td class="\
+				'<td data-value="{{value}}" class="\
 					{{day}}\
 					{{if:today}} today{{/if:today}}\
+					{{if:active}} active{{/if:active}}\
 					{{if:weekend}} weekend{{/if:weekend}}\
 					{{if:inactive}} inactive{{/if:inactive}}\
 					{{if:disabled}} disabled{{/if:disabled}}\
 					{{if:between}} between{{/if:between}}\
 					" aria-label="label">\
-					{{value}}\
+					<span>{{value}}</span>\
 				</td>',
 
 			input: '<input class="{{$key}}-input" type="text" value="{{date}}" />',
 			access: '<button class="{{$key}}-access">Open</button>'
 		},
 
+		/*
+			<property:rootinput>
+				<desc>The input element you provided inside the root datepicker node.</desc>
+			</property:rootinput>
+		*/
+
 		get rootinput () {
 			return this.node('');
 		},
+
+		/*
+			<property:input>
+				<desc>Our shadow input created by datepicker. This is the unput the user interacts with.</desc>
+			</property:input>
+		*/
 
 		get input () {
 			return this.node('input', this.shadow);
 		},
 
+		/*
+			<property:accessbtn>
+				<desc>The button used to access (open/close) the datepicker UI.</desc>
+			</property:accessbtn>
+		*/
+
 		get accessbtn () {
 			return this.node('access', this.shadow);
 		},
 
-		define: function (root, config) {
+		get calendar () {
+			return this.node('calendar', this.shadow);
+		},
 
-			this.date = new Date();
+		get active () {
 
-			this.super(root, config);
+			var body = this.node('body', this.calendar),
+				active = body.find('.active');
+
+			if (!active.length) {
+				 active = body.find('[data-value="' + this.date.getDate() + '"]');
+			}
+
+			if (!active.length) {
+				 active = body.find('.today');
+			}
+
+			if (!active.length) {
+				 active = this.$(body.find('td')[0]);
+			}
+
+			return active;
 		},
 
 		configure: function (o) {
 
 			o = o || {};
 
-			var input = this.rootinput,
-				format = this.formats.date;
+			var input = this.rootinput;
 
-			this
-			.param('format', 'string', o, format, input)
-			.param('min', 'string', o, '', input)
-			.param('max', 'string', o, '', input);
+			o.fdate = input.val();
+			o.date  = o.fdate && this.stringToDate(o.fdate) || new Date();
+
+			o.fmin = input.attr('min');
+			o.min  = o.fmin && this.stringToDate(o.fmin) || null;
+
+			o.fmax = input.attr('max');
+			o.max  = o.fmax && this.stringToDate(o.fmax) || null;
+
+			this.date = o.date;
+
+			this.param('format', 'string', o, this.formats.date, input)
+				.param('rollover', 'boolean', o, true, input);
 
 			this.super(o);
 		},
@@ -169,23 +220,17 @@
 				l = f.days.length,
 				r = {};
 
-			r.date = c.format;
-
-			r.title = this.format('caption', {
-				month: this.formatValue(f.month, this.date.getMonth()),
-				year: this.formatValue(f.year, this.date.getFullYear())
-			});
-
-			r.days = this.map(this.formatmap.days, function (day) {
-				return {
-					day: day,
-					label: l < 4 && day.substring(0, l) || day
-				};
-			});
-
-			r.weeks = this.buildCalendar(this.date);
-
-			return r;
+			return {
+				date: c.fdate ? this.dateToString(this.date, c.format) : c.format,
+				weeks: this.buildCalendar(this.date),
+				title: this.format('caption', {
+					month: this.formatValue(f.month, this.date.getMonth()),
+					year: this.formatValue(f.year, this.date.getFullYear())
+				}),
+				days: this.map(this.formatmap.days, function (day) {
+					return { day: day, label: l < 4 && day.substring(0, l) || day };
+				})
+			};
 		},
 
 		buildCalendar: function (date) {
@@ -194,6 +239,7 @@
 				days = this.daysInMonth(date),
 				last = this.daysInLastMonth(date),
 				start = this.startDayInMonth(date),
+				rollover = this.config.rollover,
 				prev = last - (start - 1),
 				weeks = [],
 				week,
@@ -219,7 +265,12 @@
 
 			//loop any carryover days and add them to our list
 			for (i = 0; prev <= last; prev++) {
-				week.days.push(this.buildDay(year, month, prev, i, true));
+
+				week.days.push(rollover
+					? this.buildDay(year, month, prev, i, true)
+					: {}
+				);
+
 				i++;
 			}
 
@@ -234,7 +285,7 @@
 
 			for (i = 1; i <= days; i++) {
 
-				week.days.push(this.buildDay(year, month, i, start));
+				week.days.push(this.buildDay(year, month, i, start, false, i === d.getDate()));
 
 				start++;
 
@@ -250,18 +301,30 @@
 			//finally we want to look at future months.
 			//there may be some carryover to complete the table so let's do that.
 
-			d.setMonth(month + 1);
+			if (start !== 0) {
 
-			month = d.getMonth();
-			year  = d.getFullYear();
+				d.setMonth(month + 1);
 
-			for (i = 1; start <= 6; start++) {
-				week.days.push(this.buildDay(year, month, i, start, true));
+				month = d.getMonth();
+				year  = d.getFullYear();
+
+				for (i = 1; start <= 6; start++) {
+
+					week.days.push(rollover
+						? this.buildDay(year, month, i, start, true)
+						: {}
+					);
+
+					i++;
+				}
 			}
+
+			weeks.push(week);
+
 			return weeks;
 		},
 
-		buildDay: function (year, month, date, day, inactive) {
+		buildDay: function (year, month, date, day, inactive, active) {
 
 			var today = new Date();
 
@@ -272,6 +335,7 @@
 					month: this.formatValue('mmmm', month),
 					year: this.formatValue('yyyy', year)
 				}),
+				active: active,
 				inactive: inactive,
 				weekend: !day || day > 5,
 				day: this.formatmap.days[day],
@@ -286,6 +350,7 @@
 		},
 
 		mount: function () {
+			this.node('body', this.calendar).addClass('in');
 			this.shadow.appendTo(this.root);
 		},
 
@@ -295,24 +360,58 @@
 
 			this.config =
 			this.shadow =
+			this.date =
 			this.root = null;
 		},
 
 		bind: function () {
 
-			var thiss = this;
+			var thiss = this,
+				calendarFocused = false;
 
-			this.input.on('focus.mk', true, function (e) {
+			this.input
+			.on('focus.mk', true, function (e) {
 				thiss._focus(e.relatedTarget);
 			})
 			.on('keydown.mk', function (e) {
 				thiss._keydown(e);
 			});
 
+			this.calendar
+			.on('focus.mk', true, function (e) {
+				calendarFocused = thiss.$(e.target).is('tbody');
+			})
+			.on('keydown.mk', true, function (e) {
+				thiss._keydownCalendar(e, calendarFocused);
+			})
+			.on('click.mk', true, function (e) {
+				e.preventDefault();
+				thiss._click(e);
+			});
+
 			this.accessbtn.on('click.mk', function (e) {
 				e.preventDefault();
-				thiss.toggle();
+				//thiss.toggle();
 			});
+		},
+
+		_click: function (e) {
+
+			var t = this.$(e.target);
+
+			if (t.is(this.selector('control'))) {
+				this._handleControl(e);
+			}
+		},
+
+		_handleControl: function (e) {
+
+			var t = this.$(e.target);
+
+			return t.hasClass('prev-mo') && this.moveMonth(true, false)
+				|| t.hasClass('next-mo') && this.moveMonth(false, false)
+				|| t.hasClass('prev-yr') && this.moveYear(true, false)
+				|| t.hasClass('next-yr') && this.moveYear(false, false);
 		},
 
 		_focus: function (from) {
@@ -332,10 +431,126 @@
 			});
 		},
 
-		_keydown: function (e) {
+		_move: function (w) {
+
+			var key = this.keycode,
+				el = this.active;
+
+			el.removeClass('active');
+
+			if (w === key.left) {
+				return this._left(el[0]);
+			}
+
+			if (w === key.right) {
+				return this._right(el[0]);
+			}
+		},
+
+		_moveX: function (el, back) {
+
+			var prop = back && 'previousSibling' || 'nextSibling',
+				node, row;
+
+			if (el[prop]) {
+				node = el[prop];
+			}
+			else {
+
+				row = el.parentNode && el.parentNode[prop];
+				node = row && row.childNodes[back && row.childNodes.length - 1 || 0];
+
+				if (!node) {
+					return this.moveMonth(back, true);
+				}
+			}
+
+			node = this.$(node);
+
+			if (node.hasClass('inactive')) {
+				return this._moveX(node[0], back);
+			}
+
+			this.date.setDate(parseInt(node.data('value'), 10));
+			node.addClass('active');
+		},
+
+		_left: function (el) {
+			return this._moveX(el, true);
+		},
+
+		_right: function (el) {
+			return this._moveX(el, false);
+		},
+
+		_up: function (el) {
+
+		},
+
+		_down: function (el) {
+
+		},
+
+		_keydownCalendar: function (e, calendarFocused) {
 
 			var w = e.which,
 				k = this.keycode;
+
+			switch (w) {
+
+				case k.up:
+				case k.down:
+				case k.left:
+				case k.right:
+
+					e.preventDefault();
+
+					if (calendarFocused) {
+						this._move(w);
+					}
+					break;
+
+				case k.esc:
+
+					e.preventDefault();
+
+					console.info('hide calendar');
+					break;
+
+				case k.pageup:
+				case k.pagedown:
+
+					e.preventDefault();
+					this.moveMonth(w === k.pageup, true);
+					break;
+
+				case k.enter:
+				case k.space:
+
+					e.preventDefault();
+
+					if (calendarFocused) {
+						console.info('select date');
+					} else {
+						this._handleControl(e);
+					}
+					break;
+
+				case k.home:
+				case k.end:
+					e.preventDefault();
+					if (calendarFocused) {
+						console.info('move to first or last date');
+					}
+					break;
+			}
+		},
+
+		_keydown: function (e) {
+
+			var w = e.which,
+				k = this.keycode,
+				c;
 
 			switch (w) {
 
@@ -355,6 +570,14 @@
 				case k.space:
 					e.preventDefault();
 					//this._space();
+					break;
+
+				default:
+					c = String.fromCharCode(w);
+
+					if (!/\w/.test(c)) {
+						e.preventDefault();
+					}
 			}
 		},
 
@@ -383,6 +606,54 @@
 
 			this.index = index;
 			this.setSelection(index);
+		},
+
+		refresh: function (refocus) {
+
+			var c = this.calendar,
+				m = this.html('body', {
+					weeks: this.buildCalendar(this.date)
+				});
+
+			this.node('body',  c).remove();
+			this.node('table', c).append(m);
+
+			this.updateLabel();
+
+			if (refocus) {
+				this.node('body',  c).focus();
+			}
+
+			return this;
+		},
+
+		updateLabel: function () {
+
+			var f = this.config.formats,
+				d = this.date;
+
+			this.node('heading', this.calendar).text(this.format('caption', {
+				month: this.formatValue(f.month, d.getMonth()),
+				year:  this.formatValue(f.year,  d.getFullYear())
+			}));
+
+			return this;
+		},
+
+		moveMonth: function (up, refocus) {
+
+			this.date.setMonth(
+				this.date.getMonth() + (up ? -1 : 1));
+
+			return this.refresh(refocus);
+		},
+
+		moveYear: function (up, refocus) {
+
+			this.date.setFullYear(
+				this.date.getFullYear() + (up ? -1 : 1));
+
+			return this.refresh(refocus);
 		},
 
 		getSelection: function (index) {
@@ -452,9 +723,29 @@
 			}
 		},
 
-		setValue: function (format, value) {
+		/*
+			<method:setValue>
+				<invoke>.setValue(format, value, date)</invoke>
+				<param:format>
+					<type>String</type>
+					<desc>Piece of a format value (ie: mm, mmmm, yyyy, etc.)</desc>
+				</param:format>
+				<param:value>
+					<type>Number</type>
+					<desc>Value to set on a date object.</desc>
+				</param:value>
+				<param:date>
+					<type>Date</type>
+					<desc>Date object to pull the value from. Default is internal date.</desc>
+				</param:date>
+				<desc>Takes a format and value and applies it to the date in question. Returns the formatted value.</desc>
+			</method:setValue>
+		*/
 
-			var d = this.date, days;
+		setValue: function (format, value, date) {
+
+			var d = date || this.date,
+				days;
 
 			switch (format) {
 
@@ -470,21 +761,36 @@
 				case 'mmm':
 				case 'mmmm':
 					value = value < 0 && 11 || value < 12 && value || 0
-					this.date.setMonth(value);
+					d.setMonth(value);
 					break;
 
 				case 'yy':
 				case 'yyyy':
-					this.date.setFullYear(value);
+					d.setFullYear(value);
 					break;
 			}
 
 			return this.formatValue(format, value);
 		},
 
-		getValue: function (key) {
+		/*
+			<method:getValue>
+				<invoke>.getValue(key[, date])</invoke>
+				<param:key>
+					<type>String</type>
+					<desc>Key representing part of a date (ie: m, d, or y).</desc>
+				</param:key>
+				<param:date>
+					<type>Date</type>
+					<desc>Date object to pull the value from. Default is internal date.</desc>
+				</param:date>
+				<desc>Takes a key signifying day, date, month, or year and pulls the value from the date object.</desc>
+			</method:getValue>
+		*/
 
-			var d = this.date
+		getValue: function (key, date) {
+
+			var d = date || this.date;
 
 			if (/y/.test(key)) {
 				return d.getFullYear();
@@ -503,6 +809,21 @@
 
 			return -1;
 		},
+
+		/*
+			<method:formatValue>
+				<invoke>.formatValue(format, value)</invoke>
+				<param:format>
+					<type>String</type>
+					<desc>Part of a date format.</desc>
+				</param:format>
+				<param:value>
+					<type>Number</type>
+					<desc>Number representing the value to be formatted.</desc>
+				</param:value>
+				<desc>Takes a piece of a date format (ie: mm, yyyy, etc.) and formats the raw value.</desc>
+			</method:formatValue>
+		*/
 
 		formatValue: function (format, value) {
 
@@ -534,9 +855,89 @@
 			}
 		},
 
+		/*
+			<method:stringToDate>
+				<invoke>.parseDate(sdate)</invoke>
+				<param:sdate>
+					<type>String</type>
+					<desc>Date string in native format (yyyy-mm-dd).</desc>
+				</param:sdate>
+				<desc>Takes a date string in *native format only* (yyyy-mm-dd) and converts it to a date.</desc>
+			</method:stringToDate>
+		*/
+
+		stringToDate: function (sdate) {
+
+			var date = new Date(),
+				parts = sdate.split(this.xSeperate),
+				format = this.formats.native.split(this.xSeperate),
+				value;
+
+			this.each(format, function (f, i) {
+
+				value = parseInt(parts[i], 10);
+
+				if (f.indexOf('m') > -1) {
+					value -= 1;
+				}
+				this.setValue(f, value, date);
+			});
+
+			return date;
+		},
+
+		/*
+			<method:dateToString>
+				<invoke>.dateToString(date[, format])</invoke>
+				<param:date>
+					<type>Date</type>
+					<desc>Date object to convert to string.</desc>
+				</param:sdate>
+				<param:format>
+					<type>String</type>
+					<desc>format string to convert date to. Default is browser native (yyyy-mm-dd).</desc>
+				</param:format>
+				<desc>Takes a date string in *native format only* (yyyy-mm-dd) and converts it to a date.</desc>
+			</method:dateToString>
+		*/
+
+		dateToString: function (date, format) {
+
+			var str = format || this.config.formats.native, val;
+
+			this.each(str.split(this.xSeperate), function (f) {
+				value = this.formatValue(f,  this.getValue(f, date));
+				str = str.replace(new RegExp(f), value);
+			});
+
+			return str;
+		},
+
+		/*
+			<method:daysInMonth>
+				<invoke>.daysInMonth(date)</invoke>
+				<param:date>
+					<type>Date</type>
+					<desc>Date object.</desc>
+				</param:date>
+				<desc>Gets the max days in a perticular date's month.</desc>
+			</method:daysInMonth>
+		*/
+
 		daysInMonth: function (date) {
 			return 32 - new Date(date.getFullYear(), date.getMonth(), 32).getDate();
 		},
+
+		/*
+			<method:daysInLastMonth>
+				<invoke>.daysInLastMonth(date)</invoke>
+				<param:date>
+					<type>Date</type>
+					<desc>Date object.</desc>
+				</param:date>
+				<desc>Gets the max days in the month before the date provided.</desc>
+			</method:daysInLastMonth>
+		*/
 
 		daysInLastMonth: function (date) {
 
@@ -545,6 +946,36 @@
 
 			return this.daysInMonth(d);
 		},
+
+		/*
+			<method:daysInNextMonth>
+				<invoke>.daysInNextMonth(date)</invoke>
+				<param:date>
+					<type>Date</type>
+					<desc>Date object.</desc>
+				</param:date>
+				<desc>Gets the max days in the month after the date provided.</desc>
+			</method:daysInNextMonth>
+		*/
+
+		daysInNextMonth: function (date) {
+
+			var d = new Date();
+				d.setMonth(date.getMonth() + 1);
+
+			return this.daysInMonth(d);
+		},
+
+		/*
+			<method:startDayInMonth>
+				<invoke>.startDayInMonth(date)</invoke>
+				<param:date>
+					<type>Date</type>
+					<desc>Date object.</desc>
+				</param:date>
+				<desc>Get the start day in the week (1-7).</desc>
+			</method:startDayInMonth>
+		*/
 
 		startDayInMonth: function (date) {
 			return new Date(date.getFullYear(), date.getMonth(), 1).getDay();

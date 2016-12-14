@@ -10,6 +10,10 @@
 	color: black;
 }
 
+.mk-dp-input {
+	text-transform: capitalize;
+}
+
 .mk-dp-control {
 	background: transparent;
 	border-width: 0;
@@ -76,16 +80,8 @@
 	width: 100%;
 }
 
-.mk-dp-table .weekend {
-	background: $mk-gray-4;
-}
-
-.mk-dp-table .inactive {
-	color: $mk-gray-3;
-	cursor: default;
-}
-
 .mk-dp-table .mk-dp-heading {
+	background: white;
 	color: $mk-gray-1;
 	text-align: center;
 	text-transform: capitalize;
@@ -97,6 +93,7 @@
 	border-bottom: 1px solid $mk-gray-3;
 	padding: 5px;
 	text-align: center;
+	width: 14.28%;
 }
 
 .mk-dp-table th {
@@ -105,4 +102,22 @@
 
 .mk-dp-table td {
 	cursor: pointer;
+}
+
+.mk-dp-table .weekend {
+	background: $mk-gray-4;
+}
+
+.mk-dp-table .inactive {
+	color: $mk-gray-3;
+	cursor: default;
+}
+
+.mk-dp-table .today {
+	color: $mk-primary;
+}
+
+.mk-dp-table .active {
+	background: $mk-primary;
+	color: white;
 }

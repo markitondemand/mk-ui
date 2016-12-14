@@ -6,6 +6,9 @@
 .mk-dp {
   color: black; }
 
+.mk-dp-input {
+  text-transform: capitalize; }
+
 .mk-dp-control {
   background: transparent;
   border-width: 0;
@@ -55,14 +58,8 @@
 .mk-dp-table {
   width: 100%; }
 
-.mk-dp-table .weekend {
-  background: #eee; }
-
-.mk-dp-table .inactive {
-  color: #ccc;
-  cursor: default; }
-
 .mk-dp-table .mk-dp-heading {
+  background: white;
   color: #333;
   text-align: center;
   text-transform: capitalize;
@@ -72,10 +69,25 @@
 .mk-dp-table td {
   border-bottom: 1px solid #ccc;
   padding: 5px;
-  text-align: center; }
+  text-align: center;
+  width: 14.28%; }
 
 .mk-dp-table th {
   text-transform: uppercase; }
 
 .mk-dp-table td {
   cursor: pointer; }
+
+.mk-dp-table .weekend {
+  background: #eee; }
+
+.mk-dp-table .inactive {
+  color: #ccc;
+  cursor: default; }
+
+.mk-dp-table .today {
+  color: #008e89; }
+
+.mk-dp-table .active {
+  background: #008e89;
+  color: white; }

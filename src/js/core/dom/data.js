@@ -40,7 +40,7 @@ $.data = function (node, key, value) {
         val = cache[key];
 
         if (val === void+1 && /1|9|11/.test(node.nodeType)) {
-            val = node.getAttribute('data-' + key) || null;
+            val = node.getAttribute('data-' + key) || undefined;
         }
     }
 
