@@ -103,6 +103,22 @@ $.prototype = {
         return this;
     },
 
+    index: function (i) {
+
+        if (typeof i !== 'number' && this.length) {
+
+            var el = this[0],
+                children = el.parentNode && el.parentNode.childNodes || [];
+
+            for (var i = 0, l = children.length; i < l; i++) {
+                if (children[i] === el) return i;
+            }
+            return 0;
+        }
+        
+        return this.length > i && this[i] || undefined;
+    },
+
     find: function (s, c) {
 
         var d = document, n

@@ -100,8 +100,32 @@
 	text-transform: uppercase;
 }
 
-.mk-dp-table td {
+.mk-dp-table  {
 	cursor: pointer;
+}
+
+.mk-dp-table .mk-dp-day span {
+	display: block;
+	position: relative;
+	z-index: 1;
+	transition: all 0.5s;
+}
+
+.mk-dp-table .mk-dp-day span:before {
+	background: transparent;
+	border-radius: 80%;
+	color: white;
+	content: "";
+	display: block;
+	width: 26px;
+	height: 26px;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-left: -13px;
+	margin-top: -13px;
+	z-index: -1;
+	transition: all 0.5s;
 }
 
 .mk-dp-table .weekend {
@@ -117,7 +141,10 @@
 	color: $mk-primary;
 }
 
-.mk-dp-table .active {
-	background: $mk-primary;
+.mk-dp-table  .active span {
 	color: white;
+}
+
+.mk-dp-table .active span:before {
+	background: #008e89;
 }
