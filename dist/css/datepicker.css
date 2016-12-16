@@ -7,12 +7,14 @@
   position: relative; }
 
 .mk-dp {
-  color: #333; }
+  color: #333;
+  display: none; }
 
 .mk-dp-matician {
   position: absolute;
-  visibility: hidden;
   height: auto;
+  opacity: 0;
+  left: -9999px;
   width: auto;
   white-space: nowrap; }
 

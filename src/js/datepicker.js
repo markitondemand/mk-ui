@@ -501,7 +501,8 @@
 
 			n = parseInt(v) || this.unformat(f, v);
 
-			if (n) {
+			if (typeof n === 'number' && !isNaN(n)) {
+
 				//if we are a month and the value is less than 0 or greater than 11,
 				//we must reset the value, it's not a valid date entry.
 				if (k === 'month' && (n < 0 || n > 11)) {
@@ -523,7 +524,7 @@
 					}
 				}
 
-				if (n) {
+				if (typeof n === 'number' && !isNaN(n)) {
 
 					this.setValue(f, n, s);
 
@@ -1137,7 +1138,7 @@
 					return d.getDate();
 			}
 
-			return -1;
+			return NaN;
 		},
 
 		/*
@@ -1216,7 +1217,7 @@
 				case 'mmmm':
 					return map.months.indexOf(value);
 			}
-			return -1;
+			return NaN;
 		},
 
 		/*
