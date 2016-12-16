@@ -20,15 +20,16 @@
     height: auto;
     width: auto;
     white-space: nowrap;
-	top: -100px;
+	left: -9999px;
 	margin: 0;
 	padding: 5px;
-	border: 1px solid red;
+	border-width: 0;
+	visibility: hidden;
 }
 
 .mk-dp-input {
 	border: 1px solid $mk-gray-3;
-	color: $mk-gray-1;;
+	color: white;
 	padding: 5px 30px 5px 10px;
 	transition: all 0.5s;
 }
@@ -48,6 +49,7 @@
 	line-height: 14px;
 	margin: 0;
 	padding: 5px;
+	border-width: 0;
 }
 
 .mk-dp-entry.disabled,
