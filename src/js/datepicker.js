@@ -244,7 +244,7 @@
 		*/
 
 		get value () {
-			return this.dts();
+			return this.dts(this.selected);
 		},
 
 		/*
@@ -523,16 +523,14 @@
 						n = o;
 					}
 				}
-
+				//TODO: check if setting same value when tabbing
 				if (typeof n === 'number' && !isNaN(n)) {
 
 					this.setValue(f, n, s);
+					this.setValue(f, n);
+					this.refresh();
 
 					if (this.isValid(s)) {
-
-						this.setValue(f, n);
-						this.refresh();
-
 						this.emit('change');
 					}
 					return this;
@@ -1172,7 +1170,8 @@
 			}
 
 			var me = this,
-				map = this.formatmap;
+				map = this.formatmap,
+				v;
 
 			switch (format) {
 
@@ -1181,9 +1180,11 @@
 				case 'mm':
 					return (++value) < 10 && '0' + value || value;
 				case 'mmm':
-					return map.months[value].slice(0, 3);
+					v = map.months[value].slice(0, 3);
+					return v.charAt(0).toUpperCase() + v.slice(1);
 				case 'mmmm':
-					return map.months[value];
+					v = map.months[value];
+					return v.charAt(0).toUpperCase() + v.slice(1);
 				case 'd':
 					return value;
 				case 'dd':
@@ -1211,12 +1212,13 @@
 					return parseInt(value, 10);
 
 				case 'mmm':
+					value = value.toLowerCase();
 					return this.first(map.months, function (m, i) {
 						if (m.indexOf(value) > -1) return i;
 					});
 
 				case 'mmmm':
-					return map.months.indexOf(value);
+					return map.months.indexOf(value.toLowerCase());
 			}
 			return NaN;
 		},
