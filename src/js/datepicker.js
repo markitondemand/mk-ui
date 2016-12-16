@@ -793,8 +793,8 @@
 					|| this.day;
 
 			m.textContent = value || i.val();
-			i.css('width', m.offsetWidth);
-			m.textContent = m.offsetWidth;
+			i.css('width', m.offsetWidth + 6);
+			m.textContent = m.offsetWidth + 6;
 
 			return this;
 		},
