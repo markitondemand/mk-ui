@@ -31,6 +31,10 @@
   position: absolute;
   transform: rotate(90deg); }
 
+.mk-dp-entry {
+  padding: 0;
+  margin: 0; }
+
 .mk-dp-entry.disabled,
 .mk-dp-entry.disabled + .spacer {
   background: white;
