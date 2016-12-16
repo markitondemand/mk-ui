@@ -3,13 +3,65 @@
   display: inline-block;
   position: relative; }
 
+.mk-dp-shadow {
+  position: relative; }
+
 .mk-dp {
-  color: black; }
+  color: #333; }
+
+.mk-dp-matician {
+  position: absolute;
+  visibility: hidden;
+  height: auto;
+  width: auto;
+  white-space: nowrap; }
 
 .mk-dp-input {
-  text-transform: capitalize; }
+  border: 1px solid #ccc;
+  color: white;
+  padding: 5px 30px 5px 10px;
+  transition: all 0.5s; }
 
-.mk-dp-control {
+.mk-dp-input.in {
+  color: #333; }
+
+.mk-dp-access:before {
+  content: "›";
+  position: absolute;
+  transform: rotate(90deg); }
+
+.mk-dp-entry {
+  border-width: 0;
+  width: 30px; }
+
+.mk-dp-entry.disabled,
+.mk-dp-entry.disabled + .spacer {
+  background: white;
+  color: #ccc; }
+
+.mk-dp-entry:focus {
+  outline: 0; }
+
+.mk-dp-calendar {
+  background: white;
+  min-width: 300px;
+  border: 1px solid #ccc;
+  position: absolute;
+  z-index: 2; }
+
+.mk-dp-calendar.disabled:after {
+  background: white;
+  content: "";
+  opacity: 0.5;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: absolute;
+  z-index: 1; }
+
+.mk-dp-control,
+.mk-dp-access {
   background: transparent;
   border-width: 0;
   font-size: 20px;
@@ -18,9 +70,14 @@
   top: 10px;
   height: 20px;
   width: 20px; }
-  .mk-dp-control:before {
+  .mk-dp-control:before,
+  .mk-dp-access:before {
     position: absolute;
     top: 0; }
+
+.mk-dp-root .mk-dp-access {
+  right: 5px;
+  top: 5px; }
 
 .mk-dp-control.prev-yr {
   left: 10px; }
@@ -48,13 +105,6 @@
     content: "›";
     right: 0; }
 
-.mk-dp-calendar {
-  background: white;
-  min-width: 300px;
-  border: 1px solid #ccc;
-  position: absolute;
-  z-index: 2; }
-
 .mk-dp-table {
   width: 100%; }
 
@@ -74,9 +124,6 @@
 
 .mk-dp-table th {
   text-transform: uppercase; }
-
-.mk-dp-table {
-  cursor: pointer; }
 
 .mk-dp-table .mk-dp-day span {
   display: block;
@@ -104,8 +151,10 @@
   background: #eee; }
 
 .mk-dp-table .inactive {
-  color: #ccc;
-  cursor: default; }
+  color: #ccc; }
+
+.mk-dp-table .selectable {
+  cursor: pointer; }
 
 .mk-dp-table .today {
   color: #008e89; }

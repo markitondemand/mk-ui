@@ -70,7 +70,11 @@
 
 		xSplit: /\/|-|,\s|\s/,
 
-		xSearch: /(^|\w+)(\/|-|,\s|\s)/g,
+		xSearch: /(^|\w+)(\/|-|,\s|\s|$)/g,
+
+		MIN: -8640000000000000,
+
+		MAX: 8640000000000000,
 
 		uidate: null,
 
@@ -134,7 +138,10 @@
 			prevMo: 'Go to previous month',
 			prevYr: 'Go to previous year',
 			caption: '{{month}} {{year}}',
-			label: '{{month}} {{day}} {{year}}'
+			label: '{{month}} {{day}} {{year}}',
+			label_day: 'Enter a {{digit}} character day',
+			label_month: 'Enter a {{digit}} character month',
+			label_year: 'Enter a {{digit}} character year'
 		},
 
 		templates: {
@@ -143,6 +150,14 @@
 					{{template:input}}\
 					{{template:access}}\
 					{{template:calendar}}\
+				</div>',
+
+			input:
+				'<div class="{{$key}}-input">\
+					{{loop:inputs}}\
+						<input class="{{$key}}-entry {{id}}" type="{{type}}" name="{{name}}" value="{{value}}" aria-label="{{label}}" data-format="{{format}}" data-key="{{id}}" />\
+						<span class="spacer">{{spacer}}</span>\
+					{{/loop:inputs}}\
 				</div>',
 
 			calendar:
@@ -198,8 +213,28 @@
 					<span>{{value}}</span>\
 				</td>',
 
-			input: '<input class="{{$key}}-input" type="text" value="{{date}}" />',
-			access: '<button class="{{$key}}-access">Open</button>'
+			access: '<button class="{{$key}}-access" aria-label="Open Calendar Interface"></button>',
+			matician: '<div class="{{$key}}-matician"></div>'
+		},
+
+		/*
+			<property:disabled>
+				<desc>Is the datepicker disabled.</desc>
+			</property:disabled>
+		*/
+
+		get disabled () {
+			return this.rootinput.prop('disabled');
+		},
+
+		/*
+			<property:enabled>
+				<desc>Is the datepicker enabled.</desc>
+			</property:enabled>
+		*/
+
+		get enabled () {
+			return !this.disabled;
 		},
 
 		/*
@@ -234,12 +269,42 @@
 
 		/*
 			<property:input>
-				<desc>Our shadow input created by datepicker. This is the unput the user interacts with.</desc>
+				<desc>The input base element containing the different date inputs.</desc>
 			</property:input>
 		*/
 
 		get input () {
 			return this.node('input', this.shadow);
+		},
+
+		/*
+			<property:month>
+				<desc>Shadow input for month.</desc>
+			</property:month>
+		*/
+
+		get month () {
+			return this.node('entry.month', this.shadow);
+		},
+
+		/*
+			<property:day>
+				<desc>Shadow input for day.</desc>
+			</property:day>
+		*/
+
+		get day () {
+			return this.node('entry.day', this.shadow);
+		},
+
+		/*
+			<property:year>
+				<desc>Shadow input for year.</desc>
+			</property:year>
+		*/
+
+		get year () {
+			return this.node('entry.year', this.shadow);
 		},
 
 		/*
@@ -293,6 +358,16 @@
 		},
 
 		/*
+			<property:matician>
+				<desc>Measuring element for input text.</desc>
+			</property:matician>
+		*/
+
+		get matician () {
+			return this.node('matician', this.root);
+		},
+
+		/*
 			<property:activeDay>
 				<desc>The active day in the calendar UI.</desc>
 			</property:activeDay>
@@ -304,7 +379,7 @@
 				active = body.find('.active');
 
 			if (!active.length) {
-				 active = body.find('[data-value="' + this.uidate.getDate() + '"]');
+				 active = body.find('[data-value="' + this.date.getDate() + '"]');
 			}
 
 			if (!active.length) {
@@ -328,9 +403,9 @@
 			o.fmax = input.attr('max');
 
 			//create the ui date for tracking positions in the picker UI
-			this.uidate = o.fdate && this.std(o.fdate) || new Date();
-			//create the raw date only to be changed when a new date is selected
-			this.date = o.fdate && this.std(o.fdate) || new Date('garbage');
+			this.date = o.fdate && this.std(o.fdate) || new Date();
+			this.selected = o.fdate && this.std(o.fdate) || new Date('garbage');
+
 			//create the min date if exists
 			this.min = o.fmin && this.std(o.fmin) || null;
 			//create the max date if exists
@@ -347,8 +422,14 @@
 		},
 
 		mount: function () {
-			this.node('body', this.calendar).addClass('in');
+
+			this.html('matician').appendTo(this.root);
 			this.shadow.appendTo(this.root);
+
+			this.delay(function () {
+				this.measure();
+				this.input.addClass('in');
+			}, 300);
 		},
 
 		unmount: function () {
@@ -357,7 +438,7 @@
 
 			this.config =
 			this.shadow =
-			this.uidate =
+			this.date =
 			this.root = null;
 		},
 
@@ -367,11 +448,14 @@
 				calendarFocused = false;
 
 			this.input
-			.on('focus.mk', true, function (e) {
-				thiss._focus(e.relatedTarget);
+			.on('focus.mk', 'input', function (e) {
+				this.setSelectionRange(0, this.value.length);
 			})
-			.on('keydown.mk', function (e) {
-				thiss._keydown(e);
+			.on('blur.mk', 'input', function (e) {
+				thiss._validate(e.target);
+			})
+			.on('keydown.mk', 'input', function (e) {
+				thiss._keydownInput(e)
 			});
 
 			this.calendar
@@ -398,6 +482,68 @@
 			this.accessbtn.on('click.mk', function (e) {
 				e.preventDefault();
 			});
+		},
+
+		_validate: function (input) {
+
+			var i = this.$(input),
+				f = i.data('format'),
+				k = i.data('key'),
+				v = i.val(),
+				s = this.selected,
+				n,
+				o;
+
+			//leave values alone that resemble the format string
+			if (v === f) {
+				return;
+			}
+
+			n = parseInt(v) || this.unformat(f, v);
+
+			if (n) {
+				//if we are a month and the value is less than 0 or greater than 11,
+				//we must reset the value, it's not a valid date entry.
+				if (k === 'month' && (n < 0 || n > 11)) {
+					n = null;
+				}
+				//if we are a day and the value is less than 0 or greater than max days,
+				//we must reset the value, it's not a valid date entry.
+				else if (k === 'day' && (n < 0 || n > dim(this.isValid(s) ? s : this.date))) {
+					n = null;
+				}
+				else if (k === 'year') {
+
+					o = s.getFullYear();
+					s.setFullYear(n);
+
+					if (!this.isValid(s)) {
+						s.setFullYear(old);
+						n = o;
+					}
+				}
+
+				if (n) {
+
+					this.setValue(f, n, s);
+
+					if (this.isValid(s)) {
+
+						this.setValue(f, n);
+						this.refresh();
+
+						this.emit('change');
+					}
+					return this;
+				}
+			}
+
+			v = this.getValue(f);
+
+			i.val(this.format(f, v));
+			this.measure(k);
+
+			return this;
 		},
 
 		_click: function (e) {
@@ -467,7 +613,7 @@
 				var i = a.index(),
 					r = e.parentNode && e.parentNode[p],
 					n = r && r.childNodes[i],
-					d = this.uidate, x;
+					d = this.date, x;
 
 				if (n) return n;
 
@@ -495,7 +641,7 @@
 
 					var r = e.parentNode && e.parentNode[p],
 						n = r && r.childNodes[b && r.childNodes.length - 1 || 0],
-						d = this.uidate;
+						d = this.date;
 
 					if (n) return n;
 
@@ -505,6 +651,41 @@
 					this.refresh(true);
 				}
 			});
+		},
+
+		_keydownInput: function (e) {
+
+			var t = e.target,
+				n = this.$(t),
+				w = e.which,
+				k = this.keycode,
+				c = String.fromCharCode(w).toLowerCase(),
+				u = n.data('key');
+
+			// if user entered a tab, backspace, number, or letter (and is a month input)
+			// then we're going to allow entry and calculate the inputs width over again.
+			if (w === k.tab || w === k.backspace
+				|| (/\w/.test(c) && n.hasClass('month') && n.data('format').length > 2)
+				|| /\d/.test(c)) {
+
+				this.measure(u, n.val() + c);
+				return;
+			}
+
+			e.preventDefault();
+
+			switch (w) {
+				case k.up:
+				case k.down:
+					this.step(u, w === k.down);
+					t.setSelectionRange(0, t.value.length);
+					break;
+
+				case k.left:
+				case k.right:
+					this._focusNext(t, w === k.left);
+					break;
+			}
 		},
 
 		_keydownCalendar: function (e, focused) {
@@ -543,110 +724,108 @@
 				case k.home:
 				case k.end:
 					if (focused) {
-						this.activate(w === k.home ? 1 : dim(this.uidate));
+						this.activate(w === k.home ? 1 : dim(this.date));
 					}
 					break;
 			}
 		},
 
-		_keydown: function (e) {
+		_focusNext: function (input, reverse) {
 
-			var w = e.which,
-				k = this.keycode,
-				c;
+			var x = false,
+				c = [].slice.call(input.parentNode.childNodes),
+				i;
 
-			switch (w) {
+			if (reverse) {
+				c.reverse();
+			}
 
-				case k.tab:
-				case k.left:
-				case k.right:
-					this._setSelection(
-						e, this.index, e.shiftKey || w === k.left, w !== k.tab);
-					break;
+			i = this.first(c, function (el) {
 
-				case k.up:
-				case k.down:
-					e.preventDefault();
-					this.changeSelection(w === k.up && 1 || -1);
-					break;
+				if (x && el.classList.contains(this.name + '-entry')) {
+					return el;
+				}
+				if (el === input) {
+					x = true;
+				}
+			});
 
-				case k.space:
-					e.preventDefault();
-					//this._space();
-					break;
-
-				default:
-					c = String.fromCharCode(w);
-
-					if (!/\w/.test(c)) {
-						e.preventDefault();
-					}
+			if (i) {
+				i.focus();
 			}
 		},
 
-		_handleUserInput: function (index) {
+		step: function (key, reverse) {
 
-			var s = this.getSelection(index),
-				f = this.config.format.split(this.xSplit)[index],
-				v, n;
+			var i = key === 'year' && this.year
+				|| key === 'month' && this.month
+				|| this.day,
 
-			switch (f) {
-				case 'mmm':
-				case 'mmmm':
-					v = this.first(this.formatmap.months, function (m, i) {
-						if (m.indexOf(s.value) > -1) return i;
-					});
+				f = i.data('format'),
+				v = this.getValue(f),
+				n;
 
-					if (v === void+1) {
-						v = this.format(f, this.getValue(f));
-						n = this.input.val().split('')
-						n.splice(s.range[0], s.range[1], v);
-						this.input.val(n.join(''))
-					}
-					break;
+			v = v + (reverse ? -1 : 1)
+			n = this.setValue(f, v);
+
+			i.val(n);
+			this.measure(key);
+
+			if (key === 'year' || key === 'month') {
+				this.refresh();
+			} else {
+				this.activate(v);
 			}
-
-
 		},
 
-		_setSelection: function (e, index, reverse, keyboard) {
+		measure: function (who, value) {
 
-			this._handleUserInput(index);
-
-			index = index + (reverse ? -1 : 1);
-
-			var format = this.config.format,
-				fparts = format.split(this.xSplit),
-				exit = false;
-
-			if (index < 0) {
-				index = 0;
-				exit = !keyboard;
-			}
-			else if (index > fparts.length - 1) {
-				index = fparts.length - 1;
-				exit = !keyboard;
+			if (who === void+1) {
+				return this.each(['year', 'month', 'day'], function (f) {
+					this.measure(f, value);
+				});
 			}
 
-			if (exit) {
-				return;
-			}
+			var m = this.matician[0],
+				i = who === 'year' && this.year
+					|| who === 'month' && this.month
+					|| this.day;
 
-			e.preventDefault();
+			m.textContent = value || i.val();
+			i.css('width', m.clientWidth);
 
-			this.index = index;
-			this.setSelection(index);
+			return this;
 		},
-
 
 		data: function () {
 
 			var c = this.config,
 				f = c.formats,
 				l = f.days.length,
-				d = this.uidate;
+				d = this.date,
+				t = this,
+				i = [],
+				v;
+
+				c.format.replace(this.xSearch, function (x, y, z) {
+
+					v = /m/.test(y) && 'month' || /y/.test(y) && 'year' || 'day';
+
+					i.push({
+						name: t.uid(),
+						format: y,
+						value: t.format(y, t.getValue(y, t.selected)),
+						spacer: z.replace(/\s/g, '&nbsp;'),
+						type: 'text',
+						id: v,
+						label: t.format(f['label_' + v], {
+							digit: y.length
+						})
+					});
+				});
 
 			return {
+				inputs: i,
 				date: c.fdate ? this.dts(d, c.format) : c.format,
 				weeks: this.buildCalendar(d),
 				title: this.format('caption', {
@@ -771,7 +950,7 @@
 
 			if (d.length && !d.hasClass('active')) {
 
-				this.uidate.setDate(
+				this.date.setDate(
 					parseInt(d.data('value'), 10));
 
 				a.removeClass('active');
@@ -803,16 +982,9 @@
 
 			day = parseInt(d.data('value'), 10);
 
-			if (day !== this.date.getDate()) {
+			if (day !== this.selected.getDate()) {
 
-				this.date.setDate(day);
-
-				this.input.val(
-					this.dts(this.date, this.config.format));
-
-				this.rootinput.val(this.dts(this.date));
-
-				if (!silent) {
+				if (this.setDate(this.date) && !silent) {
 					this.emit('change');
 				}
 			}
@@ -820,11 +992,53 @@
 			return this;
 		},
 
+		isValid: function (d) {
+
+			d = d || this.selected;
+
+			return !isNaN(d.getTime());
+		},
+
+		setDate: function (d) {
+
+			var s = this.selected,
+				method,
+				val,
+				r;
+
+			this.each([this.year, this.month, this.day], function (f, i) {
+
+				method = i === 0 && 'FullYear'
+					|| i === 1 && 'Month'
+					|| i === 2 && 'Date';
+
+				val = d['get' + method]();
+				s['set' + method](val);
+
+				f.val(this.format(f.data('format')), val);
+			});
+
+			this.measure();
+			this.rootinput.val(this.dts(s));
+
+			r = this.isValid(s);
+
+			if (r) {
+				this.date.setDate(1);
+				this.date.setFullYear(s.getFullYear());
+				this.date.setMonth(s.getMonth());
+				this.date.setDate(s.getDate());
+				this.refresh();
+			}
+
+			return r;
+		},
+
 		refresh: function (refocus) {
 
 			var c = this.calendar,
 				m = this.html('body', {
-					weeks: this.buildCalendar(this.uidate)
+					weeks: this.buildCalendar(this.date)
 				});
 
 			this.node('body',  c).remove();
@@ -842,7 +1056,7 @@
 		updateLabel: function () {
 
 			var f = this.config.formats,
-				d = this.uidate;
+				d = this.date;
 
 			this.heading.text(this.format('caption', {
 				month: this.format(f.month, d.getMonth()),
@@ -854,117 +1068,23 @@
 
 		moveMonth: function (up, refocus) {
 
-			this.uidate.setMonth(
-				this.uidate.getMonth() + (up ? -1 : 1));
+			this.date.setMonth(
+				this.date.getMonth() + (up ? -1 : 1));
 
 			return this.refresh(refocus);
 		},
 
 		moveYear: function (up, refocus) {
 
-			this.uidate.setFullYear(
-				this.uidate.getFullYear() + (up ? -1 : 1));
+			this.date.setFullYear(
+				this.date.getFullYear() + (up ? -1 : 1));
 
 			return this.refresh(refocus);
 		},
 
-		getSelection: function (index) {
-
-			var input = this.input,
-				value = input.val(),
-				parts = value.split(this.xSplit),
-				part = parts[index], i;
-
-			if (part) {
-
-				i = -1;
-
-				value = value.replace(this.xSearch, function (x, y, z) {
-
-					++i;
-
-					if (i !== index) {
-						return new Array(y.length + 1).join('*') + z;
-					}
-					return y + z;
-				});
-
-				var st = value.indexOf(part),
-					ed = st + part.length;
-
-				return {
-					value: value.slice(st, ed),
-					range: [st, ed]
-				};
-			}
-
-			return null;
-		},
-
-		setSelection: function (index) {
-
-			var selection = this.getSelection(index);
-
-			if (selection) {
-				this.input[0].setSelectionRange(
-					selection.range[0], selection.range[1]);
-			}
-			return this;
-		},
-
-		changeSelection: function (amount) {
-
-			var selection = this.getSelection(this.index),
-				input = this.input,
-				format,
-				value,
-				date;
-
-			if (selection) {
-
-				format = this.config.format.split(this.xSplit)[this.index];
-
-				value = this.getValue(format);
-				value = this.setValue(format, value + amount);
-
-				date = input.val().split('');
-				date.splice(selection.range[0], selection.value.length, value);
-
-				input.val(date.join(''));
-				this.setSelection(this.index);
-
-				if (!isNaN(this.date.getTime())) {
-					if (/d/.test(format)) {
-						this.activate(this.getValue(format));
-					} else {
-						this.refresh();
-					}
-				}
-			}
-		},
-
-		/*
-			<method:setValue>
-				<invoke>.setValue(format, value[, date])</invoke>
-				<param:format>
-					<type>String</type>
-					<desc>Piece of a format value (ie: mm, mmmm, yyyy, etc.)</desc>
-				</param:format>
-				<param:value>
-					<type>Number</type>
-					<desc>Value to set on a date object.</desc>
-				</param:value>
-				<param:date>
-					<type>Date</type>
-					<desc>Date object to pull the value from. Default is internal date.</desc>
-				</param:date>
-				<desc>Takes a format and value and applies it to the date in question. Returns the formatted value.</desc>
-			</method:setValue>
-		*/
-
 		setValue: function (format, value, date) {
 
-			var d = date || this.uidate, days;
+			var d = date || this.date, days;
 
 			switch (format.slice(0, 1)) {
 
@@ -1004,7 +1124,7 @@
 
 		getValue: function (key, date) {
 
-			var d = date || this.uidate;
+			var d = date || this.date;
 
 			switch (key.slice(0, 1)) {
 				case 'y': return d.getFullYear();
@@ -1022,14 +1142,14 @@
 
 		/*
 			<method:format>
-				<invoke>.format(format, value)</invoke>
+				<invoke>.format(format[, value])</invoke>
 				<param:format>
 					<type>String</type>
 					<desc>Part of a date format.</desc>
 				</param:format>
 				<param:value>
 					<type>Number</type>
-					<desc>Number representing the value to be formatted.</desc>
+					<desc>Number representing the value to be formatted. Default is value associated with the format on the internal Date object.</desc>
 				</param:value>
 				<desc>Takes a piece of a date format (ie: mm, yyyy, etc.) and formats the raw value.</desc>
 			</method:format>
@@ -1039,6 +1159,14 @@
 
 			if (typeof value === 'object') {
 				return this.super(format, value);
+			}
+
+			if (typeof value === 'undefined') {
+				value = this.getValue(format);
+			}
+
+			if (isNaN(value)) {
+				return format;
 			}
 
 			var me = this,
@@ -1058,15 +1186,37 @@
 					return value;
 				case 'dd':
 					return value < 10 && '0' + value || value;
-				case 'ddd':
-					return map.days[value].slice(0, 2);
-				case 'dddd':
-					return map.days[value];
 				case 'yyyy':
 					return value;
 				case 'yy':
 					return value.toString().slice(2);
 			}
+		},
+
+		unformat: function (format, value) {
+
+			var me = this,
+				map = this.formatmap;
+
+			switch (format) {
+
+				case 'm':
+				case 'd':
+				case 'mm':
+				case 'dd':
+				case 'yy':
+				case 'yyyy':
+					return parseInt(value, 10);
+
+				case 'mmm':
+					return this.first(map.months, function (m, i) {
+						if (m.indexOf(value) > -1) return i;
+					});
+
+				case 'mmmm':
+					return map.months.indexOf(value);
+			}
+			return -1;
 		},
 
 		/*
@@ -1090,6 +1240,8 @@
 				parts = sdate.split(this.xSplit),
 				format = (format || this.formats.native).split(this.xSplit),
 				value;
+
+			date.setDate(1);
 
 			this.each(format, function (f, i) {
 
@@ -1121,7 +1273,7 @@
 
 		dts: function (date, format) {
 
-			date = date || this.uidate;
+			date = date || this.date;
 			format = format || this.config.formats.native;
 
 			var val;
@@ -1132,6 +1284,42 @@
 			});
 
 			return format;
+		},
+
+		disable: function () {
+
+			if (this.enabled) {
+
+				this.each([
+					this.rootinput,
+					this.day,
+					this.month,
+					this.year
+				], function (el) {
+					el.prop('disabled', true);
+					el.addClass('disabled');
+				});
+
+				this.calendar.addClass('disabled');
+			}
+		},
+
+		enable: function () {
+
+			if (this.disabled) {
+
+				this.each([
+					this.rootinput,
+					this.day,
+					this.month,
+					this.year
+				], function (el) {
+					el.prop('disabled', false);
+					el.removeClass('disabled');
+				});
+
+				this.calendar.removeClass('disabled');
+			}
 		}
 	});
 
