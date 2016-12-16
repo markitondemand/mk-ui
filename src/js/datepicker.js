@@ -794,6 +794,7 @@
 
 			m.textContent = value || i.val();
 			i.css('width', m.offsetWidth);
+			m.textContent = m.offsetWidth;
 
 			return this;
 		},

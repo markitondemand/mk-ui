@@ -13,10 +13,9 @@
 .mk-dp-matician {
   position: absolute;
   height: auto;
-  opacity: 0;
-  left: -9999px;
   width: auto;
-  white-space: nowrap; }
+  white-space: nowrap;
+  top: -100px; }
 
 .mk-dp-input {
   border: 1px solid #ccc;
