@@ -21,11 +21,14 @@
     width: auto;
     white-space: nowrap;
 	top: -100px;
+	margin: 0;
+	padding: 5px;
+	border: 1px solid red;
 }
 
 .mk-dp-input {
 	border: 1px solid $mk-gray-3;
-	color: white;
+	color: $mk-gray-1;;
 	padding: 5px 30px 5px 10px;
 	transition: all 0.5s;
 }
@@ -41,8 +44,10 @@
 }
 
 .mk-dp-entry {
-	padding: 0;
+	font-size: 14px;
+	line-height: 14px;
 	margin: 0;
+	padding: 5px;
 }
 
 .mk-dp-entry.disabled,

@@ -15,11 +15,14 @@
   height: auto;
   width: auto;
   white-space: nowrap;
-  top: -100px; }
+  top: -100px;
+  margin: 0;
+  padding: 5px;
+  border: 1px solid red; }
 
 .mk-dp-input {
   border: 1px solid #ccc;
-  color: white;
+  color: #333;
   padding: 5px 30px 5px 10px;
   transition: all 0.5s; }
 
@@ -32,8 +35,10 @@
   transform: rotate(90deg); }
 
 .mk-dp-entry {
-  padding: 0;
-  margin: 0; }
+  font-size: 14px;
+  line-height: 14px;
+  margin: 0;
+  padding: 5px; }
 
 .mk-dp-entry.disabled,
 .mk-dp-entry.disabled + .spacer {
