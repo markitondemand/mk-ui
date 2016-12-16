@@ -10,25 +10,11 @@
   color: #333;
   display: none; }
 
-.mk-dp-matician {
-  position: absolute;
-  height: auto;
-  width: auto;
-  white-space: nowrap;
-  left: -9999px;
-  margin: 0;
-  padding: 5px;
-  border-width: 0;
-  visibility: hidden; }
-
 .mk-dp-input {
   border: 1px solid #ccc;
-  color: white;
+  color: #333;
   padding: 5px 30px 5px 10px;
   transition: all 0.5s; }
-
-.mk-dp-input.in {
-  color: #333; }
 
 .mk-dp-access:before {
   content: "›";
@@ -40,7 +26,24 @@
   line-height: 14px;
   margin: 0;
   padding: 0;
-  border-width: 0; }
+  border-width: 0;
+  text-align: right;
+  width: 20px; }
+
+.mk-dp-entry.day[data-format="d"],
+.mk-dp-entry.day[data-format="m"] {
+  width: 12px; }
+
+.mk-dp-entry.year[data-format="yy"],
+.mk-dp-entry.year[data-format="yyyy"] {
+  text-align: left; }
+
+.mk-dp-entry.year[data-format="yyyy"],
+.mk-dp-entry.month[data-format="mmm"] {
+  width: 42px; }
+
+.mk-dp-entry.year[data-format="mmmm"] {
+  width: 70px; }
 
 .mk-dp-entry.disabled,
 .mk-dp-entry.disabled + .spacer {

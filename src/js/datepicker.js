@@ -155,7 +155,14 @@
 			input:
 				'<div class="{{$key}}-input">\
 					{{loop:inputs}}\
-						<input class="{{$key}}-entry {{id}}" type="{{type}}" name="{{name}}" value="{{value}}" aria-label="{{label}}" data-format="{{format}}" data-key="{{id}}" />\
+						<input class="{{$key}}-entry {{id}}" \
+							placeholder="{{placeholder}}" \
+							type="{{type}}" \
+							name="{{name}}" \
+							value="{{value}}" \
+							aria-label="{{label}}" \
+							data-format="{{format}}" \
+							data-key="{{id}}" />\
 						<span class="spacer">{{spacer}}</span>\
 					{{/loop:inputs}}\
 				</div>',
@@ -213,8 +220,7 @@
 					<span>{{value}}</span>\
 				</td>',
 
-			access: '<button class="{{$key}}-access" aria-label="Open Calendar Interface"></button>',
-			matician: '<div class="{{$key}}-matician"></div>'
+			access: '<button class="{{$key}}-access" aria-label="Open Calendar Interface"></button>'
 		},
 
 		/*
@@ -422,14 +428,7 @@
 		},
 
 		mount: function () {
-
-			this.html('matician').appendTo(this.root);
 			this.shadow.appendTo(this.root);
-
-			this.delay(function () {
-				this.measure();
-				this.input.addClass('in');
-			}, 300);
 		},
 
 		unmount: function () {
@@ -491,13 +490,8 @@
 				k = i.data('key'),
 				v = i.val(),
 				s = this.selected,
-				n,
-				o;
+				n, o;
 
-			//leave values alone that resemble the format string
-			if (v === f) {
-				return;
-			}
 
 			n = parseInt(v) || this.unformat(f, v);
 
@@ -540,7 +534,6 @@
 			v = this.getValue(f);
 
 			i.val(this.format(f, v));
-			this.measure(k);
 
 			return this;
 		},
@@ -667,7 +660,6 @@
 				|| (/\w/.test(c) && n.hasClass('month') && n.data('format').length > 2)
 				|| /\d/.test(c)) {
 
-				this.measure(u, n.val() + c);
 				return;
 			}
 
@@ -768,33 +760,12 @@
 			n = this.setValue(f, v);
 
 			i.val(n);
-			this.measure(key);
 
 			if (key === 'year' || key === 'month') {
 				this.refresh();
 			} else {
 				this.activate(v);
 			}
-		},
-
-		measure: function (who, value) {
-
-			if (who === void+1) {
-				return this.each(['year', 'month', 'day'], function (f) {
-					this.measure(f, value);
-				});
-			}
-
-			var m = this.matician[0],
-				i = who === 'year' && this.year
-					|| who === 'month' && this.month
-					|| this.day;
-
-			m.textContent = value || i.val();
-			i.css('width', m.offsetWidth + 2);
-			m.textContent = m.offsetWidth + 2;
-
-			return this;
 		},
 
 		data: function () {
@@ -814,7 +785,8 @@
 					i.push({
 						name: t.uid(),
 						format: y,
-						value: t.format(y, t.getValue(y, t.selected)),
+						value: t.isValid() ? t.format(y, t.getValue(y, t.selected)) : '',
+						placeholder: y,
 						spacer: z.replace(/\s/g, '&nbsp;'),
 						type: 'text',
 						id: v,
@@ -1018,7 +990,6 @@
 				f.val(this.format(f.data('format')), val);
 			});
 
-			this.measure();
 			this.rootinput.val(this.dts(s));
 
 			r = this.isValid(s);
