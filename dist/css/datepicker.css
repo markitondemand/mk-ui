@@ -23,7 +23,6 @@
 
 .mk-dp-entry {
   font-size: 14px;
-  line-height: 14px;
   margin: 0;
   padding: 0;
   border-width: 0;
@@ -85,6 +84,9 @@
   .mk-dp-access:before {
     position: absolute;
     top: 0; }
+  .mk-dp-control:disabled,
+  .mk-dp-access:disabled {
+    color: #ccc; }
 
 .mk-dp-root .mk-dp-access {
   right: 5px;
@@ -158,20 +160,22 @@
   z-index: -1;
   transition: all 0.5s; }
 
-.mk-dp-table .weekend {
+.mk-dp-day.weekend {
   background: #eee; }
 
-.mk-dp-table .inactive {
-  color: #ccc; }
-
-.mk-dp-table .selectable {
+.mk-dp-day.selectable {
   cursor: pointer; }
 
-.mk-dp-table .today {
+.mk-dp-day.unselectable,
+.mk-dp-day.disabled {
+  color: #ccc;
+  cursor: default; }
+
+.mk-dp-day.today {
   color: #008e89; }
 
-.mk-dp-table .active span {
+.mk-dp-day.active span {
   color: white; }
 
-.mk-dp-table .active span:before {
+.mk-dp-day.active span:before {
   background: #008e89; }
