@@ -26,7 +26,8 @@ html
 
 			examples.each(function (example) {
 				datepicker = new Datepicker(example, {
-					format: 'mmm dd, yyyy',
+					label: 'Choose a Start Date',
+					format: 'mm dd, yyyy',
 					rollover: false
 				});
 				datepicker.on('change', function () {

@@ -16,6 +16,11 @@
   padding: 5px 30px 5px 10px;
   transition: all 0.5s; }
 
+.mk-dp-label {
+  position: absolute;
+  left: -9999px;
+  visibility: hidden; }
+
 .mk-dp-access:before {
   content: "›";
   position: absolute;
@@ -23,6 +28,7 @@
 
 .mk-dp-entry {
   font-size: 14px;
+  line-height: 14px;
   margin: 0;
   padding: 0;
   border-width: 0;
@@ -84,9 +90,6 @@
   .mk-dp-access:before {
     position: absolute;
     top: 0; }
-  .mk-dp-control:disabled,
-  .mk-dp-access:disabled {
-    color: #ccc; }
 
 .mk-dp-root .mk-dp-access {
   right: 5px;
@@ -160,22 +163,20 @@
   z-index: -1;
   transition: all 0.5s; }
 
-.mk-dp-day.weekend {
+.mk-dp-table .weekend {
   background: #eee; }
 
-.mk-dp-day.selectable {
+.mk-dp-table .inactive {
+  color: #ccc; }
+
+.mk-dp-table .selectable {
   cursor: pointer; }
 
-.mk-dp-day.unselectable,
-.mk-dp-day.disabled {
-  color: #ccc;
-  cursor: default; }
-
-.mk-dp-day.today {
+.mk-dp-table .today {
   color: #008e89; }
 
-.mk-dp-day.active span {
+.mk-dp-table .active span {
   color: white; }
 
-.mk-dp-day.active span:before {
+.mk-dp-table .active span:before {
   background: #008e89; }

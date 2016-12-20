@@ -22,6 +22,12 @@
 	transition: all 0.5s;
 }
 
+.mk-dp-label {
+	position: absolute;
+	left: -9999px;
+	visibility: hidden;
+}
+
 .mk-dp-access:before {
 	content: "›";
 	position: absolute;
@@ -30,6 +36,7 @@
 
 .mk-dp-entry {
 	font-size: 14px;
+	line-height: 14px;
 	margin: 0;
 	padding: 0;
 	border-width: 0;
@@ -100,10 +107,6 @@
 	&:before {
 		position: absolute;
 		top: 0;
-	}
-
-	&:disabled {
-		color: $mk-gray-3;
 	}
 }
 
@@ -198,28 +201,26 @@
 	transition: all 0.5s;
 }
 
-.mk-dp-day.weekend {
+.mk-dp-table .weekend {
 	background: $mk-gray-4;
 }
 
-.mk-dp-day.selectable {
+.mk-dp-table .inactive {
+	color: $mk-gray-3;
+}
+
+.mk-dp-table .selectable {
 	cursor: pointer;
 }
 
-.mk-dp-day.unselectable,
-.mk-dp-day.disabled {
-	color: $mk-gray-3;
-	cursor: default;
-}
-
-.mk-dp-day.today {
+.mk-dp-table .today {
 	color: $mk-primary;
 }
 
-.mk-dp-day.active span {
+.mk-dp-table  .active span {
 	color: white;
 }
 
-.mk-dp-day.active span:before {
+.mk-dp-table .active span:before {
 	background: #008e89;
 }

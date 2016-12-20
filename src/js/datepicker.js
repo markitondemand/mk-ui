@@ -32,6 +32,51 @@
 
 })(typeof window !== 'undefined' && window || this, function (root, mk) {
 
+	//
+	// below are a bunch of helper classes to help unbloat some of the code.
+	// date code is very verbose and personally, i think it's ugly.
+	//
+
+	function dt () {
+
+		var d = new Date();
+			d.setHours(0, 0, 0, 0);
+
+		return d;
+	}
+
+	function gd (d) {
+		return d.getDate();
+	}
+
+	function gm (d) {
+		return d.getMonth();
+	}
+
+	function gy (d) {
+		return d.getFullYear();
+	}
+
+	function sd (d, v) {
+		d.setDate(typeof v === 'number' ? v : v.getDate());
+	}
+
+	function sm (d, v) {
+		d.setMonth(typeof v === 'number' ? v : v.getMonth());
+	}
+
+	function sy (d, v) {
+		d.setFullYear(typeof v === 'number' ? v : v.getFullYear());
+	}
+
+	function sa (d, v) {
+
+		sd(d, 1);
+		sy(d, v);
+		sm(d, v);
+		sd(d, v);
+	}
+
 	function dim (d) {
 		return 32 - new Date(d.getFullYear(), d.getMonth(), 32).getDate();
 	}
@@ -64,41 +109,12 @@
 
 	mk.create('Datepicker', {
 
+		_date: null,
+		_selection: null,
+		_start: null,
+		_end: null,
+
 		name: 'mk-dp',
-
-		index: -1,
-
-		xSplit: /\/|-|,\s|\s/,
-
-		xSearch: /(^|\w+)(\/|-|,\s|\s|$)/g,
-
-		MIN: -8640000000000000,
-
-		MAX: 8640000000000000,
-
-		/*
-			<property:date>
-				<desc>The current date in the calendar UI as a Date object.</desc>
-			</property:date>
-		*/
-
-		date: null,
-
-		/*
-			<property:selection>
-				<desc>The currently selected date as a Date object.</desc>
-			</property:selection>
-		*/
-
-		selection: null,
-
-		/*
-			<property:daterange>
-				<desc>Array (start and end) of selected date ranges as Date objects.</desc>
-			</property:daterange>
-		*/
-
-		daterange: null,
 
 		/*
 			<property:min>
@@ -115,6 +131,26 @@
 		*/
 
 		max: null,
+
+		xSplit: /\/|-|,\s|\s/,
+
+		xSearch: /(^|\w+)(\/|-|,\s|\s|$)/g,
+
+		/*
+			<property:MIN>
+				<desc>Constant containing the MINIMUM past date possible in JavaScript (as time).</desc>
+			</property:MIN>
+		*/
+
+		MIN: -8640000000000000,
+
+		/*
+			<property:MAX>
+				<desc>Constant containing the MAXIMUM past date possible in JavaScript (as time).</desc>
+			</property:MAX>
+		*/
+
+		MAX: 8640000000000000,
 
 		/*
 			<property:formatmap>
@@ -159,14 +195,17 @@
 				</div>',
 
 			input:
-				'<div class="{{$key}}-input">\
+				'<div class="{{$key}}-input" aria-label="{{label}}">\
+					<span id="{{labelid}}" class="{{$key}}-label">{{label}}</span>\
 					{{loop:inputs}}\
+						<span id="{{describeid}}" class="{{$key}}-label">{{description}}</span>\
 						<input class="{{$key}}-entry {{id}}" \
 							placeholder="{{placeholder}}" \
 							type="{{type}}" \
 							name="{{name}}" \
 							value="{{value}}" \
-							aria-label="{{label}}" \
+							aria-describedby="{{describeid}}" \
+							aria-labelledby="{{labelid}}" \
 							data-format="{{format}}" \
 							data-key="{{id}}" />\
 						<span class="spacer">{{spacer}}</span>\
@@ -230,6 +269,84 @@
 		},
 
 		/*
+			<property:date>
+				<desc>The current date in the calendar UI as a Date object.</desc>
+			</property:date>
+		*/
+
+		get date () {
+			return this._date;
+		},
+
+		set date (value) {
+			this._date = this.adjust(value);
+		},
+
+		/*
+			<property:selection>
+				<desc>The currently selected date as a Date object.</desc>
+			</property:selection>
+		*/
+
+		get selection () {
+			return this._selection;
+		},
+
+		set selection (value) {
+			this._selection = this.adjust(value);
+		},
+
+		/*
+			<property:start>
+				<desc>When using a start and end date picker, this is the selected start date.</desc>
+			</property:start>
+		*/
+
+		get start () {
+
+			if (this.multiple) {
+				return this._start;
+			}
+
+			return this.selection;
+		},
+
+		set start (value) {
+
+			if (this.multiple) {
+				this._start = this.adjust(value);
+			}
+			else {
+				this.selection = value;
+			}
+		},
+
+		/*
+			<property:end>
+				<desc>When using a start and end date picker, this is the selected end date.</desc>
+			</property:end>
+		*/
+
+		get end () {
+
+			if (this.multiple) {
+				return this._end;
+			}
+
+			return this.selection;
+		},
+
+		set end (value) {
+
+			if (this.multiple) {
+				this._end = this.adjust(value);
+			}
+			else {
+				this.selection = value;
+			}
+		},
+
+		/*
 			<property:disabled>
 				<desc>Is the datepicker disabled.</desc>
 			</property:disabled>
@@ -256,7 +373,7 @@
 		*/
 
 		get value () {
-			return this.dts(this.selected);
+			return this.dts(this.selection);
 		},
 
 		/*
@@ -417,23 +534,13 @@
 			this.min = o.fmin && this.std(o.fmin) || null;
 			this.max = o.fmax && this.std(o.fmax) || null;
 
-			if (this.min) {
-				this.min.setHours(0, 0, 0, 0);
-			}
-
-			if (this.max) {
-				this.max.setHours(0, 0, 0, 0);
-			}
-
 			//create the ui date for tracking positions in the picker UI
-			this.date = this.adjust(o.fdate && this.std(o.fdate) || new Date());
-			this.date.setHours(0, 0, 0, 0);
-
-			this.selected = this.adjust(o.fdate && this.std(o.fdate) || new Date('garbage'));
-			this.selected.setHours(0, 0, 0, 0);
+			this.date = this.adjust(o.fdate && this.std(o.fdate) || dt());
+			this.selection = this.adjust(o.fdate && this.std(o.fdate) || dt());
 
 			this.param('format', 'string', o, this.formats.date, input)
-				.param('rollover', 'boolean', o, true, input);
+				.param('rollover', 'boolean', o, true, input)
+				.param('label', 'string', o, 'Datepicker', input);
 
 			this.super(o);
 		},
@@ -451,7 +558,7 @@
 
 			this.shadow.remove();
 
-			this.selected =
+			this.selection =
 			this.daterange =
 			this.config =
 			this.shadow =
@@ -463,19 +570,22 @@
 		bind: function () {
 
 			var thiss = this,
-				calendarFocused = false;
+				calendarFocused = false,
+				entry = this.selector('entry');
 
 			this.input
 			.on('focus.mk', 'input', function (e) {
 
 				var el = this;
-
 				thiss.delay(function () {
 					el.setSelectionRange(0, this.value.length);
 				});
 			})
-			.on('blur.mk', 'input', function (e) {
-				thiss._validate(e.target);
+			.on('click.mk', 'input', function () {
+				var el = this;
+				thiss.delay(function () {
+					el.setSelectionRange(0, this.value.length);
+				});
 			})
 			.on('keydown.mk', 'input', function (e) {
 				thiss._keydownInput(e)
@@ -507,60 +617,6 @@
 			});
 		},
 
-		_validate: function (input) {
-
-			var i = this.$(input),
-				f = i.data('format'),
-				k = i.data('key'),
-				v = i.val(),
-				s = this.selected,
-				n, o;
-
-			n = parseInt(v) || this.unformat(f, v);
-
-			if (typeof n === 'number' && !isNaN(n)) {
-
-				//if we are a month and the value is less than 0 or greater than 11,
-				//we must reset the value, it's not a valid date entry.
-				if (k === 'month' && (n < 0 || n > 11)) {
-					n = null;
-				}
-				//if we are a day and the value is less than 0 or greater than max days,
-				//we must reset the value, it's not a valid date entry.
-				else if (k === 'day' && (n < 0 || n > dim(this.isValid(s) ? s : this.date))) {
-					n = null;
-				}
-				else if (k === 'year') {
-
-					o = s.getFullYear();
-					s.setFullYear(n);
-
-					if (!this.isValid(s)) {
-						s.setFullYear(old);
-						n = o;
-					}
-				}
-				//TODO: check if setting same value when tabbing
-				if (typeof n === 'number' && !isNaN(n)) {
-
-					this.setValue(f, n, s);
-					this.setValue(f, n);
-					this.refresh();
-
-					if (this.isValid(s)) {
-						this.emit('change');
-					}
-					return this;
-				}
-			}
-
-			v = this.getValue(f);
-
-			i.val(this.format(f, v));
-
-			return this;
-		},
-
 		_click: function (e) {
 
 			var t = this.$(e.target),
@@ -585,23 +641,6 @@
 				|| t.hasClass('next-mo') && this.moveMonth(false, false)
 				|| t.hasClass('prev-yr') && this.moveYear(true, false)
 				|| t.hasClass('next-yr') && this.moveYear(false, false);
-		},
-
-		_focus: function (from) {
-
-			var t = this.$(from),
-				f = this.config.format.split(this.xSplit),
-				i = 0;
-
-			if (t.parent(this.shadow).length) {
-				i = f.length - 1;
-			}
-
-			this.index = i;
-
-			this.delay(function () {
-				this.setSelection(i);
-			});
 		},
 
 		_move: function (x, b, f) {
@@ -634,14 +673,14 @@
 
 				if (a.hasClass('disabled')) return null;
 
-				x = d.getDate();
+				x = gd(d);
 
-				d.setDate(1);
-				d.setMonth(d.getMonth() + (b ? -1 : 1));
+				sd(d, 1);
+				sm(d, gm(d) + (b ? -1 : 1));
 
 				y = b ? (x - 7 + dim(d)) : 7 - (dilm(d) - x);
 
-				d.setDate(y);
+				sd(d, y);
 
 				this.refresh(true);
 			});
@@ -664,12 +703,24 @@
 
 					if (a.hasClass('disabled')) return null;
 
-					d.setMonth(d.getMonth() + (b ? -1 : 1));
-					d.setDate(b ? dim(d) : 1);
+					sm(d, gm(d) + (b ? -1 : 1));
+					sd(d, b ? dim(d) : 1);
 
 					this.refresh(true);
 				}
 			});
+		},
+
+		// prevents more characters being entered than allowed.
+		// we take the last portion of strings rather than the first part.
+		// the only exception is format 'mmmm' for a full month name.
+
+		_entry: function (e, input, key) {
+
+			var f = input.data('format'),
+				v = input.val();
+
+			console.info(f, v, key)
 		},
 
 		_keydownInput: function (e) {
@@ -682,12 +733,15 @@
 				u = n.data('key');
 
 			// if user entered a tab, backspace, number, or letter (and is a month input)
-			// then we're going to allow entry and calculate the inputs width over again.
+			// then we're going to allow entry and adjust any access, error-prone text the user enters
 			if (w === k.tab || w === k.backspace
 				|| (/\w/.test(c) && n.hasClass('month') && n.data('format').length > 2)
 				|| /\d/.test(c)) {
 
-				return;
+				if (w !== k.tab && w !== k.backspace) {
+					this._entry(e, n, c);
+				}
+				return
 			}
 
 			e.preventDefault();
@@ -695,12 +749,17 @@
 			switch (w) {
 				case k.up:
 				case k.down:
+					// in thise case, we're going to step through the possible values
+					// for a given input. It will walk through the monday, days of the week, or years.
+					// walking years does not validate a min and max, however, validation will occur later
+					// when the input blurs.
 					this.step(u, w === k.down);
 					t.setSelectionRange(0, t.value.length);
 					break;
 
 				case k.left:
 				case k.right:
+					// using the arrow keys will jump to/from the next input.
 					this._focusNext(t, w === k.left);
 					break;
 			}
@@ -783,16 +842,10 @@
 				v = this.getValue(f),
 				n;
 
-			v = v + (reverse ? -1 : 1)
+			v = v + (reverse ? -1 : 1);
 			n = this.setValue(f, v);
 
 			i.val(n);
-
-			if (key === 'year' || key === 'month') {
-				this.refresh();
-			} else {
-				this.activate(v);
-			}
 		},
 
 		data: function () {
@@ -800,9 +853,11 @@
 			var c = this.config,
 				f = c.formats,
 				l = f.days.length,
+				s = this.selection,
 				d = this.date,
 				t = this,
 				i = [],
+				u = this.uid(),
 				v;
 
 				c.format.replace(this.xSearch, function (x, y, z) {
@@ -812,12 +867,14 @@
 					i.push({
 						name: t.uid(),
 						format: y,
-						value: t.isValid() ? t.format(y, t.getValue(y, t.selected)) : '',
+						value: t.valid(s) ? t.format(y, t.getValue(y, s)) : '',
 						placeholder: y,
 						spacer: z.replace(/\s/g, '&nbsp;'),
 						type: 'text',
 						id: v,
-						label: t.format(f['label_' + v], {
+						labelid: u,
+						describeid: t.uid(),
+						description: t.format(f['label_' + v], {
 							digit: y.length
 						})
 					});
@@ -825,11 +882,13 @@
 
 			return {
 				inputs: i,
+				label: c.label,
+				labelid: u,
 				date: c.fdate ? this.dts(d, c.format) : c.format,
 				weeks: this.buildCalendar(d),
 				title: this.format('caption', {
-					month: this.format(f.month, d.getMonth()),
-					year: this.format(f.year, d.getFullYear())
+					month: this.format(f.month, gm(d)),
+					year: this.format(f.year, gy(d))
 				}),
 				days: this.map(this.formatmap.days, function (day) {
 					return { day: day, label: l < 4 && day.slice(0, l) || day };
@@ -839,19 +898,16 @@
 
 		buildCalendar: function (date) {
 
-			var d = new Date(),
+			var d = dt(),
 				days = dim(date),
 				start = sdim(date),
-				day = date.getDate(),
-				min = this.min && this.min.getTime() || this.MIN,
-				max = this.max && this.max.getTime() || this.MAX,
+				day = gd(date),
 				weeks = [],
 				last,
 				prev,
 				week,
 				i;
 
-			d.setHours(0, 0, 0, 0);
 			date.setHours(0, 0, 0, 0);
 
 			// start up a week
@@ -859,28 +915,27 @@
 
 			//first we want to look at previous months in case there is
 			//carryover days in the week from the previous month.
-			d.setDate(1);
-			d.setFullYear(date.getFullYear());
-			d.setMonth(date.getMonth() - 1);
+			sy(d, date);
+			sm(d, date.getMonth() -1);
 
 			last = dim(d),
 			prev = last - (start - 1);
 
 			//loop any carryover days and add them to our list
 			for (i = 0; prev <= last; prev++) {
-				d.setDate(prev);
+				sd(d, prev);
 				week.days.push(this.buildDay(d, i++));
 			}
 
 			//reset the date once more to deal with the current month
 			//we want rendered. we want to set the year as well in case the
 			//previous month changed years
-			d.setDate(1);
-			d.setFullYear(date.getFullYear());
-			d.setMonth(date.getMonth());
+			sd(d, 1);
+			sy(d, date);
+			sm(d, date);
 
 			for (i = 1; i <= days; i++) {
-				d.setDate(i);
+				sd(d, i);
 				week.days.push(this.buildDay(d, start++, true, i === day));
 
 				if (start > 6) {
@@ -897,11 +952,11 @@
 
 			if (start !== 0) {
 
-				d.setDate(1);
-				d.setMonth(date.getMonth() + 1);
+				sd(d, 1);
+				sm(d, d.getMonth() + 1);
 
 				for (i = 1; start <= 6; start++) {
-					d.setDate(i++);
+					sd(d, i++);
 					week.days.push(this.buildDay(d, start));
 				}
 			}
@@ -913,18 +968,18 @@
 
 		buildDay: function (date, day, selectable, active) {
 
-			var today = new Date(),
+			var today = dt(),
 				format = this.config.formats,
 				disabled = this.max && date > this.max || this.min && date < this.min || false;
 
 			today.setHours(0, 0, 0, 0);
 
 			return {
-				value: date.getDate(),
+				value: gd(date),
 				label: this.format('label', {
-					day: date.getDate(),
-					month: this.format(format.month, date.getMonth()),
-					year: this.format(format.year, date.getFullYear())
+					day: gd(date),
+					month: this.format(format.month, gm(date)),
+					year: this.format(format.year, gy(date))
 				}),
 				active: active,
 				disabled: disabled,
@@ -950,8 +1005,7 @@
 
 			if (d.length && !d.hasClass('active')) {
 
-				this.date.setDate(
-					parseInt(d.data('value'), 10));
+				sd(this.date, parseInt(d.data('value'), 10));
 
 				a.removeClass('active');
 				d.addClass('active');
@@ -968,9 +1022,11 @@
 
 			if (!day) {
 				d = this.activeDay;
-			} else if (typeof day === 'number') {
+			}
+			else if (typeof day === 'number') {
 				d = this.days.filter('[data-value="' + day + '"]');
-			} else {
+			}
+			else {
 				d = this.$(day);
 			}
 
@@ -982,7 +1038,7 @@
 
 			day = parseInt(d.data('value'), 10);
 
-			if (day !== this.selected.getDate()) {
+			if (day !== gd(this.selection)) {
 
 				if (this.setDate(this.date) && !silent) {
 					this.emit('change');
@@ -992,94 +1048,109 @@
 			return this;
 		},
 
-		isValid: function (d) {
+		valid: function (d) {
 
-			d = d || this.selected;
+			var t = d.getTime();
 
-			return !isNaN(d.getTime());
+			return !isNaN(t) && t > this.MIN && t < this.MAX;
 		},
 
 		setDate: function (d) {
 
+			var s = this.selection, m, v, r;
+
 			d.setHours(0, 0, 0, 0);
 
-			if (this.min && d < this.min || this.max && d > this.max) {
-				return false;
+			if (this.min && d < this.min) {
+				sa(s, this.min);
+			}
+			else if (this.max && d > this.max) {
+				sa(s, this.max);
+			}
+			else {
+
+				this.each([this.year, this.month, this.day], function (f, i) {
+
+					m = !i && 'FullYear'
+						|| i < 2 && 'Month'
+						|| i < 3 && 'Date';
+
+					v = d['get' + m]();
+					s['set' + m](v);
+
+					f.val(this.format(f.data('format')), v);
+				});
 			}
 
-			var s = this.selected,
-				method,
-				val,
-				r;
-
-			this.each([this.year, this.month, this.day], function (f, i) {
-
-				method = i === 0 && 'FullYear'
-					|| i === 1 && 'Month'
-					|| i === 2 && 'Date';
-
-				val = d['get' + method]();
-				s['set' + method](val);
-
-				f.val(this.format(f.data('format')), val);
-			});
-
-			this.rootinput.val(this.dts(s));
-
-			r = this.isValid(s);
+			r = this.valid(s);
 
 			if (r) {
-				this.date.setDate(1);
-				this.date.setFullYear(s.getFullYear());
-				this.date.setMonth(s.getMonth());
-				this.date.setDate(s.getDate());
+
+				sa(this.date, s);
+
+				this.rootinput.val(this.dts(s));
 				this.refresh();
 			}
 
 			return r;
 		},
 
-		adjust: function (date, updateUi) {
+		adjust: function (d, update) {
 
-			var d = date || this.date,
-				i = this.min,
+			var i = this.min,
 				x = this.max,
 				c = this.controls,
 				s = [];
 
-			d.setHours(0, 0, 0, 0);
-
 			if (i) {
 
-				if (d.getFullYear() <= i.getFullYear()) {
+				if (gy(d) < gy(i)) {
+					sa(d, i);
+					s.push('.prev-yr', '.prev-mo');
+				}
 
-					d.setFullYear(i.getFullYear());
+				else if (gy(d) === gy(i)) {
+
+					sy(d, i);
 					s.push('.prev-yr');
 
-					if (d.getMonth() <= i.getMonth()) {
+					if (gm(d) <= gm(i)) {
 
-						d.setMonth(i.getMonth());
+						sm(d, i);
 						s.push('.prev-mo');
+
+						if (gd(d) <= gd(i)) {
+							sd(d, i);
+						}
 					}
 				}
 			}
 
 			if (x) {
 
-				if (d.getFullYear() >= x.getFullYear()) {
+				if (gy(d) > gy(x)) {
+					sa(d, x);
+					s.push('.prev-yr', '.prev-mo');
+				}
 
-					d.setFullYear(x.getFullYear());
+				else if (gy(d) >= gy(x)) {
+
+					sy(d, x);
 					s.push('.next-yr');
 
-					if (d.getMonth() >= x.getMonth()) {
+					if (gm(d) >= gm(x)) {
 
-						d.setMonth(x.getMonth());
+						sm(d, x);
 						s.push('.next-mo');
+
+						if (gd(d) >= gd(x)) {
+							sd(d, x);
+						}
 					}
 				}
 			}
 
-			if (updateUi) {
+			if (update) {
 
 				c.prop('disabled', false);
 
@@ -1089,7 +1160,6 @@
 			}
 
 			return d;
-
 		},
 
 		refresh: function (refocus) {
@@ -1098,7 +1168,7 @@
 				c = this.calendar,
 				f = this.config.formats,
 				m = this.html('body', {
-					weeks: this.buildCalendar(this.date)
+					weeks: this.buildCalendar(d)
 				});
 
 			this.node('body',  c).remove();
@@ -1109,8 +1179,8 @@
 			}
 
 			this.heading.text(this.format('caption', {
-				month: this.format(f.month, d.getMonth()),
-				year:  this.format(f.year,  d.getFullYear())
+				month: this.format(f.month, gm(d)),
+				year:  this.format(f.year,  gy(d))
 			}));
 
 			return this;
@@ -1118,17 +1188,17 @@
 
 		moveMonth: function (up, refocus) {
 
-			this.date.setMonth(
-				this.date.getMonth() + (up ? -1 : 1));
+			var d = this.date;
 
+			sm(d, gm(d) + (up ? -1 : 1));
 			return this.refresh(refocus);
 		},
 
 		moveYear: function (up, refocus) {
 
-			this.date.setFullYear(
-				this.date.getFullYear() + (up ? -1 : 1));
+			var d = this.date;
 
+			sy(d, gy(d) + (up ? -1 : 1));
 			return this.refresh(refocus);
 		},
 
@@ -1141,16 +1211,16 @@
 				case 'd':
 					days = dim(d);
 					value = value > days && 1 || value > 0 && value || days;
-					d.setDate(value);
+					sd(d, value);
 					break;
 
 				case 'm':
 					value = value < 0 && 11 || value < 12 && value || 0
-					d.setMonth(value);
+					sm(d, value);
 					break;
 
 				case 'y':
-					d.setFullYear(value);
+					sy(d, value);
 					break;
 			}
 
@@ -1177,14 +1247,16 @@
 			var d = date || this.date;
 
 			switch (key.slice(0, 1)) {
-				case 'y': return d.getFullYear();
-				case 'm': return d.getMonth();
+
+				case 'y': return gy(d);
+				case 'm': return gm(d);
 				case 'd':
 
 					if (key.length > 2) {
 						return d.getDay();
 					}
-					return d.getDate();
+
+					return gd(d);
 			}
 
 			return NaN;
@@ -1220,7 +1292,7 @@
 			}
 
 			var me = this,
-				map = this.formatmap,
+				map = me.formatmap,
 				v;
 
 			switch (format) {
@@ -1249,7 +1321,7 @@
 		unformat: function (format, value) {
 
 			var me = this,
-				map = this.formatmap;
+				map = me.formatmap;
 
 			switch (format) {
 
@@ -1290,13 +1362,10 @@
 
 		std: function (sdate, format) {
 
-			var date = new Date(),
+			var date = dt(),
 				parts = sdate.split(this.xSplit),
 				format = (format || this.formats.native).split(this.xSplit),
 				value;
-
-			date.setDate(1);
-			date.setHours(0, 0, 0, 0);
 
 			this.each(format, function (f, i) {
 
@@ -1331,11 +1400,11 @@
 			date = date || this.date;
 			format = format || this.config.formats.native;
 
-			var val;
+			var v;
 
 			this.each(format.split(this.xSplit), function (f) {
-				value = this.format(f,  this.getValue(f, date));
-				format = format.replace(new RegExp(f), value);
+				v = this.format(f,  this.getValue(f, date));
+				format = format.replace(new RegExp(f), v);
 			});
 
 			return format;
