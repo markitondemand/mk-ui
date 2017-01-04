@@ -821,8 +821,7 @@
 				n = this.$(t),
 				w = e.which,
 				k = this.keycode,
-				c = String.fromCharCode(w).toLowerCase(),
-				u = n.data('key');
+				c = String.fromCharCode(w).toLowerCase();
 
 			// tab and delete are always allowed by the user.
 			if (w === k.tab || w === k.backspace) {
@@ -846,7 +845,7 @@
 					// for a given input. It will walk through the monday, days of the week, or years.
 					// walking years does not validate a min and max, however, validation will occur later
 					// when the input blurs.
-					this.step(u, w === k.down);
+					this.step(n, w === k.down);
 					t.setSelectionRange(0, t.value.length);
 					break;
 
@@ -925,20 +924,16 @@
 			}
 		},
 
-		step: function (key, reverse) {
+		step: function (input, reverse) {
 
-			var i = key === 'year' && this.year
-				|| key === 'month' && this.month
-				|| this.day,
-
-				f = i.data('format'),
+			var f = input.data('format'),
 				v = this.getValue(f),
 				n;
 
 			v = v + (reverse ? -1 : 1);
 			n = this.setValue(f, v);
 
-			i.val(n);
+			input.val(n);
 		},
 
 		data: function () {
