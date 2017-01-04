@@ -12,7 +12,7 @@
 
 .mk-dp {
 	color: $mk-gray-1;
-	display: none;
+	//display: none;
 }
 
 .mk-dp-input {
@@ -97,12 +97,18 @@
 .mk-dp-access {
 	background: transparent;
 	border-width: 0;
+	color: $mk-secondary;
 	font-size: 20px;
 	line-height: 20px;
 	position: absolute;
 	top: 10px;
 	height: 20px;
 	width: 20px;
+
+	&:disabled {
+		color: $mk-gray-3;
+		cursor: default;
+	}
 
 	&:before {
 		position: absolute;
@@ -205,12 +211,17 @@
 	background: $mk-gray-4;
 }
 
-.mk-dp-table .inactive {
+.mk-dp-table .selectable {
+	cursor: pointer;
+}
+
+.mk-dp-table .unselectable {
 	color: $mk-gray-3;
 }
 
-.mk-dp-table .selectable {
-	cursor: pointer;
+.mk-dp-table .disabled {
+	background: $mk-gray-4;
+	color: $mk-gray-3;
 }
 
 .mk-dp-table .today {

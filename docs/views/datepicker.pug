@@ -25,12 +25,19 @@ html
 				datepicker;
 
 			examples.each(function (example) {
+
+				Mk.$(example).find('input').on('change', function () {
+					console.info(this.value)
+				})
+
 				datepicker = new Datepicker(example, {
 					label: 'Choose a Start Date',
 					format: 'mm dd, yyyy',
 					rollover: false
 				});
+
 				datepicker.on('change', function () {
 					console.info(this.value);
 				});
+
 			});

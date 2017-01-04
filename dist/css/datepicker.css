@@ -7,8 +7,7 @@
   position: relative; }
 
 .mk-dp {
-  color: #333;
-  display: none; }
+  color: #333; }
 
 .mk-dp-input {
   border: 1px solid #ccc;
@@ -80,12 +79,17 @@
 .mk-dp-access {
   background: transparent;
   border-width: 0;
+  color: #00b140;
   font-size: 20px;
   line-height: 20px;
   position: absolute;
   top: 10px;
   height: 20px;
   width: 20px; }
+  .mk-dp-control:disabled,
+  .mk-dp-access:disabled {
+    color: #ccc;
+    cursor: default; }
   .mk-dp-control:before,
   .mk-dp-access:before {
     position: absolute;
@@ -166,11 +170,15 @@
 .mk-dp-table .weekend {
   background: #eee; }
 
-.mk-dp-table .inactive {
-  color: #ccc; }
-
 .mk-dp-table .selectable {
   cursor: pointer; }
+
+.mk-dp-table .unselectable {
+  color: #ccc; }
+
+.mk-dp-table .disabled {
+  background: #eee;
+  color: #ccc; }
 
 .mk-dp-table .today {
   color: #008e89; }

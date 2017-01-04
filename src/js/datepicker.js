@@ -581,6 +581,9 @@
 					el.setSelectionRange(0, this.value.length);
 				});
 			})
+			.on('blur.mk', 'input', function (e) {
+				thiss._validate(e, this);
+			})
 			.on('click.mk', 'input', function () {
 				var el = this;
 				thiss.delay(function () {
@@ -718,9 +721,98 @@
 		_entry: function (e, input, key) {
 
 			var f = input.data('format'),
-				v = input.val();
+				v = input.val(),
+				l = null;
 
-			console.info(f, v, key)
+			switch (f) {
+
+				case 'd':
+				case 'm':
+				case 'dd':
+				case 'mm':
+				case 'yy':
+					l = 2; break;
+
+				case 'mmm':
+					l = 3; break;
+
+				case 'yyyy':
+					l = 4; break;
+			}
+
+			if (l && (v + key).length > l) {
+				e.preventDefault();
+				input.val(v.slice((l - 1) * -1) + key);
+			}
+		},
+
+		// this gets triggered each time an input is blurred (day, month, year).
+		// basically we want to error handle things like days and month entries - like entering in 54 for days.
+		// we leave years alone like the Chrome native datepicker does.
+
+		_validate: function (e, input) {
+
+			var i = this.$(input),
+				f = i.data('format'),
+				v = i.val(),
+				o;
+
+			switch (f) {
+
+				case 'd':
+				case 'dd':
+
+					v = parseInt(v, 10);
+
+					if (v > dim(this.selection)) {
+						v = dim(this.selection);
+					}
+					break;
+
+				case 'm':
+				case 'mm':
+
+					v = parseInt(v, 10);
+
+					if (v > 12) {
+						v = 12;
+					}
+					else if (v < 1) {
+						v = 1;
+					}
+
+					v -= 1;
+					break;
+
+				case 'mmm':
+
+					v = v.toLowerCase();
+
+					v = this.first(this.formatmap.months, function (m) {
+						if (m.indexOf(v) > -1) {
+							return v;
+						}
+					});
+
+					if (!v) {
+						v = this.format(f, gm(this.selection));
+					}
+					break;
+			}
+
+			v = parseInt(v, 10);
+			o = this.getValue(f, this.selection);
+
+			i.val(this.format(f, v));
+
+			if (v !== o) {
+
+				this.setValue(f, v, this.selection);
+
+				if (this.valid(this.selection)) {
+					this.emit('change', this.value);
+				}
+			}
 		},
 
 		_keydownInput: function (e) {
@@ -732,16 +824,17 @@
 				c = String.fromCharCode(w).toLowerCase(),
 				u = n.data('key');
 
-			// if user entered a tab, backspace, number, or letter (and is a month input)
-			// then we're going to allow entry and adjust any access, error-prone text the user enters
-			if (w === k.tab || w === k.backspace
-				|| (/\w/.test(c) && n.hasClass('month') && n.data('format').length > 2)
-				|| /\d/.test(c)) {
+			// tab and delete are always allowed by the user.
+			if (w === k.tab || w === k.backspace) {
+				return;
+			}
 
-				if (w !== k.tab && w !== k.backspace) {
-					this._entry(e, n, c);
-				}
-				return
+			// alpha characters are allowed in the month if the month format supports it.
+			// every other scenario only allows number characters
+			if ((/\w/.test(c) && n.hasClass('month') && n.data('format').length > 2)
+				|| /\d/.test(c)) {
+				this._entry(e, n, c);
+				return;
 			}
 
 			e.preventDefault();
