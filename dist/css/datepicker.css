@@ -64,6 +64,9 @@
   position: absolute;
   z-index: 2; }
 
+.mk-dp-calendar[aria-hidden="true"] {
+  display: none; }
+
 .mk-dp-calendar.disabled:after {
   background: white;
   content: "";

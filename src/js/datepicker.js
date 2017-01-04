@@ -180,10 +180,13 @@
 			prevMo: 'Go to previous month',
 			prevYr: 'Go to previous year',
 			caption: '{{month}} {{year}}',
-			label: '{{month}} {{day}} {{year}}',
+			label_calendar: '{{month}} {{day}} {{year}}',
 			label_day: 'Enter a {{digit}} character day',
 			label_month: 'Enter a {{digit}} character month',
-			label_year: 'Enter a {{digit}} character year'
+			label_year: 'Enter a {{digit}} character year',
+			label_start: 'Choose a start date',
+			label_end: 'Choose an end date',
+			label: 'Choose a date'
 		},
 
 		templates: {
@@ -367,6 +370,26 @@
 		},
 
 		/*
+			<property:isHidden>
+				<desc>Is the datepicker calendar UI hidden.</desc>
+			</property:isHidden>
+		*/
+
+		get isHidden () {
+			return this.calendar.attr('aria-hidden') === 'true';
+		},
+
+		/*
+			<property:isOpen>
+				<desc>Is the datepicker calendar UI visible.</desc>
+			</property:isOpen>
+		*/
+
+		get isOpen () {
+			return !this.isHidden;
+		},
+
+		/*
 			<property:value>
 				<desc>The currently selected date in native string format (yyyy-mm-dd).</desc>
 			</property:value>
@@ -404,6 +427,16 @@
 
 		get input () {
 			return this.node('input', this.shadow);
+		},
+
+		/*
+			<property:entries>
+				<desc>Get the entry elements which live inside the input wrappers.</desc>
+			</property:entries>
+		*/
+
+		get entries () {
+			return this.node('entry', this.input);
 		},
 
 		/*
@@ -540,13 +573,16 @@
 
 			this.param('format', 'string', o, this.formats.date, input)
 				.param('rollover', 'boolean', o, true, input)
-				.param('label', 'string', o, 'Datepicker', input);
+				.param('label', 'string', o, this.formats.label, input);
 
 			this.super(o);
 		},
 
 		build: function () {
+
 			this.shadow = this.html('shadow', this.data());
+			this.calendar.attr('aria-hidden', 'true');
+
 			this.adjust(this.date, true);
 		},
 
@@ -617,6 +653,7 @@
 
 			this.accessbtn.on('click.mk', function (e) {
 				e.preventDefault();
+				thiss.toggle();
 			});
 		},
 
@@ -808,6 +845,11 @@
 			if (v !== o) {
 
 				this.setValue(f, v, this.selection);
+
+				//TODO:
+				//
+				//this.adjust(this.selection);
+				//reflect changes to UI
 
 				if (this.valid(this.selection)) {
 					this.emit('change', this.value);
@@ -1064,7 +1106,7 @@
 
 			return {
 				value: gd(date),
-				label: this.format('label', {
+				label: this.format('label_calendar', {
 					day: gd(date),
 					month: this.format(format.month, gm(date)),
 					year: this.format(format.year, gy(date))
@@ -1514,6 +1556,7 @@
 
 				this.calendar.addClass('disabled');
 			}
+			return this;
 		},
 
 		enable: function () {
@@ -1532,6 +1575,31 @@
 
 				this.calendar.removeClass('disabled');
 			}
+			return this;
+		},
+
+		show: function () {
+
+			if (this.enabled && this.isHidden) {
+				this.calendar.attr('aria-hidden', 'false');
+			}
+			return this;
+		},
+
+		hide: function () {
+
+			if (this.isOpen) {
+				this.calendar.attr('aria-hidden', 'true');
+			}
+			return this;
+		},
+
+		toggle: function () {
+
+			if (this.enabled && this.isHidden) {
+				return this.show();
+			}
+			return this.hide();
 		}
 	});
 
