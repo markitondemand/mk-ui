@@ -104,11 +104,11 @@
 	<event:request.send>
 		<desc>Used when hooking into request logic to send requests to the server for data.</desc>
 		<example>
-			instance.on('request.before', function (query, requestnumber) {
+			instance.on('request.send', function (query, requestnumber) {
 				console.info('about to search for ', query);
 			});
 		</example>
-	</event:request.before>
+	</event:request.send>
 	<event:request.error>
 		<desc>Since remote requests are left the end developers, this event must be emit by the end developer as well, typically in an error handler. Since the end developer emits this event, you may pass in any arguments you like.</desc>
 		<example>

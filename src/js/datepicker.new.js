@@ -159,10 +159,12 @@
 		*/
 
 		formatmap: {
+
 			months: [
 				'january', 'february', 'march', 'april', 'may', 'june', 'july',
 				'august', 'september', 'october', 'november', 'december'
 			],
+
 			days: [
 				'sunday', 'monday', 'tuesday',
 				'wednesday', 'thursday', 'friday', 'saturday'
@@ -749,112 +751,6 @@
 					this.refresh(true);
 				}
 			});
-		},
-
-		// prevents more characters being entered than allowed.
-		// we take the last portion of strings rather than the first part.
-		// the only exception is format 'mmmm' for a full month name.
-
-		_entry: function (e, input, key) {
-
-			var f = input.data('format'),
-				v = input.val(),
-				l = null;
-
-			switch (f) {
-
-				case 'd':
-				case 'm':
-				case 'dd':
-				case 'mm':
-				case 'yy':
-					l = 2; break;
-
-				case 'mmm':
-					l = 3; break;
-
-				case 'yyyy':
-					l = 4; break;
-			}
-
-			if (l && (v + key).length > l) {
-				e.preventDefault();
-				input.val(v.slice((l - 1) * -1) + key);
-			}
-		},
-
-		// this gets triggered each time an input is blurred (day, month, year).
-		// basically we want to error handle things like days and month entries - like entering in 54 for days.
-		// we leave years alone like the Chrome native datepicker does.
-
-		_validate: function (e, input) {
-
-			var i = this.$(input),
-				f = i.data('format'),
-				v = i.val(),
-				o;
-
-			switch (f) {
-
-				case 'd':
-				case 'dd':
-
-					v = parseInt(v, 10);
-
-					if (v > dim(this.selection)) {
-						v = dim(this.selection);
-					}
-					break;
-
-				case 'm':
-				case 'mm':
-
-					v = parseInt(v, 10);
-
-					if (v > 12) {
-						v = 12;
-					}
-					else if (v < 1) {
-						v = 1;
-					}
-
-					v -= 1;
-					break;
-
-				case 'mmm':
-
-					v = v.toLowerCase();
-
-					v = this.first(this.formatmap.months, function (m) {
-						if (m.indexOf(v) > -1) {
-							return v;
-						}
-					});
-
-					if (!v) {
-						v = this.format(f, gm(this.selection));
-					}
-					break;
-			}
-
-			v = parseInt(v, 10);
-			o = this.getValue(f, this.selection);
-
-			i.val(this.format(f, v));
-
-			if (v !== o) {
-
-				this.setValue(f, v, this.selection);
-
-				//TODO:
-				//
-				//this.adjust(this.selection);
-				//reflect changes to UI
-
-				if (this.valid(this.selection)) {
-					this.emit('change', this.value);
-				}
-			}
 		},
 
 		_keydownInput: function (e) {
