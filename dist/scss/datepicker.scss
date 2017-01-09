@@ -12,7 +12,7 @@
 
 .mk-dp {
 	color: $mk-gray-1;
-	//display: none;
+	display: none;
 }
 
 .mk-dp-input {
@@ -28,7 +28,7 @@
 	visibility: hidden;
 }
 
-.mk-dp-access:before {
+.mk-dp-trigger:before {
 	content: "›";
 	position: absolute;
 	transform: rotate(90deg);
@@ -69,20 +69,57 @@
 	color: $mk-gray-3;
 }
 
-.mk-dp-entry:focus {
+.mk-dp-entry:focus,
+.mk-dp-body:focus,
+.mk-dp-trigger:focus,
+.mk-dp-control:focus {
 	outline: 0;
+}
+
+.mk-dp-body:focus {
+	outline: 1px solid $mk-secondary;
+}
+
+.mk-dp-trigger:focus,
+.mk-dp-trigger:hover {
+	background: $mk-gray-4;
+}
+
+.mk-dp-control:focus,
+.mk-dp-control:hover {
+	border-color: $mk-secondary;
+}
+
+.mk-dp-control:disabled:focus,
+.mk-dp-control:disabled:hover {
+	border-color: white;
 }
 
 .mk-dp-calendar {
 	background: white;
-	min-width: 300px;
+	min-width: 100%;
 	border: 1px solid $mk-gray-3;
+	position: relative;
+}
+
+.mk-dp-calendar.popup {
+	box-shadow: 1px 1px 10px rgba(0, 0, 0, .4);
+	display: none;
+	min-width: 300px;
+	opacity: 0;
 	position: absolute;
 	z-index: 2;
 }
 
-.mk-dp-calendar[aria-hidden="true"] {
-	display: none;
+.mk-dp-calendar.popup.transition {
+	 display: block;
+	 transition: all $mk-sm-transition-speed;
+	-webkit-transition: all $mk-sm-transition-speed;
+}
+
+.mk-dp-calendar.popup[aria-hidden="false"] {
+	display: block;
+	opacity: 1;
 }
 
 .mk-dp-calendar.disabled:after {
@@ -98,7 +135,7 @@
 }
 
 .mk-dp-control,
-.mk-dp-access {
+.mk-dp-trigger {
 	background: transparent;
 	border-width: 0;
 	color: $mk-secondary;
@@ -120,9 +157,14 @@
 	}
 }
 
-.mk-dp-root .mk-dp-access {
+.mk-dp-root .mk-dp-trigger {
 	right: 5px;
 	top: 5px;
+}
+
+.mk-dp-control {
+	border: 1px solid white;
+	border-radius: 80%;
 }
 
 .mk-dp-control.prev-yr {
@@ -223,9 +265,16 @@
 	color: $mk-gray-3;
 }
 
-.mk-dp-table .disabled {
-	background: $mk-gray-4;
-	color: $mk-gray-3;
+.mk-dp-table .disabled span:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	width: 30px;
+	border-bottom: 1px solid $mk-gray-3;
+	transform: rotate(145deg);
+	top: 9px;
+	left: 2px;
 }
 
 .mk-dp-table .today {

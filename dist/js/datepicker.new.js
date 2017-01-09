@@ -32,9 +32,10 @@
 
 })(typeof window !== 'undefined' && window || this, function (root, mk) {
 
-    function num (v) {
-        return typeof v === 'number';
-    }
+	//
+	// below are a bunch of helper classes to help unbloat some of the code.
+	// date code is very verbose and personally, i think it's ugly.
+	//
 
 	function dt () {
 
@@ -57,15 +58,15 @@
 	}
 
 	function sd (d, v) {
-		d.setDate(num(v) ? v : v.getDate());
+		d.setDate(typeof v === 'number' ? v : v.getDate());
 	}
 
 	function sm (d, v) {
-		d.setMonth(num(v) ? v : v.getMonth());
+		d.setMonth(typeof v === 'number' ? v : v.getMonth());
 	}
 
 	function sy (d, v) {
-		d.setFullYear(num(v) ? v : v.getFullYear());
+		d.setFullYear(typeof v === 'number' ? v : v.getFullYear());
 	}
 
 	function sa (d, v) {
@@ -82,38 +83,34 @@
 
 	function dilm (d) {
 
-		var _d = dt();
+		var _d = new Date();
 
 			_d.setDate(1);
-			_d.setMonth(gm(d) - 1);
-			_d.setFullYear(gy(d));
+			_d.setMonth(d.getMonth() - 1);
+			_d.setFullYear(d.getFullYear());
 
 		return dim(_d);
 	}
 
 	 function dinm (d) {
 
-		var _d = dt();
+		var _d = new Date();
 
 			_d.setDate(1);
-			_d.setMonth(gm(d) + 1);
-			_d.setFullYear(gy(d));
+			_d.setMonth(d.getMonth() + 1);
+			_d.setFullYear(d.getFullYear());
 
 		return dim(_d);
 	}
 
 	function sdim (d) {
-		return new Date(gy(d), gm(d), 1).getDay();
+		return new Date(d.getFullYear(), d.getMonth(), 1).getDay();
 	}
 
 	mk.create('Datepicker', {
 
 		_date: null,
-		_uidate: null,
-
-        xSplit: /\/|-|,\s|\s/,
-
-		xSearch: /(^|\w+)(\/|-|,\s|\s|$)/g,
+		_selection: null,
 
 		name: 'mk-dp',
 
@@ -132,6 +129,10 @@
 		*/
 
 		max: null,
+
+		xSplit: /\/|-|,\s|\s/,
+
+		xSearch: /(^|\w+)(\/|-|,\s|\s|$)/g,
 
 		/*
 			<property:MIN>
@@ -156,16 +157,27 @@
 		*/
 
 		formatmap: {
-
 			months: [
 				'january', 'february', 'march', 'april', 'may', 'june', 'july',
 				'august', 'september', 'october', 'november', 'december'
 			],
-
 			days: [
 				'sunday', 'monday', 'tuesday',
 				'wednesday', 'thursday', 'friday', 'saturday'
 			]
+		},
+
+		methodmap: {
+			getter: {
+				year: 'getFullYear',
+				month: 'getMonth',
+				day: 'getDate'
+			},
+			setter: {
+				year: 'setFullYear',
+				month: 'setMonth',
+				day: 'setDate'
+			}
 		},
 
 		formats: {
@@ -179,47 +191,38 @@
 			prevMo: 'Go to previous month',
 			prevYr: 'Go to previous year',
 			caption: '{{month}} {{year}}',
-			label: 'Choose a Date',
-			label_d: 'Select Day',
-			label_m: 'Select Month',
-			label_y: 'Enter a Year',
-            label_trigger: 'Open Calendar Interface',
-			label_calendar: '{{month}} {{day}}, {{year}}'
+			label: 'Choose a date',
+			label_calendar: '{{month}} {{day}} {{year}}',
+			label_day: 'Enter a {{digit}} character day',
+			label_month: 'Enter a {{digit}} character month',
+			label_year: 'Enter a {{digit}} character year'
 		},
 
 		templates: {
-
 			shadow:
 				'<div class="{{$key}}-shadow">\
-                    {{loop:inputs}}\
-                        {{template:input}}\
-                    {{/loop:inputs}}\
+					{{template:input}}\
+					{{template:access}}\
 					{{template:calendar}}\
 				</div>',
 
 			input:
-				'<div class="{{$key}}-input">\
+				'<div class="{{$key}}-input" aria-label="{{label}}">\
 					<span id="{{labelid}}" class="{{$key}}-label">{{label}}</span>\
-					{{loop:parts}}\
-                        <span id="{{descid}}" class="{{$key}}-label">{{desc}}</span>\
-						{{if:select}}\
-                            {{template:select}}\
-                        {{/if:select}}\
-                        {{if:number}}\
-                            {{template:number}}\
-                        {{/if:number}}\
-                        {{if:spacer}}\
-                            <span class="spacer">{{spacer}}</span>\
-                        {{/if:spacer}}\
-					{{/loop:parts}}\
-                    {{template:trigger}}\
+					{{loop:inputs}}\
+						<span id="{{describeid}}" class="{{$key}}-label">{{description}}</span>\
+						<input class="{{$key}}-entry {{id}}" \
+							placeholder="{{placeholder}}" \
+							type="{{type}}" \
+							name="{{name}}" \
+							value="{{value}}" \
+							aria-describedby="{{describeid}}" \
+							aria-labelledby="{{labelid}}" \
+							data-format="{{format}}" \
+							data-key="{{id}}" />\
+						<span class="spacer">{{spacer}}</span>\
+					{{/loop:inputs}}\
 				</div>',
-
-            select:
-                '<select aria-labelledby="{{labelid}}" aria-describedby="descid"></select>',
-
-            number:
-                '<input type="number" aria-labelledby="{{labelid}}" aria-describedby="descid" />',
 
 			calendar:
 				'<div class="{{$key}}-calendar">\
@@ -229,14 +232,15 @@
 
 			controls:
 				'<div class="{{$key}}-controls">\
-                    {{loop:controls}}\
-                        <button class="{{$key}}-control {{name}}" aria-label="{{label}}"></button>\
-                    {{/loop:controls}}\
+					<button class="{{$key}}-control prev-yr" aria-label="Go to previous year"></button>\
+					<button class="{{$key}}-control prev-mo" aria-label="Go to previous month"></button>\
+					<button class="{{$key}}-control next-mo" aria-label="Go to next month"></button>\
+					<button class="{{$key}}-control next-yr" aria-label="Go to next year"></button>\
 				</div>',
 
 			table:
 				'<table class="{{$key}}-table">\
-					<caption class="{{$key}}-heading" aria-atomic="true" aria-live="assertive">{{caption}}</caption>\
+					<caption class="{{$key}}-heading" aria-atomic="true" aria-live="assertive">{{title}}</caption>\
 					<thead class="{{$key}}-head">\
 						<tr>\
 						{{loop:days}}\
@@ -260,38 +264,25 @@
 
 			day:
 				'<td data-value="{{value}}" class="\
-					{{$key}}-day {{day}}\
+					{{day}} {{$key}}-day\
 					{{if:selectable}} selectable{{/if:selectable}}\
+					{{if:unselectable}} unselectable{{/if:unselectable}}\
 					{{if:today}} today{{/if:today}}\
 					{{if:active}} active{{/if:active}}\
+					{{if:weekend}} weekend{{/if:weekend}}\
 					{{if:disabled}} disabled{{/if:disabled}}\
 					{{if:between}} between{{/if:between}}\
 					{{if:rollover}} rollover{{/if:rollover}}\
 					" aria-label="{{label}}">\
-					<span class="{{$key}}-date">{{value}}</span>\
+					<span>{{value}}</span>\
 				</td>',
 
-			trigger:
-                '<button class="{{$key}}-trigger" aria-label="{{label}}"></button>'
-		},
-
-		/*
-			<property:uidate>
-				<desc>The current date in the calendar UI as a Date object.</desc>
-			</property:uidate>
-		*/
-
-		get uidate () {
-			return this._uidate;
-		},
-
-		set uidate (value) {
-			this._uidate = this.adjust(value);
+			access: '<button class="{{$key}}-access" aria-label="Open Calendar Interface"></button>'
 		},
 
 		/*
 			<property:date>
-				<desc>The currently selected date as a Date object.</desc>
+				<desc>The current date in the calendar UI as a Date object.</desc>
 			</property:date>
 		*/
 
@@ -304,13 +295,27 @@
 		},
 
 		/*
+			<property:selection>
+				<desc>The currently selected date as a Date object.</desc>
+			</property:selection>
+		*/
+
+		get selection () {
+			return this._selection;
+		},
+
+		set selection (value) {
+			this._selection = this.adjust(value);
+		},
+
+		/*
 			<property:disabled>
 				<desc>Is the datepicker disabled.</desc>
 			</property:disabled>
 		*/
 
 		get disabled () {
-			return this.startinput.prop('disabled');
+			return this.input.prop('disabled');
 		},
 
 		/*
@@ -344,9 +349,9 @@
 		},
 
 		/*
-			<property:isPopup>
-				<desc>Is the datepicker calendar UI a popup or inline.</desc>
-			</property:isPopup>
+			<property:isOpen>
+				<desc>Is the datepicker calendar UI visible.</desc>
+			</property:isOpen>
 		*/
 
 		get isPopup () {
@@ -360,58 +365,37 @@
 		*/
 
 		get value () {
-			return this.dts(this.date);
+			return this.dts(this.selection);
 		},
 
 		/*
-			<property:inputs>
-				<desc>The input elements you provided inside the root datepicker node.</desc>
-			</property:inputs>
+			<property:input>
+				<desc>The input element you provided inside the root datepicker node.</desc>
+			</property:input>
 		*/
 
-        get inputs () {
+		get input () {
 			return this.node('');
 		},
 
-        /*
-			<property:multiple>
-				<desc>Can the use select multiple dates (ie: start and end date).</desc>
-			</property:multiple>
+		/*
+			<property:entries>
+				<desc>Get the entry elements which live inside the input wrappers.</desc>
+			</property:entries>
 		*/
 
-        get multiple () {
-            return this.inputs.length > 1;
-        },
-
-        /*
-			<property:startinput>
-				<desc>The start date (or first input) element.</desc>
-			</property:startinput>
-		*/
-
-        get startinput () {
-			return this.$(this.inputs[0]);
-		},
-
-        /*
-			<property:endinput>
-				<desc>The end date (or second input) element. If the datepicker is a single date setup, endinput is the same as startinput.</desc>
-			</property:endinput>
-		*/
-
-        get endinput () {
-            var i = this.inputs;
-            return this.$(i.length > 1 ? i[1] : i[0]);
+		get entries () {
+			return this.node('entry', this.shadow);
 		},
 
 		/*
-			<property:trigger>
-				<desc>The button used to trigger (open/close) the datepicker UI.</desc>
-			</property:trigger>
+			<property:accessbtn>
+				<desc>The button used to access (open/close) the datepicker UI.</desc>
+			</property:accessbtn>
 		*/
 
-		get trigger () {
-			return this.node('trigger', this.shadow);
+		get accessbtn () {
+			return this.node('access', this.shadow);
 		},
 
 		/*
@@ -466,7 +450,7 @@
 				active = body.find('.active');
 
 			if (!active.length) {
-				 active = body.find('[data-value="' + this.uidate.getDate() + '"]');
+				 active = body.find('[data-value="' + this.date.getDate() + '"]');
 			}
 
 			if (!active.length) {
@@ -481,7 +465,7 @@
 			o = o || {};
 
 			var root = this.root,
-				input = this.startinput,
+				input = this.input,
 				formats = this.formats;
 
 			// get the initial date we're working with
@@ -494,8 +478,9 @@
 			this.min = o.fmin && this.std(o.fmin) || null;
 			this.max = o.fmax && this.std(o.fmax) || null;
 
-			this.uidate = this.adjust(o.fdate && this.std(o.fdate) || dt());
-            this.date = this.adjust(o.fdate && this.std(o.fdate) || dt());
+			//create the ui date for tracking positions in the picker UI
+			this.date = this.adjust(o.fdate && this.std(o.fdate) || dt());
+			this.selection = this.adjust(o.fdate && this.std(o.fdate) || dt());
 
 			this.param('format', 'string', o, formats.date, root)
 				.param('rollover', 'boolean', o, true, root)
@@ -512,7 +497,7 @@
 			if (this.isPopup) {
 				this.calendar.addClass('popup').attr('aria-hidden', 'true');
 			}
-			this.adjust(this.uidate, true);
+			this.adjust(this.date, true);
 		},
 
 		mount: function () {
@@ -523,10 +508,10 @@
 
 			this.shadow.remove();
 
-			this.date =
+			this.selection =
 			this.config =
 			this.shadow =
-			this.uidate =
+			this.date =
 			this.root =
 			this.min =
 			this.max = null;
@@ -537,6 +522,27 @@
 			var thiss = this,
 				calendarFocused = false,
 				entry = this.selector('entry');
+
+			this.node('input', this.shadow).on('focus.mk', 'input', function (e) {
+
+				var el = this;
+
+				thiss.delay(function () {
+					el.setSelectionRange(0, this.value.length);
+				});
+			})
+			.on('blur.mk', 'input', function (e) {
+				thiss._validate(e, this);
+			})
+			.on('click.mk', 'input', function () {
+				var el = this;
+				thiss.delay(function () {
+					el.setSelectionRange(0, this.value.length);
+				});
+			})
+			.on('keydown.mk', 'input', function (e) {
+				thiss._keydownInput(e)
+			});
 
 			this.calendar
 			.on('focus.mk', true, function (e) {
@@ -559,7 +565,7 @@
 				}
 			});
 
-			this.trigger.on('click.mk', function (e) {
+			this.accessbtn.on('click.mk', function (e) {
 				e.preventDefault();
 				thiss.toggle();
 			});
@@ -615,7 +621,7 @@
 				var i = a.index(),
 					r = e.parentNode && e.parentNode[p],
 					n = r && r.childNodes[i],
-					d = this.uidate, x;
+					d = this.date, x;
 
 				if (n) return n;
 
@@ -645,7 +651,7 @@
 
 					var r = e.parentNode && e.parentNode[p],
 						n = r && r.childNodes[b && r.childNodes.length - 1 || 0],
-						d = this.uidate;
+						d = this.date;
 
 					if (n) return n;
 
@@ -695,72 +701,59 @@
 				case k.home:
 				case k.end:
 					if (focused) {
-						this.activate(w === k.home ? 1 : dim(this.uidate));
+						this.activate(w === k.home ? 1 : dim(this.date));
 					}
 					return;
 			}
 		},
-
+        
 		data: function () {
 
 			var c = this.config,
 				f = c.formats,
-                l = f.days.length,
-				d = this.uidate;
+				l = f.days.length,
+				s = this.selection,
+				d = this.date,
+				t = this,
+				i = [],
+				u = this.uid(),
+				v;
+
+				c.format.replace(this.xSearch, function (x, y, z) {
+
+					v = /m/.test(y) && 'month' || /y/.test(y) && 'year' || 'day';
+
+					i.push({
+						name: t.uid(),
+						format: y,
+						value: t.valid(s) ? t.format(y, t.getValue(y, s)) : '',
+						placeholder: y,
+						spacer: z.replace(/\s/g, '&nbsp;'),
+						type: 'text',
+						id: v,
+						labelid: u,
+						describeid: t.uid(),
+						description: t.format(f['label_' + v], {
+							digit: y.length
+						})
+					});
+				});
 
 			return {
+				inputs: i,
+				label: c.label,
+				labelid: u,
+				date: c.fdate ? this.dts(d, c.format) : c.format,
 				weeks: this.buildCalendar(d),
-                inputs: this.map(this.inputs, function (input) {
-                    return this.buildInput(input);
-                }),
-				caption: this.format('caption', {
+				title: this.format('caption', {
 					month: this.format(f.month, gm(d)),
-					year:  this.format(f.year,  gy(d))
+					year: this.format(f.year, gy(d))
 				}),
-                controls: [
-                    {name: 'prev-yr', label: f.prevYr},
-                    {name: 'prev-mo', label: f.prevMo},
-                    {name: 'next-mo', label: f.nextMo},
-                    {name: 'next-yr', label: f.nextYr}
-                ],
 				days: this.map(this.formatmap.days, function (day) {
-					return {
-                        day: day,
-                        label: l < 4 ? day.slice(0, l) : day
-                    };
+					return { day: day, label: l < 4 && day.slice(0, l) || day };
 				})
 			};
 		},
-
-        buildInput: function (input) {
-
-            var i = this.$(input),
-                c = this.config,
-                t = this,
-                p = [],
-                k;
-
-            c.format.replace(this.xSearch, function (str, part, spacer) {
-
-                k = part.slice(0, 1);
-
-                p.push({
-                    key: k,
-                    format: part,
-                    spacer: spacer,
-                    desc: c.formats['label_' + k],
-                    descid: t.uid(),
-                    number: /y/i.test(k),
-                    select: !/y/i.test(k)
-                });
-            });
-
-            return {
-                label: 'Select a Date',
-                labelid: t.uid(),
-                parts: p
-            };
-        },
 
 		buildCalendar: function (date) {
 
@@ -862,7 +855,7 @@
 
 			var a = this.activeDay, d;
 
-			if (num(day)) {
+			if (typeof day === 'number') {
 				d = this.days.filter('[data-value="' + day + '"]');
 			}
 			else {
@@ -871,7 +864,7 @@
 
 			if (d.length && !d.hasClass('active')) {
 
-				sd(this.uidate, parseInt(d.data('value'), 10));
+				sd(this.date, parseInt(d.data('value'), 10));
 
 				a.removeClass('active');
 				d.addClass('active');
@@ -889,7 +882,7 @@
 			if (!day) {
 				d = this.activeDay;
 			}
-			else if (num(day)) {
+			else if (typeof day === 'number') {
 				d = this.days.filter('[data-value="' + day + '"]');
 			}
 			else {
@@ -904,9 +897,9 @@
 
 			day = parseInt(d.data('value'), 10);
 
-			if (day !== gd(this.date)) {
+			if (day !== gd(this.selection)) {
 
-				if (this.setDate(this.uidate) && !silent) {
+				if (this.setDate(this.date) && !silent) {
 					this.emit('change');
 					this.hide();
 					this.entries[0].focus();
@@ -925,7 +918,7 @@
 
 		setDate: function (d) {
 
-			var s = this.date, r;
+			var s = this.selection, r;
 
 			d.setHours(0, 0, 0, 0);
 
@@ -953,9 +946,9 @@
 					i.val(this.format(i.data('format')), v);
 				});
 
-				sa(this.uidate, s);
+				sa(this.date, s);
 
-				this.startinput.val(this.value);
+				this.input.val(this.value);
 				this.refresh();
 			}
 
@@ -1031,7 +1024,7 @@
 
 		refresh: function (refocus) {
 
-			var d = this.adjust(this.uidate, true),
+			var d = this.adjust(this.date, true),
 				c = this.calendar,
 				f = this.config.formats,
 				m = this.html('body', {
@@ -1055,7 +1048,7 @@
 
 		moveMonth: function (up, refocus) {
 
-			var d = this.uidate;
+			var d = this.date;
 
 			sm(d, gm(d) + (up ? -1 : 1));
 			return this.refresh(refocus);
@@ -1063,7 +1056,7 @@
 
 		moveYear: function (up, refocus) {
 
-			var d = this.uidate;
+			var d = this.date;
 
 			sy(d, gy(d) + (up ? -1 : 1));
 			return this.refresh(refocus);
@@ -1071,7 +1064,7 @@
 
 		setValue: function (format, value, date) {
 
-			var d = date || this.uidate, days;
+			var d = date || this.date, days;
 
 			switch (format.slice(0, 1)) {
 
@@ -1111,7 +1104,7 @@
 
 		getValue: function (key, date) {
 
-			var d = date || this.uidate;
+			var d = date || this.date;
 
 			switch (key.slice(0, 1)) {
 
@@ -1263,10 +1256,10 @@
 
 		dts: function (date, format) {
 
-            var v;
-
 			date = date || this.date;
 			format = format || this.config.formats.native;
+
+			var v;
 
 			this.each(format.split(this.xSplit), function (f) {
 				v = this.format(f,  this.getValue(f, date));
@@ -1276,52 +1269,43 @@
 			return format;
 		},
 
-        /*
-			<method:disable>
-				<invoke>.disable()</invoke>
-				<desc>Disable the Datepicker UI.</desc>
-			</method:disable>
-		*/
-
 		disable: function () {
 
 			if (this.enabled) {
 
-				//this.each(this.input, function (el) {
-					//el.prop('disabled', true);
-					//el.addClass('disabled');
-				//});
+				this.each([
+					this.input,
+					this.day,
+					this.month,
+					this.year
+				], function (el) {
+					el.prop('disabled', true);
+					el.addClass('disabled');
+				});
+
 				this.calendar.addClass('disabled');
 			}
 			return this;
 		},
 
-        /*
-			<method:enable>
-				<invoke>.enable()</invoke>
-				<desc>Enable the Datepicker UI.</desc>
-			</method:enable>
-		*/
-
 		enable: function () {
 
 			if (this.disabled) {
 
-				//this.each(this.input, function (el) {
-					//el.prop('disabled', false);
-					//el.removeClass('disabled');
-				//});
+				this.each([
+					this.input,
+					this.day,
+					this.month,
+					this.year
+				], function (el) {
+					el.prop('disabled', false);
+					el.removeClass('disabled');
+				});
+
 				this.calendar.removeClass('disabled');
 			}
 			return this;
 		},
-
-        /*
-			<method:show>
-				<invoke>.show()</invoke>
-				<desc>In 'popup' mode, show the datepicker UI.</desc>
-			</method:show>
-		*/
 
 		show: function () {
 
@@ -1344,13 +1328,6 @@
 			return this;
 		},
 
-        /*
-			<method:hide>
-				<invoke>.hide()</invoke>
-				<desc>In 'popup' mode, hide the datepicker UI.</desc>
-			</method:hide>
-		*/
-
 		hide: function () {
 
 			var c = this.calendar;
@@ -1365,19 +1342,12 @@
 
 				this.transition(c, function () {
 					c.removeClass('out');
-					this.trigger.focus();
+					this.accessbtn.focus();
 				});
 			}
 
 			return this;
 		},
-
-        /*
-			<method:toggle>
-				<invoke>.toggle()</invoke>
-				<desc>In 'popup' mode, toggle between show and hide.</desc>
-			</method:toggle>
-		*/
 
 		toggle: function () {
 
