@@ -216,10 +216,28 @@
 				</div>',
 
             select:
-                '<select aria-labelledby="{{labelid}}" aria-describedby="descid"></select>',
+                '<select \
+                    role="listbox" \
+                    class="{{$key}}-entry" \
+                    data-key="{{key}}"\
+                    data-format="{{format}}"\
+                    aria-labelledby="{{labelid}}" \
+                    aria-describedby="{{descid}}">\
+                    {{loop:options}}\
+                        <option value="{{value}}"{{if:selected}} selected{{/if:selected}}>{{label}}</option>\
+                    {{/loop:options}}\
+                </select>',
 
             number:
-                '<input type="number" aria-labelledby="{{labelid}}" aria-describedby="descid" />',
+                '<input \
+                    class="{{$key}}-entry" \
+                    type="text" \
+                    value="{{value}}" \
+                    placeholder="{{format}}" \
+                    data-key="{{key}}"\
+                    data-format="{{format}}"\
+                    aria-labelledby="{{labelid}}" \
+                    aria-describedby="{{descid}}" />',
 
 			calendar:
 				'<div class="{{$key}}-calendar">\
@@ -272,7 +290,7 @@
 				</td>',
 
 			trigger:
-                '<button class="{{$key}}-trigger" aria-label="{{label}}"></button>'
+                '<button class="{{$key}}-trigger" aria-label="{{label_trigger}}"></button>'
 		},
 
 		/*
@@ -512,6 +530,7 @@
 			if (this.isPopup) {
 				this.calendar.addClass('popup').attr('aria-hidden', 'true');
 			}
+
 			this.adjust(this.uidate, true);
 		},
 
@@ -533,12 +552,37 @@
 		},
 
 		bind: function () {
+            this._bindEntryEvents();
+            this._bindCalendarEvents();
+		},
 
-			var thiss = this,
-				calendarFocused = false,
-				entry = this.selector('entry');
+        _bindEntryEvents: function () {
 
-			this.calendar
+            var thiss = this,
+                entry = this.selector('entry');
+
+            this.shadow
+            .on('change.mk', 'select' + entry, function (e) {
+                thiss._validate(this);
+            })
+            .on('mousedown.mk', 'select' + entry, function (e) {
+                e.preventDefault();
+                this.focus();
+            })
+            .on('keydown.mk', entry, function (e) {
+                thiss._keydown(e);
+            })
+            .on('focus.mk', 'input' + entry, function (e) {
+                this.setSelectionRange(0, this.value.length);
+            });
+        },
+
+        _bindCalendarEvents: function () {
+
+            var thiss = this,
+				calendarFocused = false;
+
+            this.calendar
 			.on('focus.mk', true, function (e) {
 				calendarFocused = thiss.$(e.target).is(
 					thiss.selector('body'));
@@ -559,11 +603,78 @@
 				}
 			});
 
-			this.trigger.on('click.mk', function (e) {
+            this.trigger.on('click.mk', function (e) {
 				e.preventDefault();
 				thiss.toggle();
 			});
-		},
+        },
+
+        _keydown: function (e) {
+
+            var w = e.which,
+                c = String.fromCharCode(w),
+                k = this.keycode,
+                i = e.target;
+
+            if (i.tagName === 'SELECT') {
+                if (w === k.space || w === k.enter) {
+                    e.preventDefault();
+                }
+                return;
+            }
+
+            if (w === k.left || w === k.right) {
+                e.preventDefault();
+            }
+
+            else if (w === k.up || w === k.down) {
+                e.preventDefault();
+                this._moveEntry(i, w === k.up);
+            }
+
+            else if (/\w/.test(c)) {
+                this._validate(i, i.value + c);
+            }
+        },
+
+        _validate: function (entry, value) {
+
+            value = value || parseInt(entry.value, 10);
+
+            var input = this.$(entry),
+                parent = input.parent(this.selector('input')),
+                key = input.data('key');
+
+            // months
+            // if a month changes, check the available days in that month.
+            // if the days are less than a previously selected date, reset the date entry
+            // to the max days in that month (ie: 31 days are selected and the user chooses Feb (only 28 days)).
+
+            if (key === 'm') {
+
+                var date = dt(),
+                    dateinput = parent.find('[data-key="d"]'),
+                    datevalue = parseInt(dateinput.val(), 10),
+                    days;
+
+                sd(date, 1);
+                sm(date, parseFloat(value, 10));
+                days = dim(date);
+
+                if (datevalue > days) {
+                    dateinput.val(days);
+                }
+
+                this.each(dateinput.find('option'), function (el, i) {
+
+                    if (i + 1 <= days) {
+                        el.disabled = false;
+                        return;
+                    }
+                    el.disabled = true;
+                });
+            }
+        },
 
 		_click: function (e) {
 
@@ -599,7 +710,7 @@
 
 				n = this.$(n);
 
-				if (n.hasClass('unselectable') || n.hasClass('disabled')) {
+				if (!n.hasClass('selectable') || n.hasClass('disabled')) {
 					return this._move(n, b, f);
 				}
 				this.activate(n);
@@ -607,6 +718,40 @@
 
 			return this;
 		},
+
+        _moveEntry: function (entry, up) {
+
+            var i = this.$(entry),
+                k = i.data('key'),
+                v = i.val();
+
+            // right now years are the only input entry.
+            // days and months are select menus so no need to validate or
+            // move entries, the browser does it on it's own.
+
+            if (k === 'y') {
+
+                v = parseInt(v, 10);
+                v = v + (up ? 1 : -1);
+
+                if (this.max && gy(this.max) < v) {
+                    v = gy(this.max);
+                }
+                else if (this.min && gy(this.min) > v) {
+                    v = gy(this.min);
+                }
+                else if (v < 0) {
+                    v = 0;
+                }
+
+                i.val(v);
+            }
+
+            //set the selection range which highlights the
+            // entire grouping of text for easy altering.
+            entry.setSelectionRange(
+                0, entry.value.length);
+        },
 
 		_moveY: function (a, b) {
 
@@ -701,6 +846,15 @@
 			}
 		},
 
+        input: function (index) {
+            return this.$(this.inputs[index]);
+        },
+
+        entries: function (index) {
+            return this.input(index).find(
+                this.selector('entry'));
+        },
+
 		data: function () {
 
 			var c = this.config,
@@ -738,28 +892,70 @@
                 c = this.config,
                 t = this,
                 p = [],
-                k;
+                r = {
+                    label: i.attr('aria-label'),
+                    labelid: t.uid(),
+                    label_trigger: c.formats.label_trigger
+                },
+                k,
+                x;
 
             c.format.replace(this.xSearch, function (str, part, spacer) {
 
-                k = part.slice(0, 1);
+                if (part === 'ddd' || part === 'dddd') {
+                    p.push({
+                        spacer: part + spacer
+                    });
+                }
+                else {
 
-                p.push({
-                    key: k,
-                    format: part,
-                    spacer: spacer,
-                    desc: c.formats['label_' + k],
-                    descid: t.uid(),
-                    number: /y/i.test(k),
-                    select: !/y/i.test(k)
-                });
+                    k = part.slice(0, 1);
+                    x = /y/i.test(k);
+
+                    p.push({
+                        key: k,
+                        format: part,
+                        spacer: spacer,
+                        desc: c.formats['label_' + k],
+                        descid: t.uid(),
+                        labelid: r.labelid,
+                        number:  x,
+                        select: !x,
+                        options: t.buildEntry(k, part),
+                        value: x ? gy(t.date) : null
+                    });
+                }
             });
 
-            return {
-                label: 'Select a Date',
-                labelid: t.uid(),
-                parts: p
-            };
+            r.parts = p;
+
+            return r;
+        },
+
+        buildEntry: function (key, format) {
+
+            var l = format.length, a = [];
+
+            if (key === 'd') {
+                this.each(new Array(31), function (u, i) {
+                    a.push({
+                        selected: i + 1 === gd(this.date),
+                        label: this.format(format, i + 1),
+                        value: i + 1
+                    })
+                });
+            }
+            else if (key === 'm') {
+                a = this.map(this.formatmap.months, function (m, i) {
+                    return {
+                        selected: i === gm(this.date),
+                        label: this.format(format, i),
+                        value: i
+                    };
+                });
+            }
+
+            return a;
         },
 
 		buildCalendar: function (date) {
@@ -909,10 +1105,8 @@
 				if (this.setDate(this.uidate) && !silent) {
 					this.emit('change');
 					this.hide();
-					this.entries[0].focus();
 				}
 			}
-
 			return this;
 		},
 
@@ -943,20 +1137,7 @@
 
 			if (r) {
 
-				this.each(this.entries, function (f) {
-
-					var i = this.$(f),
-						k = i.data('key'),
-						v = s[this.methodmap.getter[k]]();
-
-					s[this.methodmap.setter[k]](v);
-					i.val(this.format(i.data('format')), v);
-				});
-
-				sa(this.uidate, s);
-
-				this.startinput.val(this.value);
-				this.refresh();
+                //TODO
 			}
 
 			return r;

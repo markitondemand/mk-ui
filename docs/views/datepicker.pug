@@ -11,11 +11,11 @@ html
 			div
 				form
 					fieldset.mk-dp-root
-						input(type="date", class="mk-dp", min="2016-12-4", max="2017-12-25")
+						input(type="date", class="mk-dp", min="2016-12-4", max="2017-12-25" aria-label="Start Date")
 
 			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/src/js/datepicker.new.js")
+		script(type="text/javascript", src="/src/js/datepicker.js")
 		script.
 
 			Mk.transitions.enable();
@@ -32,7 +32,7 @@ html
 
 				datepicker = new Datepicker(example, {
 					label: 'Choose a Start Date',
-					format: 'mm dd, yyyy',
+					format: 'mm/dd/yyyy',
 					rollover: false,
 					popup: true
 				});

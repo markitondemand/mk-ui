@@ -35,31 +35,47 @@
 }
 
 .mk-dp-entry {
+	-webkit-appearance: none;
+    -moz-appearance: none;
 	font-size: 14px;
 	line-height: 14px;
 	margin: 0;
 	padding: 0;
 	border-width: 0;
 	text-align: right;
-	width: 20px;
+	width: 15px;
+    text-indent: 0;
 }
 
-.mk-dp-entry.day[data-format="d"],
-.mk-dp-entry.day[data-format="m"] {
+.mk-dp-entry option {
+	background: white;
+}
+
+.mk-dp-entry:focus {
+	background: lightblue;
+}
+
+.mk-dp-entry::-webkit-inner-spin-button,
+.mk-dp-entry::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.mk-dp-entry[data-format="d"],
+.mk-dp-entry[data-format="m"] {
 	width: 12px;
 }
 
-.mk-dp-entry.year[data-format="yy"],
-.mk-dp-entry.year[data-format="yyyy"] {
+.mk-dp-entry[data-format="yyyy"] {
 	text-align: left;
 }
 
-.mk-dp-entry.year[data-format="yyyy"],
-.mk-dp-entry.month[data-format="mmm"] {
+.mk-dp-entry[data-format="yyyy"],
+.mk-dp-entry[data-format="mmm"] {
 	width: 42px;
 }
 
-.mk-dp-entry.year[data-format="mmmm"] {
+.mk-dp-entry[data-format="mmmm"] {
 	width: 70px;
 }
 

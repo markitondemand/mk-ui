@@ -111,6 +111,8 @@
 
 		_date: null,
 		_selection: null,
+		_start: null,
+		_end: null,
 
 		name: 'mk-dp',
 
@@ -167,19 +169,6 @@
 			]
 		},
 
-		methodmap: {
-			getter: {
-				year: 'getFullYear',
-				month: 'getMonth',
-				day: 'getDate'
-			},
-			setter: {
-				year: 'setFullYear',
-				month: 'setMonth',
-				day: 'setDate'
-			}
-		},
-
 		formats: {
 			native: 'yyyy-mm-dd',
 			date: 'mm/dd/yyyy',
@@ -191,11 +180,13 @@
 			prevMo: 'Go to previous month',
 			prevYr: 'Go to previous year',
 			caption: '{{month}} {{year}}',
-			label: 'Choose a date',
 			label_calendar: '{{month}} {{day}} {{year}}',
 			label_day: 'Enter a {{digit}} character day',
 			label_month: 'Enter a {{digit}} character month',
-			label_year: 'Enter a {{digit}} character year'
+			label_year: 'Enter a {{digit}} character year',
+			label_start: 'Choose a start date',
+			label_end: 'Choose an end date',
+			label: 'Choose a date'
 		},
 
 		templates: {
@@ -309,13 +300,63 @@
 		},
 
 		/*
+			<property:start>
+				<desc>When using a start and end date picker, this is the selected start date.</desc>
+			</property:start>
+		*/
+
+		get start () {
+
+			if (this.multiple) {
+				return this._start;
+			}
+
+			return this.selection;
+		},
+
+		set start (value) {
+
+			if (this.multiple) {
+				this._start = this.adjust(value);
+			}
+			else {
+				this.selection = value;
+			}
+		},
+
+		/*
+			<property:end>
+				<desc>When using a start and end date picker, this is the selected end date.</desc>
+			</property:end>
+		*/
+
+		get end () {
+
+			if (this.multiple) {
+				return this._end;
+			}
+
+			return this.selection;
+		},
+
+		set end (value) {
+
+			if (this.multiple) {
+				this._end = this.adjust(value);
+			}
+			else {
+				this.selection = value;
+			}
+		},
+
+		/*
 			<property:disabled>
 				<desc>Is the datepicker disabled.</desc>
 			</property:disabled>
 		*/
 
 		get disabled () {
-			return this.input.prop('disabled');
+			return this.rootinput.prop('disabled');
 		},
 
 		/*
@@ -349,16 +390,6 @@
 		},
 
 		/*
-			<property:isOpen>
-				<desc>Is the datepicker calendar UI visible.</desc>
-			</property:isOpen>
-		*/
-
-		get isPopup () {
-			return this.config.popup;
-		},
-
-		/*
 			<property:value>
 				<desc>The currently selected date in native string format (yyyy-mm-dd).</desc>
 			</property:value>
@@ -369,13 +400,33 @@
 		},
 
 		/*
-			<property:input>
+			<property:range>
+				<desc>Array (start and end) of selected date ranges in native string format (yyyy-mm-dd).</desc>
+			</property:range>
+		*/
+
+		get range () {
+			return [];
+		},
+
+		/*
+			<property:rootinput>
 				<desc>The input element you provided inside the root datepicker node.</desc>
+			</property:rootinput>
+		*/
+
+		get rootinput () {
+			return this.node('');
+		},
+
+		/*
+			<property:input>
+				<desc>The input base element containing the different date inputs.</desc>
 			</property:input>
 		*/
 
 		get input () {
-			return this.node('');
+			return this.node('input', this.shadow);
 		},
 
 		/*
@@ -385,7 +436,47 @@
 		*/
 
 		get entries () {
-			return this.node('entry', this.shadow);
+			return this.node('entry', this.input);
+		},
+
+		/*
+			<property:multiple>
+				<desc>Does the datepicker have a multiple range (ie: to and from dates).</desc>
+			</property:multiple>
+		*/
+
+		get multiple () {
+			return this.input.length > 1;
+		},
+
+		/*
+			<property:month>
+				<desc>Shadow input for month.</desc>
+			</property:month>
+		*/
+
+		get month () {
+			return this.node('entry.month', this.shadow);
+		},
+
+		/*
+			<property:day>
+				<desc>Shadow input for day.</desc>
+			</property:day>
+		*/
+
+		get day () {
+			return this.node('entry.day', this.shadow);
+		},
+
+		/*
+			<property:year>
+				<desc>Shadow input for year.</desc>
+			</property:year>
+		*/
+
+		get year () {
+			return this.node('entry.year', this.shadow);
 		},
 
 		/*
@@ -464,9 +555,7 @@
 
 			o = o || {};
 
-			var root = this.root,
-				input = this.input,
-				formats = this.formats;
+			var input = this.rootinput;
 
 			// get the initial date we're working with
 			o.fdate = input.val();
@@ -482,10 +571,9 @@
 			this.date = this.adjust(o.fdate && this.std(o.fdate) || dt());
 			this.selection = this.adjust(o.fdate && this.std(o.fdate) || dt());
 
-			this.param('format', 'string', o, formats.date, root)
-				.param('rollover', 'boolean', o, true, root)
-				.param('label', 'string', o, formats.label, root)
-				.param('popup', 'boolean', o, true, root);
+			this.param('format', 'string', o, this.formats.date, input)
+				.param('rollover', 'boolean', o, true, input)
+				.param('label', 'string', o, this.formats.label, input);
 
 			this.super(o);
 		},
@@ -493,10 +581,8 @@
 		build: function () {
 
 			this.shadow = this.html('shadow', this.data());
+			this.calendar.attr('aria-hidden', 'true');
 
-			if (this.isPopup) {
-				this.calendar.addClass('popup').attr('aria-hidden', 'true');
-			}
 			this.adjust(this.date, true);
 		},
 
@@ -509,12 +595,12 @@
 			this.shadow.remove();
 
 			this.selection =
+			this.daterange =
 			this.config =
 			this.shadow =
+			this.range =
 			this.date =
-			this.root =
-			this.min =
-			this.max = null;
+			this.root = null;
 		},
 
 		bind: function () {
@@ -523,10 +609,10 @@
 				calendarFocused = false,
 				entry = this.selector('entry');
 
-			this.node('input', this.shadow).on('focus.mk', 'input', function (e) {
+			this.input
+			.on('focus.mk', 'input', function (e) {
 
 				var el = this;
-
 				thiss.delay(function () {
 					el.setSelectionRange(0, this.value.length);
 				});
@@ -681,6 +767,7 @@
 				case 'm':
 				case 'dd':
 				case 'mm':
+				case 'yy':
 					l = 2; break;
 
 				case 'mmm':
@@ -765,8 +852,7 @@
 				//reflect changes to UI
 
 				if (this.valid(this.selection)) {
-					this.input.val(this.value);
-					this.emit('change');
+					this.emit('change', this.value);
 				}
 			}
 		},
@@ -836,7 +922,7 @@
 					return focused && this._moveX(a, w === k.left);
 
 				case k.esc:
-					return this.hide();
+					return console.info('hide calendar');
 
 				case k.pageup:
 				case k.pagedown:
@@ -851,7 +937,7 @@
 					if (focused) {
 						this.activate(w === k.home ? 1 : dim(this.date));
 					}
-					return;
+					break;
 			}
 		},
 
@@ -1071,7 +1157,7 @@
 				d = this.days.filter('[data-value="' + day + '"]');
 			}
 			else {
-				d = this.$(day, this.calendar);
+				d = this.$(day);
 			}
 
 			if (d.hasClass('disabled')) {
@@ -1086,8 +1172,6 @@
 
 				if (this.setDate(this.date) && !silent) {
 					this.emit('change');
-					this.hide();
-					this.entries[0].focus();
 				}
 			}
 
@@ -1103,7 +1187,7 @@
 
 		setDate: function (d) {
 
-			var s = this.selection, r;
+			var s = this.selection, m, v, r;
 
 			d.setHours(0, 0, 0, 0);
 
@@ -1114,26 +1198,27 @@
 				sa(s, this.max);
 			}
 			else {
-				sa(s, d);
+
+				this.each([this.year, this.month, this.day], function (f, i) {
+
+					m = !i && 'FullYear'
+						|| i < 2 && 'Month'
+						|| i < 3 && 'Date';
+
+					v = d['get' + m]();
+					s['set' + m](v);
+
+					f.val(this.format(f.data('format')), v);
+				});
 			}
 
 			r = this.valid(s);
 
 			if (r) {
 
-				this.each(this.entries, function (f) {
-
-					var i = this.$(f),
-						k = i.data('key'),
-						v = s[this.methodmap.getter[k]]();
-
-					s[this.methodmap.setter[k]](v);
-					i.val(this.format(i.data('format')), v);
-				});
-
 				sa(this.date, s);
 
-				this.input.val(this.value);
+				this.rootinput.val(this.dts(s));
 				this.refresh();
 			}
 
@@ -1374,6 +1459,7 @@
 				case 'd':
 				case 'mm':
 				case 'dd':
+				case 'yy':
 				case 'yyyy':
 					return parseInt(value, 10);
 
@@ -1459,7 +1545,7 @@
 			if (this.enabled) {
 
 				this.each([
-					this.input,
+					this.rootinput,
 					this.day,
 					this.month,
 					this.year
@@ -1470,7 +1556,6 @@
 
 				this.calendar.addClass('disabled');
 			}
-			return this;
 		},
 
 		enable: function () {
@@ -1478,7 +1563,7 @@
 			if (this.disabled) {
 
 				this.each([
-					this.input,
+					this.rootinput,
 					this.day,
 					this.month,
 					this.year
@@ -1489,49 +1574,20 @@
 
 				this.calendar.removeClass('disabled');
 			}
-			return this;
 		},
 
 		show: function () {
 
-			var c = this.calendar;
-
-			if (this.isPopup && this.enabled && this.isHidden) {
-
-				this.delay(function () {
-
-					c.addClass('in').attr('aria-hidden', 'false');
-					this.emit('show');
-				});
-
-				this.transition(c, function () {
-					c.removeClass('in');
-					this.node('body', c).focus();
-				});
+			if (this.enabled && this.isHidden) {
+				this.calendar.attr('aria-hidden', 'false');
 			}
-
-			return this;
 		},
 
 		hide: function () {
 
-			var c = this.calendar;
-
-			if (this.isPopup && this.isOpen) {
-
-				this.delay(function () {
-
-					c.addClass('out').attr('aria-hidden', 'true');
-					this.emit('hide');
-				});
-
-				this.transition(c, function () {
-					c.removeClass('out');
-					this.accessbtn.focus();
-				});
+			if (this.isOpen) {
+				this.calendar.attr('aria-hidden', 'true');
 			}
-
-			return this;
 		},
 
 		toggle: function () {
