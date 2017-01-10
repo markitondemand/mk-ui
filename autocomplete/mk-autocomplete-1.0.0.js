@@ -461,7 +461,7 @@
 
 				e.preventDefault();
 
-				if (this.$container.hasClass('disabled')) {
+				if (!this.$container.hasClass('disabled')) {
 
 					var data = {name: '', value: this.$input.val()};
 
