@@ -556,6 +556,17 @@
 
             var thiss = this,
                 entry = this.selector('entry');
+
+            this.node('input', this.shadow)
+            .on('mousedown.mk', entry, function (e) {
+                thiss._disableDropdown(e, this);
+            })
+            .on('focus.mk', entry, function (e) {
+                thiss._focusEntry(e, this);
+            })
+            .on('keydown.mk', entry, function (e) {
+                thiss._keydownEntry(e, this);
+            });
         },
 
         _bindCalendarEvents: function () {
@@ -598,6 +609,72 @@
 			.on('mouseenter', this.selector('day'), function (e) {
                 thiss._activate(this);
 			});
+        },
+
+        _disableDropdown: function (e, entry) {
+
+            if (entry.tagName === 'SELECT') {
+                e.preventDefault();
+                entry.focus();
+            }
+        },
+
+        _focusEntry: function (e, entry) {
+
+            if (entry.tagName === 'INPUT') {
+                entry.setSelectionRange(0, entry.value.length);
+            }
+        },
+
+        _keydownEntry: function (e, entry) {
+
+            var k = this.keycode,
+                w = e.which,
+                c = String.fromCharCode(w);
+
+            if (entry.tagName === 'SELECT') {
+
+                if (w === k.space || w === k.enter) {
+                    e.preventDefault();
+                }
+                return;
+            }
+
+            if (w === k.left || w === k.right) {
+                e.preventDefault();
+                return;
+            }
+
+            if (w === k.up || w === k.down) {
+                return this._moveEntry(entry, w === k.up);
+            }
+
+            if (/\w/.test(c)) {
+
+                e.preventDefault();
+
+                if (/\d/.test(c)) {
+                    return this._validateEntry(e, entry, c);
+                }
+            }
+        },
+
+        _moveEntry: function (entry, up) {
+
+
+        },
+
+        _validateEntry: function (e, entry, char) {
+
+            var input = this.$(entry),
+                point = entry.selectionEnd,
+                value = entry.value,
+                full  = value.slice(0, point) + char + value.slice(point, value.length);
+
+            if (input.data('key') === 'y' && full.length > 4) {
+                input.val(full.slice(-4));
+                entry.setSelectionRange(0, 4);
+            }
         },
 
         _activate: function (day) {
@@ -1335,6 +1412,21 @@
 			}
 		},
 
+        /*
+			<method:unformat>
+				<invoke>.format(format, value)</invoke>
+				<param:format>
+					<type>String</type>
+					<desc>Part of a date format.</desc>
+				</param:format>
+				<param:value>
+					<type>String</type>
+					<desc>String representing the value to be formatted (ie: January).</desc>
+				</param:value>
+				<desc>Takes a piece of a date format (ie: mm, yyyy, etc.) and converts the value to a raw representation.</desc>
+			</method:unformat>
+		*/
+
 		unformat: function (format, value) {
 
 			var me = this,
@@ -1498,8 +1590,12 @@
 
         /*
 			<method:hide>
-				<invoke>.hide()</invoke>
+				<invoke>.hide([refocus])</invoke>
 				<desc>In 'popup' mode, hide the datepicker UI.</desc>
+                <param:refocus>
+                    <type>Boolean</type>
+                    <desc>Pass as true to refocus tabbing to the trigger button.</desc>
+                </param:refocus>
 			</method:hide>
 		*/
 
@@ -1531,7 +1627,7 @@
 
         /*
 			<method:toggle>
-				<invoke>.toggle()</invoke>
+				<invoke>.toggle([refocus])</invoke>
 				<desc>In 'popup' mode, toggle between show and hide.</desc>
                 <param:refocus>
                     <type>Boolean</type>
@@ -1548,7 +1644,20 @@
 			return this.hide(refocus);
 		},
 
+        /*
+			<method:isHoliday>
+				<invoke>.isHoliday([date])</invoke>
+				<desc>Check if a date is a holiday.</desc>
+                <param:date>
+                    <type>String/Date</type>
+                    <desc>Pass in a Date object, string, or nothing (defaults to this.date) to check if the date is a holiday. Holidays are provided by the end developer.</desc>
+                </param:date>
+			</method:isHoliday>
+		*/
+
         isHoliday: function (date) {
+
+            date = date || this.date;
 
             var d = typeof date === 'string' ? this.std(date) : date;
                 d.setHours(0, 0, 0, 0);
@@ -1556,7 +1665,20 @@
             return this._isMatch(this.config.holidays, d);
         },
 
+        /*
+			<method:isBlackout>
+				<invoke>.isBlackout([date])</invoke>
+				<desc>Check if a date is a blackout date.</desc>
+                <param:date>
+                    <type>String/Date</type>
+                    <desc>Pass in a Date object, string, or nothing (defaults to this.date) to check if the date is a blackout date. Blackout dates are provided by the end developer.</desc>
+                </param:date>
+			</method:isBlackout>
+		*/
+
         isBlackout: function (date) {
+
+            date = date || this.date;
 
             var d = typeof date === 'string' ? this.std(date) : date;
                 d.setHours(0, 0, 0, 0);
@@ -1564,7 +1686,20 @@
             return this._isMatch(this.config.blackouts, d);
         },
 
+        /*
+			<method:isUnavailable>
+				<invoke>.isUnavailable([date])</invoke>
+				<desc>Check if a date is a blackout or outside the min/max limit.</desc>
+                <param:date>
+                    <type>String/Date</type>
+                    <desc>Pass in a Date object, string, or nothing (defaults to this.date) to check if the date is a blackout or past the min/max limit. Blackout dates are provided by the end developer.</desc>
+                </param:date>
+			</method:isUnavailable>
+		*/
+
         isUnavailable: function (date) {
+
+            date = date || this.date;
 
             var d = typeof date === 'string' ? this.std(date) : date;
                 d.setHours(0, 0, 0, 0);
