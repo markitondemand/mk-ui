@@ -566,6 +566,9 @@
             })
             .on('keydown.mk', entry, function (e) {
                 thiss._keydownEntry(e, this);
+            })
+            .on('blur.mk', entry, function (e) {
+                thiss._applyEntry(e, this);
             });
         },
 
@@ -626,6 +629,10 @@
             }
         },
 
+        _applyEntry: function (e, entry) {
+
+        },
+
         _keydownEntry: function (e, entry) {
 
             var k = this.keycode,
@@ -646,6 +653,7 @@
             }
 
             if (w === k.up || w === k.down) {
+                e.preventDefault();
                 return this._moveEntry(entry, w === k.up);
             }
 
@@ -661,7 +669,24 @@
 
         _moveEntry: function (entry, up) {
 
+            var input = this.$(entry),
+                value = entry.value;
 
+            if (input.data('key') === 'y') {
+
+                value = parseInt(value, 10);
+                value = value + (up? 1 : -1);
+
+                if (this.max && gy(this.max) < value) {
+                    value = gy(this.max);
+                }
+                else if (this.min && gy(this.min) > value) {
+                    value = gy(this.min);
+                }
+
+                entry.value = value;
+                entry.setSelectionRange(0, 4);
+            }
         },
 
         _validateEntry: function (e, entry, char) {
@@ -672,7 +697,7 @@
                 full  = value.slice(0, point) + char + value.slice(point, value.length);
 
             if (input.data('key') === 'y' && full.length > 4) {
-                input.val(full.slice(-4));
+                entry.value = full.slice(-4);
                 entry.setSelectionRange(0, 4);
             }
         },
