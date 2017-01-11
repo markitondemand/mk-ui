@@ -184,6 +184,14 @@
 
         blackouts: [],
 
+        /*
+			<property:special>
+				<desc>Array of date strings (in native format) or date objects which will run though a date matcher and apply a class name to the date UI day(s) in question. Change prototype property to apply globally or through config for each instance.</desc>
+			</property:special>
+		*/
+
+        special: {},
+
 		formats: {
 			native: 'yyyy-mm-dd',
 			date: 'mm/dd/yyyy',
@@ -510,7 +518,8 @@
 				.param('label', 'string', o, formats.label, root)
 				.param('popup', 'boolean', o, true, root)
                 .param('holidays', 'object', o, this.holidays)
-                .param('unavailables', 'object', o, this.booked);
+                .param('unavailables', 'object', o, this.blackouts)
+                .param('special', 'object', o, this.special);
 
 			this.super(o);
 		},
@@ -878,7 +887,13 @@
 
         _isMatch: function (dates, date) {
 
-            var r = false, x;
+            date = date || this.date;
+
+            var d = typeof date === 'string' ? this.std(date) : date,
+                r = false,
+                x;
+
+            d.setHours(0, 0, 0, 0);
 
             this.each(dates, function (d) {
 
@@ -1681,13 +1696,7 @@
 		*/
 
         isHoliday: function (date) {
-
-            date = date || this.date;
-
-            var d = typeof date === 'string' ? this.std(date) : date;
-                d.setHours(0, 0, 0, 0);
-
-            return this._isMatch(this.config.holidays, d);
+            return this._isMatch(this.config.holidays, date);
         },
 
         /*
@@ -1702,13 +1711,26 @@
 		*/
 
         isBlackout: function (date) {
+            return this._isMatch(this.config.blackouts, date);
+        },
 
-            date = date || this.date;
+        /*
+			<method:isSpecial>
+				<invoke>.isSpecial(key[, date])</invoke>
+				<desc>Check if a date is a special date.</desc>
+                <param:key>
+                    <type>String</type>
+                    <desc>A string representing an object key in the special day object. Special days can be provided by overriding the prototype for special (globally) or passing in via the config object (instance).</desc>
+                </param:date>
+                <param:date>
+                    <type>String/Date</type>
+                    <desc>Pass in a Date object, string, or nothing (defaults to this.date) to check if the date is a blackout date. Blackout dates are provided by the end developer.</desc>
+                </param:date>
+			</method:isSpecial>
+		*/
 
-            var d = typeof date === 'string' ? this.std(date) : date;
-                d.setHours(0, 0, 0, 0);
-
-            return this._isMatch(this.config.blackouts, d);
+        isSpecial: function (key, date) {
+            return this._isMatch(this.config.special[key] || [], date);
         },
 
         /*
