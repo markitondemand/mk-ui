@@ -638,7 +638,7 @@
 
 			this._loading(true);
 
-			if (this.cache[this.query.toUpperCase()]) {
+			if (this.cache[this.query.toUpperCase()] && !this.options.preventCaching) {
 				this.render(this.cache[this.query.toUpperCase()]);
 				return;
 			}
@@ -660,7 +660,7 @@
 
 			if (this.options.remote) {
 
-				var params = {};
+				var params = this.options.params || {};
 					params[this.options.key] = this.query;
 
 				$.ajax({
