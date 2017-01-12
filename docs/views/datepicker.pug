@@ -12,10 +12,11 @@ html
 				form
 					fieldset.mk-dp-root
 						input(type="date", class="mk-dp", min="2016-12-4", max="2017-12-25" aria-label="Start Date")
+						input(type="date", class="mk-dp" aria-label="End Date")
 
 			include ./shared/api
 		include ./shared/scripts
-		script(type="text/javascript", src="/src/js/datepicker.new.js")
+		script(type="text/javascript", src="/src/js/datepicker.js")
 		script.
 
 			Mk.transitions.enable();
@@ -26,18 +27,19 @@ html
 
 			examples.each(function (example) {
 
-				Mk.$(example).find('input').on('change', function () {
-					console.info(this.value)
-				})
-
 				datepicker = new Datepicker(example, {
 					label: 'Choose a Start Date',
 					format: 'mm/dd/yyyy',
-					rollover: true,
-					popup: true,
+					rollover: false,
+					popup: false,
 					blackouts: [
 						'2017-1-12'
-					]
+					],
+					special: {
+						booked: [
+							'2017-1-10'
+						]
+					}
 				});
 
 				datepicker.on('change', function () {

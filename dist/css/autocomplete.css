@@ -99,7 +99,7 @@
 
 .mk-ac-shadow.loading .mk-ac-list:after {
   animation: mk-ac-loader 1s infinite linear;
-  border: 0.25rem double #ccc;
+  border: 0.25rem double #aaa;
   border-top-color: #333;
   border-radius: 50%;
   content: "";
@@ -135,7 +135,7 @@
 .mk-ac-option:active,
 .mk-ac-option:focus {
   background: transparent;
-  color: #ccc;
+  color: #aaa;
   text-decoration: none; }
 
 .mk-ac-shadow.transitions .mk-ac-option {
@@ -164,7 +164,7 @@
 
 .mk-ac-tags {
   margin: 0.8rem 0;
-  border: 1px solid #ccc;
+  border: 1px solid #aaa;
   min-height: 5rem;
   padding: 0 0.8rem 0.8rem;
   position: relative; }
@@ -183,7 +183,7 @@
 
 .mk-ac-tag {
   background: #eee;
-  border: 1px solid #ccc;
+  border: 1px solid #aaa;
   list-style: none;
   display: inline-block;
   padding: 0.5rem 0.5rem 0.5rem 0;

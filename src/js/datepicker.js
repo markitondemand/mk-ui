@@ -32,10 +32,9 @@
 
 })(typeof window !== 'undefined' && window || this, function (root, mk) {
 
-	//
-	// below are a bunch of helper classes to help unbloat some of the code.
-	// date code is very verbose and personally, i think it's ugly.
-	//
+    function num (v) {
+        return typeof v === 'number';
+    }
 
 	function dt () {
 
@@ -44,6 +43,14 @@
 
 		return d;
 	}
+
+    function garbage () {
+        var d = new Date('garbage');
+        d.setHours(0, 0, 0, 0);
+        d.setDate(1);
+
+        return d;
+    }
 
 	function gd (d) {
 		return d.getDate();
@@ -58,15 +65,15 @@
 	}
 
 	function sd (d, v) {
-		d.setDate(typeof v === 'number' ? v : v.getDate());
+		d.setDate(num(v) ? v : v.getDate());
 	}
 
 	function sm (d, v) {
-		d.setMonth(typeof v === 'number' ? v : v.getMonth());
+		d.setMonth(num(v) ? v : v.getMonth());
 	}
 
 	function sy (d, v) {
-		d.setFullYear(typeof v === 'number' ? v : v.getFullYear());
+		d.setFullYear(num(v) ? v : v.getFullYear());
 	}
 
 	function sa (d, v) {
@@ -83,36 +90,40 @@
 
 	function dilm (d) {
 
-		var _d = new Date();
+		var _d = dt();
 
 			_d.setDate(1);
-			_d.setMonth(d.getMonth() - 1);
-			_d.setFullYear(d.getFullYear());
+			_d.setMonth(gm(d) - 1);
+			_d.setFullYear(gy(d));
 
 		return dim(_d);
 	}
 
 	 function dinm (d) {
 
-		var _d = new Date();
+		var _d = dt();
 
 			_d.setDate(1);
-			_d.setMonth(d.getMonth() + 1);
-			_d.setFullYear(d.getFullYear());
+			_d.setMonth(gm(d) + 1);
+			_d.setFullYear(gy(d));
 
 		return dim(_d);
 	}
 
 	function sdim (d) {
-		return new Date(d.getFullYear(), d.getMonth(), 1).getDay();
+		return new Date(gy(d), gm(d), 1).getDay();
 	}
 
 	mk.create('Datepicker', {
 
 		_date: null,
-		_selection: null,
-		_start: null,
-		_end: null,
+        _enddate: null,
+		_uidate: null,
+        _clicks: 0,
+
+        xSplit: /\/|-|,\s|\s/,
+
+		xSearch: /(^|\w+)(\/|-|,\s|\s|$)/g,
 
 		name: 'mk-dp',
 
@@ -131,10 +142,6 @@
 		*/
 
 		max: null,
-
-		xSplit: /\/|-|,\s|\s/,
-
-		xSearch: /(^|\w+)(\/|-|,\s|\s|$)/g,
 
 		/*
 			<property:MIN>
@@ -159,15 +166,41 @@
 		*/
 
 		formatmap: {
+
 			months: [
 				'january', 'february', 'march', 'april', 'may', 'june', 'july',
 				'august', 'september', 'october', 'november', 'december'
 			],
+
 			days: [
 				'sunday', 'monday', 'tuesday',
 				'wednesday', 'thursday', 'friday', 'saturday'
 			]
 		},
+
+        /*
+			<property:holidays>
+				<desc>Array of date strings (in native format) or date objects which will provide a holiday identifier to the calendar ui. Default is empty array. Change prototype property to apply globally or through config for each instance.</desc>
+			</property:holidays>
+		*/
+
+        holidays: [],
+
+        /*
+			<property:blackouts>
+				<desc>Array of date strings (in native format) or date objects which will disable selection abilities. Default is empty array. Change prototype property to apply globally or through config for each instance.</desc>
+			</property:blackouts>
+		*/
+
+        blackouts: [],
+
+        /*
+			<property:special>
+				<desc>Array of date strings (in native format) or date objects which will run though a date matcher and apply a class name to the date UI day(s) in question. Change prototype property to apply globally or through config for each instance.</desc>
+			</property:special>
+		*/
+
+        special: {},
 
 		formats: {
 			native: 'yyyy-mm-dd',
@@ -180,40 +213,69 @@
 			prevMo: 'Go to previous month',
 			prevYr: 'Go to previous year',
 			caption: '{{month}} {{year}}',
-			label_calendar: '{{month}} {{day}} {{year}}',
-			label_day: 'Enter a {{digit}} character day',
-			label_month: 'Enter a {{digit}} character month',
-			label_year: 'Enter a {{digit}} character year',
-			label_start: 'Choose a start date',
-			label_end: 'Choose an end date',
-			label: 'Choose a date'
+			label: 'Choose a Date',
+			label_d: 'Select Day',
+			label_m: 'Select Month',
+			label_y: 'Enter a four digit year',
+            label_trigger: 'Open Calendar Interface',
+			label_calendar: '{{month}} {{day}}, {{year}}'
 		},
 
 		templates: {
+
 			shadow:
 				'<div class="{{$key}}-shadow">\
-					{{template:input}}\
-					{{template:access}}\
+                    <div class="{{$key}}-inputs">\
+                        {{loop:inputs}}\
+                            {{template:input}}\
+                        {{/loop:inputs}}\
+                    </div>\
 					{{template:calendar}}\
 				</div>',
 
 			input:
-				'<div class="{{$key}}-input" aria-label="{{label}}">\
+				'<div class="{{$key}}-input-container">\
 					<span id="{{labelid}}" class="{{$key}}-label">{{label}}</span>\
-					{{loop:inputs}}\
-						<span id="{{describeid}}" class="{{$key}}-label">{{description}}</span>\
-						<input class="{{$key}}-entry {{id}}" \
-							placeholder="{{placeholder}}" \
-							type="{{type}}" \
-							name="{{name}}" \
-							value="{{value}}" \
-							aria-describedby="{{describeid}}" \
-							aria-labelledby="{{labelid}}" \
-							data-format="{{format}}" \
-							data-key="{{id}}" />\
-						<span class="spacer">{{spacer}}</span>\
-					{{/loop:inputs}}\
+                    <div class="{{$key}}-input" data-index="{{$index}}">\
+    					{{loop:parts}}\
+                            <span id="{{descid}}" class="{{$key}}-description">{{desc}}</span>\
+    						{{if:select}}\
+                                {{template:select}}\
+                            {{/if:select}}\
+                            {{if:number}}\
+                                {{template:number}}\
+                            {{/if:number}}\
+                            {{if:spacer}}\
+                                <span class="spacer">{{spacer}}</span>\
+                            {{/if:spacer}}\
+    					{{/loop:parts}}\
+                        {{template:trigger}}\
+                    </div>\
 				</div>',
+
+            select:
+                '<select required \
+                    role="listbox" \
+                    class="{{$key}}-entry" \
+                    data-key="{{key}}"\
+                    data-format="{{format}}"\
+                    aria-labelledby="{{labelid}}" \
+                    aria-describedby="{{descid}}">\
+                    {{loop:options}}\
+                        <option value="{{value}}"{{if:selected}} selected{{/if:selected}}>{{label}}</option>\
+                    {{/loop:options}}\
+                </select>',
+
+            number:
+                '<input \
+                    class="{{$key}}-entry" \
+                    type="text" \
+                    value="{{value}}" \
+                    placeholder="{{format}}" \
+                    data-key="{{key}}"\
+                    data-format="{{format}}"\
+                    aria-labelledby="{{labelid}}" \
+                    aria-describedby="{{descid}}" />',
 
 			calendar:
 				'<div class="{{$key}}-calendar">\
@@ -223,15 +285,14 @@
 
 			controls:
 				'<div class="{{$key}}-controls">\
-					<button class="{{$key}}-control prev-yr" aria-label="Go to previous year"></button>\
-					<button class="{{$key}}-control prev-mo" aria-label="Go to previous month"></button>\
-					<button class="{{$key}}-control next-mo" aria-label="Go to next month"></button>\
-					<button class="{{$key}}-control next-yr" aria-label="Go to next year"></button>\
+                    {{loop:controls}}\
+                        <button class="{{$key}}-control {{name}}" aria-label="{{label}}"></button>\
+                    {{/loop:controls}}\
 				</div>',
 
 			table:
-				'<table class="{{$key}}-table">\
-					<caption class="{{$key}}-heading" aria-atomic="true" aria-live="assertive">{{title}}</caption>\
+				'<table class="{{$key}}-table" tabindex="0" role="grid">\
+					<caption role="heading" class="{{$key}}-heading" aria-atomic="true" aria-live="assertive">{{caption}}</caption>\
 					<thead class="{{$key}}-head">\
 						<tr>\
 						{{loop:days}}\
@@ -243,7 +304,7 @@
 				</table>',
 
 			body:
-				'<tbody class="{{$key}}-body" tabindex="0">\
+				'<tbody class="{{$key}}-body">\
 					{{loop:weeks}}\
 						<tr>\
 							{{loop:days}}\
@@ -254,26 +315,34 @@
 				</tbody>',
 
 			day:
-				'<td data-value="{{value}}" class="\
-					{{day}} {{$key}}-day\
-					{{if:selectable}} selectable{{/if:selectable}}\
-					{{if:unselectable}} unselectable{{/if:unselectable}}\
-					{{if:today}} today{{/if:today}}\
-					{{if:active}} active{{/if:active}}\
-					{{if:weekend}} weekend{{/if:weekend}}\
-					{{if:disabled}} disabled{{/if:disabled}}\
-					{{if:between}} between{{/if:between}}\
-					{{if:rollover}} rollover{{/if:rollover}}\
-					" aria-label="{{label}}">\
-					<span>{{value}}</span>\
+				'<td role="gridcell" id="{{id}}" data-value="{{value}}" aria-label="{{label}}" class="{{$key}}-day {{day}}{{if:special}} {{special}}{{/if:special}}{{if:first}} first{{/if:first}}{{if:last}} last{{/if:last}}{{if:blackout}} blackout{{/if:blackout}}{{if:selectable}} selectable{{/if:selectable}}{{if:today}} today{{/if:today}}{{if:active}} active{{/if:active}}{{if:disabled}} disabled{{/if:disabled}}{{if:between}} between{{/if:between}}{{if:rollover}} rollover{{/if:rollover}}{{if:holiday}} holiday{{/if:holiday}}">\
+					<span class="{{$key}}-date">{{date}}</span>\
 				</td>',
 
-			access: '<button class="{{$key}}-access" aria-label="Open Calendar Interface"></button>'
+			trigger:
+                '<button class="{{$key}}-trigger" aria-label="{{label_trigger}}"></button>',
+
+            trap:
+                '<button class="{{$key}}-trap" aria-hidden="true"></button>'
+		},
+
+		/*
+			<property:uidate>
+				<desc>The current date in the calendar UI as a Date object.</desc>
+			</property:uidate>
+		*/
+
+		get uidate () {
+			return this._uidate;
+		},
+
+		set uidate (value) {
+			this._uidate = this.adjust(value);
 		},
 
 		/*
 			<property:date>
-				<desc>The current date in the calendar UI as a Date object.</desc>
+				<desc>The currently selected date as a Date object.</desc>
 			</property:date>
 		*/
 
@@ -285,69 +354,38 @@
 			this._date = this.adjust(value);
 		},
 
-		/*
-			<property:selection>
-				<desc>The currently selected date as a Date object.</desc>
-			</property:selection>
+        /*
+			<property:startdate>
+				<desc>When using a start/end setup, this property represents the start date as a Date object.</desc>
+			</property:startdate>
 		*/
 
-		get selection () {
-			return this._selection;
-		},
+        get startdate () {
+            return this.date;
+        },
 
-		set selection (value) {
-			this._selection = this.adjust(value);
-		},
+        set startdate (value) {
+            this.date = value;
+        },
 
-		/*
-			<property:start>
-				<desc>When using a start and end date picker, this is the selected start date.</desc>
-			</property:start>
+        /*
+			<property:enddate>
+				<desc>When using a start/end setup, this property represents the end date as a Date object.</desc>
+			</property:enddate>
 		*/
 
-		get start () {
+        get enddate () {
+            return this.multiple ? this._enddate : this.date;
+        },
 
-			if (this.multiple) {
-				return this._start;
-			}
+        set enddate (value) {
 
-			return this.selection;
-		},
-
-		set start (value) {
-
-			if (this.multiple) {
-				this._start = this.adjust(value);
-			}
-			else {
-				this.selection = value;
-			}
-		},
-
-		/*
-			<property:end>
-				<desc>When using a start and end date picker, this is the selected end date.</desc>
-			</property:end>
-		*/
-
-		get end () {
-
-			if (this.multiple) {
-				return this._end;
-			}
-
-			return this.selection;
-		},
-
-		set end (value) {
-
-			if (this.multiple) {
-				this._end = this.adjust(value);
-			}
-			else {
-				this.selection = value;
-			}
-		},
+            if (this.multiple) {
+                this._enddate = this.adjust(value);
+                return;
+            }
+            this.date = value;
+        },
 
 		/*
 			<property:disabled>
@@ -356,7 +394,7 @@
 		*/
 
 		get disabled () {
-			return this.rootinput.prop('disabled');
+			return this.input(0).prop('disabled');
 		},
 
 		/*
@@ -390,103 +428,62 @@
 		},
 
 		/*
+			<property:isPopup>
+				<desc>Is the datepicker calendar UI a popup or inline.</desc>
+			</property:isPopup>
+		*/
+
+		get isPopup () {
+			return this.config.popup;
+		},
+
+		/*
 			<property:value>
-				<desc>The currently selected date in native string format (yyyy-mm-dd).</desc>
+				<desc>The currently selected date in native string format (yyyy-mm-dd). When using a start and end date, this property will be an array.</desc>
 			</property:value>
 		*/
 
 		get value () {
-			return this.dts(this.selection);
+
+            if (this.multiple) {
+
+                return [
+                    this.dts(this.startdate),
+                    this.dts(this.enddate)
+                ];
+            }
+
+			return this.dts(this.date);
 		},
 
 		/*
-			<property:range>
-				<desc>Array (start and end) of selected date ranges in native string format (yyyy-mm-dd).</desc>
-			</property:range>
+			<property:inputs>
+				<desc>The input elements you provided inside the root datepicker node.</desc>
+			</property:inputs>
 		*/
 
-		get range () {
-			return [];
-		},
-
-		/*
-			<property:rootinput>
-				<desc>The input element you provided inside the root datepicker node.</desc>
-			</property:rootinput>
-		*/
-
-		get rootinput () {
+        get inputs () {
 			return this.node('');
 		},
 
-		/*
-			<property:input>
-				<desc>The input base element containing the different date inputs.</desc>
-			</property:input>
-		*/
-
-		get input () {
-			return this.node('input', this.shadow);
-		},
-
-		/*
-			<property:entries>
-				<desc>Get the entry elements which live inside the input wrappers.</desc>
-			</property:entries>
-		*/
-
-		get entries () {
-			return this.node('entry', this.input);
-		},
-
-		/*
+        /*
 			<property:multiple>
-				<desc>Does the datepicker have a multiple range (ie: to and from dates).</desc>
+				<desc>Can the use select multiple dates (ie: start and end date).</desc>
 			</property:multiple>
 		*/
 
-		get multiple () {
-			return this.input.length > 1;
-		},
+        get multiple () {
+            return this.inputs.length > 1;
+        },
 
 		/*
-			<property:month>
-				<desc>Shadow input for month.</desc>
-			</property:month>
+			<property:trigger>
+				<desc>The button used to trigger (open/close) the datepicker UI.</desc>
+			</property:trigger>
 		*/
 
-		get month () {
-			return this.node('entry.month', this.shadow);
-		},
-
-		/*
-			<property:day>
-				<desc>Shadow input for day.</desc>
-			</property:day>
-		*/
-
-		get day () {
-			return this.node('entry.day', this.shadow);
-		},
-
-		/*
-			<property:year>
-				<desc>Shadow input for year.</desc>
-			</property:year>
-		*/
-
-		get year () {
-			return this.node('entry.year', this.shadow);
-		},
-
-		/*
-			<property:accessbtn>
-				<desc>The button used to access (open/close) the datepicker UI.</desc>
-			</property:accessbtn>
-		*/
-
-		get accessbtn () {
-			return this.node('access', this.shadow);
+		get trigger () {
+			return this.node('trigger', this.shadow);
 		},
 
 		/*
@@ -540,13 +537,17 @@
 			var body = this.node('body', this.calendar),
 				active = body.find('.active');
 
-			if (!active.length) {
-				 active = body.find('[data-value="' + this.date.getDate() + '"]');
+			if (!active.length || active.hasClass('disabled')) {
+				 active = body.find('[data-value="' + this.uidate.getDate() + '"]');
 			}
 
-			if (!active.length) {
+			if (!active.length || active.hasClass('disabled')) {
 				 active = body.find('.today');
 			}
+
+            if (!active.length || active.hasClass('disabled')) {
+                active = this.$(this.days[0]);
+            }
 
 			return active;
 		},
@@ -555,7 +556,10 @@
 
 			o = o || {};
 
-			var input = this.rootinput;
+			var root = this.root,
+				input = this.input(0),
+				formats = this.formats,
+                end;
 
 			// get the initial date we're working with
 			o.fdate = input.val();
@@ -567,13 +571,23 @@
 			this.min = o.fmin && this.std(o.fmin) || null;
 			this.max = o.fmax && this.std(o.fmax) || null;
 
-			//create the ui date for tracking positions in the picker UI
-			this.date = this.adjust(o.fdate && this.std(o.fdate) || dt());
-			this.selection = this.adjust(o.fdate && this.std(o.fdate) || dt());
+			this.uidate = this.adjust(o.fdate && this.std(o.fdate) || dt());
+            this.date = this.adjust(o.fdate && this.std(o.fdate) || garbage());
 
-			this.param('format', 'string', o, this.formats.date, input)
-				.param('rollover', 'boolean', o, true, input)
-				.param('label', 'string', o, this.formats.label, input);
+            if (this.multiple) {
+
+                end = this.input(1);
+                o.edate = end.val();
+                this.enddate = this.adjust(o.edate && this.std(o.edate) || garbage());
+            }
+
+			this.param('format', 'string', o, formats.date, root)
+				.param('rollover', 'boolean', o, true, root)
+				.param('label', 'string', o, formats.label, root)
+				.param('popup', 'boolean', o, true, root)
+                .param('holidays', 'object', o, this.holidays)
+                .param('unavailables', 'object', o, this.blackouts)
+                .param('special', 'object', o, this.special);
 
 			this.super(o);
 		},
@@ -581,60 +595,100 @@
 		build: function () {
 
 			this.shadow = this.html('shadow', this.data());
-			this.calendar.attr('aria-hidden', 'true');
 
-			this.adjust(this.date, true);
+			if (this.isPopup) {
+				this.calendar.addClass('popup').attr({
+                    'aria-hidden': 'true',
+                    'role': 'dialog'
+                }).append(this.html('trap'));
+			}
+
+			this.adjust(this.uidate, true);
+            this.activate();
 		},
 
 		mount: function () {
 			this.shadow.appendTo(this.root);
 		},
 
+		/*
+			<method:unmount>
+				<invoke>.unmount()</invoke>
+				<desc>Remove elements, data, events and references in instance to free up memory.</desc>
+			</method:unmount>
+		*/
+
 		unmount: function () {
 
 			this.shadow.remove();
 
-			this.selection =
-			this.daterange =
+			this.date =
 			this.config =
 			this.shadow =
-			this.range =
-			this.date =
-			this.root = null;
+			this.uidate =
+			this.events =
+			this.root =
+			this.min =
+			this.max = null;
 		},
 
 		bind: function () {
+            this._bindEntryEvents();
+            this._bindCalendarEvents();
+		},
 
-			var thiss = this,
-				calendarFocused = false,
-				entry = this.selector('entry');
+        _bindEntryEvents: function () {
 
-			this.input
-			.on('focus.mk', 'input', function (e) {
+            var thiss = this,
+                entry = this.selector('entry');
 
-				var el = this;
-				thiss.delay(function () {
-					el.setSelectionRange(0, this.value.length);
-				});
-			})
-			.on('blur.mk', 'input', function (e) {
-				thiss._validate(e, this);
-			})
-			.on('click.mk', 'input', function () {
-				var el = this;
-				thiss.delay(function () {
-					el.setSelectionRange(0, this.value.length);
-				});
-			})
-			.on('keydown.mk', 'input', function (e) {
-				thiss._keydownInput(e)
+            this.node('input', this.shadow)
+            .on('mousedown.mk', entry, function (e) {
+                thiss._disableDropdown(e, this);
+            })
+            .on('focus.mk', entry, function (e) {
+                thiss._focusEntry(e, this);
+            })
+            .on('keydown.mk', entry, function (e) {
+                thiss._keydownEntry(e, this);
+            })
+            .on('change.mk', entry, function (e) {
+                thiss._applyEntry(e, this);
+            })
+            .on('blur.mk', entry, function (e) {
+                thiss._setEntry(e, this);
+            });
+        },
+
+        _bindCalendarEvents: function () {
+
+            var thiss = this,
+                calendar = this.calendar,
+				calendarFocused = false;
+
+            this.trigger.on('click.mk', function (e) {
+				thiss._open(e, this);
 			});
 
-			this.calendar
+            this.node('trap', calendar).on('focus.mk', function () {
+                thiss._trap();
+            });
+
+            calendar
 			.on('focus.mk', true, function (e) {
-				calendarFocused = thiss.$(e.target).is(
-					thiss.selector('body'));
+
+                var el = thiss.$(e.target);
+
+				calendarFocused = el.is(thiss.selector('table'));
+
+                if (el.is(thiss.selector('control'))) {
+                    thiss.controls.removeClass('focused');
+                    el.addClass('focused');
+                }
 			})
+            .on('blur.mk', true, function (e) {
+                thiss._blur(e.relatedTarget);
+            })
 			.on('keydown.mk', true, function (e) {
 				thiss._keydownCalendar(e, calendarFocused);
 			})
@@ -643,19 +697,261 @@
 				thiss._click(e);
 			})
 			.on('mouseenter', this.selector('day'), function (e) {
+                thiss._activate(this);
+			});
+        },
 
-				var el = thiss.$(this);
+        _open: function (e, trigger) {
 
-				if (el.hasClass('selectable')) {
-					thiss.activate(el);
+            e.preventDefault();
+
+            var input = this.$(trigger).parent(
+                    this.selector('input')),
+                index = parseInt(input.data('index'), 10);
+
+            this._clicks = index;
+            this.shadow.data('trigger-index', index);
+            this.show();
+        },
+
+        // prevent selectmenus frop opening by focus/click
+
+        _disableDropdown: function (e, entry) {
+
+            if (entry.tagName === 'SELECT') {
+                e.preventDefault();
+                entry.focus();
+            }
+        },
+
+        // input elements get completely selected rather
+        // than the ability to move the cursor anywhere.
+
+        _focusEntry: function (e, entry) {
+
+            if (entry.tagName === 'INPUT') {
+                entry.setSelectionRange(0, entry.value.length);
+            }
+        },
+
+        // when the user changes date entries,
+        // apply the new values to the calendar UI.
+
+        _applyEntry: function (e, entry) {
+
+            var input = this.$(entry),
+                value = parseInt(input.val(), 10);
+
+            this.setValue(
+                input.data('key'),
+                parseInt(input.val(), 10),
+                this.uidate);
+
+            this.refresh();
+        },
+
+        _setEntry: function (e, entry) {
+
+            var input = this.$(entry),
+                value = parseInt(input.val(), 10),
+                key = input.data('key'),
+                date = dt(),
+                apply = true,
+                node;
+
+            // for months, we want to check the max days.
+            // if current value for days is larger than the new months max days,
+            // we reset it (ie: currenty at 31 days and the user selects febuary).
+            if (key === 'm') {
+
+                var days = input.parent().find('[data-key="d"] option'),
+                    date = dt(), m;
+
+                sd(date, 1);
+                sm(date, value);
+
+                m = dim(date);
+
+                days.each(function (day, i) {
+
+                    day.disabled = i > m;
+
+                    //only reselect a day if the placeholder is not currently selected
+                    if (day.disabled && day.selected && i !== 0) {
+                        apply = false;
+                        days[m].selected = true;
+                    }
+                });
+            }
+
+            if (apply) {
+
+                date = garbage();
+
+                var parent = input.parent(this.selector('input')),
+                    yr = parseInt(parent.find('[data-key="y"]').val(), 10),
+                    mo = parseInt(parent.find('[data-key="m"]').val(), 10),
+                    dy = parseInt(parent.find('[data-key="d"]').val(), 10);
+
+                if (!isNaN(yr)) {
+                    sy(date, yr);
+                }
+
+                if (!isNaN(mo)) {
+                    sm(date, mo);
+                }
+
+                if (!isNaN(dy)) {
+                    sd(date, dy);
+                }
+
+                if (this.valid(date) && this.setDate(date, parseInt(parent.data('index'), 10))) {
+                    this.emit('change');
+                }
+            }
+        },
+
+        _keydownEntry: function (e, entry) {
+
+            var k = this.keycode,
+                w = e.which,
+                c = String.fromCharCode(w);
+
+
+            // prevent select menu dropdowns from opening
+            if (entry.tagName === 'SELECT') {
+                if (w === k.space || w === k.enter) {
+                    e.preventDefault();
+                }
+                return;
+            }
+            // disable left/right behavior on inputs
+            // which prevents users from entering garbage data anywhere in the input.
+            if (w === k.left || w === k.right) {
+                e.preventDefault();
+                return;
+            }
+            //toggle through possible date entry options
+            if (w === k.up || w === k.down) {
+                e.preventDefault();
+                return this._moveEntry(entry, w === k.up);
+            }
+            //user enters a valid character key
+            if (/\w/.test(c)) {
+                //stop event from applying the key
+                e.preventDefault();
+                //if it's a number, we apply the character manually
+                if (/\d/.test(c)) {
+                    return this._validateEntry(e, entry, c);
+                }
+            }
+        },
+
+        // toggle through entry values
+        // currently only supporting years
+
+        _moveEntry: function (entry, up) {
+
+            var input = this.$(entry),
+                value = entry.value;
+
+            if (input.data('key') === 'y') {
+
+                value = parseInt(value, 10);
+                value = value + (up? 1 : -1);
+
+                if(isNaN(value)) {
+                    value = gy(dt());
+                }
+
+                // check min/max values and don't allow
+                // dates past those values to be entered.
+                if (this.max && gy(this.max) < value) {
+                    value = gy(this.max);
+                }
+                else if (this.min && gy(this.min) > value) {
+                    value = gy(this.min);
+                }
+
+                entry.value = value;
+                entry.setSelectionRange(0, 4);
+                this._applyEntry(null, entry);
+            }
+        },
+
+        // validate a users input.
+        // currently only supporting years
+        // day and month are select menus and don't require validation.
+
+        _validateEntry: function (e, entry, char) {
+
+            var input = this.$(entry),
+                point = entry.selectionEnd,
+                value = entry.value,
+                full  = value.slice(0, point) + char + value.slice(point, value.length);
+
+            if (input.data('key') === 'y') {
+                entry.value =  full.length > 4 ? full.slice(-4) : full;
+                entry.setSelectionRange(0, 4);
+                this._applyEntry(null, entry);
+            }
+        },
+
+        _updateEntries: function () {
+
+            var inputs = this.node('input', this.shadow),
+                dates = [this.date],
+                me = this,
+                entries;
+
+            if (this.multiple) {
+                dates.push(this.enddate);
+            }
+
+            this.each(dates, function (date, i) {
+
+				if (this.valid(date)) {
+
+					entries = this.node('entry', inputs[i]);
+
+	                entries.each(function (entry) {
+	                    entry.value = me.getValue(
+	                        entry.getAttribute('data-format'), date);
+	                });
 				}
-			});
+            });
+        },
 
-			this.accessbtn.on('click.mk', function (e) {
-				e.preventDefault();
-				thiss.toggle();
-			});
-		},
+        _activate: function (day) {
+
+            var el = this.$(day);
+
+            if (el.hasClass('selectable')) {
+                this.activate(el);
+            }
+        },
+
+        _trap: function () {
+
+            this.$('button, table', this.calendar).each(function (el) {
+
+                if (!el.disabled) {
+
+                    el.focus();
+                    return false;
+                }
+            });
+        },
+
+        _blur: function (el) {
+
+            var c = this.calendar,
+                e = this.$(el);
+
+            if (!el || (!e.is(c) && e.parent(c).length < 1)) {
+                return this.hide();
+            }
+        },
 
 		_click: function (e) {
 
@@ -669,7 +965,7 @@
 			t = t.is(s) && t || t.parent(s);
 
 			if (t.length && t.hasClass('selectable')) {
-				this.select(t);
+				this.select(t.data('value'));
 			}
 		},
 
@@ -691,7 +987,7 @@
 
 				n = this.$(n);
 
-				if (n.hasClass('unselectable') || n.hasClass('disabled')) {
+				if (!n.hasClass('selectable') || n.hasClass('disabled')) {
 					return this._move(n, b, f);
 				}
 				this.activate(n);
@@ -707,11 +1003,15 @@
 				var i = a.index(),
 					r = e.parentNode && e.parentNode[p],
 					n = r && r.childNodes[i],
-					d = this.date, x;
+					d = this.uidate, x;
 
-				if (n) return n;
+				if (n) {
+                    return n;
+                }
 
-				if (a.hasClass('disabled')) return null;
+				if (a.hasClass('disabled')) {
+                    return null;
+                }
 
 				x = gd(d);
 
@@ -737,11 +1037,15 @@
 
 					var r = e.parentNode && e.parentNode[p],
 						n = r && r.childNodes[b && r.childNodes.length - 1 || 0],
-						d = this.date;
+						d = this.uidate;
 
-					if (n) return n;
+					if (n) {
+                        return n;
+                    }
 
-					if (a.hasClass('disabled')) return null;
+					if (a.hasClass('disabled')) {
+                        return null;
+                    }
 
 					sm(d, gm(d) + (b ? -1 : 1));
 					sd(d, b ? dim(d) : 1);
@@ -749,154 +1053,6 @@
 					this.refresh(true);
 				}
 			});
-		},
-
-		// prevents more characters being entered than allowed.
-		// we take the last portion of strings rather than the first part.
-		// the only exception is format 'mmmm' for a full month name.
-
-		_entry: function (e, input, key) {
-
-			var f = input.data('format'),
-				v = input.val(),
-				l = null;
-
-			switch (f) {
-
-				case 'd':
-				case 'm':
-				case 'dd':
-				case 'mm':
-				case 'yy':
-					l = 2; break;
-
-				case 'mmm':
-					l = 3; break;
-
-				case 'yyyy':
-					l = 4; break;
-			}
-
-			if (l && (v + key).length > l) {
-				e.preventDefault();
-				input.val(v.slice((l - 1) * -1) + key);
-			}
-		},
-
-		// this gets triggered each time an input is blurred (day, month, year).
-		// basically we want to error handle things like days and month entries - like entering in 54 for days.
-		// we leave years alone like the Chrome native datepicker does.
-
-		_validate: function (e, input) {
-
-			var i = this.$(input),
-				f = i.data('format'),
-				v = i.val(),
-				o;
-
-			switch (f) {
-
-				case 'd':
-				case 'dd':
-
-					v = parseInt(v, 10);
-
-					if (v > dim(this.selection)) {
-						v = dim(this.selection);
-					}
-					break;
-
-				case 'm':
-				case 'mm':
-
-					v = parseInt(v, 10);
-
-					if (v > 12) {
-						v = 12;
-					}
-					else if (v < 1) {
-						v = 1;
-					}
-
-					v -= 1;
-					break;
-
-				case 'mmm':
-
-					v = v.toLowerCase();
-
-					v = this.first(this.formatmap.months, function (m) {
-						if (m.indexOf(v) > -1) {
-							return v;
-						}
-					});
-
-					if (!v) {
-						v = this.format(f, gm(this.selection));
-					}
-					break;
-			}
-
-			v = parseInt(v, 10);
-			o = this.getValue(f, this.selection);
-
-			i.val(this.format(f, v));
-
-			if (v !== o) {
-
-				this.setValue(f, v, this.selection);
-
-				//TODO:
-				//
-				//this.adjust(this.selection);
-				//reflect changes to UI
-
-				if (this.valid(this.selection)) {
-					this.emit('change', this.value);
-				}
-			}
-		},
-
-		_keydownInput: function (e) {
-
-			var t = e.target,
-				n = this.$(t),
-				w = e.which,
-				k = this.keycode,
-				c = String.fromCharCode(w).toLowerCase();
-
-			// tab and delete are always allowed by the user.
-			if (w === k.tab || w === k.backspace) {
-				return;
-			}
-
-			// alpha characters are allowed in the month if the month format supports it.
-			// every other scenario only allows number characters
-			if ((/\w/.test(c) && n.hasClass('month') && n.data('format').length > 2)
-				|| /\d/.test(c)) {
-				this._entry(e, n, c);
-				return;
-			}
-
-			e.preventDefault();
-
-			switch (w) {
-				case k.up:
-				case k.down:
-					// in thise case, we're going to step through the possible values
-					// for a given input. It will walk through the monday, days of the week, or years.
-					// walking years does not validate a min and max, however, validation will occur later
-					// when the input blurs.
-					this.step(n, w === k.down);
-					t.setSelectionRange(0, t.value.length);
-					break;
-
-				case k.left:
-				case k.right:
-					// using the arrow keys will jump to/from the next input.
-					this._focusNext(t, w === k.left);
-					break;
-			}
 		},
 
 		_keydownCalendar: function (e, focused) {
@@ -922,7 +1078,7 @@
 					return focused && this._moveX(a, w === k.left);
 
 				case k.esc:
-					return console.info('hide calendar');
+					return this.hide(true);
 
 				case k.pageup:
 				case k.pagedown:
@@ -935,96 +1091,170 @@
 				case k.home:
 				case k.end:
 					if (focused) {
-						this.activate(w === k.home ? 1 : dim(this.date));
+						this.activate(w === k.home ? 1 : dim(this.uidate));
 					}
-					break;
+					return;
 			}
 		},
 
-		_focusNext: function (input, reverse) {
+        _isMatch: function (dates, date) {
 
-			var x = false,
-				c = [].slice.call(input.parentNode.childNodes),
-				i;
+            date = date || this.date;
 
-			if (reverse) {
-				c.reverse();
-			}
+            var d = typeof date === 'string' ? this.std(date) : date,
+                r = false,
+                x;
 
-			i = this.first(c, function (el) {
+            d.setHours(0, 0, 0, 0);
 
-				if (x && el.classList.contains(this.name + '-entry')) {
-					return el;
-				}
-				if (el === input) {
-					x = true;
-				}
-			});
+            this.each(dates, function (d) {
 
-			if (i) {
-				i.focus();
-			}
-		},
+                x = typeof d === 'string' ? this.std(d) : d;
+                x.setHours(0, 0, 0, 0);
 
-		step: function (input, reverse) {
+                if (date.getTime() === x.getTime()) {
+                    r = true; return false;
+                }
+            });
 
-			var f = input.data('format'),
-				v = this.getValue(f),
-				n;
+            return r;
+        },
 
-			v = v + (reverse ? -1 : 1);
-			n = this.setValue(f, v);
+		/*
+			<method:input>
+				<invoke>.input(index)</invoke>
+				<param:index>
+					<type>Element</type>
+					<desc>Element in the calendar UI to set as active.</desc>
+				</param:index>
+				<desc>Get one of the native input elements by providing an index key.</desc>
+			</method:input>
+		*/
 
-			input.val(n);
-		},
+        input: function (index) {
+            return this.$(this.inputs[index]);
+        },
 
 		data: function () {
 
 			var c = this.config,
 				f = c.formats,
-				l = f.days.length,
-				s = this.selection,
-				d = this.date,
-				t = this,
-				i = [],
-				u = this.uid(),
-				v;
-
-				c.format.replace(this.xSearch, function (x, y, z) {
-
-					v = /m/.test(y) && 'month' || /y/.test(y) && 'year' || 'day';
-
-					i.push({
-						name: t.uid(),
-						format: y,
-						value: t.valid(s) ? t.format(y, t.getValue(y, s)) : '',
-						placeholder: y,
-						spacer: z.replace(/\s/g, '&nbsp;'),
-						type: 'text',
-						id: v,
-						labelid: u,
-						describeid: t.uid(),
-						description: t.format(f['label_' + v], {
-							digit: y.length
-						})
-					});
-				});
+                l = f.days.length,
+				d = this.uidate;
 
 			return {
-				inputs: i,
-				label: c.label,
-				labelid: u,
-				date: c.fdate ? this.dts(d, c.format) : c.format,
 				weeks: this.buildCalendar(d),
-				title: this.format('caption', {
+                inputs: this.map(this.inputs, function (input) {
+                    return this.buildInput(input);
+                }),
+				caption: this.format('caption', {
 					month: this.format(f.month, gm(d)),
-					year: this.format(f.year, gy(d))
+					year:  this.format(f.year,  gy(d))
 				}),
+                controls: [
+                    {name: 'prev-yr', label: f.prevYr},
+                    {name: 'prev-mo', label: f.prevMo},
+                    {name: 'next-mo', label: f.nextMo},
+                    {name: 'next-yr', label: f.nextYr}
+                ],
 				days: this.map(this.formatmap.days, function (day) {
-					return { day: day, label: l < 4 && day.slice(0, l) || day };
+					return {
+                        day: day,
+                        label: l < 4 ? day.slice(0, l) : day
+                    };
 				})
 			};
 		},
+
+        buildInput: function (input) {
+
+            var i = this.$(input),
+                c = this.config,
+                d = this.date,
+                t = this,
+                p = [],
+                r = {
+                    label: i.attr('aria-label'),
+                    labelid: t.uid(),
+                    label_trigger: c.formats.label_trigger
+                },
+                k,
+                x;
+
+            c.format.replace(this.xSearch, function (str, part, spacer) {
+
+                if (part === 'ddd' || part === 'dddd') {
+                    p.push({
+                        spacer: part + spacer
+                    });
+                }
+                else {
+
+                    k = part.slice(0, 1);
+                    x = /y/i.test(k);
+
+                    p.push({
+                        key: k,
+                        format: part,
+                        spacer: spacer,
+                        desc: c.formats['label_' + k],
+                        descid: t.uid(),
+                        labelid: r.labelid,
+                        number:  x,
+                        select: !x,
+                        options: t.buildEntry(k, part),
+                        value: x  && t.valid(d) ? gy(d) : null
+                    });
+                }
+            });
+
+            r.parts = p;
+
+            return r;
+        },
+
+        buildEntry: function (key, format) {
+
+            var l = format.length,
+                a = [],
+                d = this.valid(this.date) ? this.date : null,
+                placeholder = false;;
+
+            if (key === 'd') {
+
+                placeholder = true;
+
+                this.each(new Array(31), function (u, i) {
+                    a.push({
+                        selected: d ? i + 1 === gd(this.date) : false,
+                        label: this.format(format, i + 1),
+                        value: i + 1
+                    })
+                });
+            }
+            else if (key === 'm') {
+
+                placeholder = true;
+
+                a = this.map(this.formatmap.months, function (m, i) {
+                    return {
+                        selected: d ? i === gm(this.date) : false,
+                        label: this.format(format, i),
+                        value: i
+                    };
+                });
+            }
+
+            if (placeholder) {
+                a.unshift({
+                    selected: d ? false : true,
+                    label: format,
+                    value: ''
+                })
+            }
+
+            return a;
+        },
 
 		buildCalendar: function (date) {
 
@@ -1054,7 +1284,7 @@
 			//loop any carryover days and add them to our list
 			for (i = 0; prev <= last; prev++) {
 				sd(d, prev);
-				week.days.push(this.buildDay(d, i++));
+				week.days.push(this.buildDay(d, i++, false, false, true));
 			}
 
 			//reset the date once more to deal with the current month
@@ -1087,7 +1317,7 @@
 
 				for (i = 1; start <= 6; start++) {
 					sd(d, i++);
-					week.days.push(this.buildDay(d, start));
+					week.days.push(this.buildDay(d, start, false, false, true));
 				}
 			}
 
@@ -1096,16 +1326,29 @@
 			return weeks;
 		},
 
-		buildDay: function (date, day, selectable, active) {
+		buildDay: function (date, day, selectable, active, rollover) {
 
-			var today = dt(),
-				format = this.config.formats,
-				disabled = this.max && date > this.max || this.min && date < this.min || false;
+            var today = dt(),
+                config = this.config,
+				format = config.formats,
+				disabled = this.isUnavailable(date),
+                special = [],
+                d = gd(date);
 
-			today.setHours(0, 0, 0, 0);
+            if (rollover && !config.rollover) {
+                return {rollover: true};
+            }
+
+            // build special classes
+            this.each(config.special, function (v, k) {
+                if (this.isSpecial(k, date)) {
+                    special.push(k);
+                }
+            });
 
 			return {
-				value: gd(date),
+				value: this.dts(date),
+                date: d,
 				label: this.format('label_calendar', {
 					day: gd(date),
 					month: this.format(format.month, gm(date)),
@@ -1113,31 +1356,49 @@
 				}),
 				active: active,
 				disabled: disabled,
-				selectable: disabled ? false : selectable,
-				unselectable: disabled ? true : !selectable,
-				rollover: this.config.rollover,
+				selectable: disabled ? false : true,
+                holiday: this.isHoliday(date),
+                blackout: this.isBlackout(date),
+                special: special.join(' '),
+				rollover: config.rollover,
 				weekend: !day || day > 5,
 				day: this.formatmap.days[day],
-				today: today === date
+				today: today === date,
+                id: this.name + '-' + this.uid(),
+                first: d === 1,
+                last: d === dim(date)
 			};
 		},
 
+		/*
+			<method:activate>
+				<invoke>.activate([day])</invoke>
+				<param:day>
+					<type>Element</type>
+					<desc>Element in the calendar UI to set as active.</desc>
+				</param:day>
+				<desc>Activate a specific date in the calendar UI.</desc>
+			</method:activate>
+		*/
+
 		activate: function (day) {
 
-			var a = this.activeDay, d;
+			var a = this.activeDay,
+                c = this.calendar,
+                d;
 
-			if (typeof day === 'number') {
-				d = this.days.filter('[data-value="' + day + '"]');
-			}
+            if (day === void+1) {
+                d = a;
+            }
 			else {
 				d = this.$(day);
 			}
 
-			if (d.length && !d.hasClass('active')) {
+			if (d.length) {
 
-				sd(this.date, parseInt(d.data('value'), 10));
+				this.node('day', c).removeClass('active');
+                this.node('table', this.calendar).attr('aria-activedescendant', d.attr('id'));
 
-				a.removeClass('active');
 				d.addClass('active');
 
 				this.emit('activate', d);
@@ -1146,35 +1407,41 @@
 			return this;
 		},
 
-		select: function (day, silent) {
+		/*
+			<method:select>
+				<invoke>.select(date[, silent])</invoke>
+				<param:date>
+					<type>String/Date object</type>
+					<desc>Native date string (yyyy-mm-dd) or Date object.</desc>
+				</param:date>
+				<param:silent>
+					<type>Boolean</type>
+					<desc>Set to true to disable the change event from emitting. Default is false.</desc>
+				</param:silent>
+				<desc>Manually set the date for the datepicker, update the calendar UI, and leverage the change event.</desc>
+			</method:select>
+		*/
 
-			var d, day;
+		select: function (date, silent) {
 
-			if (!day) {
-				d = this.activeDay;
-			}
-			else if (typeof day === 'number') {
-				d = this.days.filter('[data-value="' + day + '"]');
-			}
-			else {
-				d = this.$(day);
-			}
+            if (date === void+1) {
+                date = this.activeDay.data('value');
+            }
 
-			if (d.hasClass('disabled')) {
-				return;
-			}
+            var dat = typeof date === 'string' ? this.std(date) : date,
+                str = this.dts(dat),
+                day = this.days.filter('[data-value="' + str + '"]');
+
+            if (this.isUnavailable(dat)) {
+                return;
+            }
 
 			this.activate(day);
 
-			day = parseInt(d.data('value'), 10);
-
-			if (day !== gd(this.selection)) {
-
-				if (this.setDate(this.date) && !silent) {
-					this.emit('change');
-				}
-			}
-
+            if (this.setDate(dat) && !silent) {
+                this.emit('change');
+                this.hide(true);
+            }
 			return this;
 		},
 
@@ -1185,44 +1452,79 @@
 			return !isNaN(t) && t > this.MIN && t < this.MAX;
 		},
 
-		setDate: function (d) {
+		/*
+			<method:setDate>
+				<invoke>.setDate(date[, inputnum])</invoke>
+				<param:date>
+					<type>Date object</type>
+					<desc>Date to be set.</desc>
+				</param:date>
+				<param:inputnum>
+					<type>Number</type>
+					<desc>When working with multiple inputs, pass a number along to set a perticular input. Default is 0.</desc>
+				</param:inputnum>
+				<desc>Manually set the date for the datepicker.</desc>
+			</method:setDate>
+		*/
 
-			var s = this.selection, m, v, r;
+		setDate: function (d, inputnum) {
 
-			d.setHours(0, 0, 0, 0);
+            // always reset the time for comparisons
+            d.setHours(0, 0, 0, 0);
 
-			if (this.min && d < this.min) {
-				sa(s, this.min);
-			}
-			else if (this.max && d > this.max) {
-				sa(s, this.max);
-			}
-			else {
+            var time = d.getTime(),
+                multi = this.multiple,
+                date = this.date,
+                prop = 'date',
+                copy = dt();
 
-				this.each([this.year, this.month, this.day], function (f, i) {
+            if (multi && inputnum) {
+                this._clicks = inputnum;
+            }
 
-					m = !i && 'FullYear'
-						|| i < 2 && 'Month'
-						|| i < 3 && 'Date';
+            // if we are dealing with multiple selections (start/end)
+            // check which selection we're at
+			if (multi) {
 
-					v = d['get' + m]();
-					s['set' + m](v);
+                if (this._clicks > 0) {
+                    date = this.enddate;
+                    prop = 'enddate';
 
-					f.val(this.format(f.data('format')), v);
-				});
-			}
+                    // if the date is less than the start date,
+                    // use the start date instead. reset clicks
+                    if (time < date.getTime()) {
+                        date = this.startdate;
+                        prop = 'startdate';
+                        this._clicks = 0;
+                    }
+                }
+                else {
+                    if (time > date.getTime()) {
+                        this._clicks = 1;
+                        date = this.enddate;
+                        prop = 'enddate';
+                    }
+                }
+            }
 
-			r = this.valid(s);
+            //reset our dates time now that we have the final reference
+            date.setHours(0, 0, 0, 0);
 
-			if (r) {
+            // if dates are the same do nothing
+            if (time === date.getTime()) {
+                return false;
+            }
 
-				sa(this.date, s);
+            if (this.valid(d)) {
 
-				this.rootinput.val(this.dts(s));
-				this.refresh();
-			}
+                this[prop] = d;
+                this.inputs[this._clicks].value = this.dts(d);
+                this._clicks = multi && this._clicks < 1 ? 1 : 0;
+                this._updateEntries();
+                return true;
+            }
 
-			return r;
+            return false;
 		},
 
 		adjust: function (d, update) {
@@ -1285,16 +1587,35 @@
 				c.prop('disabled', false);
 
 				this.each(s, function (f) {
-					c.filter(f).prop('disabled', true);
+
+                    var x = c.filter(f);
+
+                    // refocus to the table if the button we are disabling has focus,
+                    // focusing on disabled buttons isn't allowed and causes the calendar to hide
+                    if (x.hasClass('focused')) {
+                        this.node('table', this.calendar).focus();
+                    }
+					x.prop('disabled', true);
 				});
 			}
 
 			return d;
 		},
 
+		/*
+			<method:refresh>
+				<invoke>.refresh([refocus])</invoke>
+				<param:refocus>
+					<type>Boolean</type>
+					<desc>Refocus keyboard interactions to the UI.</desc>
+				</param:refocus>
+				<desc>Refresh the calendar UI.</desc>
+			</method:refresh>
+		*/
+
 		refresh: function (refocus) {
 
-			var d = this.adjust(this.date, true),
+			var d = this.adjust(this.uidate, true),
 				c = this.calendar,
 				f = this.config.formats,
 				m = this.html('body', {
@@ -1305,7 +1626,7 @@
 			this.node('table', c).append(m);
 
 			if (refocus) {
-				this.node('body',  c).focus();
+				this.node('table',  c).focus();
 			}
 
 			this.heading.text(this.format('caption', {
@@ -1313,28 +1634,59 @@
 				year:  this.format(f.year,  gy(d))
 			}));
 
+            this.activate();
+
 			return this;
 		},
 
+		/*
+			<method:moveMonth>
+				<invoke>.moveYear(up[, refocus])</invoke>
+				<param:up>
+					<type>Boolean</type>
+					<desc>Moves the calendar either up or down a month.</desc>
+				</param:up>
+				<param:refocus>
+					<type>Boolean</type>
+					<desc>Refocus keyboard interactions to the UI.</desc>
+				</param:refocus>
+				<desc>Move the calendar UI up or down a month.</desc>
+			</method:moveMonth>
+		*/
+
 		moveMonth: function (up, refocus) {
 
-			var d = this.date;
+			var d = this.uidate;
 
 			sm(d, gm(d) + (up ? -1 : 1));
 			return this.refresh(refocus);
 		},
 
+		/*
+			<method:moveYear>
+				<invoke>.moveYear(up[, refocus])</invoke>
+				<param:up>
+					<type>Boolean</type>
+					<desc>Moves the calendar either up or down a year.</desc>
+				</param:up>
+				<param:refocus>
+					<type>Boolean</type>
+					<desc>Refocus keyboard interactions to the UI.</desc>
+				</param:refocus>
+				<desc>Move the calendar UI up or down a year.</desc>
+			</method:moveYear>
+		*/
+
 		moveYear: function (up, refocus) {
 
-			var d = this.date;
-
+			var d = this.uidate;
 			sy(d, gy(d) + (up ? -1 : 1));
 			return this.refresh(refocus);
 		},
 
 		setValue: function (format, value, date) {
 
-			var d = date || this.date, days;
+			var d = date || this.uidate, days;
 
 			switch (format.slice(0, 1)) {
 
@@ -1374,7 +1726,7 @@
 
 		getValue: function (key, date) {
 
-			var d = date || this.date;
+			var d = date || this.uidate;
 
 			switch (key.slice(0, 1)) {
 
@@ -1448,6 +1800,21 @@
 			}
 		},
 
+        /*
+			<method:unformat>
+				<invoke>.format(format, value)</invoke>
+				<param:format>
+					<type>String</type>
+					<desc>Part of a date format.</desc>
+				</param:format>
+				<param:value>
+					<type>String</type>
+					<desc>String representing the value to be formatted (ie: January).</desc>
+				</param:value>
+				<desc>Takes a piece of a date format (ie: mm, yyyy, etc.) and converts the value to a raw representation.</desc>
+			</method:unformat>
+		*/
+
 		unformat: function (format, value) {
 
 			var me = this,
@@ -1459,7 +1826,6 @@
 				case 'd':
 				case 'mm':
 				case 'dd':
-				case 'yy':
 				case 'yyyy':
 					return parseInt(value, 10);
 
@@ -1527,10 +1893,10 @@
 
 		dts: function (date, format) {
 
+            var v;
+
 			date = date || this.date;
 			format = format || this.config.formats.native;
-
-			var v;
 
 			this.each(format.split(this.xSplit), function (f) {
 				v = this.format(f,  this.getValue(f, date));
@@ -1540,63 +1906,208 @@
 			return format;
 		},
 
+        /*
+			<method:disable>
+				<invoke>.disable()</invoke>
+				<desc>Disable the Datepicker UI.</desc>
+			</method:disable>
+		*/
+
 		disable: function () {
 
 			if (this.enabled) {
 
-				this.each([
-					this.rootinput,
-					this.day,
-					this.month,
-					this.year
-				], function (el) {
-					el.prop('disabled', true);
-					el.addClass('disabled');
-				});
-
+				//this.each(this.input, function (el) {
+					//el.prop('disabled', true);
+					//el.addClass('disabled');
+				//});
 				this.calendar.addClass('disabled');
 			}
+			return this;
 		},
+
+        /*
+			<method:enable>
+				<invoke>.enable()</invoke>
+				<desc>Enable the Datepicker UI.</desc>
+			</method:enable>
+		*/
 
 		enable: function () {
 
 			if (this.disabled) {
 
-				this.each([
-					this.rootinput,
-					this.day,
-					this.month,
-					this.year
-				], function (el) {
-					el.prop('disabled', false);
-					el.removeClass('disabled');
-				});
-
+				//this.each(this.input, function (el) {
+					//el.prop('disabled', false);
+					//el.removeClass('disabled');
+				//});
 				this.calendar.removeClass('disabled');
 			}
+			return this;
 		},
+
+        /*
+			<method:show>
+				<invoke>.show()</invoke>
+				<desc>In 'popup' mode, show the datepicker UI.</desc>
+			</method:show>
+		*/
 
 		show: function () {
 
-			if (this.enabled && this.isHidden) {
-				this.calendar.attr('aria-hidden', 'false');
+			var c = this.calendar;
+
+			if (this.isPopup && this.enabled && this.isHidden) {
+
+				this.delay(function () {
+
+					c.addClass('in').attr('aria-hidden', 'false');
+                    this.node('table', c).focus();
+					this.emit('show');
+				});
+
+				this.transition(c, function () {
+					c.removeClass('in');
+				});
 			}
+
+			return this;
 		},
 
-		hide: function () {
+        /*
+			<method:hide>
+				<invoke>.hide([refocus])</invoke>
+				<desc>In 'popup' mode, hide the datepicker UI.</desc>
+                <param:refocus>
+                    <type>Boolean</type>
+                    <desc>Pass as true to refocus tabbing to the trigger button.</desc>
+                </param:refocus>
+			</method:hide>
+		*/
 
-			if (this.isOpen) {
-				this.calendar.attr('aria-hidden', 'true');
+		hide: function (refocus) {
+
+			var c = this.calendar, i;
+
+			if (this.isPopup && this.isOpen) {
+
+				this.delay(function () {
+					c.addClass('out').attr('aria-hidden', 'true');
+					this.emit('hide');
+				});
+
+				this.transition(c, function () {
+
+					c.removeClass('out');
+
+                    if (refocus) {
+
+                        i = this.shadow.data('trigger-index');
+
+                        if (i !== void+1) {
+                            this.trigger[i].focus();
+                            this.shadow.data('trigger-index', null);
+                        }
+                    }
+				});
 			}
+
+			return this;
 		},
 
-		toggle: function () {
+        /*
+			<method:toggle>
+				<invoke>.toggle([refocus])</invoke>
+				<desc>In 'popup' mode, toggle between show and hide.</desc>
+                <param:refocus>
+                    <type>Boolean</type>
+                    <desc>Pass as true to refocus tabbing to the trigger button.</desc>
+                </param:refocus>
+			</method:toggle>
+		*/
+
+		toggle: function (refocus) {
 
 			if (this.enabled && this.isHidden) {
 				return this.show();
 			}
-			return this.hide();
-		}
+			return this.hide(refocus);
+		},
+
+        /*
+			<method:isHoliday>
+				<invoke>.isHoliday([date])</invoke>
+				<desc>Check if a date is a holiday.</desc>
+                <param:date>
+                    <type>String/Date</type>
+                    <desc>Pass in a Date object, string, or nothing (defaults to this.date) to check if the date is a holiday. Holidays are provided by the end developer.</desc>
+                </param:date>
+			</method:isHoliday>
+		*/
+
+        isHoliday: function (date) {
+            return this._isMatch(this.config.holidays, date);
+        },
+
+        /*
+			<method:isBlackout>
+				<invoke>.isBlackout([date])</invoke>
+				<desc>Check if a date is a blackout date.</desc>
+                <param:date>
+                    <type>String/Date</type>
+                    <desc>Pass in a Date object, string, or nothing (defaults to this.date) to check if the date is a blackout date. Blackout dates are provided by the end developer.</desc>
+                </param:date>
+			</method:isBlackout>
+		*/
+
+        isBlackout: function (date) {
+            return this._isMatch(this.config.blackouts, date);
+        },
+
+        /*
+			<method:isSpecial>
+				<invoke>.isSpecial(key[, date])</invoke>
+				<desc>Check if a date is a special date.</desc>
+                <param:key>
+                    <type>String</type>
+                    <desc>A string representing an object key in the special day object. Special days can be provided by overriding the prototype for special (globally) or passing in via the config object (instance).</desc>
+                </param:date>
+                <param:date>
+                    <type>String/Date</type>
+                    <desc>Pass in a Date object, string, or nothing (defaults to this.date) to check if the date is a blackout date. Blackout dates are provided by the end developer.</desc>
+                </param:date>
+			</method:isSpecial>
+		*/
+
+        isSpecial: function (key, date) {
+            return this._isMatch(this.config.special[key] || [], date);
+        },
+
+        /*
+			<method:isUnavailable>
+				<invoke>.isUnavailable([date])</invoke>
+				<desc>Check if a date is a blackout or outside the min/max limit.</desc>
+                <param:date>
+                    <type>String/Date</type>
+                    <desc>Pass in a Date object, string, or nothing (defaults to this.date) to check if the date is a blackout or past the min/max limit. Blackout dates are provided by the end developer.</desc>
+                </param:date>
+			</method:isUnavailable>
+		*/
+
+        isUnavailable: function (date) {
+
+            date = date || this.date;
+
+            var d = typeof date === 'string' ? this.std(date) : date;
+                d.setHours(0, 0, 0, 0);
+
+            if ((this.max && d.getTime() > this.max.getTime())
+                || (this.min && d.getTime() < this.min.getTime())) {
+                return true;
+            }
+
+            return this.isBlackout(d);
+        }
 	});
 
 	return mk.get('Datepicker');

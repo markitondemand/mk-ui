@@ -10,10 +10,23 @@
   color: #333;
   display: none; }
 
+.mk-dp-inputs:after {
+  clear: both;
+  content: "";
+  display: table; }
+
+.mk-dp-input-container {
+  float: left; }
+
+.mk-dp-input-container + .mk-dp-input-container {
+  margin-left: 10px; }
+
 .mk-dp-input {
-  border: 1px solid #ccc;
+  border: 1px solid #aaa;
   color: #333;
+  display: inline-block;
   padding: 5px 30px 5px 10px;
+  position: relative;
   transition: all 0.5s; }
 
 .mk-dp-trap {
@@ -21,6 +34,9 @@
   left: -9999px; }
 
 .mk-dp-label {
+  display: block; }
+
+.mk-dp-description {
   position: absolute;
   left: -9999px;
   visibility: hidden; }
@@ -51,10 +67,9 @@
   left: 8px; }
 
 .mk-dp-trigger:focus,
-.mk-dp-trigger:hover,
-.mk-dp-trigger.focused {
+.mk-dp-trigger:hover {
   background: #eee;
-  border-color: #ccc;
+  border-color: #aaa;
   color: #00b140; }
 
 .mk-dp-entry {
@@ -75,6 +90,15 @@
 .mk-dp-entry:focus {
   background: lightblue; }
 
+.mk-dp-entry:invalid {
+  color: #aaa; }
+
+.mk-dp-entry[data-format="mm"]:invalid {
+  width: 25px; }
+
+.mk-dp-entry[data-format="dd"]:invalid {
+  width: 18px; }
+
 .mk-dp-entry[data-format="d"],
 .mk-dp-entry[data-format="m"] {
   width: 12px; }
@@ -92,7 +116,7 @@
 .mk-dp-entry.disabled,
 .mk-dp-entry.disabled + .spacer {
   background: white;
-  color: #ccc; }
+  color: #aaa; }
 
 .mk-dp-table:focus {
   outline: 1px solid #00b140; }
@@ -108,7 +132,7 @@
 .mk-dp-calendar {
   background: white;
   min-width: 100%;
-  border: 1px solid #ccc;
+  border: 1px solid #aaa;
   position: relative; }
 
 .mk-dp-calendar.popup {
@@ -149,7 +173,7 @@
   position: absolute;
   top: 10px; }
   .mk-dp-control:disabled {
-    color: #ccc;
+    color: #aaa;
     cursor: default; }
   .mk-dp-control:focus {
     color: #00b140; }
@@ -192,7 +216,7 @@
 
 .mk-dp-table th,
 .mk-dp-table td {
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #aaa;
   padding: 5px;
   text-align: center;
   width: 14.28%; }
@@ -223,7 +247,7 @@
   transition: all 0.5s; }
 
 .mk-dp-table .mk-dp-day {
-  color: #ccc; }
+  color: #aaa; }
 
 .mk-dp-table .sunday,
 .mk-dp-table .saturday {
@@ -239,7 +263,7 @@
   left: 0;
   right: 0;
   width: 30px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #aaa;
   transform: rotate(145deg);
   top: 9px;
   left: 2px; }
