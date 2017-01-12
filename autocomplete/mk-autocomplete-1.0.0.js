@@ -638,7 +638,7 @@
 
 			this._loading(true);
 
-			if (this.cache[this.query.toUpperCase()]) {
+			if (this.cache[this.query.toUpperCase()] && !this.options.preventCaching) {
 				this.render(this.cache[this.query.toUpperCase()]);
 				return;
 			}
