@@ -660,7 +660,7 @@
 
 			if (this.options.remote) {
 
-				var params = {};
+				var params = this.options.params || {};
 					params[this.options.key] = this.query;
 
 				$.ajax({
