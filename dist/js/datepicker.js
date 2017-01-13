@@ -19,12 +19,12 @@
 (function (root, factory) {
 
 	if (typeof define === 'function' && define.amd) {
-		define(['mk'], function (mk) {
+		define(['mk-ui'], function (mk) {
 			return factory(root, mk);
 		});
 	}
 	else if (typeof module === 'object' && module.exports) {
-		module.exports = factory(root, require('mk'));
+		module.exports = factory(root, require('mk-ui'));
 	}
 	else {
 		return factory(root, root.Mk);
@@ -155,7 +155,14 @@
 			input:
 				'<div class="{{$key}}-input">\
 					{{loop:inputs}}\
-						<input class="{{$key}}-entry {{id}}" type="{{type}}" name="{{name}}" value="{{value}}" aria-label="{{label}}" data-format="{{format}}" data-key="{{id}}" />\
+						<input class="{{$key}}-entry {{id}}" \
+							placeholder="{{placeholder}}" \
+							type="{{type}}" \
+							name="{{name}}" \
+							value="{{value}}" \
+							aria-label="{{label}}" \
+							data-format="{{format}}" \
+							data-key="{{id}}" />\
 						<span class="spacer">{{spacer}}</span>\
 					{{/loop:inputs}}\
 				</div>',
@@ -213,8 +220,7 @@
 					<span>{{value}}</span>\
 				</td>',
 
-			access: '<button class="{{$key}}-access" aria-label="Open Calendar Interface"></button>',
-			matician: '<div class="{{$key}}-matician"></div>'
+			access: '<button class="{{$key}}-access" aria-label="Open Calendar Interface"></button>'
 		},
 
 		/*
@@ -244,7 +250,7 @@
 		*/
 
 		get value () {
-			return this.dts();
+			return this.dts(this.selected);
 		},
 
 		/*
@@ -422,14 +428,7 @@
 		},
 
 		mount: function () {
-
-			this.html('matician').appendTo(this.root);
 			this.shadow.appendTo(this.root);
-
-			this.delay(function () {
-				this.measure();
-				this.input.addClass('in');
-			}, 300);
 		},
 
 		unmount: function () {
@@ -491,13 +490,8 @@
 				k = i.data('key'),
 				v = i.val(),
 				s = this.selected,
-				n,
-				o;
+				n, o;
 
-			//leave values alone that resemble the format string
-			if (v === f) {
-				return;
-			}
 
 			n = parseInt(v) || this.unformat(f, v);
 
@@ -523,16 +517,14 @@
 						n = o;
 					}
 				}
-
+				//TODO: check if setting same value when tabbing
 				if (typeof n === 'number' && !isNaN(n)) {
 
 					this.setValue(f, n, s);
+					this.setValue(f, n);
+					this.refresh();
 
 					if (this.isValid(s)) {
-
-						this.setValue(f, n);
-						this.refresh();
-
 						this.emit('change');
 					}
 					return this;
@@ -542,7 +534,6 @@
 			v = this.getValue(f);
 
 			i.val(this.format(f, v));
-			this.measure(k);
 
 			return this;
 		},
@@ -669,7 +660,6 @@
 				|| (/\w/.test(c) && n.hasClass('month') && n.data('format').length > 2)
 				|| /\d/.test(c)) {
 
-				this.measure(u, n.val() + c);
 				return;
 			}
 
@@ -770,32 +760,12 @@
 			n = this.setValue(f, v);
 
 			i.val(n);
-			this.measure(key);
 
 			if (key === 'year' || key === 'month') {
 				this.refresh();
 			} else {
 				this.activate(v);
 			}
-		},
-
-		measure: function (who, value) {
-
-			if (who === void+1) {
-				return this.each(['year', 'month', 'day'], function (f) {
-					this.measure(f, value);
-				});
-			}
-
-			var m = this.matician[0],
-				i = who === 'year' && this.year
-					|| who === 'month' && this.month
-					|| this.day;
-
-			m.textContent = value || i.val();
-			i.css('width', m.clientWidth);
-
-			return this;
 		},
 
 		data: function () {
@@ -815,7 +785,8 @@
 					i.push({
 						name: t.uid(),
 						format: y,
-						value: t.format(y, t.getValue(y, t.selected)),
+						value: t.isValid() ? t.format(y, t.getValue(y, t.selected)) : '',
+						placeholder: y,
 						spacer: z.replace(/\s/g, '&nbsp;'),
 						type: 'text',
 						id: v,
@@ -1019,7 +990,6 @@
 				f.val(this.format(f.data('format')), val);
 			});
 
-			this.measure();
 			this.rootinput.val(this.dts(s));
 
 			r = this.isValid(s);
@@ -1171,7 +1141,8 @@
 			}
 
 			var me = this,
-				map = this.formatmap;
+				map = this.formatmap,
+				v;
 
 			switch (format) {
 
@@ -1180,9 +1151,11 @@
 				case 'mm':
 					return (++value) < 10 && '0' + value || value;
 				case 'mmm':
-					return map.months[value].slice(0, 3);
+					v = map.months[value].slice(0, 3);
+					return v.charAt(0).toUpperCase() + v.slice(1);
 				case 'mmmm':
-					return map.months[value];
+					v = map.months[value];
+					return v.charAt(0).toUpperCase() + v.slice(1);
 				case 'd':
 					return value;
 				case 'dd':
@@ -1210,12 +1183,13 @@
 					return parseInt(value, 10);
 
 				case 'mmm':
+					value = value.toLowerCase();
 					return this.first(map.months, function (m, i) {
 						if (m.indexOf(value) > -1) return i;
 					});
 
 				case 'mmmm':
-					return map.months.indexOf(value);
+					return map.months.indexOf(value.toLowerCase());
 			}
 			return NaN;
 		},
