@@ -129,24 +129,24 @@
 (function ( root, factory ) {
 
 	if (typeof define === 'function' && define.amd) {
-		define(['mk'], function (mk) {
-			return factory( root, mk );
+		define(['mk-ui', 'mk-ui/Selectmenu'], function (mk, Selectmenu) {
+			return factory( root, mk, Selectmenu );
 		});
 	}
 	else if (typeof module === 'object' && module.exports) {
-		module.exports = factory(root, require('mk'));
+		module.exports = factory(root, require('mk-ui'), require('mk-ui/Selectmenu'));
 	}
 	else {
-		return factory(root, root.Mk);
+		return factory(root, root.Mk, root.Mk.Selectmenu);
 	}
 
-})(typeof window !== "undefined" && window || this, function (root, mk) {
+})(typeof window !== "undefined" && window || this, function (root, mk, Selectmenu) {
 
-    if (typeof mk.Selectmenu === 'undefined') {
+    if (typeof Selectmenu === 'undefined') {
         throw new Error('Mk.Autocomplete: Selectmenu base class not found.');
     }
 
-    mk.create('Autocomplete', mk.Selectmenu, {
+    mk.create('Autocomplete', Selectmenu, {
 
         name: 'mk-ac',
 

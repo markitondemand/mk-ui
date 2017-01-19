@@ -68,24 +68,24 @@
 (function (root, factory) {
 
 	if ( typeof define === 'function' && define.amd ) {
-		define( ['mk'], function ( mk ) {
-			return factory( root, mk );
+		define( ['mk-ui', 'mk-ui/Tooltip'], function ( mk, Tooltip ) {
+			return factory( root, mk, Tooltip );
 		});
 	}
 	else if (typeof module === 'object' && module.exports) {
-		module.exports = factory( root, require('mk'));
+		module.exports = factory( root, require('mk-ui'), require('mk-ui/Tooltip'));
 	}
 	else {
-		return factory( root, root.Mk );
+		return factory( root, root.Mk, root.Mk.Tooltip );
 	}
 
-})(typeof window !== "undefined" && window || this, function (root, mk) {
+})(typeof window !== "undefined" && window || this, function (root, mk, Tooltip) {
 
-	if (typeof mk.Tooltip === 'undefined') {
+	if (typeof Tooltip === 'undefined') {
         throw new Error('Mk.Dialog: Tooltip base class not found.');
     }
 
-	mk.create('Dialog', mk.Tooltip, {
+	mk.create('Dialog', Tooltip, {
 
 		name: 'mk-dg',
 

@@ -19,12 +19,12 @@
 (function (root, factory) {
 
 	if (typeof define === 'function' && define.amd) {
-		define(['mk'], function (mk) {
+		define(['mk-ui'], function (mk) {
 			return factory(root, mk);
 		});
 	}
 	else if (typeof module === 'object' && module.exports) {
-		module.exports = factory(root, require('mk'));
+		module.exports = factory(root, require('mk-ui'));
 	}
 	else {
 		return factory(root, root.Mk);
