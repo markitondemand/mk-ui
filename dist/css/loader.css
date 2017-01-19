@@ -238,7 +238,7 @@
     transform: scale(1); } }
 
 .mk-ld-overlay.bar .bar-inner {
-  background-color: #ccc;
+  background-color: #aaa;
   bottom: 0;
   height: 6px;
   position: absolute;

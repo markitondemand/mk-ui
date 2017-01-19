@@ -115,7 +115,7 @@ $.prototype = {
             }
             return 0;
         }
-        
+
         return this.length > i && this[i] || undefined;
     },
 
@@ -333,8 +333,8 @@ $.prototype = {
 
         return this.nv(name, value, function (el, n, v) {
 
-            if (v === void+1) {
-                return $.data(el, n) || null;
+            if (v === void+1 || v === null) {
+                return $.data(el, n, v);
             }
             $.data(el, n, v);
         });

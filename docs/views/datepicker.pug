@@ -11,7 +11,8 @@ html
 			div
 				form
 					fieldset.mk-dp-root
-						input(type="date", class="mk-dp", min="2015-12-25", max="2017-12-25")
+						input(type="date", class="mk-dp", min="2016-12-4", max="2017-12-25" aria-label="Start Date")
+						input(type="date", class="mk-dp" aria-label="End Date")
 
 			include ./shared/api
 		include ./shared/scripts
@@ -25,11 +26,24 @@ html
 				datepicker;
 
 			examples.each(function (example) {
+
 				datepicker = new Datepicker(example, {
-					format: 'mmm dd, yyyy',
-					rollover: false
+					label: 'Choose a Start Date',
+					format: 'mm/dd/yyyy',
+					rollover: false,
+					popup: true,
+					blackouts: [
+						'2017-1-12'
+					],
+					special: {
+						booked: [
+							'2017-1-10'
+						]
+					}
 				});
+
 				datepicker.on('change', function () {
 					console.info(this.value);
 				});
+
 			});
