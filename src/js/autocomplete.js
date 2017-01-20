@@ -94,7 +94,7 @@
 		</example>
 	</event:capacity>
 	<event:create.tag>
-		<desc>Fired when the trigger input value (label) changes.</desc>
+		<desc>Fired when a tab is being created. You can customize the tag properties through here.</desc>
 		<example>
 			instance.on('create.tag', function (o) {
 				o.label = 'New Label!';

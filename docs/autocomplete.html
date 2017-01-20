@@ -155,7 +155,7 @@ instance.on('update', function () {
 instance.on('capacity', function () {
 	console.info('We reached capacity!');
 });
-		</code></pre></div></section></div><div class="col-sm-6"><section class="panel panel-event"><header class="panel-heading"><h3 class="panel-title">create.tag</h3></header><div class="panel-body"><p>Fired when the trigger input value (label) changes.</p><pre><code class="language-javascript">
+		</code></pre></div></section></div><div class="col-sm-6"><section class="panel panel-event"><header class="panel-heading"><h3 class="panel-title">create.tag</h3></header><div class="panel-body"><p>Fired when a tab is being created. You can customize the tag properties through here.</p><pre><code class="language-javascript">
 instance.on('create.tag', function (o) {
 	o.label = 'New Label!';
 });
