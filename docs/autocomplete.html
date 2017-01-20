@@ -159,6 +159,10 @@ instance.on('capacity', function () {
 instance.on('create.tag', function (o) {
 	o.label = 'New Label!';
 });
+		</code></pre></div></section></div><div class="col-sm-6"><section class="panel panel-event"><header class="panel-heading"><h3 class="panel-title">request.send</h3></header><div class="panel-body"><p>Used when hooking into request logic to send requests to the server for data.</p><pre><code class="language-javascript">
+instance.on('request.send', function (query, requestnumber) {
+	console.info('about to search for ', query);
+});
 		</code></pre></div></section></div><div class="col-sm-6"><section class="panel panel-event"><header class="panel-heading"><h3 class="panel-title">request.error</h3></header><div class="panel-body"><p>Since remote requests are left the end developers, this event must be emit by the end developer as well, typically in an error handler. Since the end developer emits this event, you may pass in any arguments you like.</p><pre><code class="language-javascript">
 instance.on('request.error', function () {
 	console.info('request failed');

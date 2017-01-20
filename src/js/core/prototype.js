@@ -567,7 +567,7 @@ Mk.prototype = {
     },
     /*
     <method:configure>
-        <invoke>._config(object)</invoke>
+        <invoke>.configure(object)</invoke>
         <param:object>
             <type>Object</type>
             <desc>An object of end developer settings passed in and added to the config property.</desc>

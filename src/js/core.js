@@ -6,28 +6,28 @@
 (function (root, factory) {
 
 	if (typeof define === "function" && define.amd) {
-		define(['jquery'], function (jq) {
-			return (root.Mk = factory(root, jq));
+		define([], function () {
+			return (root.Mk = factory(root));
 		});
 	}
 	else if (typeof module === "object" && module.exports) {
 
 		module.exports = root.document ?
 
-			factory(root, require('jquery')) :
+			factory(root) :
 
 			function (w) {
 				if (!w.document) {
 					throw new Error("Mk[ui] requires a window with a document");
 				}
-				return factory(w, require('jquery'));
+				return factory(w);
 			};
 	}
 	else {
-		root.Mk = factory(root, window.jQuery);
+		root.Mk = factory(root);
 	}
 
-})(typeof window !== "undefined" && window || this, function (root, dom) {
+})(typeof window !== "undefined" && window || this, function (root) {
 
 "use strict";
 
@@ -38,8 +38,6 @@ var noop = function () {};
 var Mk = function () {};
 
 Mk.fn = {};
-
-//Mk.$ = dom;
 
 
 Mk.fn.uid = function () {
@@ -2316,7 +2314,7 @@ Mk.prototype = {
     },
     /*
     <method:configure>
-        <invoke>._config(object)</invoke>
+        <invoke>.configure(object)</invoke>
         <param:object>
             <type>Object</type>
             <desc>An object of end developer settings passed in and added to the config property.</desc>
