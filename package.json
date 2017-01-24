@@ -44,6 +44,7 @@
     "dialog.js",
     "loader.js",
     "tooltip.js",
+	"selectmenu.js",
     "LICENSE"
   ]
 }
