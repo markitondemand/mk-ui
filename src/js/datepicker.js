@@ -586,7 +586,7 @@
 				.param('label', 'string', o, formats.label, root)
 				.param('popup', 'boolean', o, true, root)
                 .param('holidays', 'object', o, this.holidays)
-                .param('unavailables', 'object', o, this.blackouts)
+                .param('blackouts', 'object', o, this.blackouts)
                 .param('special', 'object', o, this.special);
 
 			this.super(o);

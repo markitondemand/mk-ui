@@ -1,136 +1,136 @@
 
-$mk-primary: #008e89;
-$mk-secondary: #00b140;
+$mk-primary: #008e89 !default;
+$mk-secondary: #00b140 !default;
 
-$mk-gray-1: #333;
-$mk-gray-2: #666;
-$mk-gray-3: #aaa;
-$mk-gray-4: #eee;
-$mk-gray-5: white;
+$mk-gray-1: #333 !default;
+$mk-gray-2: #666 !default;
+$mk-gray-3: #aaa !default;
+$mk-gray-4: #eee !default;
+$mk-gray-5: white !default;
 
-$mk-color: #333;
+$mk-color: #333 !default;
 
-$mk-padding: 0.8rem;
-$mk-margin: 0.8rem;
+$mk-padding: 0.8rem !default;
+$mk-margin: 0.8rem !default;
 
 //
 // loader
 // -------------------------------------------
 
-$mk-ld-dump: true;
+$mk-ld-dump: true !default;
 
-$mk-ld-overlay-speed: 0.5s;
-$mk-ld-default-speed: 1.5s;
-$mk-ld-samsung-speed: 1.5s;
-$mk-ld-spincycle-speed: 1s;
-$mk-ld-windows-speed: 1s;
-$mk-ld-bar-speed: 2s;
-$mk-ld-bubble-speed: 2s;
-$mk-ld-bubble-delay: -1.0s;
+$mk-ld-overlay-speed: 0.5s !default;
+$mk-ld-default-speed: 1.5s !default;
+$mk-ld-samsung-speed: 1.5s !default;
+$mk-ld-spincycle-speed: 1s !default;
+$mk-ld-windows-speed: 1s !default;
+$mk-ld-bar-speed: 2s !default;
+$mk-ld-bubble-speed: 2s !default;
+$mk-ld-bubble-delay: -1.0s !default;
 
-$mk-ld-overlay-bg: rgba(255, 255, 255, 0.7);
-$mk-ld-boxshadow-color: rgba(0, 0, 0, 0.15);
-$mk-ld-default-size: 12px;
-$mk-ld-windows-size: 50px;
-$mk-ld-bubble-size: 50px;
-$mk-ld-spincycle-size: 50px;
-$mk-ld-bar-size: 6px;
+$mk-ld-overlay-bg: rgba(255, 255, 255, 0.7) !default;
+$mk-ld-boxshadow-color: rgba(0, 0, 0, 0.15) !default;
+$mk-ld-default-size: 12px !default;
+$mk-ld-windows-size: 50px !default;
+$mk-ld-bubble-size: 50px !default;
+$mk-ld-spincycle-size: 50px !default;
+$mk-ld-bar-size: 6px !default;
 
 //
 // selectmenu
 // -------------------------------------------
 
-$mk-sm-transition-speed: 0.5s;
+$mk-sm-transition-speed: 0.5s !default;
 
-$mk-sm-trigger-bg: transparent;
-$mk-sm-trigger-color: $mk-color;
-$mk-sm-trigger-char: '\203A';
-$mk-sm-trigger-char-size: 18px;
-$mk-sm-trigger-char-height: 30px;
-$mk-sm-trigger-char-transform: rotate(90deg);
-$mk-sm-trigger-disabled-color: $mk-gray-2;
+$mk-sm-trigger-bg: transparent !default;
+$mk-sm-trigger-color: $mk-color !default;
+$mk-sm-trigger-char: '\203A' !default;
+$mk-sm-trigger-char-size: 18px !default;
+$mk-sm-trigger-char-height: 30px !default;
+$mk-sm-trigger-char-transform: rotate(90deg) !default;
+$mk-sm-trigger-disabled-color: $mk-gray-2 !default;
 
-$mk-sm-list-bg: $mk-gray-5;
-$mk-sm-list-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
+$mk-sm-list-bg: $mk-gray-5 !default;
+$mk-sm-list-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4) !default;
 
-$mk-sm-option-color: $mk-gray-2;
-$mk-sm-option-bg: tranparent;
+$mk-sm-option-color: $mk-gray-2 !default;
+$mk-sm-option-bg: tranparent !default;
 
-$mk-sm-option-color-hover: $mk-gray-2;
-$mk-sm-option-bg-hover: transparent;
+$mk-sm-option-color-hover: $mk-gray-2 !default;
+$mk-sm-option-bg-hover: transparent !default;
 
-$mk-sm-option-color-disabled: $mk-gray-4;
-$mk-sm-option-bg-disabled: transparent;
+$mk-sm-option-color-disabled: $mk-gray-4 !default;
+$mk-sm-option-bg-disabled: transparent !default;
 
-$mk-sm-option-color-active: $mk-gray-2;
-$mk-sm-option-bg-active: $mk-gray-4;
+$mk-sm-option-color-active: $mk-gray-2 !default;
+$mk-sm-option-bg-active: $mk-gray-4 !default;
 
-$mk-sm-option-selected-char: '\2714';
+$mk-sm-option-selected-char: '\2714' !default;
 
 //
 // Autocomplete
 // -------------------------------------------
 
-$mk-ac-transition-speed: 0.5s;
+$mk-ac-transition-speed: 0.5s !default;
 
-$mk-ac-trigger-bg: transparent;
-$mk-ac-trigger-color: $mk-color;
-$mk-ac-trigger-char-transform: rotate(90deg);
-$mk-ac-trigger-disabled-color: $mk-gray-2;
-$mk-ac-trigger-transition-speed: 1s;
+$mk-ac-trigger-bg: transparent !default;
+$mk-ac-trigger-color: $mk-color !default;
+$mk-ac-trigger-char-transform: rotate(90deg) !default;
+$mk-ac-trigger-disabled-color: $mk-gray-2 !default;
+$mk-ac-trigger-transition-speed: 1s !default;
 
-$mk-ac-list-bg: $mk-gray-5;
-$mk-ac-list-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
-$mk-ac-list-loader-bg: rgba(255, 255, 255, 0.7);
-$mk-ac-list-loader-size: 3.28rem;
+$mk-ac-list-bg: $mk-gray-5 !default;
+$mk-ac-list-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4) !default;
+$mk-ac-list-loader-bg: rgba(255, 255, 255, 0.7) !default;
+$mk-ac-list-loader-size: 3.28rem !default;
 
-$mk-ac-option-color: $mk-gray-2;
-$mk-ac-option-bg: tranparent;
+$mk-ac-option-color: $mk-gray-2 !default;
+$mk-ac-option-bg: tranparent !default;
 
-$mk-ac-option-color-hover: $mk-gray-3;
-$mk-ac-option-bg-hover: transparent;
+$mk-ac-option-color-hover: $mk-gray-3 !default;
+$mk-ac-option-bg-hover: transparent !default;
 
-$mk-ac-option-color-disabled: $mk-gray-4;
-$mk-ac-option-bg-disabled: transparent;
+$mk-ac-option-color-disabled: $mk-gray-4 !default;
+$mk-ac-option-bg-disabled: transparent !default;
 
-$mk-ac-option-color-active:$mk-gray-2;
-$mk-ac-option-bg-active: $mk-gray-4;
+$mk-ac-option-color-active:$mk-gray-2 !default;
+$mk-ac-option-bg-active: $mk-gray-4 !default;
 
-$mk-ac-option-selected-char: '\2714';
+$mk-ac-option-selected-char: '\2714' !default;
 
-$mk-ac-tag-bg: $mk-gray-4;
-$mk-ac-tag-border: 1px solid $mk-gray-3;
-$mk-ac-tag-remove-icon: '\d7';
-$mk-ac-tag-padding: 0.5rem;
-$mk-ac-tag-min-height: 5rem;
-$mk-ac-tag-label: 'Tags';
-$mk-ac-tag-label-left: 0.6rem;
-$mk-ac-tag-label-offset: -0.8rem;
+$mk-ac-tag-bg: $mk-gray-4 !default;
+$mk-ac-tag-border: 1px solid $mk-gray-3 !default;
+$mk-ac-tag-remove-icon: '\d7' !default;
+$mk-ac-tag-padding: 0.5rem !default;
+$mk-ac-tag-min-height: 5rem !default;
+$mk-ac-tag-label: 'Tags' !default;
+$mk-ac-tag-label-left: 0.6rem !default;
+$mk-ac-tag-label-offset: -0.8rem !default;
 
-$mk-ac-notification-height: 16px;
+$mk-ac-notification-height: 16px !default;
 
 //
 // Tooltip
 // -------------------------------------------
 
-$mk-tt-bg: $mk-gray-1;
-$mk-tt-color: $mk-gray-5;
-$mk-tt-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
-$mk-tt-transition-speed: 0.5s;
-$mk-tt-arrow-size: 0.6rem;
-$mk-tt-arrow-offset: 0.6rem;
-$mk-tt-margin: 1rem;
-$mk-tt-padding: 1rem;
+$mk-tt-bg: $mk-gray-1 !default;
+$mk-tt-color: $mk-gray-5 !default;
+$mk-tt-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4) !default;
+$mk-tt-transition-speed: 0.5s !default;
+$mk-tt-arrow-size: 0.6rem !default;
+$mk-tt-arrow-offset: 0.6rem !default;
+$mk-tt-margin: 1rem !default;
+$mk-tt-padding: 1rem !default;
 
 //
 // Dialog
 // -------------------------------------------
 
-$mk-dg-bg: $mk-gray-1;
-$mk-dg-color: $mk-gray-5;
-$mk-dg-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
-$mk-dg-transition-speed: 0.5s;
-$mk-dg-arrow-size: 0.6rem;
-$mk-dg-arrow-offset: 0.6rem;
-$mk-dg-margin: 1rem;
-$mk-dg-padding: 1rem;
+$mk-dg-bg: $mk-gray-1 !default;
+$mk-dg-color: $mk-gray-5 !default;
+$mk-dg-boxshadow: 0 0 1.5rem rgba(0, 0, 0, 0.4) !default;
+$mk-dg-transition-speed: 0.5s !default;
+$mk-dg-arrow-size: 0.6rem !default;
+$mk-dg-arrow-offset: 0.6rem !default;
+$mk-dg-margin: 1rem !default;
+$mk-dg-padding: 1rem !default;
