@@ -1035,7 +1035,7 @@
 				disabled: this.disabled,
 				list: {
 					id: id,
-					items: this.prepData(data, query)
+					items: []
 				}
 			};
 		},
@@ -1151,6 +1151,10 @@
 					this.selections.push(data);
 					this.tag(data).updateRoot();
 					this.notify();
+
+					if (this.limit < 2) {
+						this.input.val(data.label);
+					}
 
                     if (!silent) {
                         this.emit('change', data);

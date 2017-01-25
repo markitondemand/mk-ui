@@ -586,7 +586,7 @@
 				.param('label', 'string', o, formats.label, root)
 				.param('popup', 'boolean', o, true, root)
                 .param('holidays', 'object', o, this.holidays)
-                .param('unavailables', 'object', o, this.blackouts)
+                .param('blackouts', 'object', o, this.blackouts)
                 .param('special', 'object', o, this.special);
 
 			this.super(o);
@@ -1641,7 +1641,7 @@
 
 		/*
 			<method:moveMonth>
-				<invoke>.moveYear(up[, refocus])</invoke>
+				<invoke>.moveMonth(up[, refocus])</invoke>
 				<param:up>
 					<type>Boolean</type>
 					<desc>Moves the calendar either up or down a month.</desc>
@@ -1850,9 +1850,9 @@
 				</param:sdate>
 				<param:format>
 					<type>String</type>
-					<desc>The format string to parse the correct date values from.</desc>
+					<desc>The format string to parse the correct date values from. Default is a native date format (yyyy-mm-dd).</desc>
 				</param:format>
-				<desc>Std (stringToDate) takes a date string in *native format only* (yyyy-mm-dd) and converts it to a date.</desc>
+				<desc>Std (stringToDate) takes a date string and converts it to a Date object.</desc>
 			</method:std>
 		*/
 
@@ -1887,7 +1887,7 @@
 					<type>String</type>
 					<desc>format string to convert date to. Default is browser native (yyyy-mm-dd).</desc>
 				</param:format>
-				<desc>Dts (dateToString) takes a date string in *native format only* (yyyy-mm-dd) and converts it to a date.</desc>
+				<desc>Dts (dateToString) takes a Date object and convert it to a string.</desc>
 			</method:dts>
 		*/
 
