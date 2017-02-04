@@ -1,3 +1,3 @@
-var Loader = require('dist/js/loader');
+var Loader = require('./dist/js/loader');
 
 module.exports = Loader;
