@@ -1,3 +1,3 @@
-var Datepicker = require('dist/js/datepicker');
+var Datepicker = require('./dist/js/datepicker');
 
 module.exports = Datepicker;
