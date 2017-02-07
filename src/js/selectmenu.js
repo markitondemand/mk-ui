@@ -96,6 +96,10 @@
 
 		name: 'mk-sm',
 
+		// see bind() for property details.
+		// used as a temp flag for IE specific bug and overflow scroll elements.
+		fromIEBubbleBug: false,
+
 		templates: {
 
 			shadow:
@@ -131,7 +135,7 @@
 				</li>',
 
 			option:
-				'<a id="{{id}}" \
+				'<a tabindex="-1" id="{{id}}" \
 					class="{{$key}}-{{tagname}}{{if:classname}} {{classname}}{{/if:classname}}" \
 					role="{{role}}" \
 					href="javascript: void(0);" \
@@ -315,7 +319,7 @@
 		verifyRoot: function (n) {
 
 			if (!this.node('', n).is('select')) {
-				throw new Error(':: Mk.Selectmenu - root must have a <select> node ::');
+				throw new Error(':: Mk.Selectmenu - root must contain a <select> node ::');
 			}
 			return true;
 		},
@@ -466,7 +470,6 @@
 			//for mobile devices.
 
 			if (!this.device) {
-
 				this.bindInputEvents();
 				this.bindListEvents();
 			}
@@ -499,10 +502,20 @@
 				if (this.disabled) {
 					return;
 				}
+
+				// IE bug with preventDefault being ignored by mousedown
+				// when an overflow element's scrollbar is being clicked.
+				if (thiss.fromIEBubbleBug) {
+					thiss.fromIEBubbleBug = false;
+					thiss.input.focus();
+					return;
+				}
+
 				inFocus = false;
 				thiss.blur();
 			})
 			.on('mousedown.mk', function (e) {
+
 				focusedByMouse = true;
 
 				if (inFocus) {
@@ -521,7 +534,19 @@
 
 			this.list
 			.on('mousedown.mk', function (e) {
+
 				e.preventDefault();
+
+				this.fromIEBubbleBug = false;
+
+				// IE bug occurs when lists has overflow: scroll
+				// and user clicks the scrollbar up/down buttons
+				if (!e.toElement && thiss.list.is(e.target)) {
+					thiss.fromIEBubbleBug = true;
+					// call blur() before IE triggers it natively
+					// There's another bug with mousedown not always emitting with fast clicking.
+					thiss.input.blur();
+				}
 			})
 			.on('click.mk', '[role="option"]', function (e) {
 
@@ -530,7 +555,7 @@
 				if (thiss.list.hasClass('out')) {
 					return;
 				}
-				thiss.select( this.getAttribute('data-value') );
+				thiss.select(this.getAttribute('data-value'));
 			})
 			.on('mouseenter.mk', '[role="option"]', function (e) {
 
@@ -1308,7 +1333,7 @@
 
 			if (tally === values.length) {
 				this.each(values, function (v) {
-					this.deselect(v);
+					this.deselect(v, true);
 				});
 			}
 
