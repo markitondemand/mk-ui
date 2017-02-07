@@ -32,6 +32,17 @@
   border: 1px solid #008e89;
   position: relative; }
 
+.mk-ac-submit {
+  background: #008e89;
+  border: none;
+  color: white;
+  padding: 0.4rem;
+  position: absolute;
+  right: 4px;
+  top: 4px; }
+  .mk-ac-submit:after {
+    content: "Search"; }
+
 .mk-ac-trigger[aria-expanded="true"],
 .mk-ac-trigger.focus {
   color: #00b140;

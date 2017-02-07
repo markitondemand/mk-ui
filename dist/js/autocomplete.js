@@ -36,6 +36,15 @@
 			});
 		</example>
 	</event:change>
+	<event:submit>
+		<desc>Fires when autocomplete submit button is clicked/pressed.</desc>
+		<example>
+			instance.on('submit', function () {
+				console.info('base 64:', this.value);
+				console.info('raw objects:', this.selections);
+			});
+		</example>
+	</event:submit>
 	<event:show>
 		<desc>Fired when menu is shown.</desc>
 		<example>
@@ -186,6 +195,7 @@
 					role="combobox" \
 					aria-haspopup="listbox">\
 					{{template:input}}\
+					{{template:submit}}\
 					{{template:live}}\
 				</div>',
 
@@ -197,6 +207,9 @@
 					{{if:disabled}}aria-disabled="true" disabled {{/if:disabled}}\
 					{{if:multiple}}aria-multiselectable="true" {{/if:multiple}}\
 					value="{{label}}" />',
+
+			submit:
+				'<button class="mk-ac-submit" aria-label="{{submit}}"></button>',
 
 			live:
 				'<div class="{{$key}}-live sr-only" \
@@ -235,6 +248,7 @@
 		},
 
 		formats: {
+			submit: 'Search for {{query}}',
 			loading: 'Searching for {{query}}',
 			loaded: '{{count}} results loaded for {{query}}',
 			error: 'Whoops, looks like we\'re having issues with {{highlight:query}}',
@@ -474,7 +488,8 @@
 			.param('doubledelete', 'boolean', o, o.limit > 1, input)
 			.param('anything', 'boolean', o, true, input)
 			.param('comma', 'boolean', o, false, input)
-			.param('notags', 'boolean', o, false, input);
+			.param('notags', 'boolean', o, false, input)
+			.param('chars', 'number', o, 1, input);
 
 			if (internal !== true) {
 				this.super(o);
@@ -554,6 +569,11 @@
 
             var thiss = this,
 				trigger = this.trigger;
+
+			this.node('submit').on('click.mk', function (e) {
+				e.preventDefault();
+				thiss.emit('submit');
+			});
 
 			this.input
 			.on('focus.mk', function (e) {
@@ -865,12 +885,15 @@
 
 			this.query = q;
 
+			this.node('submit').attr('aria-label',
+				this.format('submit', {query: q}));
+
 			if (this.hasCache(q)) {
 				this.render(this.getCache(q), q);
 				return;
 			}
 
-			if (q) {
+			if (q && q.length >= this.config.chars) {
 				this.request();
 			}
 		},
@@ -1033,6 +1056,7 @@
 				classname: cls.join(' '),
 				multiple: this.multiple,
 				disabled: this.disabled,
+				submit: this.format('submit', {query: query}),
 				list: {
 					id: id,
 					items: []
@@ -1142,7 +1166,7 @@
 					this.notify(this.NOTIFY_STATES.CAPACITY);
 
                     if (!silent) {
-					    this.emit('capacity', this.selections);
+					    this.emit('capacity');
                     }
 				}
 				else {
@@ -1162,6 +1186,10 @@
 				}
 				this.hide();
 			}
+			else if (!silent) {
+				this.emit('submit');
+			}
+
 			return this;
 		},
 
@@ -1480,8 +1508,10 @@
 			else {
 				this._render(preppedData);
 			}
+
 			this.notify();
             this.notify(this.NOTIFY_STATES.LOADED, query, data.length);
+
             return this.show();
 		},
 

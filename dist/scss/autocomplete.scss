@@ -37,6 +37,20 @@
 	position: relative;
 }
 
+.mk-ac-submit {
+	background: $mk-primary;
+	border: none;
+	color: $mk-gray-5;
+	padding: $mk-padding / 2;
+	position: absolute;
+	right: 4px;
+	top: 4px;
+
+	&:after {
+		content: $mk-ac-trigger-char;
+	}
+}
+
 .mk-ac-trigger[aria-expanded="true"],
 .mk-ac-trigger.focus {
 	color: $mk-secondary;

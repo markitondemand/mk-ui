@@ -115,6 +115,8 @@ html
 					|	&lt;input type="text"
 					|		name="search"
 					|		aria-label="Search for Stuff"
+					|		&lt;!-- Number of characters before filtering/requesting data. Default is 1. --&gt;
+					|		data-chars="3"
 					|		&lt;!-- time in milliseconds for a data request to kick off after user entry. Default is 300. --&gt;
 					|		data-time="500"
 					|		&lt;!-- total number of possible results a user can select. Default is 1. --&gt;
@@ -145,6 +147,8 @@ html
 					| var autocomplete = new Autocomplete('#selector', {
 					|	//number of selections user is allowed. Default is 1
 					|	limit: 1,
+					|	//number of characters typed by user before kicking off a request/search. Default is 1
+					|	chars: 3,
 					|	//delay before trigering request events for data. Default is 300.
 					|	time: 500,
 					|	//allow the user to input/select anything (including anything they enter manually) Default is true.
@@ -345,19 +349,19 @@ html
 					});
 				}
 
-				autocomplete.on('activate', function (node, keyboard) {
+				autocomplete
+				.on('activate', function (node, keyboard) {
 
 					if (keyboard) {
-
-						var data = this.unflatten(
-								node.attr('data-value'));
-
+						var data = this.unflatten(node.attr('data-value'));
 						this.input.val(data.value);
 					}
-				});
-
-				autocomplete.on('change', function () {
+				})
+				.on('change', function () {
 					console.info('selections (raw):', this.selections);
 					console.info('value (base64):', this.value)
+				})
+				.on('submit', function () {
+					alert('Submit fired!\nData:\n' + JSON.stringify(this.selections));
 				});
 			});
