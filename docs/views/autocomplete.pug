@@ -38,6 +38,22 @@ html
 									placeholder="Movie Genres",
 									name="symbol-2",
 									data-limit="4")
+
+				div.col-sm-4
+					section.panel.panel-example
+						header.panel-heading
+							h2.panel-title Categories &amp; Headers
+						div.panel-body
+							p
+								| To use categories, your data must be an array of objects with a 'label' and 'items' property. The 'items' is an array of results the user can select from and each result must contain at least a 'label' and 'value' property.
+							div.mk-ac-root#categories
+								input(
+									type="text",
+									class="mk-ac",
+									placeholder="Movie Genres",
+									name="symbol-3",
+									data-limit="4")
+			div.row
 				div.col-sm-4
 					section.panel.panel-example
 						header.panel-heading
@@ -51,9 +67,8 @@ html
 									type="text",
 									class="mk-ac",
 									placeholder="Search for a symbol",
-									name="symbol-1",
+									name="symbol-4",
 									data-limit="4")
-			div.row
 				div.col-sm-4
 					section.panel.panel-example
 						header.panel-heading
@@ -66,7 +81,7 @@ html
 									type="text",
 									class="mk-ac",
 									placeholder="Movie Genres",
-									name="symbol-3",
+									name="symbol-5",
 									data-limit="4",
 									data-comma="true")
 				div.col-sm-4
@@ -81,7 +96,7 @@ html
 									type="text",
 									class="mk-ac",
 									placeholder="Movie Genres",
-									name="symbol-4",
+									name="symbol-6",
 									data-limit="4",
 									data-anything="false")
 				div.col-sm-4
@@ -96,7 +111,7 @@ html
 									type="text",
 									class="mk-ac",
 									placeholder="Movie Genres",
-									name="symbol-5",
+									name="symbol-7",
 									data-comma="true",
 									data-notags="true")
 			h2 Setup
@@ -163,7 +178,11 @@ html
 					|	//you can also do both static and remote data.
 					|	data: [
 					|		..predefined data set..
-					|	]
+					|		{
+					|			label: 'Example Result 1',
+					|			value: 'my-result-key'
+					|		}
+					|	],
 					|	//template overrides/additions
 					|	templates: {
 					|		..template overrides..
@@ -297,6 +316,73 @@ html
 								});
 							}
 						}
+					});
+				}
+				else if (el.id && el.id === 'categories') {
+
+					autocomplete = new Autocomplete(el, {
+						data: [
+							{
+								label: 'Fun Movies',
+								items: [
+									{
+										label: 'Comedy',
+										value: 'Comedy'
+									},
+									{
+										label: 'Disney',
+										value: 'Disney'
+									},
+									{
+										label: 'Action',
+										value: 'Action'
+									},
+									{
+										label: 'Adventure',
+										value: 'Adventure'
+									}
+								]
+							},
+							{
+								label: 'Intense Movies',
+								items: [
+									{
+										label: 'Horror',
+										value: 'Horror'
+									},
+									{
+										label: 'Thriller',
+										value: 'Thriller'
+									},
+									{
+										label: 'SyFi',
+										value: 'SyFi'
+									},
+									{
+										label: 'Drama',
+										value: 'Drama'
+									}
+								]
+							},
+							{
+								label: 'You Never Knows',
+								items: [
+									{
+										label: 'Fantasy',
+										value: 'Fantasy'
+									},
+
+									{
+										label: 'Romance',
+										value: 'Romance'
+									},
+									{
+										label: 'Independent',
+										value: 'Independent'
+									}
+								]
+							}
+						]
 					});
 				}
 				else {

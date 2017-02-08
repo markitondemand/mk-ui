@@ -228,6 +228,13 @@
 					{{loop:items}}{{template:item}}{{/loop:items}}\
 				</ul>',
 
+			category:
+				'<li class="{{$key}}-category" role="presentation">\
+					<span id="{{id}}" role="presentation">\
+						<span class="{{$key}}-label">{{label}}</span>\
+					</span>\
+				</li>',
+
 			item:
 				'<li class="{{$key}}-item" role="presentation">\
 					<a id="{{id}}" \
@@ -759,6 +766,15 @@
 			var list = this.list;
 
 			this.each(data, function (obj, i) {
+
+				if (obj.hasOwnProperty('items')) {
+					if (obj.items.length > 0) {
+						list.append(this.html('category', obj));
+						this._render(obj.items);
+					}
+					return;
+				}
+
 				list.append(this.html('item', obj));
 			});
 		},
@@ -840,20 +856,20 @@
 				return this.show();
 			}
 
-			var active = this.items.find('.active')[0],
-				index = this.index(active) + (up && -1 || 1);
+			var items = this.items,
+				active = items.find('.active')[0],
+				index = active && this.index(active);
 
-			if (!active) {
-				index = 0;
-			}
-
-			if (index >= this.items.length) {
-				index = -1;
-			}
-
-			if (index < 0) {
+			if ((index === 0 && up) || (index === items.length - 1 && !up)) {
 				this.$(active).removeClass('active');
 				this.input.attr('aria-activedescendant', '').val(this.query);
+				return;
+			}
+
+			if (index === void+1 && up) {
+				index = items.length - 2;
+				this.node('option', items[index]).addClass('active');
+				this.super(false);
 				return;
 			}
 
@@ -1084,9 +1100,19 @@
 			if (key) {
 				//string escape patterns throw errors
 				//so we must replace the escape character with doubles.
-				var reg = new RegExp(key.replace(/\\/g, '\\\\'), 'i');
+				var reg = new RegExp(key.replace(/\\/g, '\\\\'), 'i'), r;
 
-				return this.filter(data, function (o, i) {
+				return this.map(data, function (o, i) {
+
+					if (o.hasOwnProperty('items')) {
+						return this.map(o, function (p, x) {
+							if (x === 'items') {
+								return this.filterData(key, p);
+							}
+							return p;
+						});
+					}
+
 					if (reg.test(o.label) || reg.test(o.value)) {
 						return o;
 					}
@@ -1119,6 +1145,10 @@
 
                 //copy object properties
                 set = this.map(obj, function (value, key) {
+
+					if (key === 'items') {
+						return this.prepData(value, query);
+					}
                     return value;
                 });
 
@@ -1487,6 +1517,7 @@
 			var preppedData = this.prepData(data, query);
 
 			this.items.remove();
+			this.node('category', this.list).remove();
 
 			//if we have no data,
 			//notify user and hide list if vidible.

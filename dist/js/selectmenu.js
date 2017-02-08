@@ -718,7 +718,7 @@
 			}
 			else {
 
-				var increment = up && -1 || 1
+				var increment = up && -1 || 1,
 					index = this.index(active) + increment;
 
 				option = options[index];

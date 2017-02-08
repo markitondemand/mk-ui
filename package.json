@@ -1,6 +1,6 @@
 {
   "name": "mk-ui",
-  "version": "0.0.29",
+  "version": "0.0.31",
   "description": "Flexible, Accessible Web Components",
   "dependencies": {},
   "devDependencies": {
