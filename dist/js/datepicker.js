@@ -32,6 +32,17 @@
 
 })(typeof window !== 'undefined' && window || this, function (root, mk) {
 
+	var months = [
+			'january', 'february', 'march', 'april', 'may', 'june', 'july',
+			'august', 'september', 'october', 'november', 'december'
+		],
+		days = [
+			'sunday', 'monday', 'tuesday',
+			'wednesday', 'thursday', 'friday', 'saturday'
+		],
+		xSplit = /\/|-|,\s|\s/,
+		xSearch = /(^|\w+)(\/|-|,\s|\s|$)/g;
+
     function num (v) {
         return typeof v === 'number';
     }
@@ -114,16 +125,118 @@
 		return new Date(gy(d), gm(d), 1).getDay();
 	}
 
+	function dformat (value, format) {
+
+		if (isNaN(value)) {
+			return format;
+		}
+
+		var v;
+
+		switch (format) {
+			case 'm':
+				return value + 1;
+			case 'mm':
+				return (++value) < 10 && '0' + value || value;
+			case 'mmm':
+				v = months[value].slice(0, 3);
+				return v.charAt(0).toUpperCase() + v.slice(1);
+			case 'mmmm':
+				v = months[value];
+				return v.charAt(0).toUpperCase() + v.slice(1);
+			case 'd':
+				return value;
+			case 'dd':
+				return value < 10 && '0' + value || value;
+			case 'yyyy':
+				return value;
+			case 'yy':
+				return value.toString().slice(2);
+		}
+	}
+
+	function dvalue (date, part) {
+
+		switch (part.slice(0, 1)) {
+
+			case 'y': return gy(date);
+			case 'm': return gm(date);
+			case 'd':
+
+				if (part.length > 2) {
+					return date.getDay();
+				}
+				return gd(date);
+		}
+		return NaN;
+	}
+
+	function svalue (date, value, format) {
+
+		var days;
+
+		switch (format.slice(0, 1)) {
+
+			case 'd':
+				days = dim(date);
+				value = value > days && 1 || value > 0 && value || days;
+				sd(date, value);
+				break;
+
+			case 'm':
+				value = value < 0 && 11 || value < 12 && value || 0
+				sm(date, value);
+				break;
+
+			case 'y':
+				sy(date, value);
+				break;
+		}
+
+		return dformat(value, format);
+	}
+
+	function dts (date, format) {
+
+		var v;
+
+		mk.fn.each(null, format.split(xSplit), function (f) {
+
+			v = dformat(dvalue(date, f), f);
+			format = format.replace(new RegExp(f), v);
+		});
+
+		return format;
+	}
+
+	function std (sdate, format) {
+
+		var date = dt(),
+			parts = sdate.split(xSplit),
+			format = (format).split(xSplit),
+			value;
+
+		mk.fn.each(null, format, function (f, i) {
+
+			value = parseInt(parts[i], 10);
+
+			if (f.indexOf('m') > -1) {
+				value -= 1;
+			}
+			svalue(date, value, f);
+		});
+
+		return date;
+	}
+
 	mk.create('Datepicker', {
 
 		_date: null,
         _enddate: null,
 		_uidate: null,
-        _clicks: 0,
 
-        xSplit: /\/|-|,\s|\s/,
-
-		xSearch: /(^|\w+)(\/|-|,\s|\s|$)/g,
+        xSplit: xSplit,
+		xSearch: xSearch,
 
 		name: 'mk-dp',
 
@@ -166,16 +279,8 @@
 		*/
 
 		formatmap: {
-
-			months: [
-				'january', 'february', 'march', 'april', 'may', 'june', 'july',
-				'august', 'september', 'october', 'november', 'december'
-			],
-
-			days: [
-				'sunday', 'monday', 'tuesday',
-				'wednesday', 'thursday', 'friday', 'saturday'
-			]
+			months: months,
+			days: days
 		},
 
         /*
@@ -574,13 +679,6 @@
 			this.uidate = this.adjust(o.fdate && this.std(o.fdate) || dt());
             this.date = this.adjust(o.fdate && this.std(o.fdate) || garbage());
 
-            if (this.multiple) {
-
-                end = this.input(1);
-                o.edate = end.val();
-                this.enddate = this.adjust(o.edate && this.std(o.edate) || garbage());
-            }
-
 			this.param('format', 'string', o, formats.date, root)
 				.param('rollover', 'boolean', o, true, root)
 				.param('label', 'string', o, formats.label, root)
@@ -709,7 +807,6 @@
                     this.selector('input')),
                 index = parseInt(input.data('index'), 10);
 
-            this._clicks = index;
             this.shadow.data('trigger-index', index);
             this.show();
         },
@@ -903,10 +1000,6 @@
                 dates = [this.date],
                 me = this,
                 entries;
-
-            if (this.multiple) {
-                dates.push(this.enddate);
-            }
 
             this.each(dates, function (date, i) {
 
@@ -1467,45 +1560,15 @@
 			</method:setDate>
 		*/
 
-		setDate: function (d, inputnum) {
+		setDate: function (d) {
 
             // always reset the time for comparisons
             d.setHours(0, 0, 0, 0);
 
             var time = d.getTime(),
-                multi = this.multiple,
                 date = this.date,
                 prop = 'date',
                 copy = dt();
-
-            if (multi && inputnum) {
-                this._clicks = inputnum;
-            }
-
-            // if we are dealing with multiple selections (start/end)
-            // check which selection we're at
-			if (multi) {
-
-                if (this._clicks > 0) {
-                    date = this.enddate;
-                    prop = 'enddate';
-
-                    // if the date is less than the start date,
-                    // use the start date instead. reset clicks
-                    if (time < date.getTime()) {
-                        date = this.startdate;
-                        prop = 'startdate';
-                        this._clicks = 0;
-                    }
-                }
-                else {
-                    if (time > date.getTime()) {
-                        this._clicks = 1;
-                        date = this.enddate;
-                        prop = 'enddate';
-                    }
-                }
-            }
 
             //reset our dates time now that we have the final reference
             date.setHours(0, 0, 0, 0);
@@ -1518,8 +1581,7 @@
             if (this.valid(d)) {
 
                 this[prop] = d;
-                this.inputs[this._clicks].value = this.dts(d);
-                this._clicks = multi && this._clicks < 1 ? 1 : 0;
+                this.inputs[0].value = this.dts(d);
                 this._updateEntries();
                 return true;
             }
@@ -1685,28 +1747,7 @@
 		},
 
 		setValue: function (format, value, date) {
-
-			var d = date || this.uidate, days;
-
-			switch (format.slice(0, 1)) {
-
-				case 'd':
-					days = dim(d);
-					value = value > days && 1 || value > 0 && value || days;
-					sd(d, value);
-					break;
-
-				case 'm':
-					value = value < 0 && 11 || value < 12 && value || 0
-					sm(d, value);
-					break;
-
-				case 'y':
-					sy(d, value);
-					break;
-			}
-
-			return this.format(format, value);
+			return svalue(date || this.uidate, value, format);
 		},
 
 		/*
@@ -1725,23 +1766,7 @@
 		*/
 
 		getValue: function (key, date) {
-
-			var d = date || this.uidate;
-
-			switch (key.slice(0, 1)) {
-
-				case 'y': return gy(d);
-				case 'm': return gm(d);
-				case 'd':
-
-					if (key.length > 2) {
-						return d.getDay();
-					}
-
-					return gd(d);
-			}
-
-			return NaN;
+			return dvalue(date || this.uidate, key);
 		},
 
 		/*
@@ -1768,36 +1793,7 @@
 			if (typeof value === 'undefined') {
 				value = this.getValue(format);
 			}
-
-			if (isNaN(value)) {
-				return format;
-			}
-
-			var me = this,
-				map = me.formatmap,
-				v;
-
-			switch (format) {
-
-				case 'm':
-					return value + 1;
-				case 'mm':
-					return (++value) < 10 && '0' + value || value;
-				case 'mmm':
-					v = map.months[value].slice(0, 3);
-					return v.charAt(0).toUpperCase() + v.slice(1);
-				case 'mmmm':
-					v = map.months[value];
-					return v.charAt(0).toUpperCase() + v.slice(1);
-				case 'd':
-					return value;
-				case 'dd':
-					return value < 10 && '0' + value || value;
-				case 'yyyy':
-					return value;
-				case 'yy':
-					return value.toString().slice(2);
-			}
+			return dformat(value, format);
 		},
 
         /*
@@ -1857,23 +1853,7 @@
 		*/
 
 		std: function (sdate, format) {
-
-			var date = dt(),
-				parts = sdate.split(this.xSplit),
-				format = (format || this.formats.native).split(this.xSplit),
-				value;
-
-			this.each(format, function (f, i) {
-
-				value = parseInt(parts[i], 10);
-
-				if (f.indexOf('m') > -1) {
-					value -= 1;
-				}
-				this.setValue(f, value, date);
-			});
-
-			return date;
+			return std(sdate, format || this.formats.native);
 		},
 
 		/*
@@ -1892,18 +1872,7 @@
 		*/
 
 		dts: function (date, format) {
-
-            var v;
-
-			date = date || this.date;
-			format = format || this.config.formats.native;
-
-			this.each(format.split(this.xSplit), function (f) {
-				v = this.format(f,  this.getValue(f, date));
-				format = format.replace(new RegExp(f), v);
-			});
-
-			return format;
+			return dts(date || this.date, format || this.formats.native);
 		},
 
         /*
@@ -2109,6 +2078,16 @@
             return this.isBlackout(d);
         }
 	});
+
+	var dp = mk.get('Datepicker');
+
+	dp.dts = function (date, format) {
+		return dts(date, format);
+	};
+
+	dp.std = function (sdate, format) {
+		return std(sdate, format);
+	};
 
 	return mk.get('Datepicker');
 });
