@@ -378,6 +378,17 @@
 			return this.config.anything;
 		},
 
+		
+		/*
+			<property:searchvalues>
+				<desc>Boolean representing whether searchvalues is enabled. If false, only labels are searched.</desc>
+			</property:searchvalues>
+		*/
+
+		get searchvalues () {
+			return this.config.searchvalues;
+		},
+
 		/*
 			<property:value>
 				<desc>String value set on your root's input element. The value is flattened, which means it's an object that's been base64 encoded.</desc>
@@ -496,7 +507,8 @@
 			.param('anything', 'boolean', o, true, input)
 			.param('comma', 'boolean', o, false, input)
 			.param('notags', 'boolean', o, false, input)
-			.param('chars', 'number', o, 1, input);
+			.param('chars', 'number', o, 1, input)
+			.param('searchvalues', 'boolean', o, true, input);
 
 			if (internal !== true) {
 				this.super(o);
@@ -1113,7 +1125,9 @@
 						});
 					}
 
-					if (reg.test(o.label) || reg.test(o.value)) {
+					var found = this.config.searchvalues ? reg.test(o.label) || reg.test(o.value) : reg.test(o.label);
+
+					if (found) {
 						return o;
 					}
 				});
