@@ -909,7 +909,7 @@
 				return;
 			}
 
-			if (q && q.length >= this.config.chars) {
+			if (q.length >= this.config.chars) {
 				this.request();
 			}
 		},
