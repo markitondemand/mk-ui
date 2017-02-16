@@ -215,6 +215,8 @@ html
 					| //
 					| // set the request.send and request.abort events
 					| autocomplete.on('request.send', function (query, requestnum) {
+					|	//notify screen readers and add optional loading indicator
+					|	ac.notify(ac.NOTIFY_STATES.LOADING, query);
 					|	//
 					| 	//you can use the 'requestnum'
 					|	//to catch situations where an abort() procedure isn't possible.
@@ -282,6 +284,7 @@ html
 				if (el.id && el.id === 'remote') {
 
 					autocomplete = new Autocomplete(el, {
+						chars: 1,
 						events: {
 							'create.tag': function (obj) {
 								obj.label = obj.raw.value;
@@ -289,6 +292,7 @@ html
 							'request.send': function (query, requestnum) {
 
 								var ac = this;
+								ac.notify(ac.NOTIFY_STATES.LOADING, query);
 
 								$.ajax({
 									url: 'http://dev.markitondemand.com/Api/v2/Lookup/jsonp',
