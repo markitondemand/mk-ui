@@ -421,6 +421,15 @@
         },
 
 		/*
+			<property:searchkeys>
+				<desc>Array of object fields to be searched.</desc>
+			</property:searchkeys>
+		*/
+		get searchkeys () {
+			return this.config.searchkeys;
+		},
+
+		/*
 			<property:deletecount>
 				<desc>How many times delete has been pressed in a row. Used with doubledelete.</desc>
 			</property:deletecount>
@@ -496,7 +505,8 @@
 			.param('anything', 'boolean', o, true, input)
 			.param('comma', 'boolean', o, false, input)
 			.param('notags', 'boolean', o, false, input)
-			.param('chars', 'number', o, 1, input);
+			.param('chars', 'number', o, 1, input)
+			.param('searchkeys', 'string[]', o, ["value", "label"], input);
 
 			if (internal !== true) {
 				this.super(o);
@@ -1121,7 +1131,13 @@
 						});
 					}
 
-					if (reg.test(o.label) || reg.test(o.value)) {
+					// if (reg.test(o.label) || reg.test(o.value)) {
+					// 	return o;
+					// }
+					var isMatch = this.config.searchkeys.some(function(key) {
+						return reg.test(o[key]);
+					})
+					if (isMatch) {
 						return o;
 					}
 				});
