@@ -161,11 +161,13 @@
 
 		show: function () {
 
-			var b = this.root.attr('aria-busy'), o, s;
+			var r = this.root,
+				b = r.attr('aria-busy'), o, s;
 
 			if (b !== 'true') {
 
 				this.mount();
+				r.addClass(this.name);
 				o = this.node('overlay', this.shadow);
 
 				if (this.transitions) {
@@ -174,7 +176,7 @@
 
 				this.delay(function () {
 					o.addClass('in');
-					this.root.attr('aria-busy', 'true');
+					r.attr('aria-busy', 'true');
 					this.emit('show');
 				});
 			}
@@ -190,16 +192,18 @@
 
 		hide: function () {
 
-			var b = this.root.attr('aria-busy'), o;
+			var r = this.root,
+				b = r.attr('aria-busy'), o;
 
 			if (this.shadow && b === 'true') {
 
 				o = this.node('overlay', this.shadow);
 				o.removeClass('in');
+				r.removeClass(this.name);
 
 				this.transition(o, function () {
 					this.unmount();
-					this.root.attr('aria-busy', 'false');
+					r.attr('aria-busy', 'false');
 					this.emit('hide');
 				});
 			}

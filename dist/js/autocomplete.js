@@ -694,7 +694,13 @@
             // trigger the doubledelete functionality and pop the last value out of selections
             // if only one value is allowed to be selected, do nothing.
             if (w === k.backspace && !v) {
-				return this._popByDelete().abort().clear();
+				var popped = this._popByDelete();
+
+				if (popped) {
+					return this;
+				}
+
+				this.abort().clear();
 			}
 
 			this.deletecount = 0;
@@ -818,15 +824,18 @@
         _popByDelete: function () {
 
 			if (this.doubledelete) {
+
 				if (this.deletecount > 0) {
+
 					this.deletecount = 0;
 					this.pop();
+					return true;
 				}
 				else {
 					this.deletecount = 1;
 				}
 			}
-			return this;
+			return false;
 		},
 
         /*
@@ -909,7 +918,7 @@
 				return;
 			}
 
-			if (q && q.length >= this.config.chars) {
+			if (q.length >= this.config.chars) {
 				this.request();
 			}
 		},
@@ -924,9 +933,8 @@
         request: function () {
 
             if (this.remote) {
-
                 this.abort();
-				this.notify(this.NOTIFY_STATES.LOADING, this.query);
+				console.info('here')
 	            this.emit('request.send', this.query, ++this.requests);
                 return;
             }
@@ -1494,6 +1502,20 @@
 			return this;
 		},
 
+		empty: function (data) {
+
+			var empty = true;
+
+			this.each(data, function (item, i) {
+				if (!item.hasOwnProperty('items')
+					|| (data.items && data.items.length > 0)) {
+					return (empty = false);
+				}
+			});
+
+			return empty;
+		},
+
 		/*
 			<method:render>
 				<invoke>.render(data[, query])</invoke>
@@ -1520,8 +1542,8 @@
 			this.node('category', this.list).remove();
 
 			//if we have no data,
-			//notify user and hide list if vidible.
-            if (preppedData.length < 1) {
+			//notify user and hide list if visible.
+            if (this.empty(preppedData)) {
 
 				//remove live node text
 				this.notify(this.NOTIFY_STATES.ABORT);
