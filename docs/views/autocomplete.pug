@@ -140,6 +140,8 @@ html
 					|		data-anything="true"
 					|		&lt;!-- Allows commas to seperate user entered values and add them to the selection list. Default is false. --&gt;
 					|		data-comma="true"
+					|		&lt;!-- Allows searching any data fields, or omission of a default. Default is '["value", "label"]'. --&gt;
+					|		data-searchkeys='["value", "myOtherField"]'
 					|		&lt;!-- Remove the tag UI. Default is false. --&gt;
 					|		data-notags="false"
 					|		&lt;!-- Allows delete (when text entry is '') to pop the last selected items from selections. --&gt;
@@ -174,8 +176,8 @@ html
 					|	notags: false,
 					|	//allow comma seperated user input to be split and added to selections. Default is false.
 					|	comma: true,
-					|	//allows searching any data fields, or omission of a default. Default is ["value", "label"].
-					|   searchkeys: ["value", "myOtherField"],
+					|	//allows searching any data fields, or omission of a default. Default is '["value", "label"]'.
+					|	searchkeys: '["value", "myOtherField"]',
 					|	//data you would like to provide on instantiation (vs. remote requests).
 					|	//you can also do both static and remote data.
 					|	data: [
