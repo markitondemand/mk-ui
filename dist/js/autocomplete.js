@@ -1502,18 +1502,18 @@
 			return this;
 		},
 
-		empty: function (data) {
+		noResults: function (data) {
 
-			var empty = true;
+			var nada = true;
 
 			this.each(data, function (item, i) {
 				if (!item.hasOwnProperty('items')
 					|| (data.items && data.items.length > 0)) {
-					return (empty = false);
+					return (nada = false);
 				}
 			});
 
-			return empty;
+			return nada;
 		},
 
 		/*
@@ -1543,7 +1543,7 @@
 
 			//if we have no data,
 			//notify user and hide list if visible.
-            if (this.empty(preppedData)) {
+            if (this.noResults(preppedData)) {
 
 				//remove live node text
 				this.notify(this.NOTIFY_STATES.ABORT);
