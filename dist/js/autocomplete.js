@@ -506,7 +506,7 @@
 			.param('comma', 'boolean', o, false, input)
 			.param('notags', 'boolean', o, false, input)
 			.param('chars', 'number', o, 1, input)
-			.param('searchkeys', 'string[]', o, ["value", "label"], input);
+			.param('searchkeys', 'string', o, '["value", "label"]', input);
 
 			if (internal !== true) {
 				this.super(o);
@@ -1131,10 +1131,9 @@
 						});
 					}
 
-					// if (reg.test(o.label) || reg.test(o.value)) {
-					// 	return o;
-					// }
-					var isMatch = this.config.searchkeys.some(function(key) {
+					var searchKeys = JSON.parse(this.config.searchkeys);
+					console.info("o", o); //timc remove
+					var isMatch = searchKeys.some(function(key) {
 						return reg.test(o[key]);
 					})
 					if (isMatch) {
