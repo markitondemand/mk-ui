@@ -426,7 +426,7 @@
 			</property:searchkeys>
 		*/
 		get searchkeys () {
-			return this.config.searchkeys;
+			return this.config.searchkeys.replace(/\s/g, '').split(',');
 		},
 
 		/*
@@ -506,7 +506,7 @@
 			.param('comma', 'boolean', o, false, input)
 			.param('notags', 'boolean', o, false, input)
 			.param('chars', 'number', o, 1, input)
-			.param('searchkeys', 'string', o, '["value", "label"]', input);
+			.param('searchkeys', 'string', o, "value,label", input);
 
 			if (internal !== true) {
 				this.super(o);
@@ -1131,9 +1131,7 @@
 						});
 					}
 
-					var searchKeys = JSON.parse(this.config.searchkeys);
-					console.info("o", o); //timc remove
-					var isMatch = searchKeys.some(function(key) {
+					var isMatch = this.searchkeys.some(function(key) {
 						return reg.test(o[key]);
 					})
 					if (isMatch) {
