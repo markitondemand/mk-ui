@@ -410,7 +410,7 @@
 			var list = this.list,
 				selected = list.find('[aria-selected="true"]');
 
-			this.trigger.find('input').attr('aria-controls', list.attr('id') || '');
+			this.input.attr('aria-controls', list.attr('id') || '');
 		},
 
 		buildRemovable: function () {
