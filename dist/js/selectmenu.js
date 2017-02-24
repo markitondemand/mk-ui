@@ -111,9 +111,11 @@
 				<div />',
 
 			trigger:
-				'<div class="{{$key}}-trigger {{if:disabled}} disabled{{/if:disabled}}" role="combobox" aria-haspopup="listbox">\
+				'<div class="{{$key}}-trigger {{if:disabled}} disabled{{/if:disabled}}">\
 					<input type="text" \
 						class="{{$key}}-input" \
+						role="combobox" \
+						aria-haspopup="listbox" \
 						readonly \
 						aria-autocomplete="list" \
 						aria-readonly="true" \
@@ -408,10 +410,7 @@
 			var list = this.list,
 				selected = list.find('[aria-selected="true"]');
 
-			this.trigger.attr({
-				'aria-controls': list.attr('id') || '',
-				'aria-activedescendant': selected.attr('id') || ''
-			});
+			this.trigger.find('input').attr('aria-controls', list.attr('id') || '');
 		},
 
 		buildRemovable: function () {
@@ -718,7 +717,7 @@
 			}
 			else {
 
-				var increment = up && -1 || 1,
+				var increment = up && -1 || 1
 					index = this.index(active) + increment;
 
 				option = options[index];
