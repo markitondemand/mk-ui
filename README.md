@@ -51,3 +51,25 @@ npm install
 
 node index.js
 ```
+
+### Bugs, Patches, Features, and Pull Requests
+
+When implementing a bug fix, patch, feature, and creating a pull request, you'll want to modify the JavaScript source files that live in /src/js. For CSS/SCSS changes, you'll want to make modifications to /dist/scss. DO NOT MODIFY JAVASCRIPT or .CSS FILES LIVING IN THE DIST FOLDER. When your changes are completed and at a point where you're ready to open a Pull Request, we have a couple handy gulp methods you should take advantage of first.
+
+For compiling SCSS to CSS:
+
+```bash
+gulp sass
+```
+
+For creating both minified and unminified JavaScript files in the dist folder:
+
+```bash
+gulp minify
+```
+
+If you edit any documentation pages:
+
+```bash
+gulp static-site
+```
