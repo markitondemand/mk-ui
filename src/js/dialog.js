@@ -68,12 +68,12 @@
 (function (root, factory) {
 
 	if ( typeof define === 'function' && define.amd ) {
-		define( ['mk-ui', 'mk-ui/Tooltip'], function ( mk, Tooltip ) {
+		define( ['mk-ui', 'mk-ui/tooltip'], function ( mk, Tooltip ) {
 			return factory( root, mk, Tooltip );
 		});
 	}
 	else if (typeof module === 'object' && module.exports) {
-		module.exports = factory( root, require('mk-ui'), require('mk-ui/Tooltip'));
+		module.exports = factory( root, require('mk-ui'), require('mk-ui/tooltip'));
 	}
 	else {
 		return factory( root, root.Mk, root.Mk.Tooltip );

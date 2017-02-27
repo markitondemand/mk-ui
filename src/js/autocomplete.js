@@ -138,12 +138,12 @@
 (function ( root, factory ) {
 
 	if (typeof define === 'function' && define.amd) {
-		define(['mk-ui', 'mk-ui/Selectmenu'], function (mk, Selectmenu) {
+		define(['mk-ui', 'mk-ui/selectmenu'], function (mk, Selectmenu) {
 			return factory( root, mk, Selectmenu );
 		});
 	}
 	else if (typeof module === 'object' && module.exports) {
-		module.exports = factory(root, require('mk-ui'), require('mk-ui/Selectmenu'));
+		module.exports = factory(root, require('mk-ui'), require('mk-ui/selectmenu'));
 	}
 	else {
 		return factory(root, root.Mk, root.Mk.Selectmenu);
