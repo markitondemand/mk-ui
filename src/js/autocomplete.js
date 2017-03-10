@@ -944,7 +944,6 @@
 
             if (this.remote) {
                 this.abort();
-				console.info('here')
 	            this.emit('request.send', this.query, ++this.requests);
                 return;
             }
