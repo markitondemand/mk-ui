@@ -97,7 +97,7 @@
 	padding: 0;
 	border-width: 0;
 	text-align: right;
-	width: 15px;
+	width: 21px;
     text-indent: 0;
 }
 
@@ -113,12 +113,16 @@
 	color: $mk-gray-3;
 }
 
+.mk-dp-entry::-ms-expand {
+    display: none;
+}
+
 .mk-dp-entry[data-format="mm"]:invalid {
-	width: 25px;
+	width: 30px;
 }
 
 .mk-dp-entry[data-format="dd"]:invalid {
-	width: 18px;
+	width: 21px;
 }
 
 .mk-dp-entry[data-format="d"],
