@@ -1477,6 +1477,7 @@
 
 				this.node('day', c).removeClass('active');
                 this.node('table', this.calendar).attr('aria-activedescendant', d.attr('id'));
+				this.uidate = this.std(d.data('value'), 'yyyy-mm-dd');
 
 				d.addClass('active');
 

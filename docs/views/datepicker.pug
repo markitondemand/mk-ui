@@ -8,10 +8,16 @@ html
 		main.container
 			include ./shared/info
 			h2 Examples
-			div
-				form
-					fieldset.mk-dp-root
-						input(type="date", class="mk-dp", min="2000-12-4", max="2200-12-25" aria-label="Start Date")
+			div.row
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Standard Datepicker
+						div.panel-body
+							form
+								fieldset.mk-dp-root
+									input(type="date", class="mk-dp", aria-label="Start Date")
 
 
 			include ./shared/api
