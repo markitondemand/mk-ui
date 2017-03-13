@@ -790,9 +790,10 @@ $.prototype = {
 
         var r = false;
         var that = this;
+        
         this.each(function (el) {
-            r = el.classList && el.classList.contains(cls)
-                || el.className &&  el.className.trim().split(/\s+/g).indexOf(cls) > -1;
+            r = el.classList ? el.classList.contains(cls) :
+                (el.className && el.className.trim().split(/\s+/g).indexOf(cls) > -1);
 
             if (r) return false;
         });
@@ -803,8 +804,11 @@ $.prototype = {
     addClass: function (value) {
 
         var values = value.split(' '), c;
+
         return Mk.fn.each(this, values, function (v) {
+
             this.each(function (el) {
+
                 if (el.classList) {
                     el.classList.add(v);
                     return;
@@ -822,6 +826,7 @@ $.prototype = {
         var values = value.split(' '), c, _v;
         return Mk.fn.each(this, values, function (v) {
             this.each(function (el) {
+
                 if (el.classList) {
                     el.classList.remove(v);
                     return;
