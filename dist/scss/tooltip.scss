@@ -16,6 +16,7 @@
   position: absolute;
   margin: $mk-tt-margin;
   z-index: 9999;
+  border-collapse: separate;
 }
 
 .mk-tt-modal.transitions {
