@@ -1064,33 +1064,15 @@ $.prototype = {
         });
     },
 
-    containsClass: function (yourObj, yourClass) {
-        if(!yourObj || typeof yourClass !== 'string') {
-            return false;
-        } else if (yourObj.className && yourObj.className.trim()
-            .split(/\s+/gi)
-            .indexOf(yourClass) > -1
-        ) {
-            return true;
-        } else {
-            return false;
-        }
-    },
-
     hasClass: function (cls) {
 
         var r = false;
         var that = this;
         this.each(function (el) {
+            r = el.classList && el.classList.contains(cls)
+                || el.className &&  el.className.trim().split(/\s+/g).indexOf(cls) > -1;
 
-            if (el.classList && el.classList.contains(cls)) {
-
-                r = true;
-                return false;
-            } else if (that.containsClass(el, cls)) {
-                r = true;
-                return false;
-            }
+            if (r) return false;
         });
 
         return r;
@@ -1103,10 +1085,11 @@ $.prototype = {
             this.each(function (el) {
                 if (el.classList) {
                     el.classList.add(v);
-                } else if (el.className.length === 0) {
-                    el.className = v.trim();
-                } else if (el.className.indexOf(v) < 0) {
-                    el.className = el.className.trim() + ' ' + v.trim();
+                    return;
+                }
+
+                if (!Mk.$(el).hasClass(v)) {
+                    el.className = (el.className || '').trim() + ' ' + v.trim();
                 }
             });
         });
@@ -1119,13 +1102,14 @@ $.prototype = {
             this.each(function (el) {
                 if (el.classList) {
                     el.classList.remove(v);
-                } else if (el.className) {
-                    var wrdBndryRegexp = new RegExp('\\b' + v.trim() + '\\b');
-                    var wrdBndryRegexp2 = new RegExp('\\b ' + v + '\\b');
-                    //make sure we remove all extra whitespace
-                    el.className = el.className.replace(wrdBndryRegexp2, '')
-                    .replace(wrdBndryRegexp, '').trim();
+                    return;
                 }
+
+                wrdBndryRegexp = new RegExp('\\b' + v.trim() + '\\b');
+                wrdBndryRegexp2 = new RegExp('\\b ' + v + '\\b');
+
+                el.className = el.className.replace(wrdBndryRegexp2, '')
+                    .replace(wrdBndryRegexp, '').trim();
             });
         });
     },
