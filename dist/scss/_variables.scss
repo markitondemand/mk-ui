@@ -135,3 +135,30 @@ $mk-dg-arrow-size: 0.6rem !default;
 $mk-dg-arrow-offset: 0.6rem !default;
 $mk-dg-margin: 1rem !default;
 $mk-dg-padding: 1rem !default;
+
+
+
+
+$mk-dp-calendar-width: 300px;
+$mk-dp-trigger-font-size: 20px;
+$mk-dp-trigger-width: 20px;
+$mk-dp-trigger-pos: 3px;
+$mk-dp-trigger-char: "›";
+$mk-dp-transition: all 0.5s;
+
+$mk-dp-entry-font-size: 14px;
+$mk-dp-entry-bg-focus: lightblue;
+$mk-dp-entry-width-default: 21px;
+$mk-dp-entry-width-m-d: 12px;
+$mk-dp-entry-width-mm: 30px;
+$mk-dp-entry-width-dd: 21px;
+$mk-dp-entry-width-mmm-yyyy: 42px;
+$mk-dp-entry-width-mmmm: 70px;
+
+$mk-dp-active-before-size: 26px;
+
+$mk-dp-control-font-size: 20px;
+$mk-dp-control-char-next-mo: '\25b6';
+$mk-dp-control-char-next-yr: '\25b6\25b6';
+$mk-dp-control-char-prev-mo: '\25c0';
+$mk-dp-control-char-prev-yr: '\25c0\25c0';

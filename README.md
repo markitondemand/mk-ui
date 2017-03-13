@@ -18,17 +18,17 @@ Using an older version of Mk[ui]? Get access to the old repository [here](https:
 
 1. Core
 2. Selectmenu
-3. Tooltip
-4. Loader
-5. Dialog
-6. Autocomplete
+3. Datepicker
+4. Autocomplete
+5. Tooltip
+6. Dialog
+7. Loader
 
 ###### *Available Soon*
 
-1. Datepicker
-2. Modal
-3. Accordion
-4. Table Sorter
+1. Modal
+2. Accordion
+3. Table Sorter
 
 ### Install
 

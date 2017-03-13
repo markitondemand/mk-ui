@@ -81,8 +81,9 @@
   padding: 0;
   border-width: 0;
   text-align: right;
-  width: 15px;
-  text-indent: 0; }
+  width: 21px;
+  text-indent: 0;
+  transition: all 0.5s; }
 
 .mk-dp-entry option {
   background: white; }
@@ -93,11 +94,14 @@
 .mk-dp-entry:invalid {
   color: #aaa; }
 
+.mk-dp-entry::-ms-expand {
+  display: none; }
+
 .mk-dp-entry[data-format="mm"]:invalid {
-  width: 25px; }
+  width: 30px; }
 
 .mk-dp-entry[data-format="dd"]:invalid {
-  width: 18px; }
+  width: 21px; }
 
 .mk-dp-entry[data-format="d"],
 .mk-dp-entry[data-format="m"] {
@@ -181,27 +185,27 @@
 .mk-dp-control.prev-yr {
   left: 10px; }
   .mk-dp-control.prev-yr:before {
-    content: "\25c0\25c0";
+    content: "◀◀";
     left: 0;
     transform: rotate(180deg); }
 
 .mk-dp-control.prev-mo {
   left: 40px; }
   .mk-dp-control.prev-mo:before {
-    content: "\25c0";
+    content: "◀";
     left: 0;
     transform: rotate(180deg); }
 
 .mk-dp-control.next-yr {
   right: 10px; }
   .mk-dp-control.next-yr:before {
-    content: "\25b6\25b6";
+    content: "▶▶";
     right: 0; }
 
 .mk-dp-control.next-mo {
   right: 40px; }
   .mk-dp-control.next-mo:before {
-    content: "\25b6";
+    content: "▶";
     right: 0; }
 
 .mk-dp-table {

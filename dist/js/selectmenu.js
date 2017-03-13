@@ -615,6 +615,10 @@
 
 			e.preventDefault();
 
+			if (this.isHidden) {
+				return this.show();
+			}
+
 			var active = this.items.find('.active'),
 				value = active.attr('data-value');
 

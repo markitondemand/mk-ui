@@ -232,7 +232,6 @@
 	mk.create('Datepicker', {
 
 		_date: null,
-        _enddate: null,
 		_uidate: null,
 
         xSplit: xSplit,
@@ -459,39 +458,6 @@
 			this._date = this.adjust(value);
 		},
 
-        /*
-			<property:startdate>
-				<desc>When using a start/end setup, this property represents the start date as a Date object.</desc>
-			</property:startdate>
-		*/
-
-        get startdate () {
-            return this.date;
-        },
-
-        set startdate (value) {
-            this.date = value;
-        },
-
-        /*
-			<property:enddate>
-				<desc>When using a start/end setup, this property represents the end date as a Date object.</desc>
-			</property:enddate>
-		*/
-
-        get enddate () {
-            return this.multiple ? this._enddate : this.date;
-        },
-
-        set enddate (value) {
-
-            if (this.multiple) {
-                this._enddate = this.adjust(value);
-                return;
-            }
-            this.date = value;
-        },
-
 		/*
 			<property:disabled>
 				<desc>Is the datepicker disabled.</desc>
@@ -549,15 +515,6 @@
 		*/
 
 		get value () {
-
-            if (this.multiple) {
-
-                return [
-                    this.dts(this.startdate),
-                    this.dts(this.enddate)
-                ];
-            }
-
 			return this.dts(this.date);
 		},
 
@@ -570,16 +527,6 @@
         get inputs () {
 			return this.node('');
 		},
-
-        /*
-			<property:multiple>
-				<desc>Can the use select multiple dates (ie: start and end date).</desc>
-			</property:multiple>
-		*/
-
-        get multiple () {
-            return this.inputs.length > 1;
-        },
 
 		/*
 			<property:trigger>
@@ -902,11 +849,45 @@
                     sd(date, dy);
                 }
 
-                if (this.valid(date) && this.setDate(date, parseInt(parent.data('index'), 10))) {
+                if (this.valid(date)
+					&& this.setDate(date, parseInt(parent.data('index'), 10))) {
                     this.emit('change');
                 }
             }
         },
+
+		_findValueByKey: function (character, entry) {
+
+			var select = this.$(entry),
+				option = null,
+				reg;
+
+			if (this._typetimer) {
+				clearTimeout(this._typetimer);
+				this._typetimer = null;
+			}
+
+			this._chars = this._chars || '';
+			this._chars += character;
+
+			reg = new RegExp(this._chars, 'i');
+
+			select.find('option').each(function (o, i) {
+				if (reg.test(o.textContent)) {
+					option = o; return false;
+				}
+			});
+
+			if (option && !option.disabled) {
+				option.selected = true;
+			}
+
+			this._typetimer = this.delay(function () {
+				clearTimeout(this._typetimer);
+				this._typetimer = null;
+				this._chars = '';
+			}, 200);
+		},
 
         _keydownEntry: function (e, entry) {
 
@@ -914,13 +895,18 @@
                 w = e.which,
                 c = String.fromCharCode(w);
 
-
             // prevent select menu dropdowns from opening
             if (entry.tagName === 'SELECT') {
-                if (w === k.space || w === k.enter) {
-                    e.preventDefault();
+
+				if (/\w/.test(c)) {
+					e.preventDefault();
+					this._findValueByKey(c, entry);
+				}
+
+                else if (w === k.space || w === k.enter) {
+					e.preventDefault();
                 }
-                return;
+				return;
             }
             // disable left/right behavior on inputs
             // which prevents users from entering garbage data anywhere in the input.
@@ -1491,6 +1477,7 @@
 
 				this.node('day', c).removeClass('active');
                 this.node('table', this.calendar).attr('aria-activedescendant', d.attr('id'));
+				this.uidate = this.std(d.data('value'), 'yyyy-mm-dd');
 
 				d.addClass('active');
 
@@ -1552,10 +1539,6 @@
 					<type>Date object</type>
 					<desc>Date to be set.</desc>
 				</param:date>
-				<param:inputnum>
-					<type>Number</type>
-					<desc>When working with multiple inputs, pass a number along to set a perticular input. Default is 0.</desc>
-				</param:inputnum>
 				<desc>Manually set the date for the datepicker.</desc>
 			</method:setDate>
 		*/
