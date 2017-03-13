@@ -373,8 +373,9 @@ $.prototype = {
 
                 r = true;
                 return false;
-            } else {
-                return that.containsClass(el, cls);
+            } else if (that.containsClass(el, cls)) {
+                r = true;
+                return false;
             }
         });
 
