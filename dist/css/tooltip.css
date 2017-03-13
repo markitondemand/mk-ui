@@ -11,7 +11,8 @@
   padding: 1rem;
   position: absolute;
   margin: 1rem;
-  z-index: 9999; }
+  z-index: 9999;
+  border-collapse: separate; }
 
 .mk-tt-modal.transitions {
   transition: opacity 0.5s;
