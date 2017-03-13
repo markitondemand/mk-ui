@@ -1064,16 +1064,31 @@ $.prototype = {
         });
     },
 
+    containsClass: function (yourObj, yourClass) {
+        if(!yourObj || typeof yourClass !== 'string') {
+            return false;
+        } else if (yourObj.className && yourObj.className.trim()
+            .split(/\s+/gi)
+            .indexOf(yourClass) > -1
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
     hasClass: function (cls) {
 
         var r = false;
-
+        var that = this;
         this.each(function (el) {
 
-            if (el.classList.contains(cls)) {
+            if (el.classList && el.classList.contains(cls)) {
 
                 r = true;
                 return false;
+            } else {
+                return that.containsClass(el, cls);
             }
         });
 
@@ -1083,10 +1098,15 @@ $.prototype = {
     addClass: function (value) {
 
         var values = value.split(' '), c;
-
         return Mk.fn.each(this, values, function (v) {
             this.each(function (el) {
-                el.classList.add(v);
+                if (el.classList) {
+                    el.classList.add(v);
+                } else if (el.className.length === 0) {
+                    el.className = v.trim();
+                } else if (el.className.indexOf(v) < 0) {
+                    el.className = el.className.trim() + ' ' + v.trim();
+                }
             });
         });
     },
@@ -1094,10 +1114,17 @@ $.prototype = {
     removeClass: function (value) {
 
         var values = value.split(' '), c, _v;
-
         return Mk.fn.each(this, values, function (v) {
             this.each(function (el) {
-                el.classList.remove(v);
+                if (el.classList) {
+                    el.classList.remove(v);
+                } else if (el.className) {
+                    var wrdBndryRegexp = new RegExp('\\b' + v.trim() + '\\b');
+                    var wrdBndryRegexp2 = new RegExp('\\b ' + v + '\\b');
+                    //make sure we remove all extra whitespace
+                    el.className = el.className.replace(wrdBndryRegexp2, '')
+                    .replace(wrdBndryRegexp, '').trim();
+                }
             });
         });
     },
@@ -1220,6 +1247,11 @@ Mk.$ = function (selector, context) {
     return new $(selector, context);
 };
 
+if (!String.prototype.trim) {
+  String.prototype.trim = function () {
+    return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+  };
+}
 
 Mk.extend = function (to, from, name) {
 
