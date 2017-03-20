@@ -62,19 +62,19 @@
 
 .mk-dp-trigger {
 	background: transparent;
-	border: 1px solid $mk-gray-5;
-	width: $mk-dp-trigger-width;
+	border: 1px solid white;
+	width: 20px;
 	position: absolute;
-	right: $mk-dp-trigger-pos;
-	top: $mk-dp-trigger-pos;
-	bottom: $mk-dp-trigger-pos;
-	border: 1px solid $mk-gray-5;
-	font-size: $mk-dp-trigger-font-size;
-	line-height: $mk-dp-trigger-font-size;
+	right: 3px;
+	top: 3px;
+	bottom: 3px;
+	border: 1px solid white;
+	font-size: 20px;
+	line-height: 20px;
 }
 
 .mk-dp-trigger:before {
-	content: $mk-dp-trigger-char;
+	content: "›";
 	position: absolute;
 	transform: rotate(90deg);
 	top: 2px;
@@ -91,23 +91,22 @@
 .mk-dp-entry {
 	-webkit-appearance: none;
     -moz-appearance: none;
-	font-size: $mk-dp-entry-font-size;
-	line-height: $mk-dp-entry-font-size;
+	font-size: 14px;
+	line-height: 14px;
 	margin: 0;
 	padding: 0;
 	border-width: 0;
 	text-align: right;
-	width: $mk-dp-entry-width-default;
+	width: 21px;
     text-indent: 0;
-	transition: $mk-dp-transition;
 }
 
 .mk-dp-entry option {
-	background: $mk-gray-5;
+	background: white;
 }
 
 .mk-dp-entry:focus {
-	background: $mk-dp-entry-bg-focus;
+	background: lightblue;
 }
 
 .mk-dp-entry:invalid {
@@ -119,16 +118,16 @@
 }
 
 .mk-dp-entry[data-format="mm"]:invalid {
-	width: $mk-dp-entry-width-mm;
+	width: 30px;
 }
 
 .mk-dp-entry[data-format="dd"]:invalid {
-	width: $mk-dp-entry-width-dd;
+	width: 21px;
 }
 
 .mk-dp-entry[data-format="d"],
 .mk-dp-entry[data-format="m"] {
-	width: $mk-dp-entry-width-m-d;
+	width: 12px;
 }
 
 .mk-dp-entry[data-format="yyyy"] {
@@ -137,16 +136,16 @@
 
 .mk-dp-entry[data-format="yyyy"],
 .mk-dp-entry[data-format="mmm"] {
-	width: $mk-dp-entry-width-mmm-yyyy;
+	width: 42px;
 }
 
 .mk-dp-entry[data-format="mmmm"] {
-	width: $mk-dp-entry-width-mmmm;
+	width: 70px;
 }
 
 .mk-dp-entry.disabled,
 .mk-dp-entry.disabled + .spacer {
-	background: $mk-gray-5;
+	background: white;
 	color: $mk-gray-3;
 }
 
@@ -161,11 +160,11 @@
 
 .mk-dp-control:disabled:focus,
 .mk-dp-control:disabled:hover {
-	border-color: $mk-gray-5;
+	border-color: white;
 }
 
 .mk-dp-calendar {
-	background: $mk-gray-5;
+	background: white;
 	min-width: 100%;
 	border: 1px solid $mk-gray-3;
 	position: relative;
@@ -174,7 +173,7 @@
 .mk-dp-calendar.popup {
 	box-shadow: 1px 1px 10px rgba(0, 0, 0, .4);
 	display: none;
-	min-width: $mk-dp-calendar-width;
+	min-width: 300px;
 	opacity: 0;
 	position: absolute;
 	z-index: 2;
@@ -192,7 +191,7 @@
 }
 
 .mk-dp-calendar.disabled:after {
-	background: $mk-gray-5;
+	background: white;
 	content: "";
 	opacity: 0.5;
 	top: 0;
@@ -207,9 +206,9 @@
 	background: transparent;
 	border-width: 0;
 	color: $mk-gray-2;
-	font-size: $mk-dp-control-font-size;
+	font-size: 20px;
 	letter-spacing: -4px;
-	line-height: $mk-dp-control-font-size;
+	line-height: 20px;
 	position: absolute;
 	top: 10px;
 
@@ -227,7 +226,7 @@
 	left: 10px;
 
 	&:before {
-		content: $mk-dp-control-char-prev-yr;
+		content: "\25c0\25c0";
 		left: 0;
 		transform: rotate(180deg);
 	}
@@ -237,7 +236,7 @@
 	left: 40px;
 
 	&:before {
-		content: $mk-dp-control-char-prev-mo;
+		content: "\25c0";
 		left: 0;
 		transform: rotate(180deg);
 	}
@@ -247,7 +246,7 @@
 	right: 10px;
 
 	&:before {
-		content: $mk-dp-control-char-next-yr;
+		content: "\25b6\25b6";
 		right: 0;
 	}
 }
@@ -256,7 +255,7 @@
 	right: 40px;
 
 	&:before {
-		content: $mk-dp-control-char-next-mo;
+		content: "\25b6";
 		right: 0;
 	}
 }
@@ -266,7 +265,7 @@
 }
 
 .mk-dp-table .mk-dp-heading {
-	background: $mk-gray-5;
+	background: white;
 	color: $mk-gray-1;
 	text-align: center;
 	text-transform: capitalize;
@@ -288,25 +287,25 @@
 .mk-dp-table .mk-dp-day span {
 	display: block;
 	position: relative;
-	transition: $mk-dp-transition;
+	transition: all 0.5s;
 	z-index: 1;
 }
 
 .mk-dp-table .mk-dp-day span:before {
 	background: transparent;
 	border-radius: 80%;
-	color: $mk-gray-5;
+	color: white;
 	content: "";
 	display: block;
-	width: $mk-dp-active-before-size;
-	height: $mk-dp-active-before-size;
+	width: 26px;
+	height: 26px;
 	position: absolute;
 	left: 50%;
 	top: 50%;
-	margin-left: ($mk-dp-active-before-size / 2) * -1;
-	margin-top: ($mk-dp-active-before-size / 2) * -1;
+	margin-left: -13px;
+	margin-top: -13px;
 	z-index: -1;
-	transition: $mk-dp-transition;
+	transition: all 0.5s;
 }
 
 .mk-dp-table .mk-dp-day {
@@ -340,9 +339,9 @@
 }
 
 .mk-dp-table  .active span {
-	color: $mk-gray-5;
+	color: white;
 }
 
 .mk-dp-table .active span:before {
-	background: $mk-primary;
+	background: #008e89;
 }

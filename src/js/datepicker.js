@@ -919,8 +919,8 @@
                 e.preventDefault();
                 return this._moveEntry(entry, w === k.up);
             }
-            //user enters a valid character key
-            if (/\w/.test(c)) {
+            //user enters a valid numeric character key
+            if (w !== k.tab && w !== k.enter) {
                 //stop event from applying the key
                 e.preventDefault();
                 //if it's a number, we apply the character manually
@@ -1477,7 +1477,6 @@
 
 				this.node('day', c).removeClass('active');
                 this.node('table', this.calendar).attr('aria-activedescendant', d.attr('id'));
-				this.uidate = this.std(d.data('value'), 'yyyy-mm-dd');
 
 				d.addClass('active');
 
