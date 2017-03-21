@@ -15,6 +15,43 @@
 	<file:scss>
 		<src>dist/scss/datepicker.scss</src>
 	</file:scss>
+
+	<event:change>
+		<desc>Fires when datepicker value changes.</desc>
+		<example>
+			instance.on('change', function () {
+				console.info('formated value:', this.value);
+				console.info('raw date:', this.date);
+			});
+		</example>
+	</event:change>
+
+	<event:activate>
+		<desc>Fires when datepicker calendar date is "active".</desc>
+		<example>
+			instance.on('activate', function (el) {
+				console.info('activated item is:', el);
+			});
+		</example>
+	</event:activate>
+
+	<event:show>
+		<desc>Fires when datepicker calendar goes from hidden to visible.</desc>
+		<example>
+			instance.on('show', function (el) {
+				console.infO('calendar is shown')
+			});
+		</example>
+	</event:show>
+
+	<event:hide>
+		<desc>Fires when datepicker calendar goes from visible to hidden.</desc>
+		<example>
+			instance.on('hide', function (el) {
+				console.infO('calendar is hidden')
+			});
+		</example>
+	</event:hide>
 */
 (function (root, factory) {
 
