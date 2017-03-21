@@ -3,6 +3,7 @@ html
 	head
 		include ./shared/head
 		link(rel="stylesheet", type="text/css", href="/dist/css/datepicker.css")
+		link(rel="stylesheet", type="text/css", href="/docs/assets/css/datepicker.css")
 	body
 		include ./shared/header
 		main.container
@@ -15,10 +16,78 @@ html
 							h3.panel-title
 								| Standard Datepicker
 						div.panel-body
+							p
+								| Barebones datepicker example with no default value set.
 							form
 								fieldset.mk-dp-root
 									input(type="date", class="mk-dp", aria-label="Start Date")
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Add Min/Max
+						div.panel-body
+							p
+								| This example adds a min (01/01/2017) and max (03/12/2017) date restrictions by settings attributes directly on the date input.
+							form
+								fieldset.mk-dp-root
+									input(type="date", class="mk-dp", aria-label="Start Date", value="2017-01-27", min="2017-01-01", max="2017-03-12")
 
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| No Monthly Rollovers
+						div.panel-body
+							p
+								| This example Removes the days in last month and next month from showing up in the current UI calendar.
+							form
+								fieldset.mk-dp-root(data-rollover="false")
+									input(type="date", class="mk-dp", aria-label="Start Date", value="2017-02-27")
+
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Change Month/Day Labeling
+						div.panel-body
+							p
+								| Maybe you want your calendar in Japanese. No problem.
+								| You can change the day/months values by giving Datepicker a formatmap.
+								| You can also change formatting structure. See the config settup below.
+							form
+								fieldset#japanese.mk-dp-root(data-rollover="false")
+									input(type="date", class="mk-dp", aria-label="Kaishi-bi", value="2017-02-27")
+
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Blackout, Holiday, and Special Dates
+						div.panel-body
+							p
+								| With Datepicker 2.0 you have the ability to set Blackout dates, holidays, and special "custom" dates.
+								| When a date is selected/entered, use the datepicker instances API (isBlackout(), isUnavailable(), isHoliday(), or isSpecial()) to check date selected.
+								| See below for more details.
+							form
+								fieldset#blackouts.mk-dp-root(data-rollover="false")
+									input(type="date", class="mk-dp", aria-label="Start Date", value="2017-02-27")
+
+				div.col-sm-6
+					section.panel
+						header.panel-heading
+							h3.panel-title
+								| Inline Calendar
+						div.panel-body
+							p
+								| We can roll AirBnb Style with inline calendars.
+								| It's even easy to update other html elements with the selected dates like in this below example.
+							form
+
+								fieldset#airbnb.mk-dp-root(data-rollover="false", data-popup="false", data-inputs="false")
+									div#updater
+										| dddd, mmmm dd yyyy
+									input(type="date", class="mk-dp", aria-label="Start Date")
 
 			include ./shared/api
 		include ./shared/scripts
@@ -33,23 +102,45 @@ html
 
 			examples.each(function (example) {
 
-				datepicker = new Datepicker(example, {
-					label: 'Choose a Start Date',
-					format: 'mm/dd/yyyy',
-					rollover: false,
-					popup: true,
-					blackouts: [
-						'2017-1-12'
-					],
-					special: {
-						booked: [
-							'2017-1-10'
+				if (example.id === 'japanese') {
+					datepicker = new Datepicker(example, {
+						label: '',
+						format: 'mm/dd/yyyy',
+						formats: {
+							days: "dd"
+						},
+						formatmap: {
+							months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+							days: ['Nichiyōbi', 'Getsuyō', 'Kayōbi', 'Suiyōbi', 'Mokuyōbi', 'Kin\'yōbi', 'Doyōbi']
+						}
+					});
+				}
+				else if (example.id === 'blackouts') {
+					datepicker = new Datepicker(example, {
+						label: '',
+						format: 'mm/dd/yyyy',
+						blackouts: [
+							'2017-02-06/2017-02-10',
+							'2017-03-13/2017-03-17',
+							'2017-04-30'
 						]
-					}
-				});
+					});
+				}
+				else {
+
+					datepicker = new Datepicker(example, {
+						label: 'Choose a Start Date',
+						format: 'mm/dd/yyyy'
+					});
+				}
 
 				datepicker.on('change', function () {
-					console.info(this.value);
+
+					if (this.root.attr('id') === 'airbnb') {
+						this.root.find('#updater').text(this.dts(this.date, 'dddd, mmmm dd yyyy'));
+					}
+
+					console.info('you selected: ', this.value);
 				});
 
 			});
