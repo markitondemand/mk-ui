@@ -88,6 +88,82 @@ html
 									div#updater
 										| dddd, mmmm dd yyyy
 									input(type="date", class="mk-dp", aria-label="Start Date")
+			h2 Setup
+			pre
+				code.language-html
+					| &lt;div class="mk-dp-root"&gt;
+					|	&lt;input class="mk-dp" type="date" name="start-date" aria-label="Start Date" value="2017-02-27" /&gt;
+					| &lt;/div&gt;
+
+			h3 Configuration Options via Data-Attributes
+			p
+				| There are two ways to configure Datepicker, the first of which is by providing data attributes on the root input.
+				| Below is a list of all possible data attributes you may add to configure an instance. All data attributes are optional.
+			pre
+				code.language-html
+					| &lt;div
+					|	class="mk-dp-root"
+					|	&lt;!-- presentational format for dates --&gt;
+					|	data-format="mm/dd/yyyy"
+					|	&lt;!-- calendar renders as popup. Default is true. --&gt;
+					|	data-popup="true"
+					|	&lt;!-- Hide the date input UI (not calendar). Default is false. --&gt;
+					|	data-inputs="true"&gt;
+					|	&lt;!-- Enable/disable rollover dates. Default is true. --&gt;
+					|	data-rollover="false"&gt;
+					|	&lt;input type="text" class="mk-dp"
+					|		name="startdate"
+					|		aria-label="Start Date"
+					|		&lt;!-- min date in native date format --&gt;
+					|		min="2017-01-01"
+					|		&lt;!-- max date in native format --&gt;
+					|		max="2018-01-01"
+					|		&lt;!-- default value in native format --&gt;
+					|		value="2017-01-12" /&gt;
+					| &lt;/div&gt;
+
+			h2 Instantiation
+			p
+				| Below is an example of instantiating an Datepicker.
+				| Like all other Mk components, the first argument is the root and the second is configuration options.
+				| In the example below, we've provided all possible config options, however, all config properties are completely optional.
+			pre
+				code.language-javascript
+					| //get Datepicker object
+					| var Datepicker = Mk.get('Datepicker');
+					| //
+					| //create instance
+					| var datepicker = new Datepicker('#selector', {
+					|	rollover: true/false,
+					|	popup: true/false,
+					|	format: 'mm/dd/yyyy',
+					|	label: 'Some Label for Aria'
+					|	blackouts: [
+					|		'2017-01-07',
+					|		// set a range
+					|		'2017-01-10/2017-01-17'
+					|	],
+					|	holidays: [
+					|		'2017-12-25'
+					|	],
+					|	special: {
+					|		birthdays: [
+					|			'2017-01-01',
+					|			'2017-04-30'
+					|		]
+					|	},
+					|	templates: {
+					|		..template overrides..
+					|	},
+					|	//format overrides/additions
+					|	formats: {
+					|		..format overrides..
+					| 	},
+					|	//events you want bound
+					|	events: {
+					|		..you can bind events here or by using on() one() and off()..
+					|	}
+					| });
 
 			include ./shared/api
 		include ./shared/scripts
