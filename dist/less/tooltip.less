@@ -1,4 +1,3 @@
-@charset "UTF-8";
 
 @import "_variables";
 
@@ -7,23 +6,22 @@
 }
 
 .mk-tt-modal {
-  background: @mk-gray-2;
+  background: @mk-tt-bg;
   border-radius: 2px;
-  box-shadow: 0px 0px 15px 6px rgba(0,0,0,0.3);
-  color: @mk-color;
+  box-shadow: @mk-tt-boxshadow;
+  color: @mk-tt-color;
   display: none;
   opacity: 0;
-  padding: 1rem;
+  padding: @mk-tt-padding;
   position: absolute;
-  margin: 1rem;
+  margin: @mk-tt-margin;
   z-index: 9999;
-  -webkit-box-shadow: 0px 0px 15px 6px rgba(0,0,0,0.3);
-  -moz-box-shadow: 0px 0px 15px 6px rgba(0,0,0,0.3);
+  border-collapse: separate;
 }
 
 .mk-tt-modal.transitions {
-  transition: opacity @mk-ac-transition-speed;
- -webkit-transition: opacity @mk-ac-transition-speed;
+  transition: opacity @mk-tt-transition-speed;
+ -webkit-transition: opacity @mk-tt-transition-speed;
 }
 
 .mk-tt-modal.transition {
@@ -53,9 +51,9 @@
 .mk-tt-modal.top-left:after,
 .mk-tt-modal.top-center:after,
 .mk-tt-modal.top-right:after {
-  border-left: 1rem solid transparent;
-  border-right: 1rem solid transparent;
-  border-top: 1rem solid @mk-gray-2;
+  border-left: @mk-tt-arrow-size solid transparent;
+  border-right: @mk-tt-arrow-size solid transparent;
+  border-top: @mk-tt-arrow-size solid @mk-tt-bg;
   top: 100%;
 }
 
@@ -65,9 +63,9 @@
 .mk-tt-modal.bottom-left:after,
 .mk-tt-modal.bottom-center:after,
 .mk-tt-modal.bottom-right:after {
-  border-left: 1rem solid transparent;
-  border-right: 1rem solid transparent;
-  border-bottom: 1rem solid @mk-gray-2;
+  border-left: @mk-tt-arrow-size solid transparent;
+  border-right: @mk-tt-arrow-size solid transparent;
+  border-bottom: @mk-tt-arrow-size solid @mk-tt-bg;
   bottom: 100%;
 }
 
@@ -77,9 +75,9 @@
 .mk-tt-modal.left-top:after,
 .mk-tt-modal.left-center:after,
 .mk-tt-modal.left-bottom:after {
-  border-top: 1rem solid transparent;
-  border-bottom: 1rem solid transparent;
-  border-left: 1rem solid @mk-gray-2;
+  border-top: @mk-tt-arrow-size solid transparent;
+  border-bottom: @mk-tt-arrow-size solid transparent;
+  border-left: @mk-tt-arrow-size solid @mk-tt-bg;
   left: 100%;
 }
 
@@ -89,9 +87,9 @@
 .mk-tt-modal.right-top:after,
 .mk-tt-modal.right-center:after,
 .mk-tt-modal.right-bottom:after {
-  border-top: 1rem solid transparent;
-  border-bottom: 1rem solid transparent;
-  border-right: 1rem solid @mk-gray-2;
+  border-top: @mk-tt-arrow-size solid transparent;
+  border-bottom: @mk-tt-arrow-size solid transparent;
+  border-right: @mk-tt-arrow-size solid @mk-tt-bg;
   right: 100%;
 }
 
@@ -99,14 +97,14 @@
 .mk-tt-modal.bottom-left:before,
 .mk-tt-modal.top-left:after,
 .mk-tt-modal.bottom-left:after {
-  left: 1rem;
+  left: @mk-tt-arrow-offset;
 }
 
 .mk-tt-modal.top-right:before,
 .mk-tt-modal.bottom-right:before,
 .mk-tt-modal.top-right:after,
 .mk-tt-modal.bottom-right:after {
-  right: 1rem;
+  right: @mk-tt-arrow-offset;
 }
 
 .mk-tt-modal.top-center:before,
@@ -114,21 +112,21 @@
 .mk-tt-modal.top-center:after,
 .mk-tt-modal.bottom-center:after {
   left: 50%;
-  margin-left: -1rem;
+  margin-left: (@mk-tt-arrow-offset * -1);
 }
 
 .mk-tt-modal.left-top:before,
 .mk-tt-modal.right-top:before,
 .mk-tt-modal.left-top:after,
 .mk-tt-modal.right-top:after {
-  top: 1rem;
+  top: @mk-tt-arrow-offset;
 }
 
 .mk-tt-modal.left-bottom:before,
 .mk-tt-modal.right-bottom:before,
 .mk-tt-modal.left-bottom:after,
 .mk-tt-modal.right-bottom:after {
-  bottom: 1rem;
+  bottom: @mk-tt-arrow-offset;
 }
 
 .mk-tt-modal.left-center:before,
@@ -136,7 +134,7 @@
 .mk-tt-modal.left-center:after,
 .mk-tt-modal.right-center:after {
   top: 50%;
-  margin-top: -1rem;
+  margin-top: (@mk-tt-arrow-offset * -1);
 }
 
 .mk-tt-kill {
