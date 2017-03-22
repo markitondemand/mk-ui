@@ -790,7 +790,7 @@
 				}
 			})
 			.on('blur.mk', true, function (e) {
-				thiss._blur(e.relatedTarget);
+				thiss._blur(e.relatedTarget || document.activeElement);
 			})
 			.on('keydown.mk', true, function (e) {
 				thiss._keydownCalendar(e, calendarFocused);
@@ -907,9 +907,10 @@
 					sd(date, dy);
 				}
 
-				if (this.valid(date)
-					&& this.setDate(date, parseInt(parent.data('index'), 10))) {
-					this.emit('change');
+				if (this.valid(date)) {
+					this.select(date, false);
+					this.uidate = date;
+					this.refresh();
 				}
 			}
 		},
@@ -1562,6 +1563,7 @@
 
 				this.node('day', c).removeClass('active');
 				this.node('table', this.calendar).attr('aria-activedescendant', d.attr('id'));
+				this.uidate = this.std(d.data('value'), 'yyyy-mm-dd');
 
 				d.addClass('active');
 
@@ -1602,7 +1604,7 @@
 
 			this.activate(day);
 
-			if (this.setDate(dat) && !silent) {
+			if (this.setDate(dat) && silent !== true) {
 				this.emit('change');
 				this.hide(true);
 			}

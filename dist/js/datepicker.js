@@ -15,6 +15,43 @@
 	<file:scss>
 		<src>dist/scss/datepicker.scss</src>
 	</file:scss>
+
+	<event:change>
+		<desc>Fires when datepicker value changes.</desc>
+		<example>
+			instance.on('change', function () {
+				console.info('formated value:', this.value);
+				console.info('raw date:', this.date);
+			});
+		</example>
+	</event:change>
+
+	<event:activate>
+		<desc>Fires when datepicker calendar date is "active".</desc>
+		<example>
+			instance.on('activate', function (el) {
+				console.info('activated item is:', el);
+			});
+		</example>
+	</event:activate>
+
+	<event:show>
+		<desc>Fires when datepicker calendar goes from hidden to visible.</desc>
+		<example>
+			instance.on('show', function (el) {
+				console.infO('calendar is shown')
+			});
+		</example>
+	</event:show>
+
+	<event:hide>
+		<desc>Fires when datepicker calendar goes from visible to hidden.</desc>
+		<example>
+			instance.on('hide', function (el) {
+				console.infO('calendar is hidden')
+			});
+		</example>
+	</event:hide>
 */
 (function (root, factory) {
 
@@ -753,7 +790,7 @@
 				}
 			})
 			.on('blur.mk', true, function (e) {
-				thiss._blur(e.relatedTarget);
+				thiss._blur(e.relatedTarget || document.activeElement);
 			})
 			.on('keydown.mk', true, function (e) {
 				thiss._keydownCalendar(e, calendarFocused);
@@ -870,9 +907,10 @@
 					sd(date, dy);
 				}
 
-				if (this.valid(date)
-					&& this.setDate(date, parseInt(parent.data('index'), 10))) {
-					this.emit('change');
+				if (this.valid(date)) {
+					this.select(date, false);
+					this.uidate = date;
+					this.refresh();
 				}
 			}
 		},
@@ -1525,6 +1563,7 @@
 
 				this.node('day', c).removeClass('active');
 				this.node('table', this.calendar).attr('aria-activedescendant', d.attr('id'));
+				this.uidate = this.std(d.data('value'), 'yyyy-mm-dd');
 
 				d.addClass('active');
 
@@ -1565,7 +1604,7 @@
 
 			this.activate(day);
 
-			if (this.setDate(dat) && !silent) {
+			if (this.setDate(dat) && silent !== true) {
 				this.emit('change');
 				this.hide(true);
 			}
@@ -1916,11 +1955,12 @@
 
 			if (this.enabled) {
 
-				//this.each(this.input, function (el) {
-					//el.prop('disabled', true);
-					//el.addClass('disabled');
-				//});
+				this.each(this.node('input', this.shadow), function (input) {
+					this.node('entry', input).prop('disabled', true);
+				});
+
 				this.calendar.addClass('disabled');
+				this.input(0).prop('disabled', true);
 			}
 			return this;
 		},
@@ -1936,11 +1976,12 @@
 
 			if (this.disabled) {
 
-				//this.each(this.input, function (el) {
-					//el.prop('disabled', false);
-					//el.removeClass('disabled');
-				//});
+				this.each(this.node('input', this.shadow), function (input) {
+					this.node('entry', input).prop('disabled', false);
+				});
+
 				this.calendar.removeClass('disabled');
+				this.input(0).prop('disabled', false);
 			}
 			return this;
 		},
@@ -2119,8 +2160,15 @@
 
 			this.configure(this.config);
 			this.refresh();
-
 			this._updateEntries();
+
+			if (this.disabled) {
+				this.disable();
+			} else {
+				this.enable();
+			}
+
+			return this;
 		}
 	});
 
