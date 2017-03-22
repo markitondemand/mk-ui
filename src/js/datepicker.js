@@ -1953,11 +1953,12 @@
 
 			if (this.enabled) {
 
-				//this.each(this.input, function (el) {
-					//el.prop('disabled', true);
-					//el.addClass('disabled');
-				//});
+				this.each(this.node('input', this.shadow), function (input) {
+					this.node('entry', input).prop('disabled', true);
+				});
+
 				this.calendar.addClass('disabled');
+				this.input(0).prop('disabled', true);
 			}
 			return this;
 		},
@@ -1973,11 +1974,12 @@
 
 			if (this.disabled) {
 
-				//this.each(this.input, function (el) {
-					//el.prop('disabled', false);
-					//el.removeClass('disabled');
-				//});
+				this.each(this.node('input', this.shadow), function (input) {
+					this.node('entry', input).prop('disabled', false);
+				});
+
 				this.calendar.removeClass('disabled');
+				this.input(0).prop('disabled', false);
 			}
 			return this;
 		},
@@ -2156,8 +2158,15 @@
 
 			this.configure(this.config);
 			this.refresh();
-
 			this._updateEntries();
+
+			if (this.disabled) {
+				this.disable();
+			} else {
+				this.enable();
+			}
+
+			return this;
 		}
 	});
 
