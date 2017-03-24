@@ -1040,7 +1040,7 @@
 		},
 
 		_updateEntries: function () {
-
+console.info('updating')
 			var inputs = this.node('input', this.shadow),
 				dates = [this.date],
 				me = this,
@@ -1599,6 +1599,7 @@
 				day = this.days.filter('[data-value="' + str + '"]');
 
 			if (this.isUnavailable(dat)) {
+				this._updateEntries();
 				return;
 			}
 
