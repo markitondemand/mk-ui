@@ -1589,13 +1589,23 @@
 
 		update: function () {
 
-			this.configure(this.config, true);
-			this.super();
+			var config = {},
+				c;
 
-			this.input.attr('placeholder',
-				this.rootinput.attr('placeholder'));
+			this.configure(config, true);
 
-			this.updateTagroot();
+			for (c in config) {
+				if (config[c] !== null && config[c] !== undefined) {
+					this.config[c] = config[c];
+				}
+			}
+
+			this.shadow.remove();
+			this.build();
+			this.bind();
+			this.mount();
+
+			return this;
 		}
     });
 
