@@ -281,13 +281,14 @@ html
 
 			var inputs = Mk.$('.mk-ac-root'),
 				Autocomplete = Mk.get('Autocomplete'),
+				remoteAutocomplete,
 				autocomplete;
 
 			inputs.each(function (el) {
 
 				if (el.id && el.id === 'remote') {
 
-					autocomplete = new Autocomplete(el, {
+					remoteAutocomplete = new Autocomplete(el, {
 						chars: 1,
 						events: {
 							'create.tag': function (obj) {

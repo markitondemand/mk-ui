@@ -52,6 +52,15 @@
 			});
 		</example>
 	</event:hide>
+
+	<event:update>
+		<desc>Fired when updates are made to the rendered UI through the use of update().</desc>
+		<example>
+			instance.on('update', function () {
+				console.info('Changes to the native select have been applied to the UI.');
+			});
+		</example>
+	</event:update>
 */
 (function (root, factory) {
 
@@ -2171,6 +2180,7 @@
 
 			this.shadow.remove();
 
+			this.configure(this.config);
 			this.build();
 			this.bind();
 			this.mount();
