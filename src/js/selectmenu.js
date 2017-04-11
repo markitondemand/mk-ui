@@ -1387,11 +1387,32 @@
 			<method:update>
 				<invoke>.update()</invoke>
 				<desc>Make changes to your native (root) select element, then call this method to apply changes to the selectmenu UI.</desc>
+				<param:config>
+					<type>Object</type>
+					<desc>Configuration object used to rewrite current properties..</desc>
+				</param:config>
 			</method:update>
 		*/
 
-		update: function () {
+		update: function (config) {
 
+			config = config || {};
+
+			for (var c in config) {
+				this.config[c] = config[c];
+			}
+
+			this.rootelement.off('change.mk');
+			this.shadow.remove();
+
+			this.build();
+			this.bind();
+			this.mount();
+
+			this.emit('update');
+
+			return this;
+			/*
 			var d = this.data(),
 				m = d.disabled && 'disable' || 'enable',
 				i = this.input,
@@ -1418,6 +1439,7 @@
 			this.emit('update');
 
 			return this;
+			*/
 		},
 	});
 

@@ -1040,7 +1040,7 @@
 		},
 
 		_updateEntries: function () {
-console.info('updating')
+
 			var inputs = this.node('input', this.shadow),
 				dates = [this.date],
 				me = this,
@@ -2154,20 +2154,28 @@ console.info('updating')
 			<method:update>
 				<invoke>.update()</invoke>
 				<desc>Make changes to the native date inputs and/or config settings and call this method for changes to reflect on the UI.</desc>
+				<param:config>
+					<type>Object</type>
+					<desc>Configuration object used to rewrite current properties..</desc>
+				</param:config>
 			</method:update>
 		*/
 
-		update: function () {
+		update: function (config) {
 
-			this.configure(this.config);
-			this.refresh();
-			this._updateEntries();
+			config = config || {};
 
-			if (this.disabled) {
-				this.disable();
-			} else {
-				this.enable();
+			for (var c in config) {
+				this.config[c] = config[c];
 			}
+
+			this.shadow.remove();
+
+			this.build();
+			this.bind();
+			this.mount();
+
+			this.emit('update');
 
 			return this;
 		}

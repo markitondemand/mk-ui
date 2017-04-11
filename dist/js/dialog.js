@@ -82,8 +82,8 @@
 })(typeof window !== "undefined" && window || this, function (root, mk, Tooltip) {
 
 	if (typeof Tooltip === 'undefined') {
-        throw new Error('Mk.Dialog: Tooltip base class not found.');
-    }
+		throw new Error('Mk.Dialog: Tooltip base class not found.');
+	}
 
 	mk.create('Dialog', Tooltip, {
 
