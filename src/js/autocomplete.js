@@ -1,5 +1,3 @@
-f9372205d2b7e2b58840a3124bb87bebdc4fa3d0
-
 /*
 	<depedency:Core>
 		<src>dist/js/core.js</src>
