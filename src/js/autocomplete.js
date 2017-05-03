@@ -1189,6 +1189,7 @@
 					this.selections.forEach(function(item, index) {
 						if (set.value === item.value) {
 							set.selected = true;
+							return false;
 						}
 					});
 				}
