@@ -1183,13 +1183,15 @@
 				//item ids (templating)
 				set.id = this.uid();
 
-				//if this data set exists in our current selections,
-				// set the selected to true
-				this.selections.forEach(function(item, index) {
-					if (set.$value === this.flatten(item)) {
-						set.selected = true;
-					}
-				}, this);
+				if (set.value) {
+					//if this data set exists in our current selections,
+					// set the selected to true
+					this.selections.forEach(function(item, index) {
+						if (set.value === item.value) {
+							set.selected = true;
+						}
+					});
+				}
 
 				return set;
 			});
@@ -1214,7 +1216,7 @@
 
 			var data = this.unflatten(value);
 
-			if (this.exists(data.value)) {
+			if (this.limit > 1 && this.exists(data.value)) {
 
 				this.deselect(value);
 
