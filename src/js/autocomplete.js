@@ -1,3 +1,5 @@
+f9372205d2b7e2b58840a3124bb87bebdc4fa3d0
+
 /*
 	<depedency:Core>
 		<src>dist/js/core.js</src>
@@ -506,6 +508,7 @@
 			.param('comma', 'boolean', o, false, input)
 			.param('notags', 'boolean', o, false, input)
 			.param('chars', 'number', o, 1, input)
+			.param('persistopen', 'boolean', o, false, input)
 			.param('searchkeys', 'string', o, "value,label", input);
 
 			if (internal !== true) {
@@ -1182,6 +1185,14 @@
 				//item ids (templating)
 				set.id = this.uid();
 
+				//if this data set exists in our current selections,
+				// set the selected to true
+				this.selections.forEach(function(item, index) {
+					if (set.$value === this.flatten(item)) {
+						set.selected = true;
+					}
+				}, this);
+
 				return set;
 			});
 		},
@@ -1205,7 +1216,15 @@
 
 			var data = this.unflatten(value);
 
-			if (!this.exists(data.value)) {
+			if (this.exists(data.value)) {
+
+				this.deselect(value);
+
+				if (!silent) {
+					this.emit('submit');
+				}
+			}
+			else {
 
 				if (this.limit < 2) {
 					this.deselectAll(true);
@@ -1224,7 +1243,12 @@
 					this.shadow.removeClass('capacity');
 					this.selections.push(data);
 					this.tag(data).updateRoot();
+					// set selected state on the list
+					this.listOptions.filter('[data-value="' + value + '"]')
+						.attr('aria-selected', 'true');
 					this.notify();
+
+					// el.attr('aria-selected', 'true');
 
 					if (this.limit < 2) {
 						this.input.val(data.label);
@@ -1234,10 +1258,9 @@
 						this.emit('change', data);
 					}
 				}
-				this.hide();
-			}
-			else if (!silent) {
-				this.emit('submit');
+				if (!this.config.persistopen){
+					this.hide();
+				}
 			}
 
 			return this;
@@ -1276,6 +1299,9 @@
 
 				this.notify();
 				this.tag(data, true).updateRoot();
+				// set selected state on the list
+				this.listOptions.filter('[data-value="' + value + '"]')
+					.attr('aria-selected', 'false');
 
 				if (!silent) {
 					this.emit('change', data);
