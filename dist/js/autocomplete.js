@@ -964,7 +964,7 @@
 		*/
 
 		flatten: function (value) {
-			return value && btoa(JSON.stringify(value)) || '';
+			return escape(value && JSON.stringify(value) || '');
 		},
 
 		/*
@@ -979,7 +979,7 @@
 		*/
 
 		unflatten: function (value) {
-			return value && JSON.parse(atob(value)) || {};
+			return value && JSON.parse(unescape(value)) || {};
 		},
 
 		/*
