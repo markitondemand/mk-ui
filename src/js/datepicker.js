@@ -1249,6 +1249,7 @@
 			date = date || this.date;
 
 			var d = typeof date === 'string' ? this.std(date) : date,
+				f = this.formatmap,
 				r = false,
 				x, y, p, t;
 
@@ -1256,6 +1257,20 @@
 			t = d.getTime();
 
 			this.each(dates, function (_d) {
+
+				if (f.days.indexOf(_d) > -1) {
+					if (date.getDay() === f.days.indexOf(_d)) {
+						r = true;
+						return false;
+					}
+				}
+
+				if(f.months.indexOf(_d) > -1) {
+					if (date.getMonth() === f.months.indexOf(_d)) {
+						r = true;
+						return false;
+					}
+				}
 
 				p = typeof _d === 'string' ? _d.split('/') : [_d];
 
