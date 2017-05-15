@@ -1282,7 +1282,12 @@
 				multiple = this.multiple;
 
 			if (typeof el.option === 'undefined') {
-				return this.selectGroup(value, silent);
+
+				if (/|||/.test(value)) {
+					return this.selectGroup(value, silent);
+				}
+
+				return false;
 			}
 
 			if (el.option.disabled) {
@@ -1321,27 +1326,32 @@
 		selectGroup: function (value, silent) {
 
 			var values = (value || '').split('|||');
-			var tally  = 0;
+			var shouldFireChange = false;
+			var tally = 0;
 
 			this.each(values, function (v) {
 
 				var elems = this.getElementsByValue(v);
 
-				if (!elems.option.selected) {
-					this.select(v, true);
-				}
-				else {
-					tally++;
+				if (elems && elems.option) {
+					if (!elems.option.selected) {
+						this.select(v, true);
+						shouldFireChange = true;
+					}
+					else {
+						tally++;
+					}
 				}
 			});
 
 			if (tally === values.length) {
 				this.each(values, function (v) {
 					this.deselect(v, true);
+					shouldFireChange = true;
 				});
 			}
 
-			if (!silent) {
+			if (shouldFireChange && !silent) {
 				this.emit('change', this.value);
 			}
 
