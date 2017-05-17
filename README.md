@@ -62,6 +62,23 @@ For compiling SCSS to CSS:
 gulp sass
 ```
 
+For compiling LESS to CSS (use for testing only. SCSS output is cleaner):
+
+```bash
+gulp less
+```
+
+For concating the Core files (Mk Core or Mk DOM). 
+Use when making changes to the Core or DOM and *BEFORE* minify.
+
+```bash
+# to build core
+gulp build-core
+
+#to build dom
+gulp build-dom
+```
+
 For creating both minified and unminified JavaScript files in the dist folder:
 
 ```bash
@@ -72,4 +89,13 @@ If you edit any documentation pages:
 
 ```bash
 gulp static-site
+```
+Publishing:
+Log in to the npmjs.org registry. 
+If you are on a Markit machine you need to log out of Artifactory and into npmjs.org first.
+Make sure the version number has been bumped in the package.json file or you will not be able to create a new package.
+```bash
+npm login
+# enter username and password at the prompt
+npm publish
 ```
