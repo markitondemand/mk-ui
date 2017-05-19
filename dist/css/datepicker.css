@@ -194,15 +194,13 @@
   left: 10px; }
   .mk-dp-control.prev-yr:before {
     content: "◀◀";
-    left: 0;
-    transform: rotate(180deg); }
+    left: 0; }
 
 .mk-dp-control.prev-mo {
   left: 40px; }
   .mk-dp-control.prev-mo:before {
     content: "◀";
-    left: 0;
-    transform: rotate(180deg); }
+    left: 0; }
 
 .mk-dp-control.next-yr {
   right: 10px; }
