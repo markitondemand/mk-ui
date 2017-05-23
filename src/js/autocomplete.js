@@ -507,7 +507,8 @@
 			.param('notags', 'boolean', o, false, input)
 			.param('chars', 'number', o, 1, input)
 			.param('persistopen', 'boolean', o, false, input)
-			.param('searchkeys', 'string', o, "value,label", input);
+			.param('searchkeys', 'string', o, "value,label", input)
+			.param('nocache', 'boolean', o, false, input);
 
 			if (internal !== true) {
 				this.super(o);
@@ -1065,7 +1066,11 @@
 		*/
 
 		setCache: function (key, data) {
-			return this.cache[(key || '').toLowerCase()] = data;
+			if (this.config.nocache) {
+				return;
+			} else {
+				return this.cache[(key || '').toLowerCase()] = data;
+			}
 		},
 
 		/*
