@@ -541,7 +541,13 @@
 
 		build: function () {
 
+			// this.super = selectmenu.build();
 			this.super();
+
+			// disable submit button when we construct the instance
+			if (this.shadow && this.config.disableSubmitButton) {
+				this.shadow.find('button.mk-ac-submit').attr('disabled', true);
+			}
 
 			this.input.attr('placeholder',
 				this.rootelement.attr('placeholder'));
