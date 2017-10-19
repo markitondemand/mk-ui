@@ -295,7 +295,7 @@
 
 		_blur: function (tip, e, keyboard) {
 
-			var t = this.$(e.relatedTarget);
+			var t = this.$(e.relatedTarget || document.activeElement);
 
 			if (t.parent(this.selector('modal')).length) {
 				this._bindModalBlur(tip);
@@ -313,7 +313,7 @@
 
 			modal.on('blur.mk', true, function (e) {
 
-				var t = e.relatedTarget;
+				var t = e.relatedTarget || document.activeElement;
 
 				if (!t || thiss.$(t).parent(modal).length < 1) {
 
