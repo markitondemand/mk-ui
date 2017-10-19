@@ -232,7 +232,7 @@
 
 			modal.on('blur.mk', true, function (e) {
 
-				var t = e.relatedTarget;
+				var t = e.relatedTarget || document.activeElement;
 
 				if (!t || thiss.$(t).parent(modal).length < 1) {
 
