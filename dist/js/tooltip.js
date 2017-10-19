@@ -103,89 +103,144 @@
 
 		map: {
 
-			'left-center': function (mo, to) {
+			'left-center': function (mo, to, offset) {
+				var leftOffset = offset && offset.left || 0;
+				var topOffset = offset && offset.top || 0;
 				return {
-					left: to.left - mo.width - mo.box.left - mo.box.right,
-					top: (to.top + (to.height / 2)) - (mo.height / 2) - mo.box.top
+					left: to.left - mo.width - mo.box.left - mo.box.right + leftOffset,
+					top: (to.top + (to.height / 2)) - (mo.height / 2) - mo.box.top + topOffset
 				};
 			},
 
-			'left-top': function (mo, to) {
+			'left-top': function (mo, to, offset) {
+				var leftOffset = offset && offset.left || 0;
+				var topOffset = offset && offset.top || 0;
 				return {
-					left: to.left - mo.width - mo.box.left - mo.box.right,
-					top: to.top - mo.box.top
+					left: to.left - mo.width - mo.box.left - mo.box.right + leftOffset,
+					top: to.top - mo.box.top + topOffset
 				};
 			},
 
-			'left-bottom': function (mo, to) {
+			'left-bottom': function (mo, to, offset) {
+				var leftOffset = offset && offset.left || 0;
+				var topOffset = offset && offset.top || 0;
 				return {
-					left: to.left - mo.width - mo.box.left - mo.box.right,
-					top: to.top + to.height - mo.height - mo.box.top
+					left: to.left - mo.width - mo.box.left - mo.box.right + leftOffset,
+					top: to.top + to.height - mo.height - mo.box.top + topOffset
 				};
 			},
 
-			'right-center': function (mo, to) {
+			'right-center': function (mo, to, offset) {
+				var leftOffset = offset && offset.left || 0;
+				var topOffset = offset && offset.top || 0;
 				return {
-					left: to.left + to.width,
-					top: (to.top + (to.height / 2)) - (mo.height / 2) - mo.box.top
+					left: to.left + to.width + leftOffset,
+					top: (to.top + (to.height / 2)) - (mo.height / 2) - mo.box.top + topOffset
 				};
 			},
 
-			'right-top': function (mo, to) {
+			'right-top': function (mo, to, offset) {
+				var leftOffset = offset && offset.left || 0;
+				var topOffset = offset && offset.top || 0;
 				return {
-					left: to.left + to.width,
-					top: to.top - mo.box.top
+					left: to.left + to.width + leftOffset,
+					top: to.top - mo.box.top + topOffset
 				};
 			},
 
-			'right-bottom': function (mo, to) {
+			'right-bottom': function (mo, to, offset) {
+				var leftOffset = offset && offset.left || 0;
+				var topOffset = offset && offset.top || 0;
 				return {
-					left: to.left + to.width,
-					top: to.top + to.height - mo.height - mo.box.top
+					left: to.left + to.width + leftOffset,
+					top: to.top + to.height - mo.height - mo.box.top + topOffset
 				};
 			},
 
-			'top-left': function (mo, to) {
+			'top-left': function (mo, to, offset) {
+				var leftOffset = offset && offset.left || 0;
+				var topOffset = offset && offset.top || 0;
 				return {
-					left: to.left - mo.box.left,
-					top: to.top - mo.height - (mo.box.bottom + mo.box.top)
+					left: to.left - mo.box.left + leftOffset,
+					top: to.top - mo.height - (mo.box.bottom + mo.box.top) + topOffset
 				};
 			},
 
-			'top-center': function (mo, to) {
+			'top-center': function (mo, to, offset) {
+				var leftOffset = offset && offset.left || 0;
+				var topOffset = offset && offset.top || 0;
 				return {
-					left: (to.left + (to.width / 2)) - (mo.width / 2) - mo.box.left,
-					top: to.top - mo.height - (mo.box.bottom + mo.box.top)
+					left: (to.left + (to.width / 2)) - (mo.width / 2) - mo.box.left + leftOffset,
+					top: to.top - mo.height - (mo.box.bottom + mo.box.top) + topOffset
 				};
 			},
 
-			'top-right': function (mo, to) {
+			'top-right': function (mo, to, offset) {
+				var leftOffset = offset && offset.left || 0;
+				var topOffset = offset && offset.top || 0;
 				return {
-					left: to.left + to.width - mo.width - mo.box.right,
-					top: to.top - mo.height - (mo.box.bottom + mo.box.top)
+					left: to.left + to.width - mo.width - mo.box.right + leftOffset,
+					top: to.top - mo.height - (mo.box.bottom + mo.box.top) + topOffset
 				};
 			},
 
-			'bottom-left': function (mo, to) {
+			'bottom-left': function (mo, to, offset) {
+				var leftOffset = offset && offset.left || 0;
+				var topOffset = offset && offset.top || 0;
 				return {
-					left: to.left - mo.box.left,
-					top: to.top + to.height
+					left: to.left - mo.box.left + leftOffset,
+					top: to.top + to.height + topOffset
 				};
 			},
 
-			'bottom-center': function (mo, to) {
+			'bottom-center': function (mo, to, offset) {
+				var leftOffset = offset && offset.left || 0;
+				var topOffset = offset && offset.top || 0;
 				return {
-					left: (to.left + (to.width / 2)) - (mo.width / 2) - mo.box.left,
-					top: to.top + to.height
+					left: (to.left + (to.width / 2)) - (mo.width / 2) - mo.box.left + leftOffset,
+					top: to.top + to.height + topOffset
 				};
 			},
 
-			'bottom-right': function (mo, to) {
+			'bottom-right': function (mo, to, offset) {
+				var leftOffset = offset && offset.left || 0;
+				var topOffset = offset && offset.top || 0;
 				return {
-					left: to.left + to.width - mo.width - mo.box.right,
-					top: to.top + to.height
+					left: to.left + to.width - mo.width - mo.box.right + leftOffset,
+					top: to.top + to.height + topOffset
 				};
 			}
+		},
+
+		//
+		// used to get left and/or top offset when you want position
+		// arrow onto the center of your trigger element
+		//
+		getArrowOffset: function(mo, to, key) {
+			var arrowOffset = { left: 0, top: 0};
+			if (this.config.useArrowCenter) {
+				switch (key) {
+					case 'top-left':
+					case 'bottom-left':
+						arrowOffset.left = -this.config.arrowOffsets.horz + (to.width / 2) ;
+						break;
+					case 'top-right':
+					case 'bottom-right':
+						arrowOffset.left = this.config.arrowOffsets.horz - (to.width / 2)
+						break;
+					case 'right-top':
+					case 'left-top':
+						arrowOffset.top = -this.config.arrowOffsets.vert + (to.height / 2);
+						break;
+					case 'right-bottom':
+					case 'left-bottom':
+						arrowOffset.top = this.config.arrowOffsets.vert - (to.height / 2)
+						break;
+					default:
+						// No arrowOffset
+				}
+			}
+			return arrowOffset;
 		},
 
 		get version () {
@@ -207,6 +262,13 @@
 			o = o || {};
 			o.position = o.position || 'top-center';
 			o.delay = parseInt(o.delay || '200', 10) || 200;
+
+			// config to center arrow on your trigger element
+			// MUST pass in the arrow offsets
+			o.useArrowCenter = o.useArrowCenter || false;
+			o.arrowOffsets = o.arrowOffsets || { };
+			o.arrowOffsets.horz = o.arrowOffsets.horz || 0;
+			o.arrowOffsets.vert = o.arrowOffsets.vert || 0;
 
 			return this.super(o);
 		},
@@ -377,34 +439,69 @@
 		//
 		// if relative parents are not the same
 		// then the tooltip and tip do not share a common parent of measurement,
-		// so we must go out and find the parents to calculate the offsets.
+		// so we must go out and find the parents to calculate the trigger's adjusted offsets.
 		//
 		_adjust: function (mo, to) {
 
 			if (!to.ajusted && mo.parent !== to.parent) {
 
-				var o = this._relative(to, to.left, to.top);
+				var moParentOffset = this.offset(mo.parent, true);
+				var toParentOffset = this.offset(to.parent, true);
 
-				to.left = o.left;
-				to.top = o.top;
+				to.top = toParentOffset.top - moParentOffset.top + to.top;
+				to.left = toParentOffset.left - moParentOffset.left + to.left;
 
 				to.ajusted = true;
 			}
 		},
+
+		//
+		// These cycles are used to attempt multiple positions to determine the best fit
+		//
+		_cycles: {
+			topBottom: ['top-center', 'bottom-center', 'top-left', 'bottom-left', 'top-right', 'bottom-right'],
+			rightLeft: ['right-center', 'left-center', 'right-top', 'left-top', 'right-bottom', 'left-bottom']
+		},
+
 		//
 		// Ths bulk of the positioning is done here. We'll grab the map entry,
 		// run the offset/adjust calculation methods, and check positions against
 		// what the map methods wants to set the modal as. We'll attempt up to 5 different
 		// positions if for some reason the modal cannot fit in the position initially requested.
 		//
-		_position: function (key, mo, to, frame, attempt) {
+
+		_position: function (key, mo, to, frame, recurseData) {
 
 			key = key.toLowerCase();
-			attempt = attempt || 0;
 
-			// only try to smart position 5 times
+			// Initialize recurseData which will be used when finding best fit position
+			if (!recurseData) {
+				var favorTopBottom = /^top-/i.test(key) || /^bottom-/i.test(key);
+				var favorLeftRight = /^left-/i.test(key) || /^right-/i.test(key);
+
+				recurseData = {
+					bestFit: {
+						lowest: 9000,
+						coords: null
+					},
+					count: 0,
+					origKey: key,
+					items: {},
+					favorTopBottom: favorTopBottom,
+					favorLeftRight: favorLeftRight,
+					cycle: favorLeftRight
+						? this._cycles.leftRight
+						: this._cycles.topBottom
+				};
+
+				var cycleIndex = recurseData.cycle.indexOf(key);
+				recurseData.cycleIndex = cycleIndex >= 0 ? cycleIndex : 0;
+			}
+
+			// only try to smart position max 6 times
 			// before commitment to the final coords.
-			if (attempt < 5) {
+			var stopCount = Math.min(recurseData.cycle.length, 6);
+			if (recurseData.count < stopCount) {
 
 				// get the map function
 				var fn = this.config.map.hasOwnProperty(key)
@@ -415,53 +512,76 @@
 					// tooltip and tip do not live in the same relative parent.
 					this._adjust(mo, to);
 
-					var coords = fn(mo, to),
+					var arrowOffset = this.getArrowOffset(mo, to, key);
+
+					var coords = fn(mo, to, arrowOffset),
 						left = coords.left,
 						top  = coords.top,
+						width = mo.width,
+						height = mo.height,
 						rp;
 
 					coords.key = key;
+
+					// this is used to track the amount of pixels past sides of the viewport
+					// which is used in the calculation to determine bestfit
+					var amountOver;
 
 					// if we're dealing with elements positioned in a
 					// relative, absolute, or fixed container we have a little extra work to do.
 					if (to.parent && mo.parent === to.parent) {
 
-						rp = this._relative(to, left, 0);
+						rp = this._relative(mo, left, top);
 
-						left = rp.left;
-						top = rp.top + to.top - mo.height;
-					}
-
-					// basically if left < 0
-					// but could be a negative value in x-scrollbar situations
-					if (left < frame.left) {
-						key = /^left/i.test(key) && key.replace(/left/, 'right')
-							|| key.replace(/center/, 'left');
-					}
-					// if left is greater than our entire stage of real estate
-					// we want to position right-based instead
-					else if (left > frame.width) {
-						key = /^right/.test(key) && key.replace(/right/, 'left')
-							|| key.replace(/center/, 'right');
-					}
-					// if the top is going to be cutoff,
-					// we want to try positioning on the bottom
-					if (top < frame.top) {
-						key = key.replace(/top/, 'bottom');
-					}
-					// reverse of top. If positioning bottom cuts off the modal,
-					// we want to try positioning at the top.
-					else if (top > frame.height) {
-						key = key.replace(/bottom/, 'top');
+						amountOver = {
+							top: Math.max(frame.top - rp.top, 0),
+							left: Math.max(frame.left - rp.left, 0),
+							right: Math.max((rp.left + width) - frame.width, 0),
+							bottom: Math.max((rp.top + height) - frame.height, 0),
+						};
+					} else {
+						amountOver = {
+							top: Math.max(frame.top - top, 0),
+							left: Math.max(frame.left - left, 0),
+							right: Math.max((left + width) - frame.width, 0),
+							bottom: Math.max((top + height) - frame.height, 0),
+						};
 					}
 
-					if (key !== coords.key) {
-						return this._position(key, mo, to, frame, ++attempt);
+					recurseData.items[key] = {
+						amountOver: amountOver,
+						coords: coords
+					};
+					recurseData.count++;
+
+					// Determine bestFit score based on the amount the tooltip goes out of the viewport
+					var aoTotal = amountOver.top +  amountOver.right + amountOver.bottom;
+					if (amountOver.left <= 0 && aoTotal < recurseData.bestFit.lowest) {
+						recurseData.bestFit.lowest = aoTotal;
+						recurseData.bestFit.coords = coords;
+					} else if (!recurseData.bestFit.coords) {
+						// Set a fallback as the bestFit but add a large
+						// value for lowest to account for left side collision
+						recurseData.bestFit.lowest = aoTotal + amountOver.left + 5000;
+						// adjust left position so it isn't cut off on left side
+						recurseData.bestFit.coords = coords;
+						recurseData.bestFit.coords.left += amountOver.left;
+					}
+
+					// attempt another position if bestfit been found (hasn't gotten to 0)
+					if (recurseData.bestFit.lowest > 0) {
+						var nextIndex = ++recurseData.cycleIndex % recurseData.cycle.length;
+						key = recurseData.cycle[nextIndex];
+						return this._position(key, mo, to, frame, recurseData);
 					}
 					return coords;
 				}
 			}
-			return null;
+
+			// If nothing fits just fallback to original key as was done before
+			// NOTE: We should add better fallback for collision detection or at least option
+			//   to use dynamic position with custom arrow element (instead of :before styling)
+			return recurseData.bestFit.coords;
 		},
 
 		/*
@@ -587,7 +707,7 @@
 		},
 		//
 		// get boxmodel values directly from css
-		// adds margin and borders together for accurate measurements
+		// Changed to just margin since offsetWidth/offsetHeight includes border
 		//
 		box: function (node) {
 
@@ -599,19 +719,19 @@
 
 				this.each(box, function (v, n) {
 					box[n] =
-						parseFloat(css.getPropertyValue('margin-' + n), 10) +
-						parseFloat(css.getPropertyValue('border-' + n + '-width'), 10)
+						parseFloat(css.getPropertyValue('margin-' + n), 10)// +
+						//parseFloat(css.getPropertyValue('border-' + n + '-width'), 10)
 				});
 			}
 
 			return box;
 		},
 		//
-		// get all offset data for an element
-		// pulls top, left, height, width recursively.
+		// get all offset data for an element relative to closest positioned parent (unless body specified)
+		// goToBody = true, this will pulls offsets for top, left, height, width recursively up the dom tree
 		// also provides a parent and box properties
 		//
-		offset: function (n, box) {
+		offset: function (n, goToBody) {
 
 			var node = this.$(n)[0],
 				reg  = this.xrel,
@@ -620,40 +740,47 @@
 
 			if (node) {
 
+				var origNode = node;
+
+				obj.node   = node;
 				obj.left   = node.offsetLeft;
 				obj.top    = node.offsetTop;
 				obj.width  = node.offsetWidth;
 				obj.height = node.offsetHeight;
 
-				var scroll = node;
+				obj.parent = node.offsetParent;
 
-				while ((scroll = scroll.parentNode) && scroll.tagName !== 'BODY') {
+				while (node.offsetParent && goToBody) {
+					node = node.offsetParent
+					css = getComputedStyle(node);
+
+					// if a parent is relative, absolute, or fixed positioning
+					// add their left and top values to our offset measurements
+					if (reg.test(css.getPropertyValue('position')) === true) {
+						obj.left += node.offsetLeft;
+						obj.top  += node.offsetTop;
+					}
+					obj.parent = node;
+				}
+
+				var scroll = origNode.parentNode;
+
+				// Get offset based on all scrolling offsets for parent nodes
+				// NOTE: If we are not traversing up to body, stop at parent closest positioned parent node if goToBody
+				while (scroll && (scroll.tagName !== 'BODY' && scroll.tagName !== 'HTML') && (goToBody || scroll !== obj.parent)) {
 					if (scroll.scrollTop) {
 						obj.top -= scroll.scrollTop;
 					}
 					if (scroll.scrollLeft) {
 						obj.left -= scroll.scrollLeft;
 					}
-				}
-
-				while (node = node.offsetParent) {
-
-					css = getComputedStyle(node);
-
-					// if a parent is relative, absolute, or fixed positioning
-					// add their left and top values to our offset measurements
-					if (reg.test(css.getPropertyValue('position')) !== true) {
-						obj.left += node.offsetLeft;
-						obj.top  += node.offsetTop;
-					}
-					// else provide a relative parent to measure off of
-					else {
-						obj.parent = node;
-					}
+					scroll = scroll.parentNode;
 				}
 			}
+
 			return obj;
 		},
+
 		//
 		// get the dimentions of the frame we are working with
 		// The frame is our containing element with scroll (overflow).
@@ -693,6 +820,8 @@
 			return {node: null};
 		},
 
+
+
 		/*
 			<method:position>
 				<invoke>.position(tip, modal)</invoke>
@@ -715,7 +844,25 @@
 
 			if (p !== 'none') {
 
-				coords = this._position(p, this.offset(modal, true), this.offset(tip), this.frame(modal));
+				// Reset width/top/left to get the largest width that fits in current viewport
+				modal.css({
+					width: '',
+					left: '',
+					top: ''
+				});
+
+				var moOffset = this.offset(modal);
+				var toOffset = this.offset(tip);
+				var moframe = this.frame(modal);
+
+				// Set modal to the width that fits in positioned parent (or body)
+				if (this.config.useFixedWidth) {
+					modal.css({
+						width: moOffset.width + 1 // plus 1 due to weird FireFox behavior
+					});
+				}
+
+				coords = this._position(p, moOffset, toOffset, moframe);
 
 				if (coords) {
 
@@ -731,6 +878,15 @@
 						left: coords.left,
 						top: coords.top
 					});
+
+
+					var topAdjust = moOffset.node.offsetHeight - moOffset.height;
+
+					if (topAdjust !== 0 && /^top-/i.test(coords.key)) {
+						modal.css({
+							top: coords.top - topAdjust
+						});
+					}
 				}
 			}
 			return this;
