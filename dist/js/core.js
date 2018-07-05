@@ -1518,7 +1518,7 @@ Mk.fn.template = {
                 htm = tmp.get('highlight', tmp.markup);
                 //string escape patterns throw errors
 				//so we must replace the escape character with doubles.
-                str = str.replace(new RegExp('(' + hlt.replace(/\\/g, '\\\\') + ')', 'gi'), htm);
+                str = str.replace(new RegExp('(' + hlt.replace(/(?=[()])/g,"\\") + ')', 'gi'), htm);
             }
             return str;
         },
