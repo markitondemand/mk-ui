@@ -158,6 +158,20 @@ Mk.fn.template = {
             return '';
         },
 
+        'unless': function(name, key, templates, data, point) {
+
+            if (prop.call(data, point)) {
+
+                var dp = data[point];
+
+                if (dp !== undefined && dp === false) {
+                    return Mk.fn.template.parse(name, key, templates, data);
+
+                }
+            }
+            return '';
+        },
+
         'highlight': function (name, key, templates, data, point) {
 
             var tmp = Mk.fn.template,
