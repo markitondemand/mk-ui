@@ -32,7 +32,7 @@ Using an older version of Mk[ui]? Get access to the old repository [here](https:
 
 ### Install
 
-You can copy the files directly from this repo OR (recommended) you can install this project as a node module using npm. Using NPM is ideal for easy updates. It also *will not* give you the enire project. Doing an install gives you the JavaScript, Less, SCSS, and CSS assets for Mk-Ui only. So don't worry about the install being bulky, it aint.
+You can copy the files directly from this repo OR (recommended) you can install this project as a node module using npm. Using NPM is ideal for easy updates. It also *will not* give you the enitre project. Doing an install gives you the JavaScript, Less, SCSS, and CSS assets for Mk-Ui only. So don't worry about the install being bulky, it ain't.
 
 ```bash
 npm install mk-ui
@@ -47,7 +47,7 @@ git clone https://github.com/markitondemand/mk-ui.git mk-ui
 
 cd mk-ui
 
-npm install
+npm install !!!!NOTE THAT THIS REQUIRES AN OLDER VERSION OF NODE/NPM 6.10.0 WORKS!!!!
 
 node index.js
 ```
